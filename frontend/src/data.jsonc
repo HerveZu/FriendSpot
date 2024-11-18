@@ -1,0 +1,29 @@
+{
+  // GET /myspot
+  "myspot": {
+    "slotName": "123A",
+    "parking": {
+      "id": "ee54ba88-50ca-4439-8708-0fa4d5d35632",
+      "displayName": "Test parking",
+      "address": "Chemin de l'argent 123 - 1032 Lausane"
+    }
+  },
+  // POST /myspot
+  "post-myspot": {
+    "slotName": "123A",
+    "parkingid": "ee54ba88-50ca-4439-8708-0fa4d5d35632"
+  },
+  // GET /parkings
+  "parkings": [
+    {
+      "id": "ee54ba88-50ca-4439-8708-0fa4d5d35632",
+      "displayName": "Test parking",
+      "address": "Chemin de l'argent 123 - 1032 Lausane"
+    },
+    {
+      "id": "69ceaed0-cc2e-4047-9a16-d11ecec077cb",
+      "displayName": "Test parking 2",
+      "address": "Toulouse blabla.."
+    }
+  ]
+}
