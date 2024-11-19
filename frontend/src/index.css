@@ -1,42 +1,43 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-  font-family: Poppins, sans-serif;
+	font-family: Poppins, sans-serif;
 }
 
 @layer base {
-  :root {
-    --background: 227 50% 5%;
-    --foreground: 227 5% 90%;
-    --card: 227 50% 4%;
-    --card-foreground: 227 5% 90%;
-    --popover: 227 50% 5%;
-    --popover-foreground: 227 5% 90%;
-    --primary: 227 54% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 227 30% 10%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 189 30% 15%;
-    --muted-foreground: 227 5% 60%;
-    --accent: 189 30% 15%;
-    --accent-foreground: 227 5% 90%;
-    --destructive: 0 87% 30%;
-    --destructive-foreground: 227 5% 90%;
-    --border: 227 30% 18%;
-    --input: 227 30% 18%;
-    --ring: 227 54% 55%;
-    --radius: 1rem;
-  }
+	:root {
+		--background: 227 50% 5%;
+		--foreground: 227 5% 90%;
+		--card: 227 50% 4%;
+		--card-foreground: 227 5% 90%;
+		--popover: 227 50% 5%;
+		--popover-foreground: 227 5% 90%;
+		--primary: 227 54% 55%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 227 30% 10%;
+		--secondary-foreground: 0 0% 100%;
+		--muted: 189 30% 15%;
+		--muted-foreground: 227 5% 60%;
+		--accent: 189 30% 15%;
+		--accent-foreground: 227 5% 90%;
+		--destructive: 0 87% 30%;
+		--destructive-foreground: 227 5% 90%;
+		--border: 227 30% 18%;
+		--input: 227 30% 18%;
+		--ring: 227 54% 55%;
+		--radius: 1rem;
+	}
 }
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+	}
 }
