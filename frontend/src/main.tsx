@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { RootLayoutPage } from './pages/root-layout-page.tsx';
 import { MySpotPage } from './pages/my-spot-page.tsx';
 import './index.css';
+import { LandingPage } from './pages/landing-page.tsx';
 
 const router = createBrowserRouter(
 	[
@@ -12,7 +13,8 @@ const router = createBrowserRouter(
 			element: <RootLayoutPage />,
 			children: [
 				{
-
+					path: '/',
+					element: <LandingPage/>
 				},
 				{
 					path: '/myspot',
