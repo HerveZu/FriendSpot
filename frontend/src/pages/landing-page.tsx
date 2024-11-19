@@ -11,7 +11,7 @@ export function LandingPage() {
                 <Button variant={"outline"} className="text-blue-400 h-14">Prêter ma place</Button>
             </div>
             <div className="flex flex-col gap-3 mt-5">
-                <h2>Mes Réservation</h2>
+                <h2>Mes Réservations</h2>
                 <div className="flex flex-col gap-1 border min-h-[50px] rounded-lg px-2.5 py-2">
                     <p className="text-base">Place no 123A</p>
                     <p className="text-xs">Jusqu'au 16 novembre à 20h</p>
