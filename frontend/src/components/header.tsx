@@ -18,17 +18,15 @@ export function Header() {
       <div className="flex items-center gap-3">
         <p>32 crédits</p>
         <Separator orientation="vertical" className="w-[2px] h-[25px]" />
-        <Button variant={"outline"}>
-          <DropdownMenu>
-            <DropdownMenuTrigger>Jimmy</DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <Link to={"/myspot"}>
-                <DropdownMenuItem>Mon Spot</DropdownMenuItem>
-              </Link>
-              <DropdownMenuItem>Se déconnecter</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><Button variant={"outline"}>Jimmy</Button></DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <Link to={"/myspot"}>
+              <DropdownMenuItem>Mon Spot</DropdownMenuItem>
+            </Link>
+            <DropdownMenuItem>Se déconnecter</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
