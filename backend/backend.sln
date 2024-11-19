@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{750991AD-1F94-413B-8CB0-E46EE6312A74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{22E82CBC-C270-429E-BC3C-3268D4360E24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{7A5EFF02-02E5-46BF-B655-1BBA7F12A1DB}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{750991AD-1F94-413B-8CB0-E46EE6312A74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{750991AD-1F94-413B-8CB0-E46EE6312A74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{750991AD-1F94-413B-8CB0-E46EE6312A74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{750991AD-1F94-413B-8CB0-E46EE6312A74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22E82CBC-C270-429E-BC3C-3268D4360E24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22E82CBC-C270-429E-BC3C-3268D4360E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22E82CBC-C270-429E-BC3C-3268D4360E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22E82CBC-C270-429E-BC3C-3268D4360E24}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
