@@ -8,8 +8,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-const string appSettingsPath = "Properties/appsettings.json";
-
 // other environments should not contain .env files
 if (builder.Environment.IsDevelopment())
 {
@@ -18,7 +16,6 @@ if (builder.Environment.IsDevelopment())
 
 builder.Configuration
     .AddEnvironmentVariables()
-    .AddJsonFile(appSettingsPath)
     .Build();
 
 builder.Services
@@ -35,10 +32,6 @@ builder.Host
         (_, _, loggerConfiguration) =>
         {
             loggerConfiguration
-                .ReadFrom.Configuration(
-                    new ConfigurationBuilder()
-                        .AddJsonFile(appSettingsPath)
-                        .Build())
                 .Enrich.FromLogContext()
                 .WriteTo.Console();
         }
