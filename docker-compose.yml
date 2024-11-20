@@ -8,8 +8,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: app
-    ports:
-      - "5032:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -36,7 +34,7 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     ports:
-      - "3000:80"
+      - "8080:80"
     networks:
       - app-network
 
