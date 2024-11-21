@@ -2,19 +2,22 @@
 
 GET {{Api_HostAddress}}/parking?search=
 Accept: application/json
+Authorization: Bearer {{$auth.token("auth0")}}
 
 ###
 
 GET {{Api_HostAddress}}/@me/spot
 Accept: application/json
+Authorization: Bearer {{$auth.token("auth0")}}
 
 ###
 
-POST {{Api_HostAddress}}/@me/spot
+PUT {{Api_HostAddress}}/@me/spot
 Accept: application/json
 Content-Type: application/json
+Authorization: Bearer {{$auth.token("auth0")}}
 
 {
-  "parkingId": "b0c97c6b-028d-4c85-b713-826fa2aa0851",
-  "lotName": "36bazF"
+  "parkingId": "41fbf549-1ee9-4445-b138-5efc97079cad",
+  "lotName": "abc"
 }

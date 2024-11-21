@@ -20,7 +20,6 @@ internal sealed class GetAvailableParking(AppDbContext dbContext) : Endpoint<Get
     public override void Configure()
     {
         Get("/parking");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(GetAvailableParkingRequest req, CancellationToken ct)

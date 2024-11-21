@@ -1,4 +1,6 @@
+using Api.Common;
 using Api.Common.Infrastructure;
+using Api.MySpot.Contracts;
 using Domain;
 using FastEndpoints;
 using FluentValidation;
@@ -22,12 +24,12 @@ internal sealed class DefineMySpotValidator : Validator<DefineMySpotRequest>
     }
 }
 
-internal sealed class DefineMySpot(AppDbContext dbContext) : Endpoint<DefineMySpotRequest>
+internal sealed class DefineMySpot(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    : Endpoint<DefineMySpotRequest, MySpotResponse>
 {
     public override void Configure()
     {
-        Post("/@me/spot");
-        AllowAnonymous();
+        Put("/@me/spot");
     }
 
     public override async Task HandleAsync(DefineMySpotRequest req, CancellationToken ct)
@@ -45,14 +47,23 @@ internal sealed class DefineMySpot(AppDbContext dbContext) : Endpoint<DefineMySp
 
         if (parkingLot is null)
         {
-            parkingLot = ParkingLot.Define(req.ParkingId, req.LotName);
+            parkingLot = ParkingLot.Define(httpContextAccessor.ToUser(), req.ParkingId, req.LotName);
+            await dbContext.Set<ParkingLot>().AddAsync(parkingLot, ct);
         }
         else
         {
             parkingLot.ChangeSpotName(req.ParkingId, req.LotName);
+            dbContext.Set<ParkingLot>().Update(parkingLot);
         }
 
-        await dbContext.Set<ParkingLot>().AddAsync(parkingLot, ct);
         await dbContext.SaveChangesAsync(ct);
+
+        await SendOkAsync(
+            new MySpotResponse
+            {
+                LotName = parkingLot.SpotName,
+                Parking = parking.ToDto()
+            },
+            ct);
     }
 }

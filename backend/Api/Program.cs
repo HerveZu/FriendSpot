@@ -1,9 +1,12 @@
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Api;
 using Api.Common.Infrastructure;
 using Api.Common.Options;
 using DotNetEnv;
 using FastEndpoints;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +30,25 @@ builder.Services
     .AddCors()
     .ConfigureHttpJsonOptions(
         options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+
+builder.Services
+    .AddAuthorization()
+    .AddAuthentication(
+        options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+    .AddJwtBearer(
+        options =>
+        {
+            options.Authority = "https://friendspot-app.eu.auth0.com/";
+            options.Audience = "https://friendspot.me";
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                NameClaimType = ClaimTypes.NameIdentifier
+            };
+        });
 
 builder.Host
     .UseSerilog(
@@ -54,6 +76,8 @@ if (app.Environment.IsDevelopment())
 
 app
     .UseHttpsRedirection()
+    .UseAuthentication()
+    .UseAuthorization()
     .UseFastEndpoints();
 
 await app.RunAsync();
