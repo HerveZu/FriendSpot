@@ -4,6 +4,7 @@ services:
   postgres:
     image: postgres:17
     container_name: db
+    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -34,6 +35,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend
+    restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       POSTGRES__CONNECTION_STRING: Host=postgres;Database=app;Username=postgres;Password=postgres
@@ -49,6 +51,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
+    restart: always
     ports:
       - "8080:80"
     networks:
