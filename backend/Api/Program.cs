@@ -24,6 +24,7 @@ builder.Services
     .AddDbContext<AppDbContext>()
     .AddFastEndpoints()
     .AddOpenApi()
+    .AddCors()
     .ConfigureHttpJsonOptions(
         options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
@@ -47,6 +48,7 @@ using (var startupScope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors(options => options.AllowAnyOrigin());
     app.MapOpenApi();
 }
 
