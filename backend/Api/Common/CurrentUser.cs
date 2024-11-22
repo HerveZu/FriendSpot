@@ -6,10 +6,8 @@ internal sealed record CurrentUser(string Identity) : ICurrentUser;
 
 internal static class CurrentUserFactory
 {
-    public static CurrentUser ToUser(this IHttpContextAccessor httpContextAccessor)
+    public static CurrentUser ToUser(this HttpContext httpContext)
     {
-        var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("No http context");
-
         var userId = httpContext.User.Identity?.Name
                      ?? throw new InvalidOperationException("Claims principal's identity is null");
 

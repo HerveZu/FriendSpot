@@ -21,3 +21,21 @@ Authorization: Bearer {{$auth.token("auth0")}}
   "parkingId": "41fbf549-1ee9-4445-b138-5efc97079cad",
   "lotName": "abc"
 }
+
+###
+
+GET {{Api_HostAddress}}/@me/status
+Accept: application/json
+Authorization: Bearer {{$auth.token("auth0")}}
+
+###
+
+POST {{Api_HostAddress}}/@me/spot/availability
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("auth0")}}
+
+{
+  "from": "2024-11-26T18:00:00+01:00",
+  "to": "2024-11-26T20:00:00+01:00"
+}

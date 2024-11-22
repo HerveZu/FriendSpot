@@ -24,7 +24,7 @@ internal sealed class DefineMySpotValidator : Validator<DefineMySpotRequest>
     }
 }
 
-internal sealed class DefineMySpot(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+internal sealed class DefineMySpot(AppDbContext dbContext)
     : Endpoint<DefineMySpotRequest, MySpotResponse>
 {
     public override void Configure()
@@ -47,7 +47,7 @@ internal sealed class DefineMySpot(AppDbContext dbContext, IHttpContextAccessor 
 
         if (parkingLot is null)
         {
-            parkingLot = ParkingLot.Define(httpContextAccessor.ToUser(), req.ParkingId, req.LotName);
+            parkingLot = ParkingLot.Define(HttpContext.ToUser(), req.ParkingId, req.LotName);
             await dbContext.Set<ParkingLot>().AddAsync(parkingLot, ct);
         }
         else

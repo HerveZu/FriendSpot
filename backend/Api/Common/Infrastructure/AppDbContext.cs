@@ -2,6 +2,7 @@ using Api.Common.Options;
 using Api.Common.Reflexion;
 using Domain;
 using EntityFramework.Extensions.AddQueryFilter;
+using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -31,5 +32,21 @@ internal sealed class AppDbContext(
 
         modelBuilder.AddQueryFilterOnAllEntities<IUserResource>(
             entity => entity.UserIdentity == CurrentUserIdentity);
+
+        modelBuilder.UseUtcDateTimeConverter();
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new ())
+    {
+        var uncommittedEvents = ChangeTracker.Entries<IBroadcastEvents>()
+            .SelectMany(x => x.Entity.DomainEvents.UncommittedEvents);
+
+        // execute synchronously to avoid db context concurrency errors
+        foreach (var @event in uncommittedEvents)
+        {
+            await @event.PublishAsync(cancellation: cancellationToken);
+        }
+
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }
