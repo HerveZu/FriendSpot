@@ -1,3 +1,4 @@
+using Api.Common;
 using Api.Common.Infrastructure;
 using Domain;
 using FastEndpoints;
@@ -11,6 +12,7 @@ public sealed record ViewStatusResponse
 {
     public required SpotStatus? Spot { get; init; }
     public required WalletStatus Wallet { get; init; }
+    public required int AvailableSpots { get; init; }
 
     [PublicAPI]
     public sealed record WalletStatus
@@ -27,8 +29,8 @@ public sealed record ViewStatusResponse
         [PublicAPI]
         public sealed record Availability
         {
-            public required DateTime From { get; init; }
-            public required DateTime To { get; init; }
+            public required DateTimeOffset From { get; init; }
+            public required DateTimeOffset To { get; init; }
             public required TimeSpan Duration { get; init; }
         }
     }
@@ -43,6 +45,9 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
 
     public override async Task HandleAsync(CancellationToken ct)
     {
+        var currentUser = HttpContext.ToCurrentUser();
+        var now = DateTimeOffset.UtcNow;
+
         var spot = await dbContext.Set<ParkingLot>()
             .Select(
                 parkingLot => new ViewStatusResponse.SpotStatus
@@ -69,9 +74,26 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                     .Sum(transaction => transaction.EarnedCredits)
             }).FirstAsync(ct);
 
+        var availableSpotsCount = await (
+                from myParking in from parkingLot in dbContext.Set<ParkingLot>()
+                    where parkingLot.UserIdentity == currentUser.Identity
+                    join parking in dbContext.Set<Parking>() on parkingLot.ParkingId equals parking.Id
+                    select parking
+                join parkingLot in dbContext.Set<ParkingLot>() on myParking.Id equals parkingLot.ParkingId
+                where parkingLot.UserIdentity != currentUser.Identity
+                select new
+                {
+                    Count = (from availability in parkingLot.Availabilities
+                        where availability.From <= now && availability.To >= now
+                        select availability).Count()
+                })
+            .IgnoreQueryFilters()
+            .SumAsync(x => x.Count, ct);
+
         await SendOkAsync(
             new ViewStatusResponse
             {
+                AvailableSpots = availableSpotsCount,
                 Wallet = walletStatus,
                 Spot = spot
             },

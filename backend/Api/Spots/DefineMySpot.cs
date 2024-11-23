@@ -43,7 +43,7 @@ internal sealed class DefineMySpot(AppDbContext dbContext)
         }
 
         var parkingLot = await dbContext.Set<ParkingLot>()
-            .FirstOrDefaultAsync(cancellationToken: ct);
+            .FirstOrDefaultAsync(ct);
 
         if (parkingLot is null)
         {

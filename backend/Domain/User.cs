@@ -18,6 +18,11 @@ public sealed class User : IBroadcastEvents
 
     public string Identity { get; init; }
 
+    public IEnumerable<IDomainEvent> GetUncommittedEvents()
+    {
+        return _domainEvents.GetUncommittedEvents();
+    }
+
     public static User Register(string identity)
     {
         var user = new User(identity);
@@ -29,11 +34,6 @@ public sealed class User : IBroadcastEvents
             });
 
         return user;
-    }
-
-    public IEnumerable<IDomainEvent> GetUncommittedEvents()
-    {
-        return _domainEvents.GetUncommittedEvents();
     }
 }
 

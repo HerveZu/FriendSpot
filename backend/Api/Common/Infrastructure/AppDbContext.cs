@@ -34,10 +34,10 @@ internal sealed class AppDbContext(
         modelBuilder.AddQueryFilterOnAllEntities<IUserResource>(
             entity => entity.UserIdentity == CurrentUserIdentity);
 
-        modelBuilder.UseUtcDateTimeConverter();
+        modelBuilder.UseUtcDateTimeOffsetConverter();
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new ())
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
         var uncommittedEvents = ChangeTracker.Entries<IBroadcastEvents>()
             .ToArray() // prevent ef error

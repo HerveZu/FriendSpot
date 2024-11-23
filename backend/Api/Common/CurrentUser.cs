@@ -14,6 +14,6 @@ internal static class CurrentUserFactory
     public static CurrentUser ToCurrentUser(this HttpContext httpContext)
     {
         return httpContext.ToCurrentUserOrAnonymous()
-                     ?? throw new InvalidOperationException("Claims principal's identity is null");
+               ?? throw new InvalidOperationException("Claims principal's identity is null");
     }
 }

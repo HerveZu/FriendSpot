@@ -27,7 +27,7 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks:
-    - app-network
+      - app-network
 
   backend:
     build:

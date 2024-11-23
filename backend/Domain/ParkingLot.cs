@@ -21,19 +21,20 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
     }
 
     public Guid Id { get; init; }
-    public string UserIdentity { get; }
     public Guid ParkingId { get; private set; }
     public SpotName SpotName { get; private set; }
     public IReadOnlyList<ParkingSpotAvailability> Availabilities => _availabilities.AsReadOnly();
 
-    public static ParkingLot Define(string userIdentity, Guid parkingId, string spotName)
-    {
-        return new ParkingLot(Guid.CreateVersion7(), userIdentity, parkingId, new SpotName(spotName));
-    }
-
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
     {
         return _domainEvents.GetUncommittedEvents();
+    }
+
+    public string UserIdentity { get; }
+
+    public static ParkingLot Define(string userIdentity, Guid parkingId, string spotName)
+    {
+        return new ParkingLot(Guid.CreateVersion7(), userIdentity, parkingId, new SpotName(spotName));
     }
 
     public void ChangeSpotName(Guid parkingId, string newSpotName)
@@ -42,7 +43,7 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
         SpotName = new SpotName(newSpotName);
     }
 
-    public Credits MakeAvailable(DateTime from, DateTime to)
+    public Credits MakeAvailable(DateTimeOffset from, DateTimeOffset to)
     {
         var newAvailability = ParkingSpotAvailability.New(from, to);
         var overlappingAvailabilities = Availabilities
@@ -55,7 +56,7 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
             : TimeSpan.Zero;
 
         var mergedAvailability = overlappingAvailabilities
-            .Aggregate(newAvailability, (a, b) => a.Merge(b));
+            .Aggregate(newAvailability, ParkingSpotAvailability.Merge);
 
         var earnedCredits = new Credits((decimal)(mergedAvailability.Duration - existingDuration).TotalHours);
 
@@ -66,10 +67,11 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
 
         _availabilities.Add(mergedAvailability);
 
-        _domainEvents.Register(new ParkingSpotAvailable
-        {
-            EarnedCredits = earnedCredits
-        });
+        _domainEvents.Register(
+            new ParkingSpotAvailable
+            {
+                EarnedCredits = earnedCredits
+            });
 
         return earnedCredits;
     }
@@ -94,30 +96,33 @@ public sealed record SpotName
 
     public string Name { get; }
 
-    public static implicit operator string(SpotName spotName) => spotName.Name;
+    public static implicit operator string(SpotName spotName)
+    {
+        return spotName.Name;
+    }
 }
 
 public sealed record ParkingSpotAvailability
 {
-    private ParkingSpotAvailability(DateTime from, DateTime to, TimeSpan duration)
+    private ParkingSpotAvailability(DateTimeOffset from, DateTimeOffset to, TimeSpan duration)
     {
         From = from;
         To = to;
         Duration = duration;
     }
 
-    public DateTime From { get; }
-    public DateTime To { get; }
+    public DateTimeOffset From { get; }
+    public DateTimeOffset To { get; }
     public TimeSpan Duration { get; }
 
-    public static ParkingSpotAvailability New(DateTime from, DateTime to)
+    public static ParkingSpotAvailability New(DateTimeOffset from, DateTimeOffset to)
     {
         if (from >= to)
         {
             throw new InvalidOperationException("Availability end date should be after its start date");
         }
 
-        if (from < DateTime.UtcNow)
+        if (from < DateTimeOffset.UtcNow)
         {
             throw new InvalidOperationException("Availability date should be in the future");
         }
@@ -125,17 +130,17 @@ public sealed record ParkingSpotAvailability
         return new ParkingSpotAvailability(from, to, to - from);
     }
 
-    public ParkingSpotAvailability Merge(ParkingSpotAvailability other)
+    public static ParkingSpotAvailability Merge(ParkingSpotAvailability a, ParkingSpotAvailability b)
     {
-        if (!other.Overlaps(this))
+        if (!a.Overlaps(b))
         {
             throw new InvalidOperationException("Cannot merge non overlapping availabilities");
         }
 
-        var minFrom = new[] { From.ToUniversalTime(), other.From.ToUniversalTime() }.Min();
-        var maxTo = new[] { To.ToUniversalTime(), other.To.ToUniversalTime() }.Max();
+        var minFrom = new[] { a.From, b.From }.Min();
+        var maxTo = new[] { a.To, b.To }.Max();
 
-        return New(minFrom, maxTo);
+        return new ParkingSpotAvailability(minFrom, maxTo, maxTo - minFrom);
     }
 
     public bool Overlaps(ParkingSpotAvailability other)

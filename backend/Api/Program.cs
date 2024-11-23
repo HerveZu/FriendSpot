@@ -26,10 +26,7 @@ builder.Services
     .ConfigureAndValidate<PostgresOptions>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddMediatR(
-        x =>
-        {
-            x.RegisterServicesFromAssemblyContaining<Program>();
-        })
+        x => { x.RegisterServicesFromAssemblyContaining<Program>(); })
     .AddDbContext<AppDbContext>()
     .AddFastEndpoints()
     .AddOpenApi()
@@ -84,11 +81,13 @@ app
     .UseHttpsRedirection()
     .UseAuthentication()
     .UseAuthorization()
-    .UseFastEndpoints(config => config.Endpoints.Configurator = ep =>
-    {
-        ep.Options(routeBuilder => routeBuilder
-            .AddEndpointFilter<RunInTransaction>()
-            .AddEndpointFilter<EnsureUserExists>());
-    });
+    .UseFastEndpoints(
+        config => config.Endpoints.Configurator = ep =>
+        {
+            ep.Options(
+                routeBuilder => routeBuilder
+                    .AddEndpointFilter<RunInTransaction>()
+                    .AddEndpointFilter<EnsureUserExists>());
+        });
 
 await app.RunAsync();

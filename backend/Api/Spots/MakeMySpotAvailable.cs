@@ -10,8 +10,8 @@ namespace Api.Spots;
 [PublicAPI]
 public sealed record MakeMySpotAvailableRequest
 {
-    public required DateTime From { get; init; }
-    public required DateTime To { get; init; }
+    public required DateTimeOffset From { get; init; }
+    public required DateTimeOffset To { get; init; }
 }
 
 [PublicAPI]
@@ -25,7 +25,7 @@ internal sealed class MakeMySpotAvailableValidator : Validator<MakeMySpotAvailab
     public MakeMySpotAvailableValidator()
     {
         RuleFor(x => x.To).GreaterThan(x => x.From);
-        RuleFor(x => x.From).GreaterThanOrEqualTo(DateTime.UtcNow);
+        RuleFor(x => x.From).GreaterThanOrEqualTo(DateTimeOffset.UtcNow);
     }
 }
 

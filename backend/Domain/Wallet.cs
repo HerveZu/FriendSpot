@@ -14,9 +14,9 @@ public sealed class Wallet : IUserResource
     }
 
     public Guid Id { get; init; }
-    public string UserIdentity { get; }
     public Credits Credits { get; }
     public IReadOnlyList<SpotTransaction> SpotTransactions => _spotTransactions.AsReadOnly();
+    public string UserIdentity { get; }
 
     public static Wallet CreateInitial(string userIdentity, Credits initialCredits)
     {

@@ -2,26 +2,44 @@
 
 POST {{Api_HostAddress}}/@me/register
 Accept: application/json
-Authorization: Bearer {{$auth.token("auth0")}}
+Authorization: Bearer {{$auth.token("me")}}
+
+###
+
+POST {{Api_HostAddress}}/@me/register
+Accept: application/json
+Authorization: Bearer {{$auth.token("other")}}
 
 ###
 
 GET {{Api_HostAddress}}/parking?search=
 Accept: application/json
-Authorization: Bearer {{$auth.token("auth0")}}
+Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
 GET {{Api_HostAddress}}/@me/spot
 Accept: application/json
-Authorization: Bearer {{$auth.token("auth0")}}
+Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
 PUT {{Api_HostAddress}}/@me/spot
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer {{$auth.token("auth0")}}
+Authorization: Bearer {{$auth.token("me")}}
+
+{
+  "parkingId": "41fbf549-1ee9-4445-b138-5efc97079cad",
+  "lotName": "abc"
+}
+
+###
+
+PUT {{Api_HostAddress}}/@me/spot
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("other")}}
 
 {
   "parkingId": "41fbf549-1ee9-4445-b138-5efc97079cad",
@@ -32,16 +50,28 @@ Authorization: Bearer {{$auth.token("auth0")}}
 
 GET {{Api_HostAddress}}/@me/status
 Accept: application/json
-Authorization: Bearer {{$auth.token("auth0")}}
+Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
 POST {{Api_HostAddress}}/@me/spot/availability
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer {{$auth.token("auth0")}}
+Authorization: Bearer {{$auth.token("me")}}
 
 {
   "from": "2024-11-26T19:00:00+01:00",
   "to": "2024-11-26T21:00:00+01:00"
+}
+
+###
+
+POST {{Api_HostAddress}}/@me/spot/availability
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("other")}}
+
+{
+  "from": "2024-11-23T18:05:15+01:00",
+  "to": "2024-11-23T19:00:00+01:00"
 }
