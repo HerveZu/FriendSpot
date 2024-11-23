@@ -10,12 +10,19 @@ namespace Api.Me;
 public sealed record ViewStatusResponse
 {
     public required SpotStatus? Spot { get; init; }
+    public required WalletStatus Wallet { get; init; }
+
+    [PublicAPI]
+    public sealed record WalletStatus
+    {
+        public required decimal TemporaryCredits { get; init; }
+    }
 
     [PublicAPI]
     public sealed record SpotStatus
     {
-        public required TimeSpan TotalSpotAvailability {get; init; }
-        public required Availability[] Availabilities {get; init; }
+        public required TimeSpan TotalSpotAvailability { get; init; }
+        public required Availability[] Availabilities { get; init; }
 
         [PublicAPI]
         public sealed record Availability
@@ -54,9 +61,20 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                 })
             .FirstOrDefaultAsync(ct);
 
-        await SendOkAsync(new ViewStatusResponse
-        {
-            Spot = spot
-        }, ct);
+        var walletStatus = await (from wallet in dbContext.Set<Domain.Wallet>()
+            select new ViewStatusResponse.WalletStatus
+            {
+                TemporaryCredits = wallet.SpotTransactions
+                    .Where(transaction => transaction.State == TransactionState.Pending)
+                    .Sum(transaction => transaction.EarnedCredits)
+            }).FirstAsync(ct);
+
+        await SendOkAsync(
+            new ViewStatusResponse
+            {
+                Wallet = walletStatus,
+                Spot = spot
+            },
+            ct);
     }
 }

@@ -2,9 +2,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain;
 
+public sealed record ParkingSpotAvailable : IDomainEvent
+{
+    public required Credits EarnedCredits { get; init; }
+}
+
 public sealed class ParkingLot : IBroadcastEvents, IUserResource
 {
     private readonly List<ParkingSpotAvailability> _availabilities = [];
+    private readonly DomainEvents _domainEvents = new();
 
     private ParkingLot(Guid id, string userIdentity, Guid parkingId, SpotName spotName)
     {
@@ -14,16 +20,20 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
         SpotName = spotName;
     }
 
-    public DomainEvents DomainEvents { get; } = new();
     public Guid Id { get; init; }
     public string UserIdentity { get; }
     public Guid ParkingId { get; private set; }
     public SpotName SpotName { get; private set; }
     public IReadOnlyList<ParkingSpotAvailability> Availabilities => _availabilities.AsReadOnly();
 
-    public static ParkingLot Define(ICurrentUser currentUser, Guid parkingId, string spotName)
+    public static ParkingLot Define(string userIdentity, Guid parkingId, string spotName)
     {
-        return new ParkingLot(Guid.CreateVersion7(), currentUser.Identity, parkingId, new SpotName(spotName));
+        return new ParkingLot(Guid.CreateVersion7(), userIdentity, parkingId, new SpotName(spotName));
+    }
+
+    public IEnumerable<IDomainEvent> GetUncommittedEvents()
+    {
+        return _domainEvents.GetUncommittedEvents();
     }
 
     public void ChangeSpotName(Guid parkingId, string newSpotName)
@@ -32,7 +42,7 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
         SpotName = new SpotName(newSpotName);
     }
 
-    public int MakeAvailable(DateTime from, DateTime to)
+    public Credits MakeAvailable(DateTime from, DateTime to)
     {
         var newAvailability = ParkingSpotAvailability.New(from, to);
         var overlappingAvailabilities = Availabilities
@@ -47,7 +57,7 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
         var mergedAvailability = overlappingAvailabilities
             .Aggregate(newAvailability, (a, b) => a.Merge(b));
 
-        var credits = (int)Math.Floor((mergedAvailability.Duration - existingDuration).TotalHours);
+        var earnedCredits = new Credits((decimal)(mergedAvailability.Duration - existingDuration).TotalHours);
 
         foreach (var overlappingAvailability in overlappingAvailabilities)
         {
@@ -56,7 +66,12 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
 
         _availabilities.Add(mergedAvailability);
 
-        return credits;
+        _domainEvents.Register(new ParkingSpotAvailable
+        {
+            EarnedCredits = earnedCredits
+        });
+
+        return earnedCredits;
     }
 }
 
@@ -114,7 +129,7 @@ public sealed record ParkingSpotAvailability
     {
         if (!other.Overlaps(this))
         {
-            throw new InvalidOperationException("Availabilities dont overlap");
+            throw new InvalidOperationException("Cannot merge non overlapping availabilities");
         }
 
         var minFrom = new[] { From.ToUniversalTime(), other.From.ToUniversalTime() }.Min();
@@ -125,7 +140,7 @@ public sealed record ParkingSpotAvailability
 
     public bool Overlaps(ParkingSpotAvailability other)
     {
-        return From <= other.To && other.From < To;
+        return From <= other.To && other.From <= To;
     }
 }
 
@@ -134,12 +149,13 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingLot>
     public void Configure(EntityTypeBuilder<ParkingLot> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.UserIdentity);
         builder.Property(x => x.SpotName)
             .HasMaxLength(10)
             .HasConversion(name => name.Name, name => new SpotName(name));
         builder.HasIndex(x => new { x.UserIdentity, x.SpotName }).IsUnique();
         builder.HasOne<Parking>().WithMany().HasForeignKey(x => x.ParkingId);
+
+        builder.HasOne<User>().WithOne().HasForeignKey<ParkingLot>(x => x.UserIdentity);
 
         builder.OwnsMany(
             x => x.Availabilities,

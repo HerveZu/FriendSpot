@@ -1,16 +1,19 @@
-using Domain;
-
 namespace Api.Common;
 
-internal sealed record CurrentUser(string Identity) : ICurrentUser;
+internal sealed record CurrentUser(string Identity);
 
 internal static class CurrentUserFactory
 {
-    public static CurrentUser ToUser(this HttpContext httpContext)
+    public static CurrentUser? ToCurrentUserOrAnonymous(this HttpContext httpContext)
     {
-        var userId = httpContext.User.Identity?.Name
-                     ?? throw new InvalidOperationException("Claims principal's identity is null");
+        var userId = httpContext.User.Identity?.Name;
 
-        return new CurrentUser(userId);
+        return userId is null ? null : new CurrentUser(userId);
+    }
+
+    public static CurrentUser ToCurrentUser(this HttpContext httpContext)
+    {
+        return httpContext.ToCurrentUserOrAnonymous()
+                     ?? throw new InvalidOperationException("Claims principal's identity is null");
     }
 }

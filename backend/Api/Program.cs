@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Api;
+using Api.Common;
 using Api.Common.Infrastructure;
 using Api.Common.Options;
 using DotNetEnv;
@@ -24,6 +25,11 @@ builder.Configuration
 builder.Services
     .ConfigureAndValidate<PostgresOptions>()
     .AddScoped<IStartupService, MigrateDb>()
+    .AddMediatR(
+        x =>
+        {
+            x.RegisterServicesFromAssemblyContaining<Program>();
+        })
     .AddDbContext<AppDbContext>()
     .AddFastEndpoints()
     .AddOpenApi()
@@ -78,6 +84,11 @@ app
     .UseHttpsRedirection()
     .UseAuthentication()
     .UseAuthorization()
-    .UseFastEndpoints();
+    .UseFastEndpoints(config => config.Endpoints.Configurator = ep =>
+    {
+        ep.Options(routeBuilder => routeBuilder
+            .AddEndpointFilter<RunInTransaction>()
+            .AddEndpointFilter<EnsureUserExists>());
+    });
 
 await app.RunAsync();

@@ -2,7 +2,7 @@ using Api.Common.Options;
 using Api.Common.Reflexion;
 using Domain;
 using EntityFramework.Extensions.AddQueryFilter;
-using FastEndpoints;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -10,7 +10,8 @@ namespace Api.Common.Infrastructure;
 
 internal sealed class AppDbContext(
     IOptions<PostgresOptions> postgresOptions,
-    IHttpContextAccessor httpContextAccessor
+    IHttpContextAccessor httpContextAccessor,
+    IPublisher publisher
 ) : DbContext
 {
     private string? CurrentUserIdentity => httpContextAccessor.HttpContext?.User.Identity?.Name;
@@ -39,12 +40,13 @@ internal sealed class AppDbContext(
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new ())
     {
         var uncommittedEvents = ChangeTracker.Entries<IBroadcastEvents>()
-            .SelectMany(x => x.Entity.DomainEvents.UncommittedEvents);
+            .ToArray() // prevent ef error
+            .SelectMany(x => x.Entity.GetUncommittedEvents());
 
         // execute synchronously to avoid db context concurrency errors
         foreach (var @event in uncommittedEvents)
         {
-            await @event.PublishAsync(cancellation: cancellationToken);
+            await publisher.Publish(@event, cancellationToken);
         }
 
         return await base.SaveChangesAsync(cancellationToken);

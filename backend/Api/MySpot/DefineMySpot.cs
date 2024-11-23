@@ -47,7 +47,7 @@ internal sealed class DefineMySpot(AppDbContext dbContext)
 
         if (parkingLot is null)
         {
-            parkingLot = ParkingLot.Define(HttpContext.ToUser(), req.ParkingId, req.LotName);
+            parkingLot = ParkingLot.Define(HttpContext.ToCurrentUser().Identity, req.ParkingId, req.LotName);
             await dbContext.Set<ParkingLot>().AddAsync(parkingLot, ct);
         }
         else

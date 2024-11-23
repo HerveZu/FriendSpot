@@ -1,20 +1,28 @@
-using FastEndpoints;
+using MediatR;
 
 namespace Domain;
 
+public interface IDomainEvent : INotification;
+
 public interface IBroadcastEvents
 {
-    DomainEvents DomainEvents { get; }
+    IEnumerable<IDomainEvent> GetUncommittedEvents();
 }
 
 public sealed class DomainEvents
 {
-    private readonly List<IEvent> _domainEvents = [];
+    private readonly List<IDomainEvent> _domainEvents = [];
 
-    public IEnumerable<IEvent> UncommittedEvents => _domainEvents.ToArray();
-
-    public void Register(IEvent @event)
+    public void Register(IDomainEvent @event)
     {
         _domainEvents.Add(@event);
+    }
+
+    public IEnumerable<IDomainEvent> GetUncommittedEvents()
+    {
+        var events = _domainEvents.ToArray();
+        _domainEvents.Clear();
+
+        return events;
     }
 }

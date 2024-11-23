@@ -3,6 +3,7 @@ using System;
 using Api.Common.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241123120020_AddUserWallet")]
+    partial class AddUserWallet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,9 +68,6 @@ namespace Api.Migrations
 
                     b.HasIndex("ParkingId");
 
-                    b.HasIndex("UserIdentity")
-                        .IsUnique();
-
                     b.HasIndex("UserIdentity", "SpotName")
                         .IsUnique();
 
@@ -99,9 +99,6 @@ namespace Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserIdentity")
-                        .IsUnique();
-
                     b.ToTable("Wallet");
                 });
 
@@ -110,12 +107,6 @@ namespace Api.Migrations
                     b.HasOne("Domain.Parking", null)
                         .WithMany()
                         .HasForeignKey("ParkingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", null)
-                        .WithOne()
-                        .HasForeignKey("Domain.ParkingLot", "UserIdentity")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -152,12 +143,6 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Domain.Wallet", b =>
                 {
-                    b.HasOne("Domain.User", null)
-                        .WithOne()
-                        .HasForeignKey("Domain.Wallet", "UserIdentity")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.OwnsMany("Domain.SpotTransaction", "SpotTransactions", b1 =>
                         {
                             b1.Property<Guid>("WalletId")

@@ -17,7 +17,7 @@ public sealed record MakeSpotAvailableRequest
 [PublicAPI]
 public sealed record MakeSpotAvailableResponse
 {
-    public required int EarnedCredits { get; init; }
+    public required decimal EarnedCredits { get; init; }
 }
 
 internal sealed class MakeSpotAvailableValidator : Validator<MakeSpotAvailableRequest>

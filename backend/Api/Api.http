@@ -1,5 +1,11 @@
 @Api_HostAddress = http://localhost:5014
 
+POST {{Api_HostAddress}}/@me/register
+Accept: application/json
+Authorization: Bearer {{$auth.token("auth0")}}
+
+###
+
 GET {{Api_HostAddress}}/parking?search=
 Accept: application/json
 Authorization: Bearer {{$auth.token("auth0")}}
@@ -36,6 +42,6 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("auth0")}}
 
 {
-  "from": "2024-11-26T18:00:00+01:00",
-  "to": "2024-11-26T20:00:00+01:00"
+  "from": "2024-11-26T19:00:00+01:00",
+  "to": "2024-11-26T21:00:00+01:00"
 }
