@@ -5,39 +5,39 @@ using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.MySpot;
+namespace Api.Spots;
 
 [PublicAPI]
-public sealed record MakeSpotAvailableRequest
+public sealed record MakeMySpotAvailableRequest
 {
     public required DateTime From { get; init; }
     public required DateTime To { get; init; }
 }
 
 [PublicAPI]
-public sealed record MakeSpotAvailableResponse
+public sealed record MakeMySpotAvailableResponse
 {
     public required decimal EarnedCredits { get; init; }
 }
 
-internal sealed class MakeSpotAvailableValidator : Validator<MakeSpotAvailableRequest>
+internal sealed class MakeMySpotAvailableValidator : Validator<MakeMySpotAvailableRequest>
 {
-    public MakeSpotAvailableValidator()
+    public MakeMySpotAvailableValidator()
     {
         RuleFor(x => x.To).GreaterThan(x => x.From);
         RuleFor(x => x.From).GreaterThanOrEqualTo(DateTime.UtcNow);
     }
 }
 
-internal sealed class MakeSpotAvailable(AppDbContext dbContext)
-    : Endpoint<MakeSpotAvailableRequest, MakeSpotAvailableResponse>
+internal sealed class MakeMySpotAvailable(AppDbContext dbContext)
+    : Endpoint<MakeMySpotAvailableRequest, MakeMySpotAvailableResponse>
 {
     public override void Configure()
     {
         Post("/@me/spot/availability");
     }
 
-    public override async Task HandleAsync(MakeSpotAvailableRequest req, CancellationToken ct)
+    public override async Task HandleAsync(MakeMySpotAvailableRequest req, CancellationToken ct)
     {
         var parkingLot = await dbContext.Set<ParkingLot>().FirstOrDefaultAsync(ct);
 
@@ -53,7 +53,7 @@ internal sealed class MakeSpotAvailable(AppDbContext dbContext)
         await dbContext.SaveChangesAsync(ct);
 
         await SendOkAsync(
-            new MakeSpotAvailableResponse
+            new MakeMySpotAvailableResponse
             {
                 EarnedCredits = earnedCredits
             },

@@ -3,7 +3,7 @@ using Api.Common.Infrastructure;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Wallet.OnSpotAvailable;
+namespace Api.Wallets.OnSpotAvailable;
 
 internal sealed class InitiateTransaction(AppDbContext dbContext) : IDomainEventHandler<ParkingSpotAvailable>
 {
@@ -14,10 +14,10 @@ internal sealed class InitiateTransaction(AppDbContext dbContext) : IDomainEvent
             return;
         }
 
-        var wallet = await dbContext.Set<Domain.Wallet>().FirstAsync(ct);
+        var wallet = await dbContext.Set<Wallet>().FirstAsync(ct);
         wallet.NewSpotTransaction(SpotTransaction.FromSpotAvailable(notification.EarnedCredits));
 
-        dbContext.Set<Domain.Wallet>().Update(wallet);
+        dbContext.Set<Wallet>().Update(wallet);
         await dbContext.SaveChangesAsync(ct);
     }
 }

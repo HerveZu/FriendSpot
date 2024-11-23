@@ -61,7 +61,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                 })
             .FirstOrDefaultAsync(ct);
 
-        var walletStatus = await (from wallet in dbContext.Set<Domain.Wallet>()
+        var walletStatus = await (from wallet in dbContext.Set<Wallet>()
             select new ViewStatusResponse.WalletStatus
             {
                 TemporaryCredits = wallet.SpotTransactions

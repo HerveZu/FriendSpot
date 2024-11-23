@@ -1,10 +1,10 @@
 using Api.Common.Infrastructure;
-using Api.MySpot.Contracts;
+using Api.Spots.Contracts;
 using Domain;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.MySpot;
+namespace Api.Spots;
 
 internal sealed class GetMySpot(AppDbContext dbContext) : EndpointWithoutRequest<MySpotResponse>
 {

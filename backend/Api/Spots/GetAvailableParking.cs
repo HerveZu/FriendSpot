@@ -1,12 +1,12 @@
 using Api.Common.Infrastructure;
-using Api.MySpot.Contracts;
+using Api.Spots.Contracts;
 using Domain;
 using FastEndpoints;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.MySpot;
+namespace Api.Spots;
 
 [PublicAPI]
 public sealed record GetAvailableParkingRequest

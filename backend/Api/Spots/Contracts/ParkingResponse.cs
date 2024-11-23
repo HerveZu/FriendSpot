@@ -1,7 +1,7 @@
 using Domain;
 using JetBrains.Annotations;
 
-namespace Api.MySpot.Contracts;
+namespace Api.Spots.Contracts;
 
 [PublicAPI]
 public sealed record ParkingResponse
