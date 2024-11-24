@@ -1,5 +1,7 @@
 using Api.Common.Options;
 using Api.Common.Reflexion;
+using AppAny.Quartz.EntityFrameworkCore.Migrations;
+using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using Domain;
 using EntityFramework.Extensions.AddQueryFilter;
 using MediatR;
@@ -35,6 +37,7 @@ internal sealed class AppDbContext(
             entity => CurrentUserIdentity != null && entity.UserIdentity == CurrentUserIdentity);
 
         modelBuilder.UseUtcDateTimeOffsetConverter();
+        modelBuilder.AddQuartz(x => x.UsePostgreSql());
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())

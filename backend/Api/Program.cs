@@ -29,7 +29,24 @@ builder.Services
     .AddMediatR(
         x => { x.RegisterServicesFromAssemblyContaining<Program>(); })
     .AddDbContext<AppDbContext>()
-    .AddQuartz()
+    .AddQuartz(
+        x =>
+        {
+            var postgresOptions = builder.Configuration.GetOptions<PostgresOptions>();
+
+            x.UsePersistentStore(
+                options =>
+                {
+                    options.UseNewtonsoftJsonSerializer();
+                    options.UseClustering();
+                    options.UsePostgres(
+                        postgres =>
+                        {
+                            postgres.ConnectionString = postgresOptions.ConnectionString;
+                            postgres.TablePrefix = "quartz.qrtz_";
+                        });
+                });
+        })
     .AddQuartzHostedService(x => x.WaitForJobsToComplete = true)
     .AddFastEndpoints()
     .AddOpenApi()

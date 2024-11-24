@@ -38,4 +38,11 @@ internal static class OptionsExtensions
 
         return services;
     }
+
+    public static TOptions GetOptions<TOptions>(this IConfiguration configuration)
+        where TOptions : IOptions
+    {
+        return configuration.GetSection(TOptions.Section).Get<TOptions>()
+               ?? throw new ArgumentException($"No configuration section `{TOptions.Section}` found.");
+    }
 }
