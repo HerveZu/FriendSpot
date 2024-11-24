@@ -1,6 +1,6 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Domain;
+using Domain.Users;
 using FastEndpoints;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +32,7 @@ internal sealed class Register(AppDbContext dbContext) : EndpointWithoutRequest<
             return;
         }
 
-        var user = Domain.User.Register(HttpContext.ToCurrentUser().Identity);
+        var user = Domain.Users.User.Register(HttpContext.ToCurrentUser().Identity);
 
         await dbContext.Set<User>().AddAsync(user, ct);
         await dbContext.SaveChangesAsync(ct);

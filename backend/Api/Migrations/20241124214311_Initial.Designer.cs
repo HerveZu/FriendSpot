@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241123123755_LinkUserIdentityWithFk")]
-    partial class LinkUserIdentityWithFk
+    [Migration("20241124214311_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,28 +25,7 @@ namespace Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Parking", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Parking");
-                });
-
-            modelBuilder.Entity("Domain.ParkingLot", b =>
+            modelBuilder.Entity("Domain.ParkingSpots.ParkingLot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -77,7 +56,28 @@ namespace Api.Migrations
                     b.ToTable("ParkingLot");
                 });
 
-            modelBuilder.Entity("Domain.User", b =>
+            modelBuilder.Entity("Domain.Parkings.Parking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Parking");
+                });
+
+            modelBuilder.Entity("Domain.Users.User", b =>
                 {
                     b.Property<string>("Identity")
                         .HasColumnType("text");
@@ -87,13 +87,16 @@ namespace Api.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Domain.Wallet", b =>
+            modelBuilder.Entity("Domain.Wallets.Wallet", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("Credits")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("PendingCredits")
                         .HasColumnType("numeric");
 
                     b.Property<string>("UserIdentity")
@@ -108,38 +111,36 @@ namespace Api.Migrations
                     b.ToTable("Wallet");
                 });
 
-            modelBuilder.Entity("Domain.ParkingLot", b =>
+            modelBuilder.Entity("Domain.ParkingSpots.ParkingLot", b =>
                 {
-                    b.HasOne("Domain.Parking", null)
+                    b.HasOne("Domain.Parkings.Parking", null)
                         .WithMany()
                         .HasForeignKey("ParkingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.User", null)
+                    b.HasOne("Domain.Users.User", null)
                         .WithOne()
-                        .HasForeignKey("Domain.ParkingLot", "UserIdentity")
+                        .HasForeignKey("Domain.ParkingSpots.ParkingLot", "UserIdentity")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Domain.ParkingSpotAvailability", "Availabilities", b1 =>
+                    b.OwnsMany("Domain.ParkingSpots.ParkingSpotAvailability", "Availabilities", b1 =>
                         {
                             b1.Property<Guid>("ParkingLotId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<int>("Id")
+                            b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+                                .HasColumnType("uuid");
 
                             b1.Property<TimeSpan>("Duration")
                                 .HasColumnType("interval");
 
-                            b1.Property<DateTime>("From")
+                            b1.Property<DateTimeOffset>("From")
                                 .HasColumnType("timestamp with time zone");
 
-                            b1.Property<DateTime>("To")
+                            b1.Property<DateTimeOffset>("To")
                                 .HasColumnType("timestamp with time zone");
 
                             b1.HasKey("ParkingLotId", "Id");
@@ -153,40 +154,13 @@ namespace Api.Migrations
                     b.Navigation("Availabilities");
                 });
 
-            modelBuilder.Entity("Domain.Wallet", b =>
+            modelBuilder.Entity("Domain.Wallets.Wallet", b =>
                 {
-                    b.HasOne("Domain.User", null)
+                    b.HasOne("Domain.Users.User", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Wallet", "UserIdentity")
+                        .HasForeignKey("Domain.Wallets.Wallet", "UserIdentity")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.OwnsMany("Domain.SpotTransaction", "SpotTransactions", b1 =>
-                        {
-                            b1.Property<Guid>("WalletId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
-
-                            b1.Property<decimal>("EarnedCredits")
-                                .HasColumnType("numeric");
-
-                            b1.Property<int>("State")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("WalletId", "Id");
-
-                            b1.ToTable("SpotTransaction");
-
-                            b1.WithOwner()
-                                .HasForeignKey("WalletId");
-                        });
-
-                    b.Navigation("SpotTransactions");
                 });
 #pragma warning restore 612, 618
         }

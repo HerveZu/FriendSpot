@@ -1,6 +1,8 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Domain;
+using Domain.Parkings;
+using Domain.ParkingSpots;
+using Domain.Wallets;
 using FastEndpoints;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,8 @@ public sealed record ViewStatusResponse
     [PublicAPI]
     public sealed record WalletStatus
     {
-        public required decimal TemporaryCredits { get; init; }
+        public required decimal Credits { get; init; }
+        public required decimal PendingCredits { get; init; }
     }
 
     [PublicAPI]
@@ -69,9 +72,8 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
         var walletStatus = await (from wallet in dbContext.Set<Wallet>()
             select new ViewStatusResponse.WalletStatus
             {
-                TemporaryCredits = wallet.SpotTransactions
-                    .Where(transaction => transaction.State == TransactionState.Pending)
-                    .Sum(transaction => transaction.EarnedCredits)
+                Credits = wallet.Credits,
+                PendingCredits = wallet.PendingCredits
             }).FirstAsync(ct);
 
         var availableSpotsCount = await (

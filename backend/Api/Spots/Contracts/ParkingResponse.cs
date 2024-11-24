@@ -1,4 +1,4 @@
-using Domain;
+using Domain.Parkings;
 using JetBrains.Annotations;
 
 namespace Api.Spots.Contracts;

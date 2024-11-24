@@ -8,6 +8,7 @@ using DotNetEnv;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,8 @@ builder.Services
     .AddMediatR(
         x => { x.RegisterServicesFromAssemblyContaining<Program>(); })
     .AddDbContext<AppDbContext>()
+    .AddQuartz()
+    .AddQuartzHostedService(x => x.WaitForJobsToComplete = true)
     .AddFastEndpoints()
     .AddOpenApi()
     .AddCors()

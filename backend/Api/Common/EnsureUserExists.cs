@@ -1,6 +1,6 @@
 using Api.Common.Infrastructure;
 using Api.Me;
-using Domain;
+using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Common;

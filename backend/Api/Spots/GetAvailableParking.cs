@@ -1,6 +1,6 @@
 using Api.Common.Infrastructure;
 using Api.Spots.Contracts;
-using Domain;
+using Domain.Parkings;
 using FastEndpoints;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;

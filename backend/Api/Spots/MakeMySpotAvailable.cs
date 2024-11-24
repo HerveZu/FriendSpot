@@ -1,5 +1,5 @@
 using Api.Common.Infrastructure;
-using Domain;
+using Domain.ParkingSpots;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;

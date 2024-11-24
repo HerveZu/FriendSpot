@@ -32,7 +32,7 @@ internal sealed class AppDbContext(
         );
 
         modelBuilder.AddQueryFilterOnAllEntities<IUserResource>(
-            entity => entity.UserIdentity == CurrentUserIdentity);
+            entity => CurrentUserIdentity != null && entity.UserIdentity == CurrentUserIdentity);
 
         modelBuilder.UseUtcDateTimeOffsetConverter();
     }

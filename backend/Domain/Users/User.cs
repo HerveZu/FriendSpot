@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Domain;
+namespace Domain.Users;
 
 public sealed record UserRegistered : IDomainEvent
 {

@@ -1,6 +1,8 @@
 using Api.Common;
 using Api.Common.Infrastructure;
 using Domain;
+using Domain.Users;
+using Domain.Wallets;
 
 namespace Api.Me.OnRegistered;
 

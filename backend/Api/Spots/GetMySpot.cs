@@ -1,6 +1,7 @@
 using Api.Common.Infrastructure;
 using Api.Spots.Contracts;
-using Domain;
+using Domain.Parkings;
+using Domain.ParkingSpots;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
