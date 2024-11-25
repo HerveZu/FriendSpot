@@ -5,42 +5,61 @@ namespace Domain.Wallets;
 
 public sealed class Wallet : IUserResource
 {
-    private Wallet(Guid id, string userIdentity, Credits credits)
+    private readonly List<CreditsTransaction> _transactions = [];
+
+    private Wallet(Guid id, string userIdentity)
     {
         Id = id;
         UserIdentity = userIdentity;
-        Credits = credits;
     }
 
     public Guid Id { get; init; }
-    public Credits Credits { get; private set; }
-    public Credits PendingCredits { get; private set; }
     public string UserIdentity { get; }
+    public IReadOnlyList<CreditsTransaction> Transactions => _transactions.AsReadOnly();
 
-    public static Wallet CreateInitial(string userIdentity, Credits initialCredits)
+    public Credits Credits => new(
+        _transactions
+            .Where(transaction => transaction.State is TransactionState.Confirmed)
+            .Sum(transaction => transaction.Credits.Amount));
+
+    public Credits PendingCredits => new(
+        _transactions
+            .Where(transaction => transaction.State is TransactionState.Pending)
+            .Sum(transaction => transaction.Credits.Amount));
+
+    public static Wallet Create(string userIdentity)
     {
-        return new Wallet(Guid.CreateVersion7(), userIdentity, initialCredits);
+        return new Wallet(Guid.CreateVersion7(), userIdentity);
     }
 
-    public void ConfirmCredit(Credits credits)
+    public void IdempotentTransaction(CreditsTransaction newTransaction)
     {
-        if (credits.Amount > PendingCredits.Amount)
+        if (!newTransaction.HasAnyEffect)
         {
-            throw new InvalidOperationException("Cannot confirm your credit beyond the pending credits.");
+            return;
         }
 
-        PendingCredits -= credits;
-        Credits += credits;
+        var existingTransaction = _transactions
+            .FirstOrDefault(transaction => transaction.Reference == newTransaction.Reference);
+
+        if (existingTransaction is not null)
+        {
+            _transactions.Remove(existingTransaction);
+        }
+
+        _transactions.Add(newTransaction);
     }
 
-    public void CreditPending(Credits credits)
+    public void CancelTransaction(string reference)
     {
-        if (credits.Amount < 0)
+        var transaction = _transactions.FirstOrDefault(transaction => transaction.Reference == reference);
+
+        if (transaction is null)
         {
-            throw new InvalidOperationException($"Cannot credits less than zero ({credits})");
+            return;
         }
 
-        PendingCredits += credits;
+        _transactions.Remove(transaction);
     }
 }
 
@@ -50,11 +69,19 @@ internal sealed class WalletConfig : IEntityConfiguration<Wallet>
     {
         builder.HasKey(x => x.Id);
         builder.Property(x => x.UserIdentity);
-        builder.Property(x => x.Credits)
-            .HasConversion(x => x.Amount, x => new Credits(x));
-        builder.Property(x => x.PendingCredits)
-            .HasConversion(x => x.Amount, x => new Credits(x));
 
         builder.HasOne<User>().WithOne().HasForeignKey<Wallet>(x => x.UserIdentity);
+        builder.OwnsMany(
+            x => x.Transactions,
+            transactionBuilder =>
+            {
+                transactionBuilder.Property(x => x.Reference);
+                transactionBuilder.HasIndex(x => x.Reference).IsUnique();
+
+                transactionBuilder.Property(x => x.State);
+                transactionBuilder
+                    .Property(transaction => transaction.Credits)
+                    .HasConversion(x => x.Amount, x => new Credits(x));
+            });
     }
 }

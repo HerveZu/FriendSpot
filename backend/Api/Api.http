@@ -54,14 +54,20 @@ Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
+GET {{Api_HostAddress}}/@me/status
+Accept: application/json
+Authorization: Bearer {{$auth.token("other")}}
+
+###
+
 POST {{Api_HostAddress}}/@me/spot/availability
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{$auth.token("me")}}
 
 {
-  "from": "2024-11-24T23:45:00+01:00",
-  "to": "2024-11-25T12:26:00+01:00"
+  "from": "2024-11-25T23:06:00+01:00",
+  "to": "2024-11-25T23:20:00+01:00"
 }
 
 ###
@@ -72,6 +78,6 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("other")}}
 
 {
-  "from": "2024-11-23T18:05:15+01:00",
-  "to": "2024-11-23T19:00:00+01:00"
+  "from": "2024-11-25T22:14:15+01:00",
+  "to": "2024-11-26T19:00:00+01:00"
 }

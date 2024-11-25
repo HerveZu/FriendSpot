@@ -9,7 +9,7 @@ using Quartz;
 
 namespace Api.Spots.OnAvailable;
 
-internal sealed class ScheduleTotalCreditsForConfirmation(ISchedulerFactory schedulerFactory)
+internal sealed class ScheduleCreditsForConfirmation(ISchedulerFactory schedulerFactory)
     : IDomainEventHandler<ParkingSpotAvailable>
 {
     public async Task Handle(ParkingSpotAvailable notification, CancellationToken cancellationToken)
@@ -18,16 +18,13 @@ internal sealed class ScheduleTotalCreditsForConfirmation(ISchedulerFactory sche
 
         await scheduler.ScheduleJob(
             JobBuilder.Create<ConfirmCredits>()
-                .WithIdentity(SpotsJobIdentity.ConfirmCredits(notification.SpotId, notification.AvailabilityId))
+                .WithIdentity(SpotJobsKeys.ConfirmCredits(notification.AvailabilityId))
                 .UsingJobData(ConfirmCredits.UserIdentity, notification.UserIdentity)
-                .UsingJobData(ConfirmCredits.Credits, (double)notification.TotalCredits.Amount)
+                .UsingJobData(ConfirmCredits.AvailabilityId, notification.AvailabilityId)
+                .UsingJobData(ConfirmCredits.Credits, (double)notification.Credits.Amount)
                 .Build(),
             TriggerBuilder.Create()
                 .StartAt(notification.AvailableUntil)
-                .WithSimpleSchedule(
-                    x => x
-                        .WithIntervalInSeconds(30)
-                        .WithRepeatCount(2))
                 .Build(),
             cancellationToken);
     }
@@ -36,6 +33,7 @@ internal sealed class ScheduleTotalCreditsForConfirmation(ISchedulerFactory sche
 internal sealed class ConfirmCredits(AppDbContext dbContext) : IJob
 {
     public const string UserIdentity = nameof(UserIdentity);
+    public const string AvailabilityId = nameof(AvailabilityId);
     public const string Credits = nameof(Credits);
 
     public async Task Execute(IJobExecutionContext context)
@@ -43,13 +41,21 @@ internal sealed class ConfirmCredits(AppDbContext dbContext) : IJob
         var userId = context.MergedJobDataMap.GetString(UserIdentity);
         var credits = (decimal)context.MergedJobDataMap.GetDoubleValue(Credits);
 
+        if (!context.MergedJobDataMap.TryGetGuidValue(AvailabilityId, out var availabilityId))
+        {
+            throw new InvalidOperationException("Required availability id not provided");
+        }
+
         var wallet = await (
                 from userWallet in dbContext.Set<Wallet>()
                 where userWallet.UserIdentity == userId
                 select userWallet)
             .FirstAsync(context.CancellationToken);
 
-        wallet.ConfirmCredit(new Credits(credits));
+        wallet.IdempotentTransaction(
+            CreditsTransaction.Confirmed(
+                availabilityId.ToString(),
+                new Credits(credits)));
 
         dbContext.Set<Wallet>().Update(wallet);
         await dbContext.SaveChangesAsync(context.CancellationToken);

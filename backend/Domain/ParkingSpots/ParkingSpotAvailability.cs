@@ -44,15 +44,15 @@ public sealed class ParkingSpotAvailability
         return Create(from, to);
     }
 
-    public static ParkingSpotAvailability Merge(ParkingSpotAvailability a, ParkingSpotAvailability b)
+    public static ParkingSpotAvailability Merge(ParkingSpotAvailability existing, ParkingSpotAvailability @new)
     {
-        if (!a.Overlaps(b))
+        if (!existing.Overlaps(@new))
         {
             throw new InvalidOperationException("Cannot merge non overlapping availabilities");
         }
 
-        var minFrom = new[] { a.From, b.From }.Min();
-        var maxTo = new[] { a.To, b.To }.Max();
+        var minFrom = new[] { existing.From, @new.From }.Min();
+        var maxTo = new[] { existing.To, @new.To }.Max();
 
         return Create(minFrom, maxTo);
     }

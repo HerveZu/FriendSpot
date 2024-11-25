@@ -6,17 +6,14 @@ namespace Domain.ParkingSpots;
 
 public sealed record ParkingSpotAvailable : IDomainEvent
 {
-    public required string UserIdentity { get; init; }
-    public required Guid SpotId { get; init; }
     public required Guid AvailabilityId { get; init; }
-    public required Credits EarnedCredits { get; init; }
-    public required Credits TotalCredits { get; init; }
+    public required string UserIdentity { get; init; }
+    public required Credits Credits { get; init; }
     public required DateTimeOffset AvailableUntil { get; init; }
 }
 
 public sealed record ParkingSpotCancelled : IDomainEvent
 {
-    public required Guid SpotId { get; init; }
     public required Guid AvailabilityId { get; init; }
 }
 
@@ -80,7 +77,6 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
             _domainEvents.Register(
                 new ParkingSpotCancelled
                 {
-                    SpotId = Id,
                     AvailabilityId = overlappingAvailability.Id
                 });
         }
@@ -91,11 +87,9 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
             new ParkingSpotAvailable
             {
                 UserIdentity = UserIdentity,
-                SpotId = Id,
                 AvailabilityId = mergedAvailability.Id,
                 AvailableUntil = mergedAvailability.To,
-                EarnedCredits = earnedCredits,
-                TotalCredits = totalCredits
+                Credits = totalCredits
             });
 
         return earnedCredits;
