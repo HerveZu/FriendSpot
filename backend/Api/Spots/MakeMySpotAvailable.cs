@@ -25,7 +25,7 @@ internal sealed class MakeMySpotAvailableValidator : Validator<MakeMySpotAvailab
     public MakeMySpotAvailableValidator()
     {
         RuleFor(x => x.To).GreaterThan(x => x.From);
-        RuleFor(x => x.From).GreaterThanOrEqualTo(DateTimeOffset.UtcNow);
+        RuleFor(x => x.From).GreaterThanOrEqualTo(_ => DateTimeOffset.UtcNow);
     }
 }
 
