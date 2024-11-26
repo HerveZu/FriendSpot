@@ -93,7 +93,11 @@ using (var startupScope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(options => options.AllowAnyOrigin());
+    app.UseCors(
+        options => options
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
     app.MapOpenApi();
 }
 
