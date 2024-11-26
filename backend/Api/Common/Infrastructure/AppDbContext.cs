@@ -16,7 +16,7 @@ internal sealed class AppDbContext(
     IPublisher publisher
 ) : DbContext
 {
-    private string? CurrentUserIdentity => httpContextAccessor.HttpContext?.User.Identity?.Name;
+    private string? CurrentUserIdentity => httpContextAccessor.HttpContext?.ToCurrentUser().Identity;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
