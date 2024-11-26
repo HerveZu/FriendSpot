@@ -66,8 +66,8 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("me")}}
 
 {
-  "from": "2024-11-25T23:06:00+01:00",
-  "to": "2024-11-25T23:20:00+01:00"
+  "from": "2024-11-26T07:06:00+01:00",
+  "to": "2024-11-26T11:20:00+01:00"
 }
 
 ###
