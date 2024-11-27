@@ -28,7 +28,6 @@ public sealed record SearchSpotsResponse
     public sealed record AvailableSpot
     {
         public required Guid ParkingLotId { get; init; }
-        public required string UserId { get; init; }
         public required DateTimeOffset From { get; init; }
         public required DateTimeOffset Until { get; init; }
     }
@@ -61,7 +60,6 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                         availability => new SearchSpotsResponse.AvailableSpot
                         {
                             ParkingLotId = parkingLot.Id,
-                            UserId = parkingLot.UserIdentity,
                             From = availability.From,
                             Until = availability.To
                         })
