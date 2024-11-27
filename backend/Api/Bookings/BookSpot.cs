@@ -20,6 +20,7 @@ public sealed record BookSpotRequest
 [PublicAPI]
 public sealed record BookSpotResponse
 {
+    public required Guid BookingId { get; init; }
     public required decimal UsedCredits { get; init; }
 }
 
@@ -87,6 +88,7 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
         await SendOkAsync(
             new BookSpotResponse
             {
+                BookingId = newBooking.Id,
                 UsedCredits = price
             },
             ct);
