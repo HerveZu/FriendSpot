@@ -1,8 +1,8 @@
 using Quartz;
 
-namespace Api.Spots.Common;
+namespace Api.Booking.Common;
 
-internal static class SpotJobsKeys
+internal static class BookingJobsKeys
 {
     public static JobKey ConfirmCredits(Guid availabilityId)
     {

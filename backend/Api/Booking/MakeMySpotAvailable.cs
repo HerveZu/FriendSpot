@@ -5,7 +5,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Spots;
+namespace Api.Booking;
 
 [PublicAPI]
 public sealed record MakeMySpotAvailableRequest

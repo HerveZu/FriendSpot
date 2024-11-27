@@ -4,7 +4,7 @@ using Domain.ParkingSpots;
 using Domain.Wallets;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Spots.OnAvailable;
+namespace Api.Booking.OnSpotAvailable;
 
 internal sealed class CreditAsPending(AppDbContext dbContext) : IDomainEventHandler<ParkingSpotAvailable>
 {

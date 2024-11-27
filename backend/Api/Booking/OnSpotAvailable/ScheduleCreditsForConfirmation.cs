@@ -1,13 +1,13 @@
+using Api.Booking.Common;
 using Api.Common;
 using Api.Common.Infrastructure;
-using Api.Spots.Common;
 using Domain;
 using Domain.ParkingSpots;
 using Domain.Wallets;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 
-namespace Api.Spots.OnAvailable;
+namespace Api.Booking.OnSpotAvailable;
 
 internal sealed class ScheduleCreditsForConfirmation(ISchedulerFactory schedulerFactory)
     : IDomainEventHandler<ParkingSpotAvailable>
@@ -18,7 +18,7 @@ internal sealed class ScheduleCreditsForConfirmation(ISchedulerFactory scheduler
 
         await scheduler.ScheduleJob(
             JobBuilder.Create<ConfirmCredits>()
-                .WithIdentity(SpotJobsKeys.ConfirmCredits(notification.AvailabilityId))
+                .WithIdentity(BookingJobsKeys.ConfirmCredits(notification.AvailabilityId))
                 .UsingJobData(ConfirmCredits.UserIdentity, notification.UserIdentity)
                 .UsingJobData(ConfirmCredits.AvailabilityId, notification.AvailabilityId)
                 .UsingJobData(ConfirmCredits.Credits, (double)notification.Credits.Amount)

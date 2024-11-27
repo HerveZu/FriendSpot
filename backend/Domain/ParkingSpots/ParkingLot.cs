@@ -12,7 +12,7 @@ public sealed record ParkingSpotAvailable : IDomainEvent
     public required DateTimeOffset AvailableUntil { get; init; }
 }
 
-public sealed record ParkingSpotCancelled : IDomainEvent
+public sealed record ParkingSpotAvailabilityCancelled : IDomainEvent
 {
     public required Guid AvailabilityId { get; init; }
 }
@@ -75,7 +75,7 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
         {
             _availabilities.Remove(overlappingAvailability);
             _domainEvents.Register(
-                new ParkingSpotCancelled
+                new ParkingSpotAvailabilityCancelled
                 {
                     AvailabilityId = overlappingAvailability.Id
                 });
