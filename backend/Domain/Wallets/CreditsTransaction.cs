@@ -14,14 +14,9 @@ public sealed class CreditsTransaction
     public TransactionState State { get; }
     public bool HasAnyEffect => Credits.Amount is not 0;
 
-    public static CreditsTransaction Pending(string reference, Credits credits)
+    public static CreditsTransaction Create(string reference, Credits credits, TransactionState state)
     {
-        return new CreditsTransaction(reference, credits, TransactionState.Pending);
-    }
-
-    public static CreditsTransaction Confirmed(string reference, Credits credits)
-    {
-        return new CreditsTransaction(reference, credits, TransactionState.Confirmed);
+        return new CreditsTransaction(reference, credits, state);
     }
 }
 

@@ -60,16 +60,15 @@ public sealed class ParkingLot : IBroadcastEvents, IUserResource
             .Where(other => newAvailability.Overlaps(other))
             .ToArray();
 
-        var existingDuration = overlappingAvailabilities.Any()
-            ? overlappingAvailabilities.Max(availability => availability.To)
-              - overlappingAvailabilities.Min(availability => availability.From)
-            : TimeSpan.Zero;
-
         var mergedAvailability = overlappingAvailabilities
             .Aggregate(newAvailability, ParkingSpotAvailability.Merge);
 
-        var totalCredits = new Credits((decimal)mergedAvailability.Duration.TotalHours);
-        var earnedCredits = new Credits((decimal)(mergedAvailability.Duration - existingDuration).TotalHours);
+        var alreadyEaredCredits = new Credits(
+            overlappingAvailabilities
+                .Sum(availability => availability.Price()));
+
+        var totalCredits = mergedAvailability.Price();
+        var earnedCredits = totalCredits - alreadyEaredCredits;
 
         foreach (var overlappingAvailability in overlappingAvailabilities)
         {

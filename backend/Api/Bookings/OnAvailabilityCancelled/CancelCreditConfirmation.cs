@@ -1,4 +1,4 @@
-using Api.Booking.Common;
+using Api.Bookings.Common;
 using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
@@ -6,7 +6,7 @@ using Domain.Wallets;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 
-namespace Api.Booking.OnAvailabilityCancelled;
+namespace Api.Bookings.OnAvailabilityCancelled;
 
 internal sealed class CancelCreditConfirmation(ISchedulerFactory schedulerFactory, AppDbContext dbContext)
     : IDomainEventHandler<ParkingSpotAvailabilityCancelled>

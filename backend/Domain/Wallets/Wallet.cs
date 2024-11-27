@@ -32,7 +32,39 @@ public sealed class Wallet : IUserResource
         return new Wallet(Guid.CreateVersion7(), userIdentity);
     }
 
-    public void IdempotentTransaction(CreditsTransaction newTransaction)
+    public void Credit(string reference, Credits credits, TransactionState state)
+    {
+        if (credits.Amount < 0)
+        {
+            throw new InvalidOperationException("Cannot credit a negative amount.");
+        }
+
+        IdempotentTransaction(CreditsTransaction.Create(reference, credits, state));
+    }
+
+    public void Charge(string reference, Credits credits)
+    {
+        if (credits.Amount < 0)
+        {
+            throw new InvalidOperationException("Cannot charge a negative amount.");
+        }
+
+        IdempotentTransaction(CreditsTransaction.Create(reference, -credits, TransactionState.Confirmed));
+    }
+
+    public void CancelTransaction(string reference)
+    {
+        var transaction = _transactions.FirstOrDefault(transaction => transaction.Reference == reference);
+
+        if (transaction is null)
+        {
+            return;
+        }
+
+        _transactions.Remove(transaction);
+    }
+
+    private void IdempotentTransaction(CreditsTransaction newTransaction)
     {
         if (!newTransaction.HasAnyEffect)
         {
@@ -49,18 +81,6 @@ public sealed class Wallet : IUserResource
 
         _transactions.Add(newTransaction);
     }
-
-    public void CancelTransaction(string reference)
-    {
-        var transaction = _transactions.FirstOrDefault(transaction => transaction.Reference == reference);
-
-        if (transaction is null)
-        {
-            return;
-        }
-
-        _transactions.Remove(transaction);
-    }
 }
 
 internal sealed class WalletConfig : IEntityConfiguration<Wallet>
@@ -76,7 +96,10 @@ internal sealed class WalletConfig : IEntityConfiguration<Wallet>
             transactionBuilder =>
             {
                 transactionBuilder.Property(x => x.Reference);
-                transactionBuilder.HasIndex(x => x.Reference).IsUnique();
+                transactionBuilder.HasIndex(
+                        nameof(Wallet) + nameof(Wallet.Id),
+                        nameof(CreditsTransaction.Reference))
+                    .IsUnique();
 
                 transactionBuilder.Property(x => x.State);
                 transactionBuilder

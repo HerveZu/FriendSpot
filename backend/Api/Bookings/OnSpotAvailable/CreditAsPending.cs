@@ -4,7 +4,7 @@ using Domain.ParkingSpots;
 using Domain.Wallets;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Booking.OnSpotAvailable;
+namespace Api.Bookings.OnSpotAvailable;
 
 internal sealed class CreditAsPending(AppDbContext dbContext) : IDomainEventHandler<ParkingSpotAvailable>
 {
@@ -12,10 +12,10 @@ internal sealed class CreditAsPending(AppDbContext dbContext) : IDomainEventHand
     {
         var wallet = await dbContext.Set<Wallet>().FirstAsync(cancellationToken);
 
-        wallet.IdempotentTransaction(
-            CreditsTransaction.Pending(
-                notification.AvailabilityId.ToString(),
-                notification.Credits));
+        wallet.Credit(
+            notification.AvailabilityId.ToString(),
+            notification.Credits,
+            TransactionState.Pending);
 
         dbContext.Set<Wallet>().Update(wallet);
         await dbContext.SaveChangesAsync(cancellationToken);

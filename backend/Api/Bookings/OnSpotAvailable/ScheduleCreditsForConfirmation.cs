@@ -1,4 +1,4 @@
-using Api.Booking.Common;
+using Api.Bookings.Common;
 using Api.Common;
 using Api.Common.Infrastructure;
 using Domain;
@@ -7,7 +7,7 @@ using Domain.Wallets;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 
-namespace Api.Booking.OnSpotAvailable;
+namespace Api.Bookings.OnSpotAvailable;
 
 internal sealed class ScheduleCreditsForConfirmation(ISchedulerFactory schedulerFactory)
     : IDomainEventHandler<ParkingSpotAvailable>
@@ -52,10 +52,10 @@ internal sealed class ConfirmCredits(AppDbContext dbContext) : IJob
                 select userWallet)
             .FirstAsync(context.CancellationToken);
 
-        wallet.IdempotentTransaction(
-            CreditsTransaction.Confirmed(
-                availabilityId.ToString(),
-                new Credits(credits)));
+        wallet.Credit(
+            availabilityId.ToString(),
+            new Credits(credits),
+            TransactionState.Confirmed);
 
         dbContext.Set<Wallet>().Update(wallet);
         await dbContext.SaveChangesAsync(context.CancellationToken);

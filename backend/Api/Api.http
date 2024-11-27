@@ -87,3 +87,16 @@ Authorization: Bearer {{$auth.token("other")}}
 GET {{Api_HostAddress}}/spots?from=2024-11-27T18:16:13&minDuration=02:30:13
 Accept: application/json
 Authorization: Bearer {{$auth.token("me")}}
+
+###
+
+POST {{Api_HostAddress}}/spots/booking
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("me")}}
+
+{
+  "parkingLotId": "0193652c-1976-759f-a12f-2d05de7c1d68",
+  "from": "2024-11-27T18:16:13+01:00",
+  "duration": "02:45:13"
+}

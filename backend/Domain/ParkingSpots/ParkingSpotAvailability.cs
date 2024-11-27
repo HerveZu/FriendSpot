@@ -57,6 +57,13 @@ public sealed class ParkingSpotAvailability
         return Create(minFrom, maxTo);
     }
 
+    public Credits Price(TimeSpan? duration = null)
+    {
+        duration ??= Duration;
+
+        return new Credits((decimal)duration.Value.TotalHours);
+    }
+
     public bool Overlaps(ParkingSpotAvailability other)
     {
         return From <= other.To && other.From <= To;
