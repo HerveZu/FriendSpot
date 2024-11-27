@@ -33,6 +33,8 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
 
     public override async Task HandleAsync(BookSpotRequest req, CancellationToken ct)
     {
+        var currentUser = HttpContext.ToCurrentUser();
+
         var parkingLot = await dbContext.Set<ParkingLot>()
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(parkingLot => parkingLot.Id == req.ParkingLotId, ct);
@@ -40,6 +42,12 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
         if (parkingLot is null)
         {
             ThrowError("Parking lot not found");
+            return;
+        }
+
+        if (parkingLot.UserIdentity == currentUser.Identity)
+        {
+            ThrowError("Cannot book own parking lot");
             return;
         }
 
@@ -53,7 +61,6 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
             return;
         }
 
-        var currentUser = HttpContext.ToCurrentUser();
         var newBooking = Booking.Book(currentUser.Identity, parkingLot.Id, req.From, req.Duration);
 
         var overlappingBookings = await dbContext.Set<Booking>()
