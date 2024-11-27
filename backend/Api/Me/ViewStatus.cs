@@ -83,14 +83,11 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                     select parking
                 join parkingLot in dbContext.Set<ParkingLot>() on myParking.Id equals parkingLot.ParkingId
                 where parkingLot.UserIdentity != currentUser.Identity
-                select new
-                {
-                    Count = (from availability in parkingLot.Availabilities
-                        where availability.From <= now && availability.To >= now
-                        select availability).Count()
-                })
+                where parkingLot.Availabilities
+                    .Any(availability => availability.From <= now && availability.To >= now)
+                select parkingLot)
             .IgnoreQueryFilters()
-            .SumAsync(x => x.Count, ct);
+            .CountAsync(ct);
 
         await SendOkAsync(
             new ViewStatusResponse
