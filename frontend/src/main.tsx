@@ -9,8 +9,8 @@ import { RegisterPage } from './pages/register-page.tsx';
 import './index.css';
 
 const AUTH0_DOMAIN = import.meta.env.VITE__AUTH0__DOMAIN;
-const CALLBACK_PATH = import.meta.env.VITE__AUTH0__CALLBACK_PATH;
-const AUTH0_CLIENT_ID = import.meta.env.VITE__AUTH0__CLIENT_ID;
+const CALLBACK_PATH = import.meta.env.VITE__AUTH0__CALLBACK__PATH;
+const AUTH0_CLIENT_ID = import.meta.env.VITE__AUTH0__CLIENT__ID;
 
 const router = createBrowserRouter(
 	[
