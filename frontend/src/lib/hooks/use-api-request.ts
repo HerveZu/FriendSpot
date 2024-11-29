@@ -7,12 +7,13 @@ export function useApiRequest() {
 	const { getAccessTokenSilently } = useAuth0();
 
 	const apiRequest = useCallback(async (url: string, method: httpMethod) => {
-		await fetch(url, {
+		const response = await fetch(url, {
 			method: method,
 			headers: {
 				Authorization: `Bearer ${await getAccessTokenSilently()}`
 			}
 		});
+		return response;
 	}, []);
 	return { apiRequest };
 }
