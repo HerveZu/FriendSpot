@@ -43,7 +43,7 @@ Authorization: Bearer {{$auth.token("other")}}
 
 {
   "parkingId": "41fbf549-1ee9-4445-b138-5efc97079cad",
-  "lotName": "abc"
+  "lotName": "FGH"
 }
 
 ###
@@ -78,13 +78,13 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("other")}}
 
 {
-  "from": "2024-11-27T18:30:13+01:00",
-  "to": "2024-11-28T19:00:00+01:00"
+  "from": "2024-11-29T01:17:00+01:00",
+  "to": "2024-11-29T19:00:00+01:00"
 }
 
 ###
 
-GET {{Api_HostAddress}}/spots?from=2024-11-27T18:16:13&minDuration=02:30:13
+GET {{Api_HostAddress}}/spots?from=2024-11-29T01:20:00&minDuration=02:00:00
 Accept: application/json
 Authorization: Bearer {{$auth.token("me")}}
 
@@ -96,7 +96,7 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("me")}}
 
 {
-  "parkingLotId": "0193652c-1976-759f-a12f-2d05de7c1d68",
-  "from": "2024-11-27T18:16:13+01:00",
-  "duration": "02:45:13"
+  "parkingLotId": "01937546-63e8-7a16-a8b1-f59e86555d9c",
+  "from": "2024-11-29T01:21:00+00:00",
+  "duration": "02:46:13"
 }

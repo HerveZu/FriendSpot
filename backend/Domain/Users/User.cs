@@ -4,7 +4,7 @@ namespace Domain.Users;
 
 public sealed record UserRegistered : IDomainEvent
 {
-    public required string UserIdentity { get; init; }
+    public required string UserId { get; init; }
 }
 
 public sealed class User : IBroadcastEvents
@@ -30,7 +30,7 @@ public sealed class User : IBroadcastEvents
         user._domainEvents.Register(
             new UserRegistered
             {
-                UserIdentity = user.Identity
+                UserId = user.Identity
             });
 
         return user;

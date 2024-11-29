@@ -33,8 +33,8 @@ internal sealed class AppDbContext(
             type => type.IsAssignableToGenericType(configurationType)
         );
 
-        modelBuilder.AddQueryFilterOnAllEntities<IUserResource>(
-            entity => CurrentUserIdentity == null || entity.UserIdentity == CurrentUserIdentity);
+        modelBuilder.AddQueryFilterOnAllEntities<IUserPrivateResource>(
+            entity => CurrentUserIdentity == null || entity.UserId == CurrentUserIdentity);
 
         modelBuilder.UseUtcDateTimeOffsetConverter();
         modelBuilder.AddQuartz(x => x.UsePostgreSql());

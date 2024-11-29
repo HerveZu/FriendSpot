@@ -28,11 +28,11 @@ internal sealed class Register(AppDbContext dbContext) : EndpointWithoutRequest<
 
         if (await dbContext.Set<User>().AnyAsync(user => user.Identity == userIdentity, ct))
         {
-            ThrowError("User already exists.");
+            ThrowError("User already exists");
             return;
         }
 
-        var user = Domain.Users.User.Register(HttpContext.ToCurrentUser().Identity);
+        var user = Domain.Users.User.Register(userIdentity);
 
         await dbContext.Set<User>().AddAsync(user, ct);
         await dbContext.SaveChangesAsync(ct);

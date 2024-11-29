@@ -18,6 +18,7 @@ public sealed class ParkingSpotAvailability
     public DateTimeOffset From { get; }
     public DateTimeOffset To { get; }
     public TimeSpan Duration { get; }
+    public Credits Price => new((decimal)Duration.TotalHours);
 
     private static ParkingSpotAvailability Create(DateTimeOffset from, DateTimeOffset to)
     {
@@ -55,13 +56,6 @@ public sealed class ParkingSpotAvailability
         var maxTo = new[] { existing.To, @new.To }.Max();
 
         return Create(minFrom, maxTo);
-    }
-
-    public Credits Price(TimeSpan? duration = null)
-    {
-        duration ??= Duration;
-
-        return new Credits((decimal)duration.Value.TotalHours);
     }
 
     public bool Overlaps(ParkingSpotAvailability other)

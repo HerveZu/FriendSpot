@@ -46,25 +46,25 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
         var until = req.From + req.MinDuration;
 
         var availableSpots = await (
-                from myParking in from parkingLot in dbContext.Set<ParkingLot>()
-                    where parkingLot.UserIdentity == currentUser.Identity
+                from myParking in from parkingLot in dbContext.Set<ParkingSpot>()
+                    where parkingLot.OwnerId == currentUser.Identity
                     join parking in dbContext.Set<Parking>() on parkingLot.ParkingId equals parking.Id
                     select parking
-                join parkingLot in dbContext.Set<ParkingLot>() on myParking.Id equals parkingLot.ParkingId
-                where parkingLot.UserIdentity != currentUser.Identity
-                where parkingLot.Availabilities.Any(
-                    availability => availability.From <= req.From && availability.To >= until)
+                join parkingLot in dbContext.Set<ParkingSpot>() on myParking.Id equals parkingLot.ParkingId
+                where parkingLot.OwnerId != currentUser.Identity
                 select parkingLot.Availabilities
                     .Where(availability => availability.From <= req.From && availability.To >= until)
+                    .Where(
+                        availability => !parkingLot.Bookings
+                            .Any(booking => booking.From <= availability.To && availability.From <= booking.To))
                     .Select(
                         availability => new SearchSpotsResponse.AvailableSpot
                         {
                             ParkingLotId = parkingLot.Id,
                             From = availability.From,
                             Until = availability.To
-                        })
-                    .First())
-            .IgnoreQueryFilters()
+                        }))
+            .SelectMany(availabilities => availabilities)
             .ToArrayAsync(ct);
 
         await SendOkAsync(

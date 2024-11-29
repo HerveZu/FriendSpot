@@ -35,6 +35,7 @@ internal sealed class DefineMySpot(AppDbContext dbContext)
 
     public override async Task HandleAsync(DefineMySpotRequest req, CancellationToken ct)
     {
+        var currentUser = HttpContext.ToCurrentUser();
         var parking = await dbContext.Set<Parking>().FindAsync([req.ParkingId], ct);
 
         if (parking is null)
@@ -43,18 +44,18 @@ internal sealed class DefineMySpot(AppDbContext dbContext)
             return;
         }
 
-        var parkingLot = await dbContext.Set<ParkingLot>()
-            .FirstOrDefaultAsync(ct);
+        var parkingSpot = await dbContext.Set<ParkingSpot>()
+            .FirstOrDefaultAsync(parkingSpot => parkingSpot.OwnerId == currentUser.Identity, ct);
 
-        if (parkingLot is null)
+        if (parkingSpot is null)
         {
-            parkingLot = ParkingLot.Define(HttpContext.ToCurrentUser().Identity, req.ParkingId, req.LotName);
-            await dbContext.Set<ParkingLot>().AddAsync(parkingLot, ct);
+            parkingSpot = ParkingSpot.Define(HttpContext.ToCurrentUser().Identity, req.ParkingId, req.LotName);
+            await dbContext.Set<ParkingSpot>().AddAsync(parkingSpot, ct);
         }
         else
         {
-            parkingLot.ChangeSpotName(req.ParkingId, req.LotName);
-            dbContext.Set<ParkingLot>().Update(parkingLot);
+            parkingSpot.ChangeSpotName(req.ParkingId, req.LotName);
+            dbContext.Set<ParkingSpot>().Update(parkingSpot);
         }
 
         await dbContext.SaveChangesAsync(ct);
@@ -62,7 +63,7 @@ internal sealed class DefineMySpot(AppDbContext dbContext)
         await SendOkAsync(
             new MySpotResponse
             {
-                LotName = parkingLot.SpotName,
+                LotName = parkingSpot.SpotName,
                 Parking = parking.ToDto()
             },
             ct);

@@ -10,8 +10,8 @@ internal sealed class CreateInitialWallet(AppDbContext dbContext) : IDomainEvent
 {
     public async Task Handle(UserRegistered notification, CancellationToken ct)
     {
-        var wallet = Wallet.Create(notification.UserIdentity);
-        wallet.Credit(notification.UserIdentity, new Credits(10), TransactionState.Confirmed);
+        var wallet = Wallet.Create(notification.UserId);
+        wallet.Credit(notification.UserId, new Credits(10), TransactionState.Confirmed);
 
         await dbContext.Set<Wallet>().AddAsync(wallet, ct);
         await dbContext.SaveChangesAsync(ct);
