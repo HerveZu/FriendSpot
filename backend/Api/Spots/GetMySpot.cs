@@ -1,3 +1,4 @@
+using Api.Common;
 using Api.Common.Infrastructure;
 using Api.Spots.Contracts;
 using Domain.Parkings;
@@ -16,11 +17,14 @@ internal sealed class GetMySpot(AppDbContext dbContext) : EndpointWithoutRequest
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var query = from parkingLot in dbContext.Set<ParkingLot>()
-            join parking in dbContext.Set<Parking>() on parkingLot.ParkingId equals parking.Id
+        var currentUser = HttpContext.ToCurrentUser();
+
+        var query = from parkingSpot in dbContext.Set<ParkingSpot>()
+            where parkingSpot.OwnerId == currentUser.Identity
+            join parking in dbContext.Set<Parking>() on parkingSpot.ParkingId equals parking.Id
             select new MySpotResponse
             {
-                LotName = parkingLot.SpotName,
+                LotName = parkingSpot.SpotName,
                 Parking = parking.ToDto()
             };
 

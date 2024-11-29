@@ -19,7 +19,7 @@ internal sealed class ScheduleCreditsForConfirmation(ISchedulerFactory scheduler
         await scheduler.ScheduleJob(
             JobBuilder.Create<ConfirmCredits>()
                 .WithIdentity(BookingJobsKeys.ConfirmCredits(notification.AvailabilityId))
-                .UsingJobData(ConfirmCredits.UserIdentity, notification.UserIdentity)
+                .UsingJobData(ConfirmCredits.OwnerId, notification.OwnerId)
                 .UsingJobData(ConfirmCredits.AvailabilityId, notification.AvailabilityId)
                 .UsingJobData(ConfirmCredits.Credits, (double)notification.Credits.Amount)
                 .Build(),
@@ -32,13 +32,13 @@ internal sealed class ScheduleCreditsForConfirmation(ISchedulerFactory scheduler
 
 internal sealed class ConfirmCredits(AppDbContext dbContext) : IJob
 {
-    public const string UserIdentity = nameof(UserIdentity);
+    public const string OwnerId = nameof(OwnerId);
     public const string AvailabilityId = nameof(AvailabilityId);
     public const string Credits = nameof(Credits);
 
     public async Task Execute(IJobExecutionContext context)
     {
-        var userId = context.MergedJobDataMap.GetString(UserIdentity);
+        var ownerId = context.MergedJobDataMap.GetString(OwnerId);
         var credits = (decimal)context.MergedJobDataMap.GetDoubleValue(Credits);
 
         if (!context.MergedJobDataMap.TryGetGuidValue(AvailabilityId, out var availabilityId))
@@ -48,7 +48,7 @@ internal sealed class ConfirmCredits(AppDbContext dbContext) : IJob
 
         var wallet = await (
                 from userWallet in dbContext.Set<Wallet>()
-                where userWallet.UserIdentity == userId
+                where userWallet.UserId == ownerId
                 select userWallet)
             .FirstAsync(context.CancellationToken);
 

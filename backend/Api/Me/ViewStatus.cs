@@ -1,6 +1,5 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Domain.Bookings;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using Domain.Wallets;
@@ -69,7 +68,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
         var currentUser = HttpContext.ToCurrentUser();
         var now = DateTimeOffset.UtcNow;
 
-        var spot = await dbContext.Set<ParkingLot>()
+        var spot = await dbContext.Set<ParkingSpot>()
             .Select(
                 parkingLot => new ViewStatusResponse.SpotStatus
                 {
@@ -95,38 +94,43 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
             }).FirstAsync(ct);
 
         var availableSpotsCount = await (
-                from myParking in from parkingLot in dbContext.Set<ParkingLot>()
-                    where parkingLot.UserIdentity == currentUser.Identity
+                from myParking in from parkingLot in dbContext.Set<ParkingSpot>()
+                    where parkingLot.OwnerId == currentUser.Identity
                     join parking in dbContext.Set<Parking>() on parkingLot.ParkingId equals parking.Id
                     select parking
-                join parkingLot in dbContext.Set<ParkingLot>() on myParking.Id equals parkingLot.ParkingId
-                where parkingLot.UserIdentity != currentUser.Identity
+                join parkingLot in dbContext.Set<ParkingSpot>() on myParking.Id equals parkingLot.ParkingId
+                where parkingLot.OwnerId != currentUser.Identity
                 where parkingLot.Availabilities
                     .Any(availability => availability.From <= now && availability.To >= now)
                 select parkingLot)
-            .IgnoreQueryFilters()
             .CountAsync(ct);
 
-        var bookings = await (
-                from booking in dbContext.Set<Booking>()
-                where booking.UserIdentity == currentUser.Identity
-                where booking.To >= now
-                join parkingLot in dbContext.Set<ParkingLot>() on booking.ParkingLotId equals parkingLot.Id
-                select new ViewStatusResponse.BookingStatus
-                {
-                    BookingId = booking.Id,
-                    From = booking.From,
-                    Duration = booking.Duration,
-                    Info = booking.From > now
-                        ? null
-                        : new ViewStatusResponse.BookingStatus.BookingStatusInfo
+        var bookingsPerSpot = await (
+                from parkingSpot in dbContext.Set<ParkingSpot>()
+                select parkingSpot.Bookings
+                    .Where(booking => booking.From >= now)
+                    .Where(booking => booking.BookingUserId == currentUser.Identity)
+                    .Select(
+                        booking => new ViewStatusResponse.BookingStatus
                         {
-                            OwnerId = parkingLot.UserIdentity,
-                            SpotName = parkingLot.SpotName
-                        }
-                })
-            .IgnoreQueryFilters()
+                            BookingId = booking.Id,
+                            From = booking.From,
+                            Duration = booking.Duration,
+                            Info = booking.From > now
+                                ? null
+                                : new ViewStatusResponse.BookingStatus.BookingStatusInfo
+                                {
+                                    OwnerId = parkingSpot.OwnerId,
+                                    SpotName = parkingSpot.SpotName
+                                }
+                        })
+            )
+            .AsNoTracking()
             .ToArrayAsync(ct);
+
+        var bookings = bookingsPerSpot
+            .SelectMany(bookings => bookings)
+            .ToArray();
 
         await SendOkAsync(
             new ViewStatusResponse

@@ -1,3 +1,4 @@
+using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
 using FastEndpoints;
@@ -39,17 +40,19 @@ internal sealed class MakeMySpotAvailable(AppDbContext dbContext)
 
     public override async Task HandleAsync(MakeMySpotAvailableRequest req, CancellationToken ct)
     {
-        var parkingLot = await dbContext.Set<ParkingLot>().FirstOrDefaultAsync(ct);
+        var currentUser = HttpContext.ToCurrentUser();
+        var parkingSpot = await dbContext.Set<ParkingSpot>()
+            .FirstOrDefaultAsync(parkingSpot => parkingSpot.OwnerId == currentUser.Identity, ct);
 
-        if (parkingLot is null)
+        if (parkingSpot is null)
         {
-            ThrowError("No spot defined");
+            ThrowError("No parking spot defined");
             return;
         }
 
-        var earnedCredits = parkingLot.MakeAvailable(req.From, req.To);
+        var earnedCredits = parkingSpot.MakeAvailable(req.From, req.To);
 
-        dbContext.Set<ParkingLot>().Update(parkingLot);
+        dbContext.Set<ParkingSpot>().Update(parkingSpot);
         await dbContext.SaveChangesAsync(ct);
 
         await SendOkAsync(
