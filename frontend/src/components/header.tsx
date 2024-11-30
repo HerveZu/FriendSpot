@@ -16,15 +16,13 @@ export function Header() {
 	const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0();
 	const { apiRequest } = useApiRequest();
 
-	const baseUrl = import.meta.env.VITE__AUTH0__BASE__URL;
-
 	const [userCredit, setUserCredit] = useState({});
 	const currentCredit = userCredit?.wallet?.credits;
 	const pendingCredit = userCredit?.wallet?.pendingCredits;
 
 	useEffect(() => {
 		async function fetchUserCredit() {
-			const response = await apiRequest(`${baseUrl}/@me/status`, 'GET');
+			const response = await apiRequest(`/@me/status`, 'GET');
 			const data = await response.json();
 			setUserCredit(data);
 		}

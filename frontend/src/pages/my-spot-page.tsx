@@ -8,8 +8,6 @@ import { useDebounce } from 'use-debounce';
 import { Button } from '@/components/ui/button';
 
 export function MySpotPage() {
-	const baseUrl = import.meta.env.VITE__AUTH0__BASE__URL;
-
 	const { apiRequest } = useApiRequest();
 
 	const [searchParking, setSearchParking] = useState<string>('');
@@ -19,16 +17,12 @@ export function MySpotPage() {
 	// Fetch parkings match with my parking
 	useEffect(() => {
 		async function fetchSearchParking() {
-			const response = await apiRequest(`${baseUrl}/parking?search=${debounceValue}`, 'GET');
+			const response = await apiRequest(`/parking?search=${debounceValue}`, 'GET');
 			const data = await response.json();
 			setDataSearchParking(data);
 		}
 		fetchSearchParking();
 	}, [debounceValue]);
-
-	const filterSearchParking = dataSearchParking.filter((parking) =>
-		parking.name.toLowerCase().includes(debounceValue.toLowerCase())
-	);
 
 	return (
 		<Card className=" flex flex-col mx-auto mt-20 w-[80%]">
@@ -45,9 +39,9 @@ export function MySpotPage() {
 					className="pl-10 min-h-[40px]"
 				/>
 				<div
-					className={`flex flex-col gap-2 w-full ${filterSearchParking.length > 0 ? 'flex flex-col gap-3 mt-[-30px] h-auto border bg-[#04060d] pt-12 pb-6 px-2 z-[-10] rounded-lg relative' : ''}`}>
-					{filterSearchParking.length > 0 &&
-						filterSearchParking.map((parking) => (
+					className={`flex flex-col gap-2 w-full ${dataSearchParking.length > 0 ? 'flex flex-col gap-3 mt-[-30px] h-auto border bg-[#04060d] pt-12 pb-6 px-2 z-[-10] rounded-lg relative' : ''}`}>
+					{dataSearchParking.length > 0 &&
+						dataSearchParking.map((parking) => (
 							<Button
 								variant={'outline'}
 								className="whitespace-normal min-h-[40px] py-6 "

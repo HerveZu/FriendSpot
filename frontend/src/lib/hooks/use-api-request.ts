@@ -5,9 +5,10 @@ type httpMethod = 'GET' | 'POST' | 'PUT';
 
 export function useApiRequest() {
 	const { getAccessTokenSilently } = useAuth0();
+	const baseUrl = import.meta.env.VITE__AUTH0__BASE__URL;
 
 	const apiRequest = useCallback(async (url: string, method: httpMethod) => {
-		const response = await fetch(url, {
+		const response = await fetch(baseUrl + url, {
 			method: method,
 			headers: {
 				Authorization: `Bearer ${await getAccessTokenSilently()}`
