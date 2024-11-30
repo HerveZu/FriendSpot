@@ -1,8 +1,11 @@
 import { CustomPopUp } from "@/components/custom-pop-up";
+import { Logo, LogoLoader } from '@/components/logo.tsx';
 
 export function LandingPage() {
     return(
         <div className="flex flex-col mt-14 gap-5 text-lg px-8">
+            <Logo className={'w-6 h-6'}/>
+            <LogoLoader loop={700} pause={800}/>
             <h1 className="text-xl">Bienvenue sur <span className="text-blue-400">FriendSpot</span> (bêta)</h1>
             <p className="text-base">12 places sont actuellement libres <br/>  dans votre parking</p>
             <div className="flex flex-col mt-5 gap-5">
