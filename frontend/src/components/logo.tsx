@@ -67,8 +67,8 @@ export function LogoLoader(props: { loop: number, pause: number }) {
 			/>
 			<LogoCard
 				style={{
-					rotate: `${blerp(15, 20, time())}deg`,
-					translate: `${blerp(10, 30, time())}px ${blerp(5, 10, time())}px`
+					rotate: `${blerp(15, 30, time())}deg`,
+					translate: `${blerp(10, 20, time())}px ${blerp(5, 10, time())}px`
 				}}
 				className={'absolute transition-transform'}
 				background={true}
