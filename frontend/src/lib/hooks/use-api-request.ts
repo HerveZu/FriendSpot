@@ -7,14 +7,19 @@ export function useApiRequest() {
 	const { getAccessTokenSilently } = useAuth0();
 	const baseUrl = import.meta.env.VITE__AUTH0__BASE__URL;
 
-	const apiRequest = useCallback(async (url: string, method: httpMethod) => {
-		const response = await fetch(baseUrl + url, {
-			method: method,
-			headers: {
-				Authorization: `Bearer ${await getAccessTokenSilently()}`
-			}
-		});
-		return response;
-	}, []);
+	const apiRequest = useCallback(
+		async <TResponse, TBody = unknown>(url: string, method: httpMethod, body?: TBody) => {
+			const response = await fetch(baseUrl + url, {
+				method: method,
+				headers: {
+					Authorization: `Bearer ${await getAccessTokenSilently()}`,
+					...(body && { 'Content-Type': 'application/json' })
+				},
+				body: body ? JSON.stringify(body) : null
+			});
+			return (await response.json()) as TResponse;
+		},
+		[]
+	);
 	return { apiRequest };
 }
