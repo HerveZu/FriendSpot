@@ -11,9 +11,8 @@ export function RegisterPage() {
 	useEffect(() => {
 		async function registerUser() {
 			setIsLoading(true);
-
 			try {
-				await apiRequest('http://localhost:5001/@me/register', 'POST');
+				await apiRequest<void>('/@me/register', 'POST');
 			} catch (error) {
 				console.log(error);
 			} finally {
