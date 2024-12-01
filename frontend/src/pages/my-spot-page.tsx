@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import {
 	CommandList
 } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
+import { LoaderContext } from '@/components/logo.tsx';
 
 const baseUrl = import.meta.env.VITE__AUTH0__BASE__URL;
 
@@ -26,7 +27,7 @@ export function MySpotPage() {
 	const [selectedParkingName, setSelectedParkingName] = useState<string>('');
 	const [parkingNumber, setParkingNumber] = useState<string>('');
 
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const { isLoading, setIsLoading } = useContext(LoaderContext);
 
 	const [dataExistingParking, setDataExistingParking] = useState([]);
 	const [debounceValue] = useDebounce(selectedParkingName, 500);
@@ -135,7 +136,7 @@ export function MySpotPage() {
 					variant={'default'}
 					className="mt-5 w-full cursor-none"
 					onClick={() => userParkingChange()}
-					disabled={selectedParking === false || parkingNumber.trim().length === 0}>
+					disabled={!selectedParking || parkingNumber.trim().length === 0}>
 					{isLoading ? 'En cours..' : 'Enregistrer'}
 				</Button>
 			</CardFooter>
