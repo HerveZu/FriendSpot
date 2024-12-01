@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
-import { useAuth0 } from '@auth0/auth0-react';
 import {
 	Command,
 	CommandGroup,
@@ -15,33 +14,49 @@ import {
 } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
 
-const baseUrl = import.meta.env.VITE__AUTH0__BASE__URL;
+interface IParkingsList {
+	id: string;
+	address: string;
+	name: string;
+}
+interface SetMySpot {
+	parkingId: string;
+	lotName: string;
+}
+
+interface MySpot {
+	lotName?: string;
+	parking?: {
+		address?: string;
+		id?: string;
+		name?: string;
+	};
+}
 
 export function MySpotPage() {
 	const { apiRequest } = useApiRequest();
-	const { getAccessTokenSilently } = useAuth0();
+
+	const [parkingUser, setParkingUser] = useState<MySpot>();
 
 	const [selectedParking, setSelectedParking] = useState<boolean>(false);
-	const [selectedParkingId, setSelectedParkingId] = useState<string>('');
-	const [selectedParkingName, setSelectedParkingName] = useState<string>('');
-	const [parkingNumber, setParkingNumber] = useState<string>('');
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
-	const [dataExistingParking, setDataExistingParking] = useState([]);
-	const [debounceValue] = useDebounce(selectedParkingName, 500);
+	const [dataParkingsList, setDataParkingsList] = useState<IParkingsList[] | undefined>();
+	const [debounceValue] = useDebounce(parkingUser ? parkingUser?.parking?.name : '', 500);
 
+	// Check if the user has a registered parking space
 	useEffect(() => {
 		async function fetchUserParking() {
-			const response = await apiRequest('/@me/spot', 'GET');
 			setIsLoading(true);
-			if (response.ok) {
-				const data = await response.json();
-				setIsLoading(false);
-				setSelectedParkingId(data.parking.id);
-				setSelectedParkingName(data.parking.name);
-				setParkingNumber(data.lotName);
+			try {
+				const response = await apiRequest<MySpot>('/@me/spot', 'GET');
+				setParkingUser(response);
 				setSelectedParking(false);
+			} catch (error) {
+				console.log(error);
+			} finally {
+				setIsLoading(false);
 			}
 		}
 		fetchUserParking();
@@ -50,40 +65,36 @@ export function MySpotPage() {
 	// Fetch parkings match with my parking
 	useEffect(() => {
 		async function fetchSearchParking() {
-			const response = await apiRequest(`/parking?search=${debounceValue}`, 'GET');
-			const data = await response.json();
-			setDataExistingParking(data);
+			try {
+				const response = await apiRequest<IParkingsList[]>(
+					`/parking?search=${debounceValue}`,
+					'GET'
+				);
+				setDataParkingsList(response);
+			} catch (error) {
+				console.log(error);
+			}
 		}
 		fetchSearchParking();
 	}, [debounceValue]);
 
-	async function userParkingChange() {
-		const data: {
-			parkingId: string;
-			lotName: string;
+	// Update user parking info
+	async function setUserParkingChange() {
+		const body: {
+			parkingId: string | undefined;
+			lotName: string | undefined;
 		} = {
-			parkingId: selectedParkingId,
-			lotName: parkingNumber
+			parkingId: parkingUser?.parking?.id,
+			lotName: parkingUser?.lotName
 		};
 		try {
-			await fetch(`${baseUrl}/@me/spot`, {
-				method: 'PUT',
-				headers: {
-					Authorization: `Bearer ${await getAccessTokenSilently()}`,
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(data)
-			});
+			await apiRequest<SetMySpot>('/@me/spot', 'PUT', body);
 			setSelectedParking(false);
 		} catch (error) {
 			console.log(error);
+		} finally {
+			setDataParkingsList(undefined);
 		}
-	}
-
-	function selectParking(parkingName: string, parkingId: string) {
-		setSelectedParkingName(parkingName);
-		setSelectedParkingId(parkingId);
-		setSelectedParking(true);
 	}
 
 	return (
@@ -94,20 +105,38 @@ export function MySpotPage() {
 			<CardContent className="relative z-0">
 				<Command>
 					<CommandInput
-						value={selectedParkingName}
+						value={parkingUser?.parking?.name}
 						onValueChange={(e) => {
-							setSelectedParkingName(e);
-							setSelectedParking(false);
+							const newName = e;
+							setParkingUser((prevState) => ({
+								...prevState,
+								lotName: prevState?.lotName,
+								parking: {
+									...prevState?.parking,
+									name: newName
+								}
+							}));
 						}}
-						placeholder="Recherchez votre parking.."
+						placeholder="Recherchez votre parking..."
 					/>
 					<CommandList>
 						<CommandGroup>
-							{dataExistingParking.map((parking) => (
+							{dataParkingsList?.map((parking) => (
 								<CommandItem
 									key={parking.id}
 									className="mt-3"
-									onSelect={() => selectParking(parking.name, parking.id)}>
+									onSelect={() => {
+										setParkingUser((prevState) => ({
+											...prevState,
+											lotName: prevState?.lotName,
+											parking: {
+												...prevState?.parking,
+												id: parking.id,
+												name: parking.name
+											}
+										}));
+										setSelectedParking(true);
+									}}>
 									<div className="flex max-w-[225px] gap-2 items-center">
 										<p className="">{parking.name}</p>
 										<p>{selectedParking && <Check color="green" />}</p>
@@ -121,21 +150,34 @@ export function MySpotPage() {
 			<Separator />
 			<CardFooter className="flex flex-col w-full justify-between mt-5 ">
 				<div className="flex items-center gap-8">
-					<p className={`${parkingNumber.trim().length === 0 ? 'text-red-500' : ''}`}>
-						Place numéro
+					<p
+						className={`${parkingUser?.lotName?.trim().length === 0 ? 'text-destructive' : ''}`}>
+						Place numéro :
 					</p>
 					<Input
-						className={`flex justify-center w-20 h-9 py-2 rounded-md ${parkingNumber.trim().length === 0 ? 'border-2 border-red-500 focus-visible:ring-0 focus-visible:ring-offset-0' : ''}`}
+						className={`flex justify-center w-20 h-9 py-2 rounded-md ${parkingUser?.lotName?.trim().length === 0 ? 'border-2 border-destructive focus-visible:ring-0 focus-visible:ring-offset-0' : ''}`}
 						type="text"
-						value={parkingNumber}
-						onChange={(e) => setParkingNumber(e.target.value)}
+						value={parkingUser?.lotName}
+						onChange={(e) => {
+							const newLotName = e.target.value;
+
+							setParkingUser((prevState) => ({
+								...prevState,
+								lotName: newLotName,
+								parking: {
+									...prevState?.parking
+								}
+							}));
+						}}
 					/>
 				</div>
 				<Button
 					variant={'default'}
 					className="mt-5 w-full cursor-none"
-					onClick={() => userParkingChange()}
-					disabled={selectedParking === false || parkingNumber.trim().length === 0}>
+					onClick={() => setUserParkingChange()}
+					disabled={
+						selectedParking === false || parkingUser?.lotName?.trim().length === 0
+					}>
 					{isLoading ? 'En cours..' : 'Enregistrer'}
 				</Button>
 			</CardFooter>
