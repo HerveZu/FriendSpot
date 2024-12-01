@@ -4,11 +4,18 @@ using Api.Spots.Contracts;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Spots;
 
-internal sealed class GetMySpot(AppDbContext dbContext) : EndpointWithoutRequest<MySpotResponse>
+[PublicAPI]
+public sealed record GetMySpotResponse
+{
+    public MySpotResponse? Spot { get; init; }
+}
+
+internal sealed class GetMySpot(AppDbContext dbContext) : EndpointWithoutRequest<GetMySpotResponse>
 {
     public override void Configure()
     {
@@ -28,14 +35,19 @@ internal sealed class GetMySpot(AppDbContext dbContext) : EndpointWithoutRequest
                 Parking = parking.ToDto()
             };
 
-        var result = await query.FirstOrDefaultAsync(ct);
+        var spot = await query.FirstOrDefaultAsync(ct);
 
-        if (result is null)
+        if (spot is null)
         {
-            await SendNoContentAsync(ct);
+            await SendOkAsync(new GetMySpotResponse(), ct);
             return;
         }
 
-        await SendOkAsync(result, ct);
+        await SendOkAsync(
+            new GetMySpotResponse
+            {
+                Spot = spot
+            },
+            ct);
     }
 }

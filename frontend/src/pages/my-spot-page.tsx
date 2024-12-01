@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
@@ -40,7 +40,7 @@ export function MySpotPage() {
 
 	const [selectedParking, setSelectedParking] = useState<boolean>(false);
 
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const { isLoading, setIsLoading } = useContext(LoaderContext);
 
 	const [dataParkingsList, setDataParkingsList] = useState<IParkingsList[] | undefined>();
 	const [debounceValue] = useDebounce(parkingUser ? parkingUser?.parking?.name : '', 500);
