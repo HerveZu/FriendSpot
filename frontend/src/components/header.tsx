@@ -11,20 +11,35 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface UserStatus {
+	availableSpots: number;
+	bookings: [];
+	spot: {
+		availabilities: [] | undefined;
+		totalSpotAvailability: string;
+	};
+	wallet: {
+		credits: number | undefined;
+		pendingCredits: number | undefined;
+	};
+}
 
 export function Header() {
-	const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0();
+	const { logout, user } = useAuth0();
+
 	const { apiRequest } = useApiRequest();
 
-	const [userCredit, setUserCredit] = useState({});
+	const [userCredit, setUserCredit] = useState<UserStatus>();
+
 	const currentCredit = userCredit?.wallet?.credits;
-	const pendingCredit = userCredit?.wallet?.pendingCredits;
+	const pendingCredit = userCredit ? userCredit?.wallet?.pendingCredits : undefined;
 
 	useEffect(() => {
 		async function fetchUserCredit() {
-			const response = await apiRequest(`/@me/status`, 'GET');
-			const data = await response.json();
-			setUserCredit(data);
+			const response = await apiRequest<UserStatus>(`/@me/status`, 'GET');
+			setUserCredit(response);
 		}
 		fetchUserCredit();
 	}, []);
@@ -42,32 +57,27 @@ export function Header() {
 					</div>
 				)}
 				<Separator orientation="vertical" className="w-[2px] h-[25px]" />
-				{isAuthenticated ? (
-					<>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant={'default'}>{user.name}</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent className="flex flex-col gap-2 ">
-								<DropdownMenuItem asChild>
-									<Link to={'/myspot'}>Mon spot</Link>
-								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-									<Button variant={'destructive'} onClick={() => logout()}>
-										Se déconnecter
-									</Button>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</>
-				) : (
-					<Button
-						onClick={() => loginWithRedirect()}
-						variant={'outline'}
-						className="text-blue-400">
-						Se connecter
-					</Button>
-				)}
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						{user?.picture ? (
+							<Avatar>
+								<AvatarImage src="https://github.com/shadcn.png" />
+							</Avatar>
+						) : (
+							<AvatarFallback>{'JC'}</AvatarFallback>
+						)}
+					</DropdownMenuTrigger>
+					<DropdownMenuContent className="flex flex-col gap-2 ">
+						<DropdownMenuItem asChild>
+							<Link to={'/myspot'}>Mon spot</Link>
+						</DropdownMenuItem>
+						<DropdownMenuItem asChild>
+							<Button variant={'destructive'} onClick={() => logout()}>
+								Se déconnecter
+							</Button>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 	);
