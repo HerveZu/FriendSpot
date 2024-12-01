@@ -66,8 +66,8 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("me")}}
 
 {
-  "from": "2024-11-26T07:06:00+01:00",
-  "to": "2024-11-26T11:20:00+01:00"
+  "from": "2024-12-02T07:06:00+01:00",
+  "to": "2024-12-02T11:20:00+01:00"
 }
 
 ###
@@ -81,6 +81,12 @@ Authorization: Bearer {{$auth.token("other")}}
   "from": "2024-11-29T01:17:00+01:00",
   "to": "2024-11-29T19:00:00+01:00"
 }
+
+###
+
+GET {{Api_HostAddress}}/@me/spot/availabilities
+Accept: application/json
+Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
