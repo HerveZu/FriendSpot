@@ -105,7 +105,7 @@ function LogoLoader(props: { className?: string, loop: number; pause: number }) 
 	);
 }
 
-function LogoCard(props: { className?: string; style?: CSSProperties; full: boolean }) {
+export function LogoCard(props: { className?: string; style?: CSSProperties; full: boolean }) {
 	return (
 		<div
 			style={props.style}
