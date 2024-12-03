@@ -1,6 +1,6 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Api.Spots.Contracts;
+using Api.MySpot.Contracts;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
@@ -8,7 +8,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Spots;
+namespace Api.MySpot;
 
 [PublicAPI]
 public sealed record DefineMySpotRequest

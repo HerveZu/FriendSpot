@@ -60,7 +60,7 @@ Authorization: Bearer {{$auth.token("other")}}
 
 ###
 
-POST {{Api_HostAddress}}/@me/spot/availability
+POST {{Api_HostAddress}}/spots/availabilities
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{$auth.token("me")}}
@@ -72,7 +72,7 @@ Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
-POST {{Api_HostAddress}}/@me/spot/availability
+POST {{Api_HostAddress}}/spots/availabilities
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{$auth.token("other")}}
@@ -84,13 +84,19 @@ Authorization: Bearer {{$auth.token("other")}}
 
 ###
 
-GET {{Api_HostAddress}}/@me/spot/availabilities
+GET {{Api_HostAddress}}/spots/availabilities
 Accept: application/json
 Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
 GET {{Api_HostAddress}}/spots?from=2024-11-29T01:20:00&minDuration=02:00:00
+Accept: application/json
+Authorization: Bearer {{$auth.token("me")}}
+
+###
+
+GET {{Api_HostAddress}}/spots/booking
 Accept: application/json
 Authorization: Bearer {{$auth.token("me")}}
 

@@ -35,7 +35,7 @@ internal sealed class MakeMySpotAvailable(AppDbContext dbContext)
 {
     public override void Configure()
     {
-        Post("/@me/spot/availability");
+        Post("/spots/availabilities");
     }
 
     public override async Task HandleAsync(MakeMySpotAvailableRequest req, CancellationToken ct)

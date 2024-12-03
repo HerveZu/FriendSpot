@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Api.Spots.Contracts;
+namespace Api.MySpot.Contracts;
 
 [PublicAPI]
 public sealed record MySpotResponse

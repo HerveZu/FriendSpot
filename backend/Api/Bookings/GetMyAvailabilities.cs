@@ -5,10 +5,10 @@ using FastEndpoints;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Spots;
+namespace Api.Bookings;
 
 [PublicAPI]
-public sealed record GetAvailabilitiesResponse
+public sealed record GetMyAvailabilitiesResponse
 {
     public required TimeSpan TotalDuration { get; init; }
     public required Availability[] Availabilities { get; init; }
@@ -22,11 +22,11 @@ public sealed record GetAvailabilitiesResponse
     }
 }
 
-internal sealed class GetAvailabilities(AppDbContext dbContext) : EndpointWithoutRequest<GetAvailabilitiesResponse>
+internal sealed class GetMyAvailabilities(AppDbContext dbContext) : EndpointWithoutRequest<GetMyAvailabilitiesResponse>
 {
     public override void Configure()
     {
-        Get("/@me/spot/availabilities");
+        Get("/spots/availabilities");
     }
 
     public override async Task HandleAsync(CancellationToken ct)
@@ -40,7 +40,7 @@ internal sealed class GetAvailabilities(AppDbContext dbContext) : EndpointWithou
             .SelectMany(parkingSpot => parkingSpot.Availabilities)
             .Where(availability => availability.To >= now)
             .Select(
-                availability => new GetAvailabilitiesResponse.Availability
+                availability => new GetMyAvailabilitiesResponse.Availability
                 {
                     From = availability.From,
                     To = availability.To,
@@ -51,7 +51,7 @@ internal sealed class GetAvailabilities(AppDbContext dbContext) : EndpointWithou
         var totalDuration = new TimeSpan(availabilities.Sum(availability => availability.Duration.Ticks));
 
         await SendOkAsync(
-            new GetAvailabilitiesResponse
+            new GetMyAvailabilitiesResponse
             {
                 TotalDuration = totalDuration,
                 Availabilities = availabilities
