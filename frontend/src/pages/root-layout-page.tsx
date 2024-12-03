@@ -2,21 +2,28 @@ import { Outlet } from 'react-router-dom';
 import { Header } from '../components/header';
 import { useAuth0 } from '@auth0/auth0-react';
 import { LandingConnect } from '@/components/landing-connect';
-import { LoaderProvider } from '@/components/logo.tsx';
+import { LoaderContext } from '@/components/logo.tsx';
+import { useContext, useEffect } from 'react';
 
 export function RootLayoutPage() {
-	const { isAuthenticated } = useAuth0();
+	const { isAuthenticated, isLoading } = useAuth0();
+	const { setIsLoading } = useContext(LoaderContext);
+
+	useEffect(() => {
+		setIsLoading(isLoading);
+	}, [isLoading]);
 
 	return (
-		<LoaderProvider className="w-full h-full">
-			{isAuthenticated ? (
-				<>
-					<Header />
-					<Outlet />
-				</>
-			) : (
-				<LandingConnect />
-			)}
-		</LoaderProvider>
+		<div className="w-full h-full">
+			{!isLoading &&
+				(isAuthenticated ? (
+					<>
+						<Header />
+						<Outlet />
+					</>
+				) : (
+					<LandingConnect />
+				))}
+		</div>
 	);
 }
