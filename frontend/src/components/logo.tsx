@@ -2,7 +2,9 @@ import { blerp, cn } from '@/lib/utils.ts';
 import {
 	createContext,
 	CSSProperties,
+	Dispatch,
 	ReactNode,
+	SetStateAction,
 	useCallback,
 	useEffect,
 	useMemo,
@@ -14,18 +16,19 @@ export function Logo(props: { className?: string }) {
 		<div className={cn(props.className, 'relative')}>
 			<LogoCard
 				style={{
-					rotate: '-5deg'
+					rotate: '-5deg',
+					translate: '0% -15%'
 				}}
 				className={'absolute '}
-				full={false}
+				primary={false}
 			/>
 			<LogoCard
 				style={{
 					rotate: '15deg',
-					translate: '3% 5%'
+					translate: '3% -5%'
 				}}
 				className={'absolute translate-x-1/3'}
-				full={true}
+				primary={true}
 			/>
 		</div>
 	);
@@ -33,18 +36,22 @@ export function Logo(props: { className?: string }) {
 
 type LoaderContext = {
 	isLoading: boolean;
-	setIsLoading: (isLoading: boolean) => void;
+	setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
 export const LoaderContext = createContext<LoaderContext>(null!);
 
-export function LoaderProvider(props: { className?: string, children: ReactNode }) {
+export function LoaderProvider(props: { className?: string; children: ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	return (
 		<LoaderContext.Provider value={{ isLoading, setIsLoading }}>
 			{isLoading && (
-				<div className={cn(props.className, 'z-50 w-full h-full absolute left-0 top-0 backdrop-blur-sm')}>
+				<div
+					className={cn(
+						props.className,
+						'z-50 w-full h-full absolute left-0 top-0 backdrop-blur-sm'
+					)}>
 					<div className={'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 '}>
 						<LogoLoader className={'w-12 h-12'} loop={700} pause={800} />
 					</div>
@@ -55,7 +62,7 @@ export function LoaderProvider(props: { className?: string, children: ReactNode 
 	);
 }
 
-function LogoLoader(props: { className?: string, loop: number; pause: number }) {
+function LogoLoader(props: { className?: string; loop: number; pause: number }) {
 	const ticksPerSecond = useMemo(() => 60, []);
 	const [, setInternalTicks] = useState(0);
 	const [ticks, setTicks] = useState(0);
@@ -91,7 +98,7 @@ function LogoLoader(props: { className?: string, loop: number; pause: number }) 
 					translate: `-${blerp(0, 10, time())}px`
 				}}
 				className={'absolute transition-transform'}
-				full={false}
+				primary={false}
 			/>
 			<LogoCard
 				style={{
@@ -99,23 +106,21 @@ function LogoLoader(props: { className?: string, loop: number; pause: number }) 
 					translate: `${blerp(10, 20, time())}px ${blerp(5, 10, time())}px`
 				}}
 				className={'absolute transition-transform'}
-				full={true}
+				primary={true}
 			/>
 		</div>
 	);
 }
 
-export function LogoCard(props: { className?: string; style?: CSSProperties; full: boolean }) {
+export function LogoCard(props: { className?: string; style?: CSSProperties; primary: boolean }) {
 	return (
 		<div
 			style={props.style}
 			className={cn(
 				props.className,
 				'w-full aspect-[4/5] rounded-[20%] border-transparent p-[5%] bg-primary shadow-sm',
-				!props.full && 'brightness-75',
-				props.full && 'bg-gradient-to-br from-primary to-secondary'
 			)}>
-			{!props.full && <div className={'bg-secondary rounded-[20%] h-full w-full'} />}
+			<div className={cn('rounded-[20%] h-full w-full bg-primary', !props.primary && 'brightness-75 bg-gradient-to-br from-primary to-70% to-secondary')} />
 		</div>
 	);
 }

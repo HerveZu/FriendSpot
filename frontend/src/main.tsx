@@ -1,13 +1,14 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { RootLayoutPage } from './pages/root-layout-page.tsx';
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+import { AuthenticationGuard } from './pages/authentication-guard.tsx';
 import { MySpotPage } from './pages/my-spot-page.tsx';
 import { LandingPage } from './pages/landing-page.tsx';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { RegisterPage } from './pages/register-page.tsx';
 import './index.css';
 import { LoaderProvider } from '@/components/logo.tsx';
+import { Header } from '@/components/header.tsx';
 
 const AUTH0_DOMAIN = import.meta.env.VITE__AUTH0__DOMAIN;
 const CALLBACK_PATH = import.meta.env.VITE__AUTH0__CALLBACK__PATH;
@@ -17,7 +18,12 @@ const router = createBrowserRouter(
 	[
 		{
 			path: '/',
-			element: <RootLayoutPage />,
+			element: (
+				<AuthenticationGuard className={'flex flex-col gap-2'}>
+					<Header />
+					<Outlet />
+				</AuthenticationGuard>
+			),
 			children: [
 				{
 					path: '/',

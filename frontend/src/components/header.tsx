@@ -1,5 +1,4 @@
 import { Button } from './ui/button';
-import { Car } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
 	DropdownMenu,
@@ -7,72 +6,50 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useEffect, useState } from 'react';
-import { useApiRequest } from '@/lib/hooks/use-api-request';
+import { useContext } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-interface UserStatus {
-	availableSpots: number;
-	bookings: [];
-	spot: {
-		availabilities: [] | undefined;
-		totalSpotAvailability: string;
-	};
-	wallet: {
-		credits: number | undefined;
-		pendingCredits: number | undefined;
-	};
-}
+import { Logo, LogoCard } from '@/components/logo.tsx';
+import { UserStatusContext } from '@/pages/authentication-guard.tsx';
+import { Dot, LogOut } from 'lucide-react';
+import { Separator } from '@/components/ui/separator.tsx';
 
 export function Header() {
-	const { logout, user } = useAuth0();
-
-	const { apiRequest } = useApiRequest();
-
-	const [userCredit, setUserCredit] = useState<UserStatus>();
-
-	const currentCredit = userCredit?.wallet?.credits;
-	const pendingCredit = userCredit ? userCredit?.wallet?.pendingCredits : undefined;
-
-	useEffect(() => {
-		async function fetchUserCredit() {
-			const response = await apiRequest<UserStatus>(`/@me/status`, 'GET');
-			setUserCredit(response);
-		}
-		fetchUserCredit();
-	}, []);
+	const { logout } = useAuth0();
+	const { user } = useContext(UserStatusContext);
 
 	return (
-		<div className="flex justify-between items-center px-4 py-2 min-h-[80px] z-10 ">
+		<div className="flex justify-between items-center">
 			<Link to={'/'}>
-				<Car width={28} height={28} color="#60A5FA" />
+				<Logo className={'h-6 w-6'} />
 			</Link>
-			<div className="flex items-center gap-3">
-				{currentCredit && (
-					<div>
-						<p className="text-">{`${currentCredit} crédit${currentCredit > 1 ? 's' : ''}`}</p>
-						<p className="text-sm">{`${pendingCredit} crédit${pendingCredit > 1 ? 's' : ''} en cours`}</p>
-					</div>
-				)}
-				<Separator orientation="vertical" className="w-[2px] h-[25px]" />
+			<div className="flex items-center gap-8">
+				<div className={'flex gap-2 items-center'}>
+					<span className={'flex gap-2 items-center text-lg'}>
+						{user.wallet.credits}
+						<LogoCard primary={true} className={'w-6 h-6'} />
+					</span>
+					<Dot />
+					<span className={'flex gap-2 items-center text-lg'}>
+						{user.wallet.pendingCredits}
+						<LogoCard primary={false} className={'w-6 h-6'} />
+					</span>
+				</div>
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						{user?.picture ? (
-							<Avatar>
-								<AvatarImage src="https://github.com/shadcn.png" />
-							</Avatar>
-						) : (
-							<AvatarFallback>{'JC'}</AvatarFallback>
-						)}
+					<DropdownMenuTrigger>
+						<UserAvatar className={'h-8 w-8'} />
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="flex flex-col gap-2 ">
-						<DropdownMenuItem asChild>
+					<DropdownMenuContent className="flex flex-col gap-2">
+						<DropdownMenuItem>
 							<Link to={'/myspot'}>Mon spot</Link>
 						</DropdownMenuItem>
+						<DropdownMenuItem>
+							<Link to={'/availabilities'}>Mes disponibilités</Link>
+						</DropdownMenuItem>
+						<Separator />
 						<DropdownMenuItem asChild>
 							<Button variant={'destructive'} onClick={() => logout()}>
+								<LogOut />
 								Se déconnecter
 							</Button>
 						</DropdownMenuItem>
@@ -80,5 +57,17 @@ export function Header() {
 				</DropdownMenu>
 			</div>
 		</div>
+	);
+}
+
+function UserAvatar(props: { className?: string }) {
+	const { user } = useAuth0();
+	const initials = user?.name?.split(' ').map((name) => name[0].toUpperCase());
+
+	return (
+		<Avatar className={props.className}>
+			<AvatarImage src={user?.picture} />
+			<AvatarFallback className={'text-primary'}>{initials}</AvatarFallback>
+		</Avatar>
 	);
 }
