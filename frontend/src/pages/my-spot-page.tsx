@@ -13,8 +13,9 @@ import {
 	CommandList
 } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
+import { LoaderContext } from '@/components/logo.tsx';
 
-interface IParkingsList {
+interface Parking {
 	id: string;
 	address: string;
 	name: string;
@@ -42,31 +43,23 @@ export function MySpotPage() {
 
 	const { isLoading, setIsLoading } = useContext(LoaderContext);
 
-	const [dataParkingsList, setDataParkingsList] = useState<IParkingsList[] | undefined>();
+	const [dataParkingsList, setDataParkingsList] = useState<Parking[] | undefined>();
 	const [debounceValue] = useDebounce(parkingUser ? parkingUser?.parking?.name : '', 500);
 
 	// Check if the user has a registered parking space
 	useEffect(() => {
-		async function fetchUserParking() {
-			setIsLoading(true);
-			try {
-				const response = await apiRequest<MySpot>('/@me/spot', 'GET');
-				setParkingUser(response);
-				setSelectedParking(false);
-			} catch (error) {
-				console.log(error);
-			} finally {
-				setIsLoading(false);
-			}
-		}
-		fetchUserParking();
+		setIsLoading(true);
+
+		apiRequest<MySpot>('/@me/spot', 'GET')
+			.then(setParkingUser)
+			.finally(() => setIsLoading(false));
 	}, []);
 
 	// Fetch parkings match with my parking
 	useEffect(() => {
 		async function fetchSearchParking() {
 			try {
-				const response = await apiRequest<IParkingsList[]>(
+				const response = await apiRequest<Parking[]>(
 					`/parking?search=${debounceValue}`,
 					'GET'
 				);
@@ -164,9 +157,7 @@ export function MySpotPage() {
 							setParkingUser((prevState) => ({
 								...prevState,
 								lotName: newLotName,
-								parking: {
-									...prevState?.parking
-								}
+								parking: prevState?.parking
 							}));
 						}}
 					/>
@@ -176,7 +167,7 @@ export function MySpotPage() {
 					className="mt-5 w-full cursor-none"
 					onClick={() => setUserParkingChange()}
 					disabled={
-						selectedParking === false || parkingUser?.lotName?.trim().length === 0
+						!selectedParking || parkingUser?.lotName?.trim().length === 0
 					}>
 					{isLoading ? 'En cours..' : 'Enregistrer'}
 				</Button>
