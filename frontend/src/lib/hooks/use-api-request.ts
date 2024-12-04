@@ -5,7 +5,7 @@ type httpMethod = 'GET' | 'POST' | 'PUT';
 
 export function useApiRequest() {
 	const { getAccessTokenSilently } = useAuth0();
-	const baseUrl = import.meta.env.VITE__AUTH0__BASE__URL;
+	const baseUrl = import.meta.env.VITE__API__BASE__URL;
 
 	const apiRequest = useCallback(
 		async <TResponse, TBody = unknown>(url: string, method: httpMethod, body?: TBody) => {

@@ -11,10 +11,6 @@ import { RegisterPage } from '@/pages/register-page.tsx';
 import { LoaderProvider } from '@/components/logo.tsx';
 import { Header } from '@/components/header.tsx';
 
-const AUTH0_DOMAIN = import.meta.env.VITE__AUTH0__DOMAIN;
-const CALLBACK_PATH = import.meta.env.VITE__AUTH0__CALLBACK__PATH;
-const AUTH0_CLIENT_ID = import.meta.env.VITE__AUTH0__CLIENT__ID;
-
 const router = createBrowserRouter(
 	[
 		{
@@ -37,7 +33,7 @@ const router = createBrowserRouter(
 					element: <MySpotPage />
 				},
 				{
-					path: '/_auth',
+					path: import.meta.env.VITE__API__BASE__URL,
 					element: <RegisterPage />
 				}
 			]
@@ -58,10 +54,10 @@ createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<div className={'flex flex-col gap-2 w-screen h-screen p-4'}>
 			<Auth0Provider
-				domain={AUTH0_DOMAIN}
-				clientId={AUTH0_CLIENT_ID}
+				domain={import.meta.env.VITE__AUTH0__DOMAIN}
+				clientId={import.meta.env.VITE__AUTH0__CLIENT__ID}
 				authorizationParams={{
-					redirect_uri: `${window.location.origin}${CALLBACK_PATH}`,
+					redirect_uri: `${window.location.origin}${import.meta.env.VITE__AUTH0__CALLBACK__PATH}`,
 					audience: 'https://friendspot.me'
 				}}>
 				<LoaderProvider>
