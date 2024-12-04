@@ -10,6 +10,7 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import { RegisterPage } from '@/pages/register-page.tsx';
 import { LoaderProvider } from '@/components/logo.tsx';
 import { Header } from '@/components/header.tsx';
+import { AvailabilitiesPage } from '@/pages/availabilities-page.tsx';
 
 const router = createBrowserRouter(
 	[
@@ -33,7 +34,11 @@ const router = createBrowserRouter(
 					element: <MySpotPage />
 				},
 				{
-					path: import.meta.env.VITE__API__BASE__URL,
+					path: '/availabilities',
+					element: <AvailabilitiesPage />
+				},
+				{
+					path: import.meta.env.VITE__AUTH0__CALLBACK__PATH,
 					element: <RegisterPage />
 				}
 			]
@@ -52,7 +57,7 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<div className={'flex flex-col gap-2 w-screen h-screen p-4'}>
+		<div className={'flex flex-col gap-8 w-screen h-screen p-4'}>
 			<Auth0Provider
 				domain={import.meta.env.VITE__AUTH0__DOMAIN}
 				clientId={import.meta.env.VITE__AUTH0__CLIENT__ID}
