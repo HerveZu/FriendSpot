@@ -1,12 +1,12 @@
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useNavigate } from 'react-router-dom';
-import { LoaderContext } from '@/components/logo';
+import { useLoading } from '@/components/logo';
 
 export function RegisterPage() {
 	const navigate = useNavigate();
 	const { apiRequest } = useApiRequest();
-	const { setIsLoading } = useContext(LoaderContext);
+	const { setIsLoading } = useLoading('register');
 
 	useEffect(() => {
 		async function registerUser() {
@@ -23,5 +23,5 @@ export function RegisterPage() {
 		registerUser();
 	}, [apiRequest, navigate]);
 
-	return <span>Registering...</span>
+	return <span>Registering...</span>;
 }

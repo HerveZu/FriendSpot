@@ -1,7 +1,7 @@
 import { Container } from '@/components/container.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
-import { useContext, useEffect, useState } from 'react';
-import { LoaderContext } from '@/components/logo.tsx';
+import { useEffect, useState } from 'react';
+import { useLoading } from '@/components/logo.tsx';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card.tsx';
 import { ArrowRight, Clock } from 'lucide-react';
 import { format, formatDuration, formatRelative, isToday, isTomorrow } from 'date-fns';
@@ -22,7 +22,7 @@ type Availability = {
 
 export function AvailabilitiesPage() {
 	const { apiRequest } = useApiRequest();
-	const { setIsLoading } = useContext(LoaderContext);
+	const { setIsLoading } = useLoading('availabilities');
 	const [availabilities, setAvailabilities] = useState<Availabilities>();
 
 	useEffect(() => {

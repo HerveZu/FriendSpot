@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import {
 	CommandList
 } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
-import { LoaderContext } from '@/components/logo.tsx';
+import { useLoading } from '@/components/logo.tsx';
 
 interface Parking {
 	id: string;
@@ -41,7 +41,7 @@ export function MySpotPage() {
 
 	const [selectedParking, setSelectedParking] = useState<boolean>(false);
 
-	const { isLoading, setIsLoading } = useContext(LoaderContext);
+	const { isLoading, setIsLoading } = useLoading('my-spot');
 
 	const [dataParkingsList, setDataParkingsList] = useState<Parking[] | undefined>();
 	const [debounceValue] = useDebounce(parkingUser ? parkingUser?.parking?.name : '', 500);
@@ -166,9 +166,7 @@ export function MySpotPage() {
 					variant={'default'}
 					className="mt-5 w-full cursor-none"
 					onClick={() => setUserParkingChange()}
-					disabled={
-						!selectedParking || parkingUser?.lotName?.trim().length === 0
-					}>
+					disabled={!selectedParking || parkingUser?.lotName?.trim().length === 0}>
 					{isLoading ? 'En cours..' : 'Enregistrer'}
 				</Button>
 			</CardFooter>

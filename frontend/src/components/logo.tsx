@@ -2,10 +2,9 @@ import { blerp, cn } from '@/lib/utils.ts';
 import {
 	createContext,
 	CSSProperties,
-	Dispatch,
 	ReactNode,
-	SetStateAction,
 	useCallback,
+	useContext,
 	useEffect,
 	useMemo,
 	useState
@@ -36,13 +35,41 @@ export function Logo(props: { className?: string }) {
 
 type LoaderContext = {
 	isLoading: boolean;
-	setIsLoading: Dispatch<SetStateAction<boolean>>;
+	setIsLoading: (key: string, isLoading: boolean) => void;
 };
 
-export const LoaderContext = createContext<LoaderContext>(null!);
+const LoaderContext = createContext<LoaderContext>(null!);
+
+export function useLoading(key: string) {
+	const { isLoading, setIsLoading } = useContext(LoaderContext);
+
+	const setIsLoadingBound = useCallback(
+		(isLoading: boolean) => setIsLoading(key, isLoading),
+		[setIsLoading]
+	);
+
+	return { isLoading, setIsLoading: setIsLoadingBound };
+}
 
 export function LoaderProvider(props: { className?: string; children: ReactNode }) {
-	const [isLoading, setIsLoading] = useState(false);
+	const [loadingRequests, setLoadingRequests] = useState<Set<string>>(new Set());
+	const isLoading = loadingRequests.size > 0;
+
+	const setIsLoading = useCallback(
+		(key: string, isLoading: boolean) => {
+			setLoadingRequests((requests) => {
+				if (isLoading) {
+					return requests.add(key);
+				}
+
+				const newRequests = new Set(requests);
+				newRequests.delete(key);
+
+				return newRequests;
+			});
+		},
+		[setLoadingRequests]
+	);
 
 	return (
 		<LoaderContext.Provider value={{ isLoading, setIsLoading }}>
@@ -118,9 +145,15 @@ export function LogoCard(props: { className?: string; style?: CSSProperties; pri
 			style={props.style}
 			className={cn(
 				props.className,
-				'w-full aspect-[4/5] rounded-[20%] border-transparent p-[5%] bg-primary shadow-sm',
+				'w-full aspect-[4/5] rounded-[20%] border-transparent p-[2px] bg-primary shadow-sm'
 			)}>
-			<div className={cn('rounded-[20%] h-full w-full bg-primary', !props.primary && 'brightness-75 bg-gradient-to-br from-primary to-70% to-secondary')} />
+			<div
+				className={cn(
+					'rounded-[20%] h-full w-full bg-primary',
+					!props.primary &&
+						'brightness-75 bg-gradient-to-br from-primary to-70% to-secondary'
+				)}
+			/>
 		</div>
 	);
 }

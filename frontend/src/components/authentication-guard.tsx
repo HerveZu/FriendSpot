@@ -1,13 +1,13 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { LoaderContext } from '@/components/logo.tsx';
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { useLoading } from '@/components/logo.tsx';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
 import { Button } from '@/components/ui/button.tsx';
 import { Footer } from '@/components/footer.tsx';
 
 export function AuthenticationGuard(props: { children: ReactNode }) {
 	const { isAuthenticated, isLoading } = useAuth0();
-	const { setIsLoading } = useContext(LoaderContext);
+	const { setIsLoading } = useLoading('auth-guard');
 
 	useEffect(() => {
 		setIsLoading(isLoading);
@@ -30,7 +30,7 @@ type UserStatusContext = {
 export const UserStatusContext = createContext<UserStatusContext>(null!);
 
 export function UserProvider(props: { children: ReactNode }) {
-	const { setIsLoading } = useContext(LoaderContext);
+	const { setIsLoading } = useLoading('user-provider');
 	const { apiRequest } = useApiRequest();
 	const [userStatus, setUserStatus] = useState<UserStatus>();
 
