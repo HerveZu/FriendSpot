@@ -11,6 +11,8 @@ import { RegisterPage } from '@/pages/register-page.tsx';
 import { LoaderProvider } from '@/components/logo.tsx';
 import { Header } from '@/components/header.tsx';
 import { AvailabilitiesPage } from '@/pages/availabilities-page.tsx';
+import { setDefaultOptions } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const router = createBrowserRouter(
 	[
@@ -20,7 +22,10 @@ const router = createBrowserRouter(
 				<AuthenticationGuard>
 					<UserProvider>
 						<Header />
-						<Outlet />
+						{/*min-h-0 makes the 100% to only take the available space*/}
+						<div className={'h-full min-h-0'}>
+							<Outlet />
+						</div>
 					</UserProvider>
 				</AuthenticationGuard>
 			),
@@ -55,9 +60,11 @@ const router = createBrowserRouter(
 	}
 );
 
+setDefaultOptions({ locale: fr });
+
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<div className={'flex flex-col gap-8 w-screen h-screen p-4'}>
+		<div className={'flex flex-col gap-12 w-screen h-screen p-4'}>
 			<Auth0Provider
 				domain={import.meta.env.VITE__AUTH0__DOMAIN}
 				clientId={import.meta.env.VITE__AUTH0__CLIENT__ID}

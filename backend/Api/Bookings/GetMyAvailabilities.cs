@@ -39,6 +39,7 @@ internal sealed class GetMyAvailabilities(AppDbContext dbContext) : EndpointWith
             .Where(parkingSpot => parkingSpot.OwnerId == currentUser.Identity)
             .SelectMany(parkingSpot => parkingSpot.Availabilities)
             .Where(availability => availability.To >= now)
+            .OrderBy(availability => availability.From)
             .Select(
                 availability => new GetMyAvailabilitiesResponse.Availability
                 {
