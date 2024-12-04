@@ -10,7 +10,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useContext } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo, LogoCard } from '@/components/logo.tsx';
-import { UserStatusContext } from '@/pages/authentication-guard.tsx';
+import { UserStatusContext } from '@/components/authentication-guard.tsx';
 import { Dot, LogOut } from 'lucide-react';
 import { Separator } from '@/components/ui/separator.tsx';
 

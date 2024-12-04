@@ -4,7 +4,17 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
 import { Button } from '@/components/ui/button.tsx';
 import { Footer } from '@/components/footer.tsx';
-import { cn } from '@/lib/utils.ts';
+
+export function AuthenticationGuard(props: { children: ReactNode }) {
+	const { isAuthenticated, isLoading } = useAuth0();
+	const { setIsLoading } = useContext(LoaderContext);
+
+	useEffect(() => {
+		setIsLoading(isLoading);
+	}, [isLoading]);
+
+	return !isLoading && (isAuthenticated ? props.children : <LandingConnect />);
+}
 
 type UserStatus = {
 	wallet: {
@@ -19,15 +29,10 @@ type UserStatusContext = {
 
 export const UserStatusContext = createContext<UserStatusContext>(null!);
 
-export function AuthenticationGuard(props: { children: ReactNode, className?: string }) {
-	const { isAuthenticated, isLoading } = useAuth0();
+export function UserProvider(props: { children: ReactNode }) {
 	const { setIsLoading } = useContext(LoaderContext);
 	const { apiRequest } = useApiRequest();
 	const [userStatus, setUserStatus] = useState<UserStatus>();
-
-	useEffect(() => {
-		setIsLoading(isLoading);
-	}, [isLoading]);
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -38,13 +43,11 @@ export function AuthenticationGuard(props: { children: ReactNode, className?: st
 	}, []);
 
 	return (
-		<div className={cn(props.className, "w-full h-full p-4")}>
-			{userStatus && (
-				<UserStatusContext.Provider value={{ user: userStatus }}>
-					{!isLoading && (isAuthenticated ? props.children : <LandingConnect />)}
-				</UserStatusContext.Provider>
-			)}
-		</div>
+		userStatus && (
+			<UserStatusContext.Provider value={{ user: userStatus }}>
+				{props.children}
+			</UserStatusContext.Provider>
+		)
 	);
 }
 
@@ -52,7 +55,7 @@ function LandingConnect() {
 	const { loginWithRedirect } = useAuth0();
 
 	return (
-		<div className="flex flex-col items-center w-full h-screen mt-48">
+		<div className="flex flex-col items-center w-full h-full justify-center">
 			<div className="flex flex-col items-center gap-12 w-[80%]">
 				<div className="flex flex-col items-center text-center gap-4 mt-5">
 					<h1 className="text-xl">

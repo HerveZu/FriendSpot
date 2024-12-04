@@ -1,12 +1,13 @@
+import './index.css';
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
-import { AuthenticationGuard } from './pages/authentication-guard.tsx';
-import { MySpotPage } from './pages/my-spot-page.tsx';
-import { LandingPage } from './pages/landing-page.tsx';
+import { AuthenticationGuard, UserProvider } from '@/components/authentication-guard.tsx';
+import { MySpotPage } from '@/pages/my-spot-page.tsx';
+import { LandingPage } from '@/pages/landing-page.tsx';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { RegisterPage } from './pages/register-page.tsx';
-import './index.css';
+import { RegisterPage } from '@/pages/register-page.tsx';
 import { LoaderProvider } from '@/components/logo.tsx';
 import { Header } from '@/components/header.tsx';
 
@@ -19,9 +20,11 @@ const router = createBrowserRouter(
 		{
 			path: '/',
 			element: (
-				<AuthenticationGuard className={'flex flex-col gap-2'}>
-					<Header />
-					<Outlet />
+				<AuthenticationGuard>
+					<UserProvider>
+						<Header />
+						<Outlet />
+					</UserProvider>
 				</AuthenticationGuard>
 			),
 			children: [
@@ -53,21 +56,23 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<Auth0Provider
-			domain={AUTH0_DOMAIN}
-			clientId={AUTH0_CLIENT_ID}
-			authorizationParams={{
-				redirect_uri: `${window.location.origin}${CALLBACK_PATH}`,
-				audience: 'https://friendspot.me'
-			}}>
-			<LoaderProvider>
-				<RouterProvider
-					router={router}
-					future={{
-						v7_startTransition: true
-					}}
-				/>
-			</LoaderProvider>
-		</Auth0Provider>
+		<div className={'flex flex-col gap-2 w-screen h-screen p-4'}>
+			<Auth0Provider
+				domain={AUTH0_DOMAIN}
+				clientId={AUTH0_CLIENT_ID}
+				authorizationParams={{
+					redirect_uri: `${window.location.origin}${CALLBACK_PATH}`,
+					audience: 'https://friendspot.me'
+				}}>
+				<LoaderProvider>
+					<RouterProvider
+						router={router}
+						future={{
+							v7_startTransition: true
+						}}
+					/>
+				</LoaderProvider>
+			</Auth0Provider>
+		</div>
 	</StrictMode>
 );
