@@ -12,8 +12,8 @@ export function RegisterPage() {
 		setIsLoading(true);
 
 		apiRequest<void>('/@me/register', 'POST')
-			.then(() => setIsLoading(false))
-			.finally(() => navigate('/'));
+			.then(() => navigate('/'))
+			.finally(() => setIsLoading(false));
 	}, [apiRequest, navigate]);
 
 	return undefined;
