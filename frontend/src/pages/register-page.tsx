@@ -11,9 +11,11 @@ export function RegisterPage() {
 	useEffect(() => {
 		setIsLoading(true);
 
-		apiRequest<void>('/@me/register', 'POST')
-			.then(() => navigate('/'))
-			.finally(() => setIsLoading(false));
+		apiRequest<void>('/@me/register', 'POST').finally(() => {
+			// still redirect when backend return an error
+			navigate('/');
+			setIsLoading(false);
+		});
 	}, [apiRequest, navigate]);
 
 	return undefined;
