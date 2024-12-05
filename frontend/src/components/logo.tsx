@@ -34,6 +34,8 @@ export function Logo(props: { className?: string }) {
 }
 
 type LoaderContext = {
+	refreshTrigger: object;
+	forceRefresh: () => void;
 	isLoading: boolean;
 	setIsLoading: (key: string, isLoading: boolean) => void;
 };
@@ -41,18 +43,19 @@ type LoaderContext = {
 const LoaderContext = createContext<LoaderContext>(null!);
 
 export function useLoading(key: string) {
-	const { isLoading, setIsLoading } = useContext(LoaderContext);
+	const { setIsLoading, ...other } = useContext(LoaderContext);
 
 	const setIsLoadingBound = useCallback(
 		(isLoading: boolean) => setIsLoading(key, isLoading),
 		[setIsLoading]
 	);
 
-	return { isLoading, setIsLoading: setIsLoadingBound };
+	return { setIsLoading: setIsLoadingBound, ...other };
 }
 
 export function LoaderProvider(props: { className?: string; children: ReactNode }) {
 	const [loadingRequests, setLoadingRequests] = useState<Set<string>>(new Set());
+	const [refreshTrigger, setRefreshTrigger] = useState({});
 	const isLoading = loadingRequests.size > 0;
 
 	const setIsLoading = useCallback(
@@ -71,8 +74,10 @@ export function LoaderProvider(props: { className?: string; children: ReactNode 
 		[setLoadingRequests]
 	);
 
+	const forceRefresh = useCallback(() => setRefreshTrigger({}), [setRefreshTrigger]);
+
 	return (
-		<LoaderContext.Provider value={{ isLoading, setIsLoading }}>
+		<LoaderContext.Provider value={{ isLoading, setIsLoading, refreshTrigger, forceRefresh }}>
 			{isLoading && (
 				<div
 					className={cn(

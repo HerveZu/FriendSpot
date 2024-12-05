@@ -39,9 +39,8 @@ type Availability = {
 
 export function AvailabilitiesPage() {
 	const { apiRequest } = useApiRequest();
-	const { setIsLoading } = useLoading('availabilities');
+	const { setIsLoading, refreshTrigger, forceRefresh } = useLoading('availabilities');
 	const [availabilities, setAvailabilities] = useState<Availabilities>();
-	const [refresh, setRefresh] = useState({});
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -49,7 +48,7 @@ export function AvailabilitiesPage() {
 		apiRequest<Availabilities>('/spots/availabilities', 'GET')
 			.then(setAvailabilities)
 			.finally(() => setIsLoading(false));
-	}, [refresh]);
+	}, [refreshTrigger]);
 
 	return (
 		availabilities && (
@@ -59,7 +58,7 @@ export function AvailabilitiesPage() {
 						<AvailabilityCard key={i} availability={availability} />
 					))}
 				</Container>
-				<LendSpotPopup onClose={() => setRefresh({})}>
+				<LendSpotPopup onClose={forceRefresh}>
 					<ActionButton
 						large
 						info={`Vous prêtez votre place un total de ${formatDuration(

@@ -30,7 +30,7 @@ type UserStatusContext = {
 export const UserStatusContext = createContext<UserStatusContext>(null!);
 
 export function UserProvider(props: { children: ReactNode }) {
-	const { setIsLoading } = useLoading('user-provider');
+	const { setIsLoading, refreshTrigger } = useLoading('user-provider');
 	const { apiRequest } = useApiRequest();
 	const [userStatus, setUserStatus] = useState<UserStatus>();
 
@@ -40,7 +40,7 @@ export function UserProvider(props: { children: ReactNode }) {
 		apiRequest<UserStatus>('/@me/status', 'GET')
 			.then(setUserStatus)
 			.finally(() => setIsLoading(false));
-	}, []);
+	}, [refreshTrigger]);
 
 	return (
 		userStatus && (
