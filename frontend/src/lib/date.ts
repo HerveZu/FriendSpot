@@ -7,3 +7,7 @@ export function parseDuration(duration: string) {
 		seconds
 	};
 }
+
+export function removeYear(formattedDate: string) {
+	return formattedDate.replace(/(\.\s)?[0-9]{4}/g, '');
+}
