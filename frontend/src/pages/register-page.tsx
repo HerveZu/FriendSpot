@@ -9,18 +9,11 @@ export function RegisterPage() {
 	const { setIsLoading } = useLoading('register');
 
 	useEffect(() => {
-		async function registerUser() {
-			setIsLoading(true);
-			try {
-				await apiRequest<void>('/@me/register', 'POST');
-			} catch (error) {
-				console.log(error);
-			} finally {
-				navigate('/');
-				setIsLoading(false);
-			}
-		}
-		registerUser();
+		setIsLoading(true);
+
+		apiRequest<void>('/@me/register', 'POST')
+			.then(() => setIsLoading(false))
+			.finally(() => navigate('/'));
 	}, [apiRequest, navigate]);
 
 	return <span>Registering...</span>;

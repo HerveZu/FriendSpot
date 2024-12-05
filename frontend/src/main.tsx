@@ -41,12 +41,12 @@ const router = createBrowserRouter(
 				{
 					path: '/availabilities',
 					element: <AvailabilitiesPage />
-				},
-				{
-					path: import.meta.env.VITE__AUTH0__CALLBACK__PATH,
-					element: <RegisterPage />
 				}
 			]
+		},
+		{
+			path: import.meta.env.VITE__AUTH0__CALLBACK__PATH,
+			element: <RegisterPage />
 		}
 	],
 	{
