@@ -16,5 +16,5 @@ export function RegisterPage() {
 			.finally(() => navigate('/'));
 	}, [apiRequest, navigate]);
 
-	return <span>Registering...</span>;
+	return undefined;
 }
