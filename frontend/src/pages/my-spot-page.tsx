@@ -119,7 +119,27 @@ export function MySpotPage() {
 	}
 
 	return (
-		<div className="flex flex-col gap-6 mx-auto w-[95%] min-h-[200px]">
+		<div className="flex flex-col gap-4 mx-auto w-[95%] min-h-[200px]">
+			{parkingAlreadyRegistered?.spot !== null && (
+				<Card>
+					<CardHeader>
+						<CardTitle className="mb-2">
+							Vos <span className="text-primary">informations</span>
+						</CardTitle>
+						<Separator />
+					</CardHeader>
+					<>
+						<CardContent className="flex flex-col items-start gap-2 pb-5">
+							<p className="text-sm">{`Votre numéro de place :`}</p>
+							<p className="text-sm text-primary">{`${parkingAlreadyRegistered?.spot?.lotName}`}</p>
+						</CardContent>
+						<CardFooter className="flex flex-col items-start gap-2">
+							<p className="text-sm">{`Adresse de parking :`}</p>
+							<p className="text-sm text-primary">{`${parkingAlreadyRegistered?.spot?.parking?.name}`}</p>
+						</CardFooter>
+					</>
+				</Card>
+			)}
 			<Card className="flex flex-col mt-05">
 				<CardHeader>
 					<CardTitle>Mon Spot</CardTitle>
@@ -203,27 +223,6 @@ export function MySpotPage() {
 					</Button>
 				</CardFooter>
 			</Card>
-
-			{parkingAlreadyRegistered?.spot !== null && (
-				<Card>
-					<CardHeader>
-						<CardTitle className="mb-2">
-							Vos <span className="text-primary">informations</span>
-						</CardTitle>
-						<Separator />
-					</CardHeader>
-					<>
-						<CardContent className="flex flex-col items-start gap-2 pb-5">
-							<p className="text-sm">{`Votre numéro de place :`}</p>
-							<p className="text-sm text-primary">{`${parkingAlreadyRegistered?.spot?.lotName}`}</p>
-						</CardContent>
-						<CardFooter className="flex flex-col items-start gap-2">
-							<p className="text-sm">{`Adresse de parking :`}</p>
-							<p className="text-sm text-primary">{`${parkingAlreadyRegistered?.spot?.parking?.name}`}</p>
-						</CardFooter>
-					</>
-				</Card>
-			)}
 		</div>
 	);
 }
