@@ -62,7 +62,12 @@ export function AvailabilitiesPage() {
 				<LendSpotPopup onClose={() => setRefresh({})}>
 					<ActionButton
 						large
-						info={`Vous prêtez votre place un total de ${formatDuration(parseDuration(availabilities.totalDuration))}`}>
+						info={`Vous prêtez votre place un total de ${formatDuration(
+							parseDuration(availabilities.totalDuration),
+							{
+								format: ['days', 'hours', 'minutes']
+							}
+						)}`}>
 						Je prête ma place
 					</ActionButton>
 				</LendSpotPopup>
@@ -86,7 +91,9 @@ function AvailabilityCard(props: { availability: Availability }) {
 			<CardDescription className={'flex flex-col gap-4'}>
 				<div className={'flex gap-2 items-center text-primary'}>
 					<Clock size={18} />
-					{formatDuration(parseDuration(props.availability.duration))}
+					{formatDuration(parseDuration(props.availability.duration), {
+						format: ['days', 'hours', 'minutes']
+					})}
 				</div>
 				<div className={'flex gap-2 items-center'}>
 					<span>{format(from, 'PPp')}</span>
@@ -189,7 +196,16 @@ function LendSpotPopup(props: { children: ReactNode; onClose: () => void }) {
 					</div>
 
 					<ActionButton
-						info={duration && `Pour une durée de ${formatDuration(duration)}`}
+						info={
+							duration && (
+								<span className={'flex items-center gap-2'}>
+									<Clock size={16} />
+									{formatDuration(duration, {
+										format: ['days', 'hours', 'minutes']
+									})}
+								</span>
+							)
+						}
 						disabled={!isValid}
 						onClick={makeSpotAvailable}>
 						{isLoading && <LoaderCircle className={'animate-spin'} />}

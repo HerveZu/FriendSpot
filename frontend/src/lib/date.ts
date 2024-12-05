@@ -1,10 +1,27 @@
 export function parseDuration(duration: string) {
-	const [hours, minutes, seconds] = duration.split(':').map(Number);
+	const timeSpanRegex = /(?:(\d+)\.)?(\d{1,2}):(\d{2}):(\d{2})(?:\.(\d+))?/;
+	const match = timeSpanRegex.exec(duration);
 
-	return {
+	if (!match) {
+		throw new Error('Invalid TimeSpan format');
+	}
+
+	const [
+		,
+		// full match, unused
+		days = '0',
 		hours,
 		minutes,
-		seconds
+		seconds,
+		fractionalSeconds = '0'
+	] = match;
+
+	return {
+		days: parseInt(days, 10),
+		hours: parseInt(hours, 10),
+		minutes: parseInt(minutes, 10),
+		seconds: parseInt(seconds, 10),
+		milliseconds: Math.round(parseFloat(`0.${fractionalSeconds}`) * 1000)
 	};
 }
 

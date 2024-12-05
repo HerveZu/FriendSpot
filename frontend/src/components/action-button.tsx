@@ -1,14 +1,14 @@
 import { Button, ButtonProps } from '@/components/ui/button.tsx';
 import { cn } from '@/lib/utils.ts';
-import { forwardRef } from 'react';
+import { forwardRef, ReactNode } from 'react';
 
 export const ActionButton = forwardRef<
 	HTMLButtonElement,
-	ButtonProps & { info?: string; large?: boolean }
+	ButtonProps & { info?: ReactNode; large?: boolean }
 >(({ large, ...props }, ref) => {
 	return (
 		<div className={'flex flex-col gap-2'}>
-			{props.info && <span className={'text-xs text-primary mt-2'}>{props.info}</span>}
+			{props.info && <span className={'text-sm text-primary mt-2'}>{props.info}</span>}
 			<Button
 				ref={ref}
 				size={'lg'}

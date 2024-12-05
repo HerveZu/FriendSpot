@@ -30,7 +30,7 @@ export function Header() {
 						<LogoCard primary={true} className={'w-6 h-6'} />
 					</span>
 					<Dot />
-					<span className={'flex gap-2 items-center text-lg'}>
+					<span className={'flex gap-2 items-center text-lg opacity-55'}>
 						{user.wallet.pendingCredits}
 						<LogoCard primary={false} className={'w-6 h-6'} />
 					</span>
