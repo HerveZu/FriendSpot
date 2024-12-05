@@ -40,10 +40,10 @@ export function Header() {
 						<UserAvatar className={'h-8 w-8'} />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="flex flex-col gap-2">
-						<DropdownMenuItem>
+						<DropdownMenuItem asChild>
 							<Link to={'/myspot'}>Mon spot</Link>
 						</DropdownMenuItem>
-						<DropdownMenuItem>
+						<DropdownMenuItem asChild>
 							<Link to={'/availabilities'}>Mes disponibilités</Link>
 						</DropdownMenuItem>
 						<Separator />
