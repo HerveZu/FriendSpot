@@ -48,6 +48,8 @@ interface ParkingAlreadyRegistered {
 export function MySpotPage() {
 	const { apiRequest } = useApiRequest();
 
+	const { setIsLoading } = useLoading('MySpotPage');
+
 	const [parkingAlreadyRegistered, setParkingAlreadyRegistered] =
 		useState<ParkingAlreadyRegistered | null>(null);
 
@@ -61,15 +63,13 @@ export function MySpotPage() {
 
 	const [debounceValue] = useDebounce(parkingUserName, 500);
 
-	const { setIsLoading } = useLoading('MySpotPage');
-
 	// Check if the user has a registered parking space
 	useEffect(() => {
 		fetchParkingAlreadyRegistered();
 	}, []);
 
 	async function fetchParkingAlreadyRegistered() {
-		// setIsLoading(true);
+		setIsLoading(true);
 		try {
 			const response = await apiRequest<ParkingAlreadyRegistered | null>('/@me/spot', 'GET');
 			setParkingAlreadyRegistered(response);
@@ -77,13 +77,14 @@ export function MySpotPage() {
 		} catch (error) {
 			console.log(error);
 		} finally {
-			// setIsLoading(false);
+			setIsLoading(false);
 		}
 	}
 
 	// Fetch parkings match with my parking in searche bar
 	useEffect(() => {
 		async function fetchSearchParking() {
+			setIsLoading(true);
 			try {
 				const response = await apiRequest<Parking[]>(
 					`/parking?search=${debounceValue ?? ''}`,
@@ -92,6 +93,8 @@ export function MySpotPage() {
 				setDataParking(response);
 			} catch (error) {
 				console.log(error);
+			} finally {
+				setIsLoading(false);
 			}
 		}
 		fetchSearchParking();
@@ -113,7 +116,7 @@ export function MySpotPage() {
 		} catch (error) {
 			console.log(error);
 		} finally {
-			setIsLoading(true);
+			setIsLoading(false);
 			fetchParkingAlreadyRegistered();
 		}
 	}
@@ -124,25 +127,25 @@ export function MySpotPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle className="mb-2">
-							Vos <span className="text-primary">informations</span>
+							Mes <span className="text-primary">informations</span>
 						</CardTitle>
 						<Separator />
 					</CardHeader>
 					<>
 						<CardContent className="flex flex-col items-start gap-2 pb-5">
-							<p className="text-sm">{`Votre numéro de place :`}</p>
-							<p className="text-sm text-primary">{`${parkingAlreadyRegistered?.spot?.lotName}`}</p>
+							<p className="text-sm font-bold">{`Adresse de parking :`}</p>
+							<p className="text-sm">{`${parkingAlreadyRegistered?.spot?.parking?.name}`}</p>
 						</CardContent>
 						<CardFooter className="flex flex-col items-start gap-2">
-							<p className="text-sm">{`Adresse de parking :`}</p>
-							<p className="text-sm text-primary">{`${parkingAlreadyRegistered?.spot?.parking?.name}`}</p>
+							<p className="text-sm font-bold">{`Numéro de place :`}</p>
+							<p className="text-sm">{`${parkingAlreadyRegistered?.spot?.lotName}`}</p>
 						</CardFooter>
 					</>
 				</Card>
 			)}
 			<Card className="flex flex-col mt-05">
 				<CardHeader>
-					<CardTitle>Mon Spot</CardTitle>
+					<CardTitle>Mon spot</CardTitle>
 				</CardHeader>
 				<CardContent className="relative z-0 min-h-[250px]">
 					<Command>
