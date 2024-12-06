@@ -53,7 +53,7 @@ export function AvailabilitiesPage() {
 	return (
 		availabilities && (
 			<div className={'h-full flex flex-col gap-4'}>
-				<Container className={'flex flex-col gap-2'} title={'Mes réservations'}>
+				<Container className={'flex flex-col gap-2'} title={'Je prête ma place'}>
 					{availabilities?.availabilities.map((availability, i) => (
 						<AvailabilityCard key={i} availability={availability} />
 					))}
