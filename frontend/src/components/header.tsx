@@ -44,7 +44,7 @@ export function Header() {
 							<Link to={'/myspot'}>Mon spot</Link>
 						</DropdownMenuItem>
 						<DropdownMenuItem asChild>
-							<Link to={'/availabilities'}>Mes disponibilités</Link>
+							<Link to={'/availabilities'}>Partager ma place</Link>
 						</DropdownMenuItem>
 						<Separator />
 						<DropdownMenuItem asChild>
