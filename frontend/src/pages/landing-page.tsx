@@ -59,7 +59,7 @@ export function LandingPage() {
 				<div className={'flex flex-col gap-6'}>
 					<ActionButton
 						large
-						info={`${user.availableSpots} places sont disponnible dans votre parking`}
+						info={`${user.availableSpots} places sont disponnibles dans votre parking`}
 						onClick={() => setAction('book')}>
 						Je réserve une place
 					</ActionButton>
