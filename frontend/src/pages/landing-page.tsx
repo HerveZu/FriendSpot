@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils.ts';
 import { useNavigate } from 'react-router-dom';
 import { ActionButton } from '@/components/action-button.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const routeForAction: { [action: string]: string } = {
 	lend: '/availabilities',
@@ -14,6 +15,7 @@ export function LandingPage() {
 	const [action, setAction] = useState<'lend' | 'book'>();
 	const navigate = useNavigate();
 	const { user } = useContext(UserStatusContext);
+	const auth0 = useAuth0();
 
 	useEffect(() => {
 		if (!action) {
@@ -50,7 +52,7 @@ export function LandingPage() {
 			</div>
 			<div className={cn('flex flex-col gap-8', action && 'opacity-25')}>
 				<h1 className={'text-2xl font-semibold'}>
-					Bienvenue sur <span className={'text-primary'}>FriendSpot</span>, que
+					Salut <span className={'text-primary'}>{auth0.user?.name}</span>, que
 					souhaites-tu faire ?
 				</h1>
 				<div className={'flex flex-col gap-6'}>
