@@ -5,16 +5,11 @@ import { forwardRef, ReactNode } from 'react';
 export const ActionButton = forwardRef<
 	HTMLButtonElement,
 	ButtonProps & { info?: ReactNode; large?: boolean }
->(({ large, ...props }, ref) => {
+>(({ large, className, ...props }, ref) => {
 	return (
 		<div className={'flex flex-col gap-2'}>
 			{props.info && <span className={'text-sm text-primary'}>{props.info}</span>}
-			<Button
-				ref={ref}
-				size={'lg'}
-				className={cn(large && 'h-14', props.className)}
-				{...props}
-			/>
+			<Button ref={ref} size={'lg'} className={cn(large && 'h-14', className)} {...props} />
 		</div>
 	);
 });

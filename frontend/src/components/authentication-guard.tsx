@@ -2,8 +2,9 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useLoading } from '@/components/logo.tsx';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
-import { Button } from '@/components/ui/button.tsx';
 import { Footer } from '@/components/footer.tsx';
+import { Title } from '@/components/title.tsx';
+import { ActionButton } from '@/components/action-button.tsx';
 
 export function AuthenticationGuard(props: { children: ReactNode }) {
 	const { isAuthenticated, isLoading } = useAuth0();
@@ -57,18 +58,18 @@ function LandingConnect() {
 
 	return (
 		<div className="flex flex-col items-center w-full h-full justify-center">
-			<div className="flex flex-col items-center gap-12 w-[80%]">
-				<div className="flex flex-col items-center text-center gap-4 mt-5">
-					<h1 className="text-xl">
+			<div className="flex flex-col items-center gap-12">
+				<div className="flex flex-col items-center text-center gap-4">
+					<Title>
 						Bienvenue sur <span className="text-primary">FriendSpot</span> (bêta)
-					</h1>
-					<h2 className="text-lg">
-						Connectez-vous pour pouvoir utiliser l&apos;application !
-					</h2>
+					</Title>
 				</div>
-				<Button className="w-full" onClick={() => loginWithRedirect()} variant={'default'}>
+				<ActionButton
+					info={"Connecte-toi pour utiliser l'application !"}
+					onClick={() => loginWithRedirect()}
+					variant={'default'}>
 					S&apos;authentifier
-				</Button>
+				</ActionButton>
 			</div>
 			<Footer />
 		</div>

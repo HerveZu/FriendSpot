@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton } from '@/components/action-button.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
 import { useAuth0 } from '@auth0/auth0-react';
+import { Title } from '@/components/title.tsx';
 
 const routeForAction: { [action: string]: string } = {
 	lend: '/availabilities',
@@ -51,10 +52,10 @@ export function LandingPage() {
 				</div>
 			</div>
 			<div className={cn('flex flex-col gap-8', action && 'opacity-25')}>
-				<h1 className={'text-2xl font-semibold'}>
+				<Title>
 					Salut <span className={'text-primary'}>{auth0.user?.name}</span>, que
 					souhaites-tu faire ?
-				</h1>
+				</Title>
 				<div className={'flex flex-col gap-6'}>
 					<ActionButton
 						large
