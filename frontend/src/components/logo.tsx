@@ -16,17 +16,17 @@ export function Logo(props: { className?: string }) {
 			<LogoCard
 				style={{
 					rotate: '-5deg',
-					translate: '0% -15%'
+					translate: '0%'
 				}}
-				className={'absolute '}
+				className={'absolute h-full'}
 				primary={false}
 			/>
 			<LogoCard
 				style={{
 					rotate: '15deg',
-					translate: '3% -5%'
+					translate: '3% 7%'
 				}}
-				className={'absolute translate-x-1/3'}
+				className={'absolute translate-x-1/3 h-full'}
 				primary={true}
 			/>
 		</div>
@@ -129,7 +129,7 @@ function LogoLoader(props: { className?: string; loop: number; pause: number }) 
 					rotate: `-${blerp(5, 15, time())}deg`,
 					translate: `-${blerp(0, 10, time())}px`
 				}}
-				className={'absolute transition-transform'}
+				className={'absolute transition-transform h-12'}
 				primary={false}
 			/>
 			<LogoCard
@@ -137,20 +137,22 @@ function LogoLoader(props: { className?: string; loop: number; pause: number }) 
 					rotate: `${blerp(15, 30, time())}deg`,
 					translate: `${blerp(10, 20, time())}px ${blerp(5, 10, time())}px`
 				}}
-				className={'absolute transition-transform'}
+				className={'absolute transition-transform h-12'}
 				primary={true}
 			/>
 		</div>
 	);
 }
 
-export function LogoCard(props: { className?: string; style?: CSSProperties; primary: boolean }) {
+export type LogoCardProps = { className?: string; style?: CSSProperties; primary: boolean };
+
+export function LogoCard(props: LogoCardProps) {
 	return (
 		<div
 			style={props.style}
 			className={cn(
-				props.className,
-				'w-full aspect-[4/5] rounded-[20%] border-transparent p-[2px] bg-primary shadow-sm'
+				'aspect-[4/5] rounded-[20%] border-transparent p-[2px] bg-primary shadow-sm',
+				props.className
 			)}>
 			<div
 				className={cn(

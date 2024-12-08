@@ -11,7 +11,6 @@ namespace Api.Bookings;
 [PublicAPI]
 public sealed record GetBookingResponse
 {
-    public required int AvailableSpots { get; init; }
     public required BookingStatus[] Bookings { get; init; }
 
     [PublicAPI]
@@ -43,18 +42,6 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
         var currentUser = HttpContext.ToCurrentUser();
         var now = DateTimeOffset.UtcNow;
 
-        var availableSpotsCount = await (
-                from myParking in from parkingLot in dbContext.Set<ParkingSpot>()
-                    where parkingLot.OwnerId == currentUser.Identity
-                    join parking in dbContext.Set<Parking>() on parkingLot.ParkingId equals parking.Id
-                    select parking
-                join parkingLot in dbContext.Set<ParkingSpot>() on myParking.Id equals parkingLot.ParkingId
-                where parkingLot.OwnerId != currentUser.Identity
-                where parkingLot.Availabilities
-                    .Any(availability => availability.From <= now && availability.To >= now)
-                select parkingLot)
-            .CountAsync(ct);
-
         var bookingsPerSpot = await (
                 from parkingSpot in dbContext.Set<ParkingSpot>()
                 select parkingSpot.Bookings
@@ -85,7 +72,6 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
         await SendOkAsync(
             new GetBookingResponse
             {
-                AvailableSpots = availableSpotsCount,
                 Bookings = bookings
             },
             ct);

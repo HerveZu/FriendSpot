@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 import { AuthenticationGuard, UserProvider } from '@/components/authentication-guard.tsx';
 import { MySpotPage } from '@/pages/my-spot-page.tsx';
-import { LandingPage } from '@/pages/landing-page.tsx';
+import { BookingPage } from '@/pages/booking-page.tsx';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { RegisterPage } from '@/pages/register-page.tsx';
 import { LoaderProvider } from '@/components/logo.tsx';
@@ -13,6 +13,7 @@ import { Header } from '@/components/header.tsx';
 import { AvailabilitiesPage } from '@/pages/availabilities-page.tsx';
 import { setDefaultOptions } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { LandingPage } from '@/pages/landing-page.tsx';
 
 const router = createBrowserRouter(
 	[
@@ -33,6 +34,10 @@ const router = createBrowserRouter(
 				{
 					path: '/',
 					element: <LandingPage />
+				},
+				{
+					path: '/booking',
+					element: <BookingPage />
 				},
 				{
 					path: '/myspot',
@@ -64,7 +69,7 @@ setDefaultOptions({ locale: fr });
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<div className={'flex flex-col gap-12 w-screen h-screen p-4'}>
+		<div className={'flex flex-col gap-12 w-screen h-screen p-6'}>
 			<Auth0Provider
 				domain={import.meta.env.VITE__AUTH0__DOMAIN}
 				clientId={import.meta.env.VITE__AUTH0__CLIENT__ID}

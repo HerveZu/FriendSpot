@@ -21,18 +21,18 @@ export function Header() {
 	return (
 		<div className="flex justify-between items-center">
 			<Link to={'/'}>
-				<Logo className={'h-6 w-6'} />
+				<Logo className={'h-8'} />
 			</Link>
 			<div className="flex items-center gap-8">
 				<div className={'flex gap-2 items-center'}>
 					<span className={'flex gap-2 items-center text-lg'}>
 						{user.wallet.credits}
-						<LogoCard primary={true} className={'w-6 h-6'} />
+						<LogoCard primary={true} className={'h-6'} />
 					</span>
 					<Dot />
 					<span className={'flex gap-2 items-center text-lg opacity-55'}>
 						{user.wallet.pendingCredits}
-						<LogoCard primary={false} className={'w-6 h-6'} />
+						<LogoCard primary={false} className={'h-6'} />
 					</span>
 				</div>
 				<DropdownMenu>

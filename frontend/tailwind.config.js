@@ -6,6 +6,18 @@ export default {
 	content: ['./index.html', './src/**/*.{ts,tsx,js,jsx}'],
 	theme: {
 		extend: {
+			transitionDuration: {
+				3000: '3000ms'
+			},
+			keyframes: {
+				float: {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' }
+				}
+			},
+			animation: {
+				float: 'float 3s ease-in-out infinite'
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

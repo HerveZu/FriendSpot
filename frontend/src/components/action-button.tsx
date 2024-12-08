@@ -8,7 +8,7 @@ export const ActionButton = forwardRef<
 >(({ large, ...props }, ref) => {
 	return (
 		<div className={'flex flex-col gap-2'}>
-			{props.info && <span className={'text-sm text-primary mt-2'}>{props.info}</span>}
+			{props.info && <span className={'text-sm text-primary'}>{props.info}</span>}
 			<Button
 				ref={ref}
 				size={'lg'}
