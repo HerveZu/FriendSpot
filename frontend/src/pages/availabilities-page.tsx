@@ -85,7 +85,7 @@ function AvailabilityCard(props: { availability: Availability }) {
 		<Card className={'p-4'}>
 			<CardTitle className={'flex text-lg items-center justify-between capitalize'}>
 				{formatRelative(from, now)}
-				{isToday(from) && <Badge>Aujourd&apos;hui</Badge>}
+				{!isCurrent && isToday(from) && <Badge>Aujourd&apos;hui</Badge>}
 				{isTomorrow(from) && <Badge>Demain</Badge>}
 				{isCurrent && <Badge>Maintenant</Badge>}
 			</CardTitle>
