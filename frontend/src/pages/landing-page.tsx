@@ -41,7 +41,7 @@ export function LandingPage() {
 						primary={true}
 						className={'h-28 delay-200'}
 						style={{
-							rotate: '20deg',
+							rotate: '15deg',
 							translate: '-40% 20%'
 						}}
 						state={action ? (action === 'book' ? 'active' : 'inactive') : 'none'}
@@ -49,7 +49,10 @@ export function LandingPage() {
 				</div>
 			</div>
 			<div className={cn('flex flex-col gap-8', action && 'opacity-25')}>
-				<h1 className={'text-2xl font-semibold'}>Que souhaitez-vous faire ?</h1>
+				<h1 className={'text-2xl font-semibold'}>
+					Bienvenue sur <span className={'text-primary'}>FriendSpot</span>, que
+					souhaites-tu faire ?
+				</h1>
 				<div className={'flex flex-col gap-6'}>
 					<ActionButton
 						large

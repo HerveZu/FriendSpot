@@ -11,7 +11,7 @@ import { useContext } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo, LogoCard } from '@/components/logo.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
-import { Dot, LogOut } from 'lucide-react';
+import { Car, Clock, Dot, LogOut, Ticket } from 'lucide-react';
 import { Separator } from '@/components/ui/separator.tsx';
 
 export function Header() {
@@ -41,10 +41,22 @@ export function Header() {
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="flex flex-col gap-2">
 						<DropdownMenuItem asChild>
-							<Link to={'/myspot'}>Mon spot</Link>
+							<Link to={'/myspot'}>
+								<Car />
+								<span>Mon spot</span>
+							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuItem asChild>
-							<Link to={'/availabilities'}>Prêter ma place</Link>
+							<Link to={'/booking'}>
+								<Ticket />
+								<span>Réserver une place</span>
+							</Link>
+						</DropdownMenuItem>
+						<DropdownMenuItem asChild>
+							<Link to={'/availabilities'}>
+								<Clock />
+								<span>Prêter ma place</span>
+							</Link>
 						</DropdownMenuItem>
 						<Separator />
 						<DropdownMenuItem asChild>
