@@ -79,6 +79,7 @@ function AvailabilityCard(props: { availability: Availability }) {
 	const from = new Date(props.availability.from);
 	const to = new Date(props.availability.to);
 	const now = new Date();
+	const isCurrent = from.getTime() <= now.getTime() && to.getTime() > now.getTime();
 
 	return (
 		<Card className={'p-4'}>
@@ -86,6 +87,7 @@ function AvailabilityCard(props: { availability: Availability }) {
 				{formatRelative(from, now)}
 				{isToday(from) && <Badge>Aujourd&apos;hui</Badge>}
 				{isTomorrow(from) && <Badge>Demain</Badge>}
+				{isCurrent && <Badge>Maintenant</Badge>}
 			</CardTitle>
 			<CardDescription className={'flex flex-col gap-4'}>
 				<div className={'flex gap-2 items-center text-primary'}>
