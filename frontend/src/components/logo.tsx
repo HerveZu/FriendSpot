@@ -9,6 +9,7 @@ import {
 	useMemo,
 	useState
 } from 'react';
+import { Delay } from '@/components/delay.tsx';
 
 export function Logo(props: { className?: string }) {
 	return (
@@ -85,7 +86,9 @@ export function LoaderProvider(props: { className?: string; children: ReactNode 
 						'z-50 w-full h-full absolute left-0 top-0 backdrop-blur-sm'
 					)}>
 					<div className={'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 '}>
-						<LogoLoader className={'w-12 h-12'} loop={700} pause={800} />
+						<Delay delay={300}>
+							<LogoLoader className={'w-12 h-12'} loop={700} pause={800} />
+						</Delay>
 					</div>
 				</div>
 			)}
