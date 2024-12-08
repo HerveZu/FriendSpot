@@ -53,7 +53,7 @@ export function LandingPage() {
 			</div>
 			<div className={cn('flex flex-col gap-8', action && 'opacity-25')}>
 				<Title>
-					Salut <span className={'text-primary'}>{auth0.user?.name}</span>, que
+					Salut <span className={'text-primary'}>{auth0.user?.nickname}</span>, que
 					souhaites-tu faire ?
 				</Title>
 				<div className={'flex flex-col gap-6'}>

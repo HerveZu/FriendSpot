@@ -37,10 +37,17 @@ type Availability = {
 	readonly duration: string;
 };
 
+type MySpot = {
+	spot?: {
+		lotName?: string;
+	};
+};
+
 export function AvailabilitiesPage() {
 	const { apiRequest } = useApiRequest();
 	const { setIsLoading, refreshTrigger, forceRefresh } = useLoading('availabilities');
 	const [availabilities, setAvailabilities] = useState<Availabilities>();
+	const [mySpot, setMySpot] = useState<MySpot>();
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -50,23 +57,40 @@ export function AvailabilitiesPage() {
 			.finally(() => setIsLoading(false));
 	}, [refreshTrigger]);
 
+	useEffect(() => {
+		apiRequest<MySpot>('/@me/spot', 'GET').then(setMySpot);
+	}, []);
+
+	const hasSpot = !!mySpot?.spot?.lotName;
+	const hasAvailabilities = availabilities && availabilities.availabilities.length > 0;
+
 	return (
+		mySpot &&
 		availabilities && (
 			<div className={'h-full flex flex-col gap-4'}>
-				<Container className={'flex flex-col gap-2'} title={'Je prête ma place'}>
-					{availabilities?.availabilities.map((availability, i) => (
-						<AvailabilityCard key={i} availability={availability} />
-					))}
+				<Container
+					className={'flex flex-col gap-2'}
+					title={'Je prête ma place'}
+					alert={!hasSpot && 'Défini un spot pour prêter ta place !'}>
+					{hasAvailabilities &&
+						availabilities?.availabilities.map((availability, i) => (
+							<AvailabilityCard key={i} availability={availability} />
+						))}
 				</Container>
 				<LendSpotPopup onClose={forceRefresh}>
 					<ActionButton
+						disabled={!hasSpot}
 						large
-						info={`Vous prêtez votre place un total de ${formatDuration(
-							parseDuration(availabilities.totalDuration),
-							{
-								format: ['days', 'hours', 'minutes']
-							}
-						)}`}>
+						info={
+							hasAvailabilities
+								? `Vous prêtez votre place un total de ${formatDuration(
+										parseDuration(availabilities.totalDuration),
+										{
+											format: ['days', 'hours', 'minutes']
+										}
+									)}`
+								: undefined
+						}>
 						Je prête ma place
 					</ActionButton>
 				</LendSpotPopup>
