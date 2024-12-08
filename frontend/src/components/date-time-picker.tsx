@@ -5,9 +5,16 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { removeYear } from '@/lib/date.ts';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+	DialogTrigger
+} from '@/components/ui/dialog.tsx';
+import { Separator } from '@/components/ui/separator.tsx';
 
 export function DateTimePicker24h(props: {
 	dateFormat: string;
@@ -52,8 +59,8 @@ export function DateTimePicker24h(props: {
 	}, [props.date]);
 
 	return (
-		<Popover open={isOpen} onOpenChange={setIsOpen}>
-			<PopoverTrigger asChild>
+		<Dialog open={isOpen} onOpenChange={setIsOpen}>
+			<DialogTrigger asChild>
 				<Button
 					variant="outline"
 					className={cn(
@@ -63,8 +70,10 @@ export function DateTimePicker24h(props: {
 					)}>
 					{formattedDate}
 				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0">
+			</DialogTrigger>
+			<DialogContent className="w-auto p-0 [&>button]:hidden gap-0">
+				<DialogTitle />
+				<DialogDescription />
 				<div className="sm:flex">
 					<Calendar
 						mode="single"
@@ -72,7 +81,8 @@ export function DateTimePicker24h(props: {
 						onSelect={handleDateSelect}
 						initialFocus
 					/>
-					<div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
+					<Separator />
+					<div className="flex flex-col sm:flex-row sm:h-[300px]">
 						<ScrollArea className="w-64 sm:w-auto">
 							<div className="flex sm:flex-col p-2">
 								{hours.reverse().map((hour) => (
@@ -115,7 +125,7 @@ export function DateTimePicker24h(props: {
 						</ScrollArea>
 					</div>
 				</div>
-			</PopoverContent>
-		</Popover>
+			</DialogContent>
+		</Dialog>
 	);
 }
