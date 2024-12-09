@@ -159,7 +159,7 @@ function FeedbackDialog(props: DialogProps) {
 					onChange={(e) => setPreferredEmailAddress(e.target.value)}
 				/>
 				<Textarea
-					className={'text-sm'}
+					className={'text-sm resize-none'}
 					value={feedback}
 					onChange={(e) => setFeedback(e.target.value)}
 					placeholder={
