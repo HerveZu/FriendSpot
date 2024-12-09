@@ -7,16 +7,27 @@ import {
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useContext } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo, LogoCard } from '@/components/logo.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
-import { Car, Clock, Dot, LogOut, Ticket } from 'lucide-react';
+import { Car, Clock, Dot, Flag, LoaderCircle, LogOut, Ticket } from 'lucide-react';
 import { Separator } from '@/components/ui/separator.tsx';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle
+} from '@/components/ui/dialog.tsx';
+import { Textarea } from '@/components/ui/textarea.tsx';
+import { DialogProps } from '@radix-ui/react-dialog';
+import { Input } from '@/components/ui/input.tsx';
 
 export function Header() {
 	const { logout } = useAuth0();
 	const { user } = useContext(UserStatusContext);
+	const [openFeedback, setOpenFeedback] = useState(false);
 
 	return (
 		<div className="flex justify-between items-center">
@@ -59,6 +70,11 @@ export function Header() {
 							</Link>
 						</DropdownMenuItem>
 						<Separator />
+						<DropdownMenuItem onClick={() => setOpenFeedback(true)}>
+							<Flag />
+							<span>Faire un retour</span>
+						</DropdownMenuItem>
+						<Separator />
 						<DropdownMenuItem asChild>
 							<Button variant={'destructive'} onClick={() => logout()}>
 								<LogOut />
@@ -68,6 +84,7 @@ export function Header() {
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
+			<FeedbackDialog open={openFeedback} onOpenChange={setOpenFeedback} />
 		</div>
 	);
 }
@@ -81,5 +98,79 @@ function UserAvatar(props: { className?: string }) {
 			<AvatarImage src={user?.picture} />
 			<AvatarFallback className={'text-primary'}>{initials}</AvatarFallback>
 		</Avatar>
+	);
+}
+
+function FeedbackDialog(props: DialogProps) {
+	const [feedback, setFeedback] = useState<string>();
+	const { user } = useAuth0();
+	const [preferredEmailAddress, setPreferredEmailAddress] = useState<string>();
+	const [isLoading, setIsLoading] = useState(false);
+
+	const sendFeedback = useCallback(async () => {
+		const body = {
+			embeds: [
+				{
+					title: `Feedback de ${user?.nickname}`,
+					description: feedback,
+					footer: {
+						text: `${user?.name} - ${preferredEmailAddress ?? user?.email}`
+					}
+				}
+			]
+		};
+
+		setIsLoading(true);
+
+		try {
+			await fetch(import.meta.env.VITE__DISCORD__REVIEW_WEBHOOK_URL, {
+				method: 'POST',
+				body: JSON.stringify(body),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+		} finally {
+			setIsLoading(false);
+		}
+
+		if (props.onOpenChange) {
+			props.onOpenChange(false);
+		}
+	}, [feedback, user, preferredEmailAddress]);
+
+	useEffect(() => {
+		if (!props.open) {
+			setFeedback(undefined);
+			setPreferredEmailAddress(undefined);
+		}
+	}, [props.open]);
+
+	return (
+		<Dialog {...props}>
+			<DialogContent className={'w-full'}>
+				<DialogHeader>
+					<DialogTitle>Que penses-tu de FriendSpot ?</DialogTitle>
+					<DialogDescription />
+				</DialogHeader>
+				<Input
+					className={'text-sm'}
+					value={preferredEmailAddress ?? user?.email}
+					onChange={(e) => setPreferredEmailAddress(e.target.value)}
+				/>
+				<Textarea
+					className={'text-sm'}
+					value={feedback}
+					onChange={(e) => setFeedback(e.target.value)}
+					placeholder={
+						'Tu as un retour à nous faire ou une suggestion ? Écris nous ici !'
+					}
+				/>
+				<Button disabled={!feedback} onClick={() => sendFeedback()}>
+					{isLoading && <LoaderCircle className={'animate-spin'} />}
+					Envoyer
+				</Button>
+			</DialogContent>
+		</Dialog>
 	);
 }
