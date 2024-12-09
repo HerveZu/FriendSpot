@@ -9,20 +9,20 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.MySpot;
 
 [PublicAPI]
-public sealed record GetAvailableParkingRequest
+public sealed record SearchAvailableParkingRequest
 {
     [FromQuery]
     public string? Search { get; init; }
 }
 
-internal sealed class GetAvailableParking(AppDbContext dbContext) : Endpoint<GetAvailableParkingRequest>
+internal sealed class SearchAvailableParking(AppDbContext dbContext) : Endpoint<SearchAvailableParkingRequest>
 {
     public override void Configure()
     {
         Get("/parking");
     }
 
-    public override async Task HandleAsync(GetAvailableParkingRequest req, CancellationToken ct)
+    public override async Task HandleAsync(SearchAvailableParkingRequest req, CancellationToken ct)
     {
         var matchingParking = dbContext.Set<Parking>().AsQueryable();
         var search = req.Search?.ToLowerInvariant();
@@ -31,8 +31,8 @@ internal sealed class GetAvailableParking(AppDbContext dbContext) : Endpoint<Get
         {
             matchingParking = matchingParking.Where(
                 parking =>
-                    EF.Functions.ILike(parking.Name, $"%{search}%")
-                    || EF.Functions.ILike(parking.Address, $"%{search}%"));
+                    EF.Functions.ILike(parking.Name.ToLower(), $"%{search}%")
+                    || EF.Functions.ILike(parking.Address.ToLower(), $"%{search}%"));
         }
 
         var availableParking = await matchingParking

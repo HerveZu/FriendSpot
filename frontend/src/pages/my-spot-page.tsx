@@ -57,7 +57,7 @@ export function MySpotPage() {
 	const parkingUserName = searchParkingUser?.parking?.name;
 
 	const [dataParking, setDataParking] = useState<Parking[]>();
-	const [debounceValue] = useDebounce(parkingUserName, 500);
+	const [debounceValue] = useDebounce(parkingUserName, 200);
 
 	useEffect(() => {
 		fetchParkingAlreadyRegistered().then();
@@ -142,7 +142,7 @@ export function MySpotPage() {
 				<CardTitle />
 				<CardDescription />
 				<CardContent className={'flex flex-col gap-4 h-full min-h-0 p-6'}>
-					<Command>
+					<Command shouldFilter={false}>
 						<CommandInput
 							className="truncate ..."
 							value={searchParkingUser?.parking?.name}
