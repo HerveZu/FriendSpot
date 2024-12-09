@@ -122,14 +122,14 @@ export function MySpotPage() {
 	}
 
 	return (
-		<div className="flex flex-col gap-4 mx-auto w-[95%] min-h-[200px]">
+		<div className="flex flex-col gap-4 h-full">
 			{parkingAlreadyRegistered?.spot !== null && (
 				<Card>
 					<CardHeader>
 						<CardTitle className="mb-2">
 							Mes <span className="text-primary">informations</span>
 						</CardTitle>
-						<Separator />
+						{/* <Separator /> */}
 					</CardHeader>
 					<>
 						<CardContent className="flex flex-col items-start gap-2 pb-5">
@@ -143,7 +143,7 @@ export function MySpotPage() {
 					</>
 				</Card>
 			)}
-			<Card className="flex flex-col mt-05">
+			<Card className="flex flex-col grow">
 				<CardHeader>
 					<CardTitle>Mon spot</CardTitle>
 				</CardHeader>
