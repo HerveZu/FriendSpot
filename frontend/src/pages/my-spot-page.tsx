@@ -76,16 +76,11 @@ export function MySpotPage() {
 	// Fetch parking match with my parking in search bar
 	useEffect(() => {
 		async function fetchSearchParking() {
-			setIsLoading(true);
-			try {
-				const response = await apiRequest<Parking[]>(
-					`/parking?search=${debounceValue ?? ''}`,
-					'GET'
-				);
-				setDataParking(response);
-			} finally {
-				setIsLoading(false);
-			}
+			const response = await apiRequest<Parking[]>(
+				`/parking?search=${debounceValue ?? ''}`,
+				'GET'
+			);
+			setDataParking(response);
 		}
 
 		fetchSearchParking().then();
@@ -117,26 +112,24 @@ export function MySpotPage() {
 
 	return (
 		<div className="flex flex-col h-full gap-4">
-			{parkingAlreadyRegistered?.spot !== null && (
-				<div className={'flex flex-col gap-4'}>
-					<Title>Mon spot</Title>
-					<Card>
-						<CardTitle />
-						<CardDescription />
-						<CardContent className={'flex flex-col gap-6 p-6'}>
-							<div className={'flex justify-between'}>
-								<span className={'font-semibold text-primary'}>
-									{parkingAlreadyRegistered?.spot.parking.name}
-								</span>
-								<span>{parkingAlreadyRegistered?.spot.lotName}</span>
-							</div>
-							<div className={'flex gap-2 text-sm opacity-50'}>
-								<MapPin size={18} />
-								<span>{parkingAlreadyRegistered?.spot.parking.address}</span>
-							</div>
-						</CardContent>
-					</Card>
-				</div>
+			<Title>Mon spot</Title>
+			{parkingAlreadyRegistered?.spot && (
+				<Card>
+					<CardTitle />
+					<CardDescription />
+					<CardContent className={'flex flex-col gap-6 p-6'}>
+						<div className={'flex justify-between'}>
+							<span className={'font-semibold text-primary'}>
+								{parkingAlreadyRegistered?.spot.parking.name}
+							</span>
+							<span>{parkingAlreadyRegistered?.spot.lotName}</span>
+						</div>
+						<div className={'flex gap-2 text-sm opacity-50'}>
+							<MapPin size={18} />
+							<span>{parkingAlreadyRegistered?.spot.parking.address}</span>
+						</div>
+					</CardContent>
+				</Card>
 			)}
 			<Card className={'grow'}>
 				<CardTitle />
