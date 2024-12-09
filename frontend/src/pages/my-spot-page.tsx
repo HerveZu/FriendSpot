@@ -1,6 +1,4 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Check, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
@@ -12,14 +10,17 @@ import {
 	CommandItem,
 	CommandList
 } from '@/components/ui/command';
-import { Button } from '@/components/ui/button';
 import { useLoading } from '@/components/logo';
+import { ActionButton } from '@/components/action-button.tsx';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card.tsx';
+import { Title } from '@/components/title.tsx';
 
 interface Parking {
 	id: string;
 	address: string;
 	name: string;
 }
+
 interface SetMySpot {
 	parkingId: string;
 	lotName: string;
@@ -47,25 +48,19 @@ interface ParkingAlreadyRegistered {
 
 export function MySpotPage() {
 	const { apiRequest } = useApiRequest();
-
 	const { setIsLoading } = useLoading('MySpotPage');
 
 	const [parkingAlreadyRegistered, setParkingAlreadyRegistered] =
 		useState<ParkingAlreadyRegistered | null>(null);
 
 	const [searchParkingUser, setSearchParkingUser] = useState<MySpot>();
-
 	const parkingUserName = searchParkingUser?.parking?.name;
 
-	const [handleSelectedParking, setHandleSelectedParking] = useState<boolean>(false);
-
 	const [dataParking, setDataParking] = useState<Parking[]>();
-
 	const [debounceValue] = useDebounce(parkingUserName, 500);
 
-	// Check if the user has a registered parking space
 	useEffect(() => {
-		fetchParkingAlreadyRegistered();
+		fetchParkingAlreadyRegistered().then();
 	}, []);
 
 	async function fetchParkingAlreadyRegistered() {
@@ -73,15 +68,12 @@ export function MySpotPage() {
 		try {
 			const response = await apiRequest<ParkingAlreadyRegistered | null>('/@me/spot', 'GET');
 			setParkingAlreadyRegistered(response);
-			setHandleSelectedParking(false);
-		} catch (error) {
-			console.log(error);
 		} finally {
 			setIsLoading(false);
 		}
 	}
 
-	// Fetch parkings match with my parking in searche bar
+	// Fetch parking match with my parking in search bar
 	useEffect(() => {
 		async function fetchSearchParking() {
 			setIsLoading(true);
@@ -97,8 +89,13 @@ export function MySpotPage() {
 				setIsLoading(false);
 			}
 		}
-		fetchSearchParking();
+
+		fetchSearchParking().then();
 	}, [debounceValue]);
+
+	useEffect(() => {
+		setSearchParkingUser(parkingAlreadyRegistered?.spot);
+	}, [parkingAlreadyRegistered]);
 
 	//  Update parking spot user info
 	async function setUserParkingChange() {
@@ -112,48 +109,46 @@ export function MySpotPage() {
 		};
 		try {
 			await apiRequest<SetMySpot>('/@me/spot', 'PUT', body);
-			setHandleSelectedParking(false);
 		} catch (error) {
 			console.log(error);
 		} finally {
 			setIsLoading(false);
-			fetchParkingAlreadyRegistered();
+			fetchParkingAlreadyRegistered().then();
 		}
 	}
 
 	return (
-		<div className="flex flex-col gap-4 h-full">
+		<div className="flex flex-col h-full gap-4">
 			{parkingAlreadyRegistered?.spot !== null && (
-				<Card>
-					<CardHeader>
-						<CardTitle className="mb-2">
-							Mes <span className="text-primary">informations</span>
-						</CardTitle>
-						{/* <Separator /> */}
-					</CardHeader>
-					<>
-						<CardContent className="flex flex-col items-start gap-2 pb-5">
-							<p className="text-sm font-bold">{`Adresse de parking :`}</p>
-							<p className="text-sm">{`${parkingAlreadyRegistered?.spot?.parking?.name}`}</p>
+				<div className={'flex flex-col gap-4'}>
+					<Title>Mon spot</Title>
+					<Card>
+						<CardTitle />
+						<CardDescription />
+						<CardContent className={'flex flex-col gap-6 p-6'}>
+							<div className={'flex justify-between'}>
+								<span className={'font-semibold text-primary'}>
+									{parkingAlreadyRegistered?.spot.parking.name}
+								</span>
+								<span>{parkingAlreadyRegistered?.spot.lotName}</span>
+							</div>
+							<div className={'flex gap-2 text-sm opacity-50'}>
+								<MapPin size={18} />
+								<span>{parkingAlreadyRegistered?.spot.parking.address}</span>
+							</div>
 						</CardContent>
-						<CardFooter className="flex flex-col items-start gap-2">
-							<p className="text-sm font-bold">{`Numéro de place :`}</p>
-							<p className="text-sm">{`${parkingAlreadyRegistered?.spot?.lotName}`}</p>
-						</CardFooter>
-					</>
-				</Card>
+					</Card>
+				</div>
 			)}
-			<Card className="flex flex-col grow">
-				<CardHeader>
-					<CardTitle>Mon spot</CardTitle>
-				</CardHeader>
-				<CardContent className="relative z-0 min-h-[250px]">
+			<Card className={'grow'}>
+				<CardTitle />
+				<CardDescription />
+				<CardContent className={'flex flex-col gap-4 h-full min-h-0 p-6'}>
 					<Command>
 						<CommandInput
 							className="truncate ..."
 							value={searchParkingUser?.parking?.name}
 							onValueChange={(e) => {
-								setHandleSelectedParking(false);
 								const newName = e;
 								setSearchParkingUser((prevState) => ({
 									...prevState,
@@ -164,9 +159,9 @@ export function MySpotPage() {
 									}
 								}));
 							}}
-							placeholder="Recherchez votre parking..."
+							placeholder="Recherchez un parking"
 						/>
-						<CommandList>
+						<CommandList className={'h-full'}>
 							<CommandGroup>
 								{dataParking?.map((parking) => (
 									<CommandItem
@@ -182,30 +177,25 @@ export function MySpotPage() {
 													name: parking.name
 												}
 											}));
-											setHandleSelectedParking(!handleSelectedParking);
 										}}>
-										<div className="flex w-full px-2 gap-2 items-center">
-											<p>{parking.name}</p>
-											<p>
-												{handleSelectedParking && (
-													<Check color={'#617FAE'} />
-												)}
-											</p>
+										<div className="flex w-full px-2 gap-2 items-center justify-between">
+											{parking.name}
+											{searchParkingUser && <Check color={'#617FAE'} />}
 										</div>
 									</CommandItem>
 								))}
 							</CommandGroup>
 						</CommandList>
 					</Command>
-				</CardContent>
-				<Separator />
-				<CardFooter className="flex flex-col w-full justify-between mt-5 ">
-					<div className="flex items-center gap-24">
-						<p className={'text-sm'}>Place numéro :</p>
+					<div className="flex items-center gap-4 w-full justify-between">
+						<span className={'text-sm'}>Place n°</span>
 						<Input
-							className={`flex justify-center w-16 h-9 py-2 rounded-md`}
-							type="text"
-							value={searchParkingUser?.lotName}
+							className={'w-20 text-center'}
+							value={
+								searchParkingUser?.lotName ??
+								parkingAlreadyRegistered?.spot.lotName ??
+								''
+							}
 							onChange={(e) => {
 								const newLotName = e.target.value;
 
@@ -217,14 +207,14 @@ export function MySpotPage() {
 							}}
 						/>
 					</div>
-					<Button
+					<ActionButton
 						variant={'default'}
-						className="mt-5 w-full cursor-none"
+						className="w-full cursor-none"
 						onClick={() => setUserParkingChange()}
-						disabled={!handleSelectedParking || !searchParkingUser?.lotName?.trim()}>
+						disabled={!searchParkingUser?.lotName?.trim()}>
 						Enregistrer
-					</Button>
-				</CardFooter>
+					</ActionButton>
+				</CardContent>
 			</Card>
 		</div>
 	);

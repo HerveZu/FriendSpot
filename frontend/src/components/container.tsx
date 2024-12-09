@@ -9,9 +9,10 @@ export function Container(props: {
 	title?: ReactNode;
 	className?: string;
 	alert?: ReactNode;
+	shrink?: boolean;
 }) {
 	return (
-		<div className={'grow flex flex-col gap-4 min-h-0'}>
+		<div className={cn('flex flex-col gap-4 min-h-0', !props.shrink && 'grow')}>
 			{props.title && <Title>{props.title}</Title>}
 			{props.alert && (
 				<Alert className={'border-destructive bg-destructive'}>
@@ -22,8 +23,8 @@ export function Container(props: {
 			{props.children && (
 				<div
 					className={cn(
-						props.className,
-						'rounded-lg bg-secondary p-2 overflow-y-scroll'
+						'rounded-lg bg-secondary p-2 overflow-y-scroll',
+						props.className
 					)}>
 					{props.children}
 				</div>
