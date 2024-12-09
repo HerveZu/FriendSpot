@@ -222,7 +222,8 @@ function LendSpotPopup(props: { children: ReactNode; onClose: () => void }) {
 
 					<ActionButton
 						info={
-							duration && (
+							// duration = 0 is falsy, but still needs to be displayed
+							duration !== undefined && (
 								<span className={'flex items-center gap-2'}>
 									<Clock size={16} />
 									{formatDuration(duration, {
