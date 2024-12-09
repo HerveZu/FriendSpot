@@ -83,8 +83,6 @@ export function MySpotPage() {
 					'GET'
 				);
 				setDataParking(response);
-			} catch (error) {
-				console.log(error);
 			} finally {
 				setIsLoading(false);
 			}
