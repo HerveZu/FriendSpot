@@ -15,6 +15,7 @@ import {
 	DialogTrigger
 } from '@/components/ui/dialog.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { Clock } from 'lucide-react';
 
 export function DateTimePicker24h(props: {
 	dateFormat: string;
@@ -74,7 +75,7 @@ export function DateTimePicker24h(props: {
 			<DialogContent className="w-auto p-0 [&>button]:hidden gap-0">
 				<DialogTitle />
 				<DialogDescription />
-				<div className="sm:flex">
+				<div>
 					<Calendar
 						mode="single"
 						selected={props.date}
@@ -82,9 +83,12 @@ export function DateTimePicker24h(props: {
 						initialFocus
 					/>
 					<Separator />
-					<div className="flex flex-col sm:flex-row sm:h-[300px]">
-						<ScrollArea className="w-64 sm:w-auto">
-							<div className="flex sm:flex-col p-2">
+					<div className="flex flex-col p-6 gap-2">
+						<span className={'flex gap-2 items-center'}>
+							<Clock size={18} /> Heure
+						</span>
+						<ScrollArea className="w-60 overflow-hidden">
+							<div className="flex sm:flex-col">
 								{hours.reverse().map((hour) => (
 									<Button
 										key={hour}
@@ -102,8 +106,8 @@ export function DateTimePicker24h(props: {
 							</div>
 							<ScrollBar orientation="horizontal" className="sm:hidden" />
 						</ScrollArea>
-						<ScrollArea className="w-64 sm:w-auto">
-							<div className="flex sm:flex-col p-2">
+						<ScrollArea className="w-60">
+							<div className="flex sm:flex-col">
 								{Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
 									<Button
 										key={minute}
