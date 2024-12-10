@@ -36,14 +36,7 @@ interface MySpot {
 }
 
 interface ParkingAlreadyRegistered {
-	spot: {
-		lotName: string;
-		parking: {
-			address: string;
-			id: string;
-			name: string;
-		};
-	};
+	spot: MySpot;
 }
 
 export function MySpotPage() {
@@ -120,13 +113,13 @@ export function MySpotPage() {
 					<CardContent className={'flex flex-col gap-6 p-6'}>
 						<div className={'flex justify-between'}>
 							<span className={'font-semibold text-primary'}>
-								{parkingAlreadyRegistered?.spot.parking.name}
+								{parkingAlreadyRegistered?.spot?.parking?.name}
 							</span>
 							<span>{parkingAlreadyRegistered?.spot.lotName}</span>
 						</div>
 						<div className={'flex gap-2 text-sm opacity-50'}>
 							<MapPin size={18} />
-							<span>{parkingAlreadyRegistered?.spot.parking.address}</span>
+							<span>{parkingAlreadyRegistered?.spot?.parking?.address}</span>
 						</div>
 					</CardContent>
 				</Card>
