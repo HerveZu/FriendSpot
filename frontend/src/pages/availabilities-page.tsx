@@ -71,7 +71,12 @@ export function AvailabilitiesPage() {
 				<Container
 					className={'flex flex-col gap-2'}
 					title={'Je prête ma place'}
-					alert={!hasSpot && 'Défini un spot pour prêter ta place !'}>
+					warning={
+						!hasSpot
+							? 'Défini un spot pour prêter ta place !'
+							: availabilities.availabilities.length === 0 &&
+								'Tu ne prêtes pas encore ta place'
+					}>
 					{hasAvailabilities &&
 						availabilities?.availabilities.map((availability, i) => (
 							<AvailabilityCard key={i} availability={availability} />
@@ -223,14 +228,14 @@ function LendSpotPopup(props: { children: ReactNode; onClose: () => void }) {
 					<ActionButton
 						info={
 							// duration = 0 is falsy, but still needs to be displayed
-							duration !== undefined && (
+							duration !== undefined ? (
 								<span className={'flex items-center gap-2'}>
 									<Clock size={16} />
 									{formatDuration(duration, {
 										format: ['days', 'hours', 'minutes']
 									})}
 								</span>
-							)
+							) : undefined
 						}
 						disabled={!isValid}
 						onClick={makeSpotAvailable}>

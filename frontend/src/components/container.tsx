@@ -1,25 +1,19 @@
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils.ts';
 import { Title } from '@/components/title.tsx';
-import { Alert, AlertTitle } from '@/components/ui/alert.tsx';
-import { TriangleAlert } from 'lucide-react';
+import { Warning } from '@/components/warning.tsx';
 
 export function Container(props: {
 	children?: ReactNode;
 	title?: ReactNode;
 	className?: string;
-	alert?: ReactNode;
+	warning?: ReactNode;
 	shrink?: boolean;
 }) {
 	return (
 		<div className={cn('flex flex-col gap-4 min-h-0', !props.shrink && 'grow')}>
 			{props.title && <Title>{props.title}</Title>}
-			{props.alert && (
-				<Alert className={'border-destructive bg-destructive'}>
-					<TriangleAlert />
-					<AlertTitle className={'ml-2 mt-1'}>{props.alert}</AlertTitle>
-				</Alert>
-			)}
+			{props.warning && <Warning>{props.warning}</Warning>}
 			{props.children && (
 				<div
 					className={cn(
