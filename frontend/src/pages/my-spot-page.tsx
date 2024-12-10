@@ -27,11 +27,11 @@ interface SetMySpot {
 }
 
 interface MySpot {
-	lotName?: string;
-	parking?: {
-		address?: string;
-		id?: string;
-		name?: string;
+	lotName: string;
+	parking: {
+		address: string;
+		id: string;
+		name: string;
 	};
 }
 
@@ -131,17 +131,19 @@ export function MySpotPage() {
 					<Command shouldFilter={false}>
 						<CommandInput
 							className="truncate ..."
-							value={searchParkingUser?.parking?.name}
+							value={searchParkingUser?.parking.name}
 							onValueChange={(e) => {
 								const newName = e;
-								setSearchParkingUser((prevState) => ({
-									...prevState,
-									lotName: prevState?.lotName,
-									parking: {
-										...prevState?.parking,
-										name: newName
-									}
-								}));
+								setSearchParkingUser(
+									(prevState) =>
+										prevState && {
+											...prevState,
+											parking: {
+												...prevState.parking,
+												name: newName
+											}
+										}
+								);
 							}}
 							placeholder="Recherchez un parking"
 						/>
@@ -152,15 +154,18 @@ export function MySpotPage() {
 										key={parking.id}
 										className="mt-3"
 										onSelect={() => {
-											setSearchParkingUser((prevState) => ({
-												...prevState,
-												lotName: prevState?.lotName,
-												parking: {
-													...prevState?.parking,
-													id: parking.id,
-													name: parking.name
-												}
-											}));
+											setSearchParkingUser(
+												(prevState) =>
+													prevState && {
+														...prevState,
+														lotName: prevState.lotName,
+														parking: {
+															...prevState.parking,
+															id: parking.id,
+															name: parking.name
+														}
+													}
+											);
 										}}>
 										<div className="flex w-full px-2 gap-2 items-center justify-between">
 											{parking.name}
@@ -183,11 +188,13 @@ export function MySpotPage() {
 							onChange={(e) => {
 								const newLotName = e.target.value;
 
-								setSearchParkingUser((prevState) => ({
-									...prevState,
-									lotName: newLotName,
-									parking: prevState?.parking
-								}));
+								setSearchParkingUser(
+									(prevState) =>
+										prevState && {
+											...prevState,
+											lotName: newLotName
+										}
+								);
 							}}
 						/>
 					</div>
