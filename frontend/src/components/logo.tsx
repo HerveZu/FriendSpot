@@ -80,17 +80,20 @@ export function LoaderProvider(props: { className?: string; children: ReactNode 
 	return (
 		<LoaderContext.Provider value={{ isLoading, setIsLoading, refreshTrigger, forceRefresh }}>
 			{isLoading && (
-				<div
-					className={cn(
-						props.className,
-						'z-50 w-full h-full absolute left-0 top-0 backdrop-blur-sm'
-					)}>
-					<div className={'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 '}>
-						<Delay delay={300}>
+				<Delay delay={300}>
+					<div
+						className={cn(
+							props.className,
+							'z-50 w-full h-full absolute left-0 top-0 backdrop-blur-sm'
+						)}>
+						<div
+							className={
+								'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 '
+							}>
 							<LogoLoader className={'w-12 h-12'} loop={700} pause={800} />
-						</Delay>
+						</div>
 					</div>
-				</div>
+				</Delay>
 			)}
 			{props.children}
 		</LoaderContext.Provider>

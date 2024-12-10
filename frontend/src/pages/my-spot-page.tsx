@@ -1,4 +1,4 @@
-import { Check, MapPin } from 'lucide-react';
+import { Check, LoaderCircle, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
@@ -41,85 +41,76 @@ interface ParkingAlreadyRegistered {
 
 export function MySpotPage() {
 	const { apiRequest } = useApiRequest();
-	const { setIsLoading } = useLoading('MySpotPage');
+	const { isLoading, setIsLoading, refreshTrigger, forceRefresh } = useLoading('MySpotPage');
 
-	const [parkingAlreadyRegistered, setParkingAlreadyRegistered] =
-		useState<ParkingAlreadyRegistered | null>(null);
-
-	const [searchParkingUser, setSearchParkingUser] = useState<MySpot>();
-	const parkingUserName = searchParkingUser?.parking?.name;
-
+	const [mySpot, setMySpot] = useState<ParkingAlreadyRegistered>();
+	const [search, setSearch] = useState('');
+	const [selectedParking, setSelectedParking] = useState<Parking>();
+	const [lotName, setLotName] = useState('');
 	const [dataParking, setDataParking] = useState<Parking[]>();
-	const [debounceValue] = useDebounce(parkingUserName, 200);
+	const [debounceSearch] = useDebounce(search, 200);
 
 	useEffect(() => {
-		fetchParkingAlreadyRegistered().then();
-	}, []);
-
-	async function fetchParkingAlreadyRegistered() {
-		setIsLoading(true);
-		try {
-			const response = await apiRequest<ParkingAlreadyRegistered | null>('/@me/spot', 'GET');
-			setParkingAlreadyRegistered(response);
-		} finally {
-			setIsLoading(false);
+		async function fetchParkingAlreadyRegistered() {
+			setIsLoading(true);
+			try {
+				const mySpot = await apiRequest<ParkingAlreadyRegistered>('/@me/spot', 'GET');
+				setMySpot(mySpot);
+				setSelectedParking(mySpot.spot?.parking);
+				setLotName(mySpot.spot?.lotName ?? '');
+				setSearch(mySpot.spot?.parking.address ?? '');
+			} finally {
+				setIsLoading(false);
+			}
 		}
-	}
 
-	// Fetch parking match with my parking in search bar
+		fetchParkingAlreadyRegistered().then();
+	}, [refreshTrigger]);
+
 	useEffect(() => {
 		async function fetchSearchParking() {
 			const response = await apiRequest<Parking[]>(
-				`/parking?search=${debounceValue ?? ''}`,
+				`/parking?search=${debounceSearch ?? ''}`,
 				'GET'
 			);
 			setDataParking(response);
 		}
 
 		fetchSearchParking().then();
-	}, [debounceValue]);
+	}, [debounceSearch]);
 
-	useEffect(() => {
-		setSearchParkingUser(parkingAlreadyRegistered?.spot);
-	}, [parkingAlreadyRegistered]);
-
-	//  Update parking spot user info
-	async function setUserParkingChange() {
+	async function saveParking() {
 		setIsLoading(true);
-		const body: {
-			parkingId: string | undefined;
-			lotName: string | undefined;
-		} = {
-			parkingId: searchParkingUser?.parking?.id,
-			lotName: searchParkingUser?.lotName
-		};
+
 		try {
-			await apiRequest<SetMySpot>('/@me/spot', 'PUT', body);
-		} catch (error) {
-			console.log(error);
+			await apiRequest<SetMySpot>('/@me/spot', 'PUT', {
+				parkingId: selectedParking?.id,
+				lotName: lotName
+			});
 		} finally {
 			setIsLoading(false);
-			fetchParkingAlreadyRegistered().then();
+			forceRefresh();
 		}
 	}
+
+	const hasChanged =
+		mySpot?.spot?.parking.id !== selectedParking?.id || mySpot?.spot?.lotName !== lotName;
 
 	return (
 		<div className="flex flex-col h-full gap-4">
 			<Title>Mon spot</Title>
-			{parkingAlreadyRegistered?.spot && (
+			{mySpot?.spot && (
 				<Card>
 					<CardTitle />
 					<CardDescription />
 					<CardContent className={'flex flex-col gap-6 p-6'}>
 						<div className={'flex justify-between'}>
-							<span className={'font-semibold text-primary'}>
-								{parkingAlreadyRegistered?.spot?.parking?.name}
-							</span>
-							<span>{parkingAlreadyRegistered?.spot.lotName}</span>
+							<span className={'font-semibold'}>{mySpot?.spot?.parking.name}</span>
+							<span>{mySpot?.spot?.lotName}</span>
 						</div>
-						<div className={'flex gap-2 text-sm opacity-50'}>
+						<div className={'flex gap-2 text-sm opacity-75'}>
 							<MapPin size={18} />
-							<span>{parkingAlreadyRegistered?.spot?.parking?.address}</span>
+							<span>{mySpot?.spot?.parking.address}</span>
 						</div>
 					</CardContent>
 				</Card>
@@ -131,20 +122,8 @@ export function MySpotPage() {
 					<Command shouldFilter={false}>
 						<CommandInput
 							className="truncate ..."
-							value={searchParkingUser?.parking.name}
-							onValueChange={(e) => {
-								const newName = e;
-								setSearchParkingUser(
-									(prevState) =>
-										prevState && {
-											...prevState,
-											parking: {
-												...prevState.parking,
-												name: newName
-											}
-										}
-								);
-							}}
+							value={search}
+							onValueChange={setSearch}
 							placeholder="Recherchez un parking"
 						/>
 						<CommandList className={'h-full'}>
@@ -153,23 +132,20 @@ export function MySpotPage() {
 									<CommandItem
 										key={parking.id}
 										className="mt-3"
-										onSelect={() => {
-											setSearchParkingUser(
-												(prevState) =>
-													prevState && {
-														...prevState,
-														lotName: prevState.lotName,
-														parking: {
-															...prevState.parking,
-															id: parking.id,
-															name: parking.name
-														}
-													}
-											);
-										}}>
+										onSelect={() => setSelectedParking(parking)}>
 										<div className="flex w-full px-2 gap-2 items-center justify-between">
-											{parking.name}
-											{searchParkingUser && <Check color={'#617FAE'} />}
+											<span className={'flex flex-col gap-2'}>
+												<span className={'font-semibold'}>
+													{parking.name}
+												</span>
+												<span className={'flex gap-2 text-xs opacity-75'}>
+													<MapPin />
+													{parking.address}
+												</span>
+											</span>
+											{parking.id === selectedParking?.id && (
+												<Check className={'text-primary'} />
+											)}
 										</div>
 									</CommandItem>
 								))}
@@ -180,29 +156,16 @@ export function MySpotPage() {
 						<span className={'text-sm'}>Place n°</span>
 						<Input
 							className={'w-20 text-center'}
-							value={
-								searchParkingUser?.lotName ??
-								parkingAlreadyRegistered?.spot?.lotName ??
-								''
-							}
-							onChange={(e) => {
-								const newLotName = e.target.value;
-
-								setSearchParkingUser(
-									(prevState) =>
-										prevState && {
-											...prevState,
-											lotName: newLotName
-										}
-								);
-							}}
+							value={lotName}
+							onChange={(e) => setLotName(e.target.value)}
 						/>
 					</div>
 					<ActionButton
 						variant={'default'}
 						className="w-full cursor-none"
-						onClick={() => setUserParkingChange()}
-						disabled={!searchParkingUser?.lotName?.trim()}>
+						onClick={() => saveParking()}
+						disabled={!selectedParking || !lotName || !hasChanged}>
+						{isLoading && <LoaderCircle className={'animate-spin'} />}
 						Enregistrer
 					</ActionButton>
 				</CardContent>
