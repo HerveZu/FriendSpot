@@ -3,7 +3,9 @@ namespace Api.Common.Options;
 internal sealed record CorsOptions : IOptions
 {
     [ConfigurationKeyName("ALLOWED_ORIGINS")]
-    private string AllowedOriginsRaw { get; } = string.Empty;
+    // ReSharper disable once MemberCanBePrivate.Global
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+    public string AllowedOriginsRaw { get; init; } = string.Empty;
 
     public string[] AllowedOrigins => AllowedOriginsRaw.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
