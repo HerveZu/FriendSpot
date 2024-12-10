@@ -36,7 +36,7 @@ interface MySpot {
 }
 
 interface ParkingAlreadyRegistered {
-	spot: MySpot;
+	spot?: MySpot;
 }
 
 export function MySpotPage() {
@@ -182,7 +182,7 @@ export function MySpotPage() {
 							className={'w-20 text-center'}
 							value={
 								searchParkingUser?.lotName ??
-								parkingAlreadyRegistered?.spot.lotName ??
+								parkingAlreadyRegistered?.spot?.lotName ??
 								''
 							}
 							onChange={(e) => {
