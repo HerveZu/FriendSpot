@@ -7,6 +7,7 @@ using Api.Common.Options;
 using DotNetEnv;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Serilog;
@@ -25,6 +26,7 @@ builder.Configuration
 
 builder.Services
     .ConfigureAndValidate<PostgresOptions>()
+    .ConfigureAndValidate<CorsOptions>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddMediatR(
         x => { x.RegisterServicesFromAssemblyContaining<Program>(); })
@@ -93,13 +95,25 @@ using (var startupScope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(
-        options => options
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod());
     app.MapOpenApi();
 }
+
+app.UseCors(
+    options =>
+    {
+        var cors = options
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+
+        if (app.Environment.IsDevelopment())
+        {
+            cors.AllowAnyOrigin();
+            return;
+        }
+
+        var corsOptions = app.Services.GetRequiredService<IOptions<CorsOptions>>();
+        cors.SetIsOriginAllowed(corsOptions.Value.AllowedOrigins.Contains);
+    });
 
 app
     .UseHttpsRedirection()
