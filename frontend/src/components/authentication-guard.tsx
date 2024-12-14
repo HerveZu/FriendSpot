@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { useLoading } from '@/components/logo.tsx';
+import { Logo, useLoading } from '@/components/logo.tsx';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
 import { Footer } from '@/components/footer.tsx';
@@ -59,9 +59,10 @@ function LandingConnect() {
 	return (
 		<div className="flex flex-col items-center w-full h-full justify-center">
 			<div className="flex flex-col items-center gap-12">
-				<div className="flex flex-col items-center text-center gap-4">
+				<div className="flex flex-col items-center text-center gap-8">
+					<Logo className={'w-16 h-16 my-8'} />
 					<Title>
-						Bienvenue sur <span className="text-primary">FriendSpot</span> (bêta)
+						Bienvenue sur <span className="text-primary">FriendSpot</span>
 					</Title>
 				</div>
 				<ActionButton
