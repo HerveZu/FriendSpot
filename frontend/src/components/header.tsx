@@ -7,7 +7,7 @@ import {
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo, LogoCard } from '@/components/logo.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
@@ -106,6 +106,7 @@ function FeedbackDialog(props: DialogProps) {
 	const { user } = useAuth0();
 	const [preferredEmailAddress, setPreferredEmailAddress] = useState<string>();
 	const [isLoading, setIsLoading] = useState(false);
+	const feedbackInputRef = useRef<HTMLTextAreaElement>(null);
 
 	const sendFeedback = useCallback(async () => {
 		const body = {
@@ -148,7 +149,9 @@ function FeedbackDialog(props: DialogProps) {
 
 	return (
 		<Dialog {...props}>
-			<DialogContent className={'w-full'}>
+			<DialogContent
+				className={'w-full'}
+				onAnimationStart={() => feedbackInputRef.current?.focus()}>
 				<DialogHeader>
 					<DialogTitle>Que penses-tu de FriendSpot ?</DialogTitle>
 					<DialogDescription />
@@ -159,6 +162,7 @@ function FeedbackDialog(props: DialogProps) {
 					onChange={(e) => setPreferredEmailAddress(e.target.value)}
 				/>
 				<Textarea
+					ref={feedbackInputRef}
 					className={'text-sm resize-none'}
 					value={feedback}
 					onChange={(e) => setFeedback(e.target.value)}
