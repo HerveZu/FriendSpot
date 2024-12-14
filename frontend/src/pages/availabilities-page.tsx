@@ -3,7 +3,7 @@ import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useLoading } from '@/components/logo.tsx';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card.tsx';
-import { ArrowRight, Clock, LoaderCircle } from 'lucide-react';
+import { ArrowRight, Clock, Info, LoaderCircle, TriangleAlert } from 'lucide-react';
 import {
 	addMinutes,
 	format,
@@ -25,6 +25,8 @@ import {
 	DialogTrigger
 } from '@/components/ui/dialog.tsx';
 import { DateTimePicker24h } from '@/components/date-time-picker.tsx';
+import { Link } from 'react-router-dom';
+import { InlineAlert } from '@/components/inline-alert.tsx';
 
 type Availabilities = {
 	readonly totalDuration: string;
@@ -71,10 +73,21 @@ export function AvailabilitiesPage() {
 				<Container
 					className={'flex flex-col gap-2'}
 					title={'Je prête ma place'}
-					warning={
-						!hasSpot
-							? 'Défini un spot pour prêter ta place !'
-							: !hasAvailabilities && 'Tu ne prêtes pas encore ta place'
+					description={
+						!hasSpot ? (
+							<InlineAlert className={'space-x-1'} icon={<TriangleAlert />}>
+								<Link to={'/myspot'} className={'text-primary'}>
+									Défini un spot
+								</Link>
+								<span>pour prêter ta place !</span>
+							</InlineAlert>
+						) : (
+							!hasAvailabilities && (
+								<InlineAlert icon={<Info />}>
+									Tu ne prêtes pas encore ta place
+								</InlineAlert>
+							)
+						)
 					}>
 					{hasAvailabilities &&
 						availabilities?.availabilities.map((availability, i) => (
