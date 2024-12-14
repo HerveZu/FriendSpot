@@ -28,8 +28,10 @@ export function LandingPage() {
 	}, [navigate, action]);
 
 	return (
-		<div className={'flex flex-col gap-24 w-full h-full justify-between'}>
-			<div className={'flex flex-col justify-center grow'}>
+		<div className={'flex flex-col w-full h-full justify-between'}>
+			{/*bottom margin makes the illusion that the logo is center despite the gap between the header and the content*/}
+			{/*Don't use gap it doesn't work well for smaller heights*/}
+			<div className={'flex flex-col justify-center grow mb-10'}>
 				<div className={'flex justify-center gap-6'}>
 					<ActionCard
 						primary={!!action || false}
