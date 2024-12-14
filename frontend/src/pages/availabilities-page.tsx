@@ -61,7 +61,7 @@ export function AvailabilitiesPage() {
 		apiRequest<MySpot>('/@me/spot', 'GET').then(setMySpot);
 	}, []);
 
-	const hasSpot = !!mySpot?.spot?.lotName;
+	const hasSpot = !!mySpot?.spot;
 	const hasAvailabilities = availabilities && availabilities.availabilities.length > 0;
 
 	return (
@@ -74,15 +74,14 @@ export function AvailabilitiesPage() {
 					warning={
 						!hasSpot
 							? 'Défini un spot pour prêter ta place !'
-							: availabilities.availabilities.length === 0 &&
-								'Tu ne prêtes pas encore ta place'
+							: !hasAvailabilities && 'Tu ne prêtes pas encore ta place'
 					}>
 					{hasAvailabilities &&
 						availabilities?.availabilities.map((availability, i) => (
 							<AvailabilityCard key={i} availability={availability} />
 						))}
 				</Container>
-				<LendSpotPopup onClose={forceRefresh}>
+				<LendSpotPopup onSubmit={forceRefresh}>
 					<ActionButton
 						disabled={!hasSpot}
 						large
@@ -140,7 +139,7 @@ type MakeSpotAvailableBody = {
 	to: string;
 };
 
-function LendSpotPopup(props: { children: ReactNode; onClose: () => void }) {
+function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 	const [from, setFrom] = useState<Date>();
 	const [to, setTo] = useState<Date>();
 	const now = new Date();
@@ -148,7 +147,7 @@ function LendSpotPopup(props: { children: ReactNode; onClose: () => void }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 
-	const seconds = now.getTime() % 1000;
+	const everySecond = now.getTime() % 1000;
 
 	useEffect(() => {
 		if (!from || from <= now) {
@@ -158,19 +157,13 @@ function LendSpotPopup(props: { children: ReactNode; onClose: () => void }) {
 		if (to && to < now) {
 			setTo(addMinutes(now, 30));
 		}
-	}, [seconds]);
+	}, [everySecond]);
 
 	useEffect(() => {
 		if (from && to && from.getTime() >= to.getTime()) {
 			setTo(addMinutes(from, 30));
 		}
 	}, [from, to]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			props.onClose();
-		}
-	}, [isOpen]);
 
 	const isValid = useMemo(() => from && to, [from, to]);
 	const duration = useMemo(
@@ -194,7 +187,10 @@ function LendSpotPopup(props: { children: ReactNode; onClose: () => void }) {
 			from: from.toISOString(),
 			to: to.toISOString()
 		})
-			.then(() => setIsOpen(false))
+			.then(() => {
+				setIsOpen(false);
+				props.onSubmit();
+			})
 			.finally(() => setIsLoading(false));
 	}
 

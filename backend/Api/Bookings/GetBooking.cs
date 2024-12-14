@@ -1,6 +1,5 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
 using JetBrains.Annotations;
