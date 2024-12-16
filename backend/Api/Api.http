@@ -90,9 +90,9 @@ Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
-GET {{Api_HostAddress}}/spots?from=2024-11-29T01:20:00&minDuration=02:00:00
+GET {{Api_HostAddress}}/spots?from=2024-12-18T18:20:00&to=2024-12-19T12:20:00
 Accept: application/json
-Authorization: Bearer {{$auth.token("me")}}
+Authorization: Bearer {{$auth.token("other")}}
 
 ###
 
@@ -102,13 +102,13 @@ Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
-POST {{Api_HostAddress}}/spots/booking
+POST {{Api_HostAddress}}/spots/booking?simulation=true
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer {{$auth.token("me")}}
+Authorization: Bearer {{$auth.token("other")}}
 
 {
-  "parkingLotId": "01937546-63e8-7a16-a8b1-f59e86555d9c",
-  "from": "2024-11-29T01:21:00+00:00",
-  "duration": "02:46:13"
+  "parkingLotId": "01937546-612e-7a69-a017-f0169ee915c2",
+  "from": "2024-12-18T12:21:00+00:00",
+  "to": "2024-12-18T12:30:00+00:00"
 }
