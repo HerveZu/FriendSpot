@@ -3,6 +3,7 @@ using Api.Common.Infrastructure;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
+using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ public sealed record SearchSpotsRequest
     public required DateTimeOffset From { get; init; }
 
     [FromQuery]
-    public required TimeSpan MinDuration { get; init; }
+    public required DateTimeOffset To { get; init; }
 }
 
 [PublicAPI]
@@ -33,6 +34,14 @@ public sealed record SearchSpotsResponse
     }
 }
 
+internal sealed class SearchSpotsValidator : Validator<SearchSpotsRequest>
+{
+    public SearchSpotsValidator()
+    {
+        RuleFor(x => x.To).GreaterThan(x => x.From);
+    }
+}
+
 internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpotsRequest, SearchSpotsResponse>
 {
     public override void Configure()
@@ -43,7 +52,6 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
     public override async Task HandleAsync(SearchSpotsRequest req, CancellationToken ct)
     {
         var currentUser = HttpContext.ToCurrentUser();
-        var until = req.From + req.MinDuration;
 
         var availableSpots = await (
                 from myParking in from parkingLot in dbContext.Set<ParkingSpot>()
@@ -53,7 +61,7 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                 join parkingLot in dbContext.Set<ParkingSpot>() on myParking.Id equals parkingLot.ParkingId
                 where parkingLot.OwnerId != currentUser.Identity
                 select parkingLot.Availabilities
-                    .Where(availability => availability.From <= req.From && availability.To >= until)
+                    .Where(availability => availability.From <= req.From && availability.To >= req.To)
                     .Where(
                         availability => !parkingLot.Bookings
                             .Any(booking => booking.From <= availability.To && availability.From <= booking.To))
