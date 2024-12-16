@@ -15,7 +15,8 @@ public sealed record SearchAvailableParkingRequest
     public string? Search { get; init; }
 }
 
-internal sealed class SearchAvailableParking(AppDbContext dbContext) : Endpoint<SearchAvailableParkingRequest>
+internal sealed class SearchAvailableParking(AppDbContext dbContext)
+    : Endpoint<SearchAvailableParkingRequest, ParkingResponse[]>
 {
     public override void Configure()
     {
