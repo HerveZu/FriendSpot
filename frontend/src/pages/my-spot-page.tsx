@@ -1,5 +1,5 @@
 import { Check, LoaderCircle, MapPin } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
@@ -40,46 +40,72 @@ interface ParkingAlreadyRegistered {
 }
 
 export function MySpotPage() {
-	const { apiRequest } = useApiRequest();
-	const { isLoading, setIsLoading, refreshTrigger, forceRefresh } = useLoading('MySpotPage');
+	const [mySpot, setMySpot] = useState<MySpot>();
 
-	const [mySpot, setMySpot] = useState<ParkingAlreadyRegistered>();
-	const [search, setSearch] = useState('');
+	return (
+		<div className="flex flex-col h-full gap-4">
+			<Title>Mon spot</Title>
+			<Spot spot={mySpot} onSpotFetched={setMySpot} />
+			<ParkingSearch spot={mySpot} />
+		</div>
+	);
+}
+
+function Spot(props: { spot?: MySpot; onSpotFetched: (spot?: MySpot) => void }) {
+	const { apiRequest } = useApiRequest();
+	const { setIsLoading, refreshTrigger } = useLoading('MySpot.Spot');
+
+	useEffect(() => {
+		setIsLoading(true);
+
+		apiRequest<ParkingAlreadyRegistered>('/@me/spot', 'GET')
+			.then((data) => props.onSpotFetched(data.spot))
+			.finally(() => setIsLoading(false));
+	}, [refreshTrigger]);
+
+	return (
+		props.spot && (
+			<Card>
+				<CardTitle />
+				<CardDescription />
+				<CardContent className={'flex flex-col gap-6 p-6'}>
+					<div className={'flex justify-between'}>
+						<span className={'font-semibold'}>{props.spot?.parking.name}</span>
+						<span>{props.spot?.lotName}</span>
+					</div>
+					<div className={'flex gap-2 text-sm opacity-75'}>
+						<MapPin size={18} />
+						<span>{props.spot?.parking.address}</span>
+					</div>
+				</CardContent>
+			</Card>
+		)
+	);
+}
+
+function ParkingSearch(props: { spot?: MySpot }) {
+	const { apiRequest } = useApiRequest();
+	const { isLoading, setIsLoading, forceRefresh } = useLoading('MySpot.ParkingSearch');
 	const [selectedParking, setSelectedParking] = useState<Parking>();
 	const [lotName, setLotName] = useState('');
+	const [search, setSearch] = useState('');
 	const [dataParking, setDataParking] = useState<Parking[]>();
 	const [debounceSearch] = useDebounce(search, 200);
 
 	useEffect(() => {
-		async function fetchParkingAlreadyRegistered() {
-			setIsLoading(true);
-			try {
-				const mySpot = await apiRequest<ParkingAlreadyRegistered>('/@me/spot', 'GET');
-				setMySpot(mySpot);
-				setSelectedParking(mySpot.spot?.parking);
-				setLotName(mySpot.spot?.lotName ?? '');
-				setSearch(mySpot.spot?.parking.address ?? '');
-			} finally {
-				setIsLoading(false);
-			}
-		}
-
-		fetchParkingAlreadyRegistered().then();
-	}, [refreshTrigger]);
+		setSelectedParking(props.spot?.parking);
+		setLotName(props.spot?.lotName ?? '');
+		setSearch(props.spot?.parking.address ?? '');
+	}, [props.spot]);
 
 	useEffect(() => {
-		async function fetchSearchParking() {
-			const response = await apiRequest<Parking[]>(
-				`/parking?search=${debounceSearch ?? ''}`,
-				'GET'
-			);
-			setDataParking(response);
-		}
-
-		fetchSearchParking().then();
+		setIsLoading(true);
+		apiRequest<Parking[]>(`/parking?search=${debounceSearch ?? ''}`, 'GET')
+			.then(setDataParking)
+			.finally(() => setIsLoading(false));
 	}, [debounceSearch]);
 
-	async function saveParking() {
+	const saveParking = useCallback(async () => {
 		setIsLoading(true);
 
 		try {
@@ -91,85 +117,64 @@ export function MySpotPage() {
 			setIsLoading(false);
 			forceRefresh();
 		}
-	}
+	}, [selectedParking, lotName]);
 
 	const hasChanged =
-		mySpot?.spot?.parking.id !== selectedParking?.id || mySpot?.spot?.lotName !== lotName;
+		props.spot?.parking.id !== selectedParking?.id || props.spot?.lotName !== lotName;
 
 	return (
-		<div className="flex flex-col h-full gap-4">
-			<Title>Mon spot</Title>
-			{mySpot?.spot && (
-				<Card>
-					<CardTitle />
-					<CardDescription />
-					<CardContent className={'flex flex-col gap-6 p-6'}>
-						<div className={'flex justify-between'}>
-							<span className={'font-semibold'}>{mySpot?.spot?.parking.name}</span>
-							<span>{mySpot?.spot?.lotName}</span>
-						</div>
-						<div className={'flex gap-2 text-sm opacity-75'}>
-							<MapPin size={18} />
-							<span>{mySpot?.spot?.parking.address}</span>
-						</div>
-					</CardContent>
-				</Card>
-			)}
-			<Card className={'grow'}>
-				<CardTitle />
-				<CardDescription />
-				<CardContent className={'flex flex-col gap-4 h-full min-h-0 p-6'}>
-					<Command shouldFilter={false}>
-						<CommandInput
-							className="truncate ..."
-							value={search}
-							onValueChange={setSearch}
-							placeholder="Recherchez un parking"
-						/>
-						<CommandList className={'h-full'}>
-							<CommandGroup>
-								{dataParking?.map((parking) => (
-									<CommandItem
-										key={parking.id}
-										className="mt-3"
-										onSelect={() => setSelectedParking(parking)}>
-										<div className="flex w-full px-2 gap-2 items-center justify-between">
-											<span className={'flex flex-col gap-2'}>
-												<span className={'font-semibold'}>
-													{parking.name}
-												</span>
-												<span className={'flex gap-2 text-xs opacity-75'}>
-													<MapPin />
-													{parking.address}
-												</span>
+		<Card className={'grow'}>
+			<CardTitle />
+			<CardDescription />
+			<CardContent className={'flex flex-col gap-4 h-full min-h-0 p-6'}>
+				<Command shouldFilter={false}>
+					<CommandInput
+						className="truncate ..."
+						value={search}
+						onValueChange={setSearch}
+						placeholder="Recherchez un parking"
+					/>
+					<CommandList className={'h-full'}>
+						<CommandGroup>
+							{dataParking?.map((parking) => (
+								<CommandItem
+									key={parking.id}
+									className="mt-3"
+									onSelect={() => setSelectedParking(parking)}>
+									<div className="flex w-full px-2 gap-2 items-center justify-between">
+										<span className={'flex flex-col gap-2'}>
+											<span className={'font-semibold'}>{parking.name}</span>
+											<span className={'flex gap-2 text-xs opacity-75'}>
+												<MapPin />
+												{parking.address}
 											</span>
-											{parking.id === selectedParking?.id && (
-												<Check className={'text-primary'} />
-											)}
-										</div>
-									</CommandItem>
-								))}
-							</CommandGroup>
-						</CommandList>
-					</Command>
-					<div className="flex items-center gap-4 w-full justify-between">
-						<span className={'text-sm'}>Place n°</span>
-						<Input
-							className={'w-20 text-center'}
-							value={lotName}
-							onChange={(e) => setLotName(e.target.value)}
-						/>
-					</div>
-					<ActionButton
-						variant={'default'}
-						className="w-full cursor-none"
-						onClick={() => saveParking()}
-						disabled={!selectedParking || !lotName || !hasChanged}>
-						{isLoading && <LoaderCircle className={'animate-spin'} />}
-						Enregistrer
-					</ActionButton>
-				</CardContent>
-			</Card>
-		</div>
+										</span>
+										{parking.id === selectedParking?.id && (
+											<Check className={'text-primary'} />
+										)}
+									</div>
+								</CommandItem>
+							))}
+						</CommandGroup>
+					</CommandList>
+				</Command>
+				<div className="flex items-center gap-4 w-full justify-between">
+					<span className={'text-sm'}>Place n°</span>
+					<Input
+						className={'w-20 text-center'}
+						value={lotName}
+						onChange={(e) => setLotName(e.target.value)}
+					/>
+				</div>
+				<ActionButton
+					variant={'default'}
+					className="w-full cursor-none"
+					onClick={() => saveParking()}
+					disabled={!selectedParking || !lotName || !hasChanged}>
+					{isLoading && <LoaderCircle className={'animate-spin'} />}
+					Enregistrer
+				</ActionButton>
+			</CardContent>
+		</Card>
 	);
 }
