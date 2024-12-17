@@ -243,14 +243,14 @@ function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 					<div className={'flex gap-4 items-center justify-between'}>
 						<DateTimePicker24h
 							date={from}
-							setDate={setFrom}
+							onDateChange={setFrom}
 							dateFormat={'PPp'}
 							removeYear
 						/>
 						<ArrowRight size={16} className={'shrink-0'} />
 						<DateTimePicker24h
 							date={to}
-							setDate={setTo}
+							onDateChange={setTo}
 							dateFormat={'PPp'}
 							removeYear
 						/>

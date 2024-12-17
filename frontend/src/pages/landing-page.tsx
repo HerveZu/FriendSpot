@@ -1,5 +1,5 @@
 import { LogoCard, LogoCardProps } from '@/components/logo.tsx';
-import { useContext, useEffect, useState, useMemo } from 'react';
+import { ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils.ts';
 import { useNavigate } from 'react-router-dom';
 import { ActionButton } from '@/components/action-button.tsx';
@@ -8,10 +8,23 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Title } from '@/components/title.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { ArrowRight, LoaderCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog.tsx';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger
+} from '@/components/ui/dialog.tsx';
 import { DateTimePicker24h } from '@/components/date-time-picker.tsx';
 import { Slider } from '@/components/ui/slider';
-import { millisecondsToHours } from 'date-fns';
+import {
+	addHours,
+	differenceInHours,
+	formatDuration,
+	intervalToDuration,
+	millisecondsToHours
+} from 'date-fns';
 
 const routeForAction: { [action: string]: string } = {
 	lend: '/availabilities'
@@ -70,6 +83,10 @@ export function LandingPage() {
 	}
 
 	useEffect(() => {
+		if (!to || !from) {
+			return;
+		}
+
 		const duration = calculateDuration(to?.getTime() - from?.getTime() || 0);
 		setSliderValue(duration);
 
@@ -105,6 +122,7 @@ export function LandingPage() {
 				console.log(error);
 			}
 		}
+
 		fetchBooking();
 	}, []);
 
@@ -113,6 +131,7 @@ export function LandingPage() {
 		if (!from || !to) {
 			return;
 		}
+
 		async function checkBookingAvailable() {
 			try {
 				const response = await apiRequest<AvailableSpotsResponse>(
@@ -124,6 +143,7 @@ export function LandingPage() {
 				console.log(error);
 			}
 		}
+
 		checkBookingAvailable();
 	}, [from, to]);
 
@@ -183,12 +203,15 @@ export function LandingPage() {
 							que souhaites-tu faire ?
 						</Title>
 						<div className="flex flex-col gap-6">
-							<ActionButton
-								large
-								info={`${user.availableSpots} places sont disponibles dans votre parking`}
-								onClick={() => setIsOpen(true)}>
-								Je réserve une place
-							</ActionButton>
+							<BookingModal>
+								<ActionButton
+									large
+									info={`${user.availableSpots} places sont disponibles dans votre parking`}
+									// onClick={() => setIsOpen(true)}
+								>
+									Je réserve une place
+								</ActionButton>
+							</BookingModal>
 							<span className="mx-auto text-md">ou</span>
 							<ActionButton
 								large
@@ -210,14 +233,14 @@ export function LandingPage() {
 							<div className="flex gap-4 items-center justify-between">
 								<DateTimePicker24h
 									date={from}
-									setDate={setFrom}
+									onDateChange={setFrom}
 									dateFormat="PPp"
 									removeYear
 								/>
 								<ArrowRight size={16} className="shrink-0" />
 								<DateTimePicker24h
 									date={to}
-									setDate={setTo}
+									onDateChange={setTo}
 									dateFormat="PPp"
 									removeYear
 								/>
@@ -249,27 +272,100 @@ export function LandingPage() {
 			)}
 		</div>
 	);
+}
 
-	function ActionCard({
-		className,
-		style,
-		...props
-	}: { state: 'none' | 'active' | 'inactive' } & LogoCardProps) {
-		return (
-			<LogoCard
-				className={cn(
-					className,
-					'transition-all duration-3000 animate-float',
-					props.state === 'inactive' && 'opacity-25 z-0',
-					props.state === 'active' && 'z-50 animate-none duration-1000 delay-0'
-				)}
-				style={{
-					...style,
-					scale: props.state === 'active' ? '100' : '1',
-					rotate: props.state === 'active' ? '0deg' : style?.rotate
-				}}
-				{...props}
-			/>
-		);
-	}
+function ActionCard({
+	className,
+	style,
+	...props
+}: { state: 'none' | 'active' | 'inactive' } & LogoCardProps) {
+	return (
+		<LogoCard
+			className={cn(
+				className,
+				'transition-all duration-3000 animate-float',
+				props.state === 'inactive' && 'opacity-25 z-0',
+				props.state === 'active' && 'z-50 animate-none duration-1000 delay-0'
+			)}
+			style={{
+				...style,
+				scale: props.state === 'active' ? '100' : '1',
+				rotate: props.state === 'active' ? '0deg' : style?.rotate
+			}}
+			{...props}
+		/>
+	);
+}
+
+function BookingModal(props: { children: ReactNode }) {
+	const MAX_HOURS = 24 * 3;
+
+	const [from, setFrom] = useState(new Date());
+	const [to, setTo] = useState<Date>();
+	const [durationPercent, setDurationPercent] = useState(0);
+
+	useEffect(() => {
+		setTo(from && addHours(from, durationPercent * MAX_HOURS));
+	}, [durationPercent, from]);
+
+	const updateDurationPercent = useCallback(
+		(from: Date, to: Date) => {
+			setDurationPercent(differenceInHours(to, from) / MAX_HOURS);
+		},
+		[from, to]
+	);
+
+	return (
+		<Dialog>
+			<DialogTrigger asChild>{props.children}</DialogTrigger>
+			<DialogContent className="w-11/12 rounded-lg">
+				<DialogHeader>
+					<DialogTitle>Réserver une place</DialogTitle>
+					<DialogDescription />
+				</DialogHeader>
+				<div className="flex flex-col gap-6 mt-4">
+					<div className="flex gap-4 items-center justify-between">
+						<DateTimePicker24h
+							date={from}
+							onDateChange={(from) => {
+								setFrom(from);
+
+								if (from && to) {
+									updateDurationPercent(from, to);
+								}
+							}}
+							dateFormat="PPp"
+							removeYear
+						/>
+						<ArrowRight size={16} className="shrink-0" />
+						<DateTimePicker24h
+							date={to}
+							onDateChange={(to) => {
+								setTo(to);
+
+								if (from && to) {
+									updateDurationPercent(from, to);
+								}
+							}}
+							dateFormat="PPp"
+							removeYear
+						/>
+					</div>
+
+					{to &&
+						formatDuration(intervalToDuration({ start: from, end: to }), {
+							format: ['days', 'hours', 'minutes']
+						})}
+					<Slider
+						value={[durationPercent * 100]}
+						onValueChange={(values) => {
+							setDurationPercent(values[0] / 100);
+						}}
+					/>
+
+					<ActionButton disabled={false}>Réserver une place</ActionButton>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
 }
