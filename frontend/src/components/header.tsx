@@ -11,7 +11,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo, LogoCard } from '@/components/logo.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
-import { Car, Clock, Dot, Flag, LoaderCircle, LogOut, Ticket } from 'lucide-react';
+import { Car, Clock, Dot, LogOut, LoaderCircle, Flag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator.tsx';
 import {
 	Dialog,
@@ -55,12 +55,6 @@ export function Header() {
 							<Link to={'/myspot'}>
 								<Car />
 								<span>Mon spot</span>
-							</Link>
-						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<Link to={'/booking'}>
-								<Ticket />
-								<span>Réserver une place</span>
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuItem asChild>
