@@ -273,7 +273,7 @@ function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 								</span>
 							) : undefined
 						}
-						disabled={!isValid}
+						disabled={!isValid || simulatedLend?.earnedCredits == 0}
 						onClick={makeSpotAvailable}>
 						{isLoading && <LoaderCircle className={'animate-spin'} />}
 						{`Prêter ma place ${simulatedLend ? `pour ${simulatedLend.earnedCredits} crédits` : ''}`}
