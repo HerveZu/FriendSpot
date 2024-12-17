@@ -215,7 +215,7 @@ function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 			return;
 		}
 
-		if (to.getTime() < from.getTime()) {
+		if (to.getTime() <= from.getTime()) {
 			return;
 		}
 
