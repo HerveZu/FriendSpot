@@ -122,7 +122,7 @@ public sealed class ParkingSpot : IBroadcastEvents
         return (newBooking, cost);
     }
 
-    public Credits MakeAvailable(DateTimeOffset from, DateTimeOffset to)
+    public (Credits credits, bool overlaps) MakeAvailable(DateTimeOffset from, DateTimeOffset to)
     {
         var newAvailability = ParkingSpotAvailability.New(from, to);
         var overlappingAvailabilities = Availabilities
@@ -160,7 +160,7 @@ public sealed class ParkingSpot : IBroadcastEvents
                 Credits = totalCredits
             });
 
-        return earnedCredits;
+        return (earnedCredits, overlappingAvailabilities.Any());
     }
 }
 

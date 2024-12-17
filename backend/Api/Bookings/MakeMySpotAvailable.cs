@@ -13,11 +13,15 @@ public sealed record MakeMySpotAvailableRequest
 {
     public required DateTimeOffset From { get; init; }
     public required DateTimeOffset To { get; init; }
+
+    [QueryParam]
+    public bool Simulation { get; init; }
 }
 
 [PublicAPI]
 public sealed record MakeMySpotAvailableResponse
 {
+    public required bool Overlaps { get; init; }
     public required decimal EarnedCredits { get; init; }
 }
 
@@ -50,14 +54,18 @@ internal sealed class MakeMySpotAvailable(AppDbContext dbContext)
             return;
         }
 
-        var earnedCredits = parkingSpot.MakeAvailable(req.From, req.To);
+        var (earnedCredits, overlaps) = parkingSpot.MakeAvailable(req.From, req.To);
 
-        dbContext.Set<ParkingSpot>().Update(parkingSpot);
-        await dbContext.SaveChangesAsync(ct);
+        if (!req.Simulation)
+        {
+            dbContext.Set<ParkingSpot>().Update(parkingSpot);
+            await dbContext.SaveChangesAsync(ct);
+        }
 
         await SendOkAsync(
             new MakeMySpotAvailableResponse
             {
+                Overlaps = overlaps,
                 EarnedCredits = earnedCredits
             },
             ct);
