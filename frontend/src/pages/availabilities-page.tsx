@@ -168,8 +168,6 @@ function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 			return;
 		}
 
-		setIsLoading(true);
-
 		apiRequest<MakeSpotAvailableResponse, MakeSpotAvailableBody>(
 			'/spots/availabilities?simulation=true',
 			'POST',
