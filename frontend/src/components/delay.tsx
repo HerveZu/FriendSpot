@@ -7,7 +7,7 @@ export function Delay(props: { delay: number; children: ReactNode }) {
 		const handler = setTimeout(() => setDisplay(true), props.delay);
 
 		return () => clearTimeout(handler);
-	}, [props.delay]);
+	}, [props.delay, props.children]);
 
 	return display && props.children;
 }

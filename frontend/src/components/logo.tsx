@@ -51,6 +51,11 @@ export function useLoading(key: string) {
 		[setIsLoading]
 	);
 
+	// clear loading state
+	useEffect(() => {
+		return () => setIsLoading(key, false);
+	}, []);
+
 	return { setIsLoading: setIsLoadingBound, ...other };
 }
 
@@ -79,8 +84,8 @@ export function LoaderProvider(props: { className?: string; children: ReactNode 
 
 	return (
 		<LoaderContext.Provider value={{ isLoading, setIsLoading, refreshTrigger, forceRefresh }}>
-			{isLoading && (
-				<Delay delay={100}>
+			<Delay delay={50}>
+				{isLoading && (
 					<div
 						className={cn(
 							props.className,
@@ -93,8 +98,8 @@ export function LoaderProvider(props: { className?: string; children: ReactNode 
 							<LogoLoader className={'w-12 h-12'} loop={700} pause={800} />
 						</div>
 					</div>
-				</Delay>
-			)}
+				)}
+			</Delay>
 			{props.children}
 		</LoaderContext.Provider>
 	);
@@ -150,7 +155,11 @@ function LogoLoader(props: { className?: string; loop: number; pause: number }) 
 	);
 }
 
-export type LogoCardProps = { className?: string; style?: CSSProperties; primary: boolean };
+export type LogoCardProps = {
+	className?: string;
+	style?: CSSProperties;
+	primary: boolean;
+};
 
 export function LogoCard(props: LogoCardProps) {
 	return (
