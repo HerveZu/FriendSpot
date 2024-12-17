@@ -1,7 +1,7 @@
 import { blerp, cn } from '@/lib/utils.ts';
 import {
 	createContext,
-	CSSProperties,
+	HTMLProps,
 	ReactNode,
 	useCallback,
 	useContext,
@@ -156,24 +156,21 @@ function LogoLoader(props: { className?: string; loop: number; pause: number }) 
 }
 
 export type LogoCardProps = {
-	className?: string;
-	style?: CSSProperties;
 	primary: boolean;
-};
+} & HTMLProps<HTMLDivElement>;
 
-export function LogoCard(props: LogoCardProps) {
+export function LogoCard({ primary, className, ...props }: LogoCardProps) {
 	return (
 		<div
-			style={props.style}
 			className={cn(
 				'aspect-[4/5] rounded-[20%] border-transparent p-[2px] bg-primary shadow-sm',
-				props.className
-			)}>
+				className
+			)}
+			{...props}>
 			<div
 				className={cn(
 					'rounded-[20%] h-full w-full bg-primary',
-					!props.primary &&
-						'brightness-75 bg-gradient-to-br from-primary to-70% to-secondary'
+					!primary && 'brightness-75 bg-gradient-to-br from-primary to-70% to-secondary'
 				)}
 			/>
 		</div>

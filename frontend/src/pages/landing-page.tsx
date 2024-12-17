@@ -41,6 +41,7 @@ export function LandingPage() {
 							translate: '45%'
 						}}
 						state={action ? (action === 'lend' ? 'active' : 'inactive') : 'none'}
+						onClick={() => setAction('lend')}
 					/>
 					<ActionCard
 						primary={true}
@@ -50,6 +51,7 @@ export function LandingPage() {
 							translate: '-40% 20%'
 						}}
 						state={action ? (action === 'book' ? 'active' : 'inactive') : 'none'}
+						onClick={() => setAction('book')}
 					/>
 				</div>
 			</div>
