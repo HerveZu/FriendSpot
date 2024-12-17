@@ -114,7 +114,6 @@ function ParkingSearch() {
 	useEffect(() => {
 		setSelectedParking(spot?.parking);
 		setLotName(spot?.lotName ?? '');
-		setSearch(spot?.parking.address ?? '');
 	}, [spot]);
 
 	useEffect(() => {
