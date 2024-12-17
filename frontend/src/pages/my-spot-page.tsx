@@ -1,5 +1,13 @@
 import { Check, LoaderCircle, MapPin } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import {
+	createContext,
+	Dispatch,
+	SetStateAction,
+	useCallback,
+	useContext,
+	useEffect,
+	useState
+} from 'react';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
@@ -39,43 +47,53 @@ interface ParkingAlreadyRegistered {
 	spot?: MySpot;
 }
 
+type MySpotContext = {
+	spot: MySpot | undefined;
+	setSpot: Dispatch<SetStateAction<MySpot | undefined>>;
+};
+
+const MySpotContext = createContext<MySpotContext>(null!);
+
 export function MySpotPage() {
-	const [mySpot, setMySpot] = useState<MySpot>();
+	const [spot, setSpot] = useState<MySpot>();
 
 	return (
-		<div className="flex flex-col h-full gap-4">
-			<Title>Mon spot</Title>
-			<Spot spot={mySpot} onSpotFetched={setMySpot} />
-			<ParkingSearch spot={mySpot} />
-		</div>
+		<MySpotContext.Provider value={{ spot, setSpot }}>
+			<div className="flex flex-col h-full gap-4">
+				<Title>Mon spot</Title>
+				<Spot />
+				<ParkingSearch />
+			</div>
+		</MySpotContext.Provider>
 	);
 }
 
-function Spot(props: { spot?: MySpot; onSpotFetched: (spot?: MySpot) => void }) {
+function Spot() {
 	const { apiRequest } = useApiRequest();
 	const { setIsLoading, refreshTrigger } = useLoading('MySpot.Spot');
+	const { spot, setSpot } = useContext(MySpotContext);
 
 	useEffect(() => {
 		setIsLoading(true);
 
 		apiRequest<ParkingAlreadyRegistered>('/@me/spot', 'GET')
-			.then((data) => props.onSpotFetched(data.spot))
+			.then((data) => setSpot(data.spot))
 			.finally(() => setIsLoading(false));
-	}, [refreshTrigger]);
+	}, [refreshTrigger, setSpot]);
 
 	return (
-		props.spot && (
+		spot && (
 			<Card>
 				<CardTitle />
 				<CardDescription />
 				<CardContent className={'flex flex-col gap-6 p-6'}>
 					<div className={'flex justify-between'}>
-						<span className={'font-semibold'}>{props.spot?.parking.name}</span>
-						<span>{props.spot?.lotName}</span>
+						<span className={'font-semibold'}>{spot?.parking.name}</span>
+						<span>{spot?.lotName}</span>
 					</div>
 					<div className={'flex gap-2 text-sm opacity-75'}>
 						<MapPin size={18} />
-						<span>{props.spot?.parking.address}</span>
+						<span>{spot?.parking.address}</span>
 					</div>
 				</CardContent>
 			</Card>
@@ -83,9 +101,10 @@ function Spot(props: { spot?: MySpot; onSpotFetched: (spot?: MySpot) => void }) 
 	);
 }
 
-function ParkingSearch(props: { spot?: MySpot }) {
+function ParkingSearch() {
 	const { apiRequest } = useApiRequest();
 	const { isLoading, setIsLoading, forceRefresh } = useLoading('MySpot.ParkingSearch');
+	const { spot } = useContext(MySpotContext);
 	const [selectedParking, setSelectedParking] = useState<Parking>();
 	const [lotName, setLotName] = useState('');
 	const [search, setSearch] = useState('');
@@ -93,10 +112,10 @@ function ParkingSearch(props: { spot?: MySpot }) {
 	const [debounceSearch] = useDebounce(search, 200);
 
 	useEffect(() => {
-		setSelectedParking(props.spot?.parking);
-		setLotName(props.spot?.lotName ?? '');
-		setSearch(props.spot?.parking.address ?? '');
-	}, [props.spot]);
+		setSelectedParking(spot?.parking);
+		setLotName(spot?.lotName ?? '');
+		setSearch(spot?.parking.address ?? '');
+	}, [spot]);
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -119,8 +138,7 @@ function ParkingSearch(props: { spot?: MySpot }) {
 		}
 	}, [selectedParking, lotName]);
 
-	const hasChanged =
-		props.spot?.parking.id !== selectedParking?.id || props.spot?.lotName !== lotName;
+	const hasChanged = spot?.parking.id !== selectedParking?.id || spot?.lotName !== lotName;
 
 	return (
 		<Card className={'grow'}>
