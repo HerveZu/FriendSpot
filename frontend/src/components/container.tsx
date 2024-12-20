@@ -16,7 +16,7 @@ export function Container(props: {
 			{props.children && (
 				<div
 					className={cn(
-						'rounded-lg bg-secondary p-2 overflow-y-scroll',
+						'flex flex-col gap-2 rounded-lg bg-secondary p-2 overflow-y-scroll',
 						props.className
 					)}>
 					{props.children}

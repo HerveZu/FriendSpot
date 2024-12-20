@@ -22,7 +22,6 @@ type UserStatus = {
 		credits: number;
 		pendingCredits: number;
 	};
-	availableSpots: number;
 };
 
 type UserStatusContext = {

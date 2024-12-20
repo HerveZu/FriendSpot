@@ -2,18 +2,8 @@ import { Container } from '@/components/container.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useLoading } from '@/components/logo.tsx';
-import { Card, CardDescription, CardTitle } from '@/components/ui/card.tsx';
 import { ArrowRight, Clock, Info, LoaderCircle, TriangleAlert } from 'lucide-react';
-import {
-	addMinutes,
-	format,
-	formatDuration,
-	formatRelative,
-	intervalToDuration,
-	isToday,
-	isTomorrow
-} from 'date-fns';
-import { Badge } from '@/components/ui/badge.tsx';
+import { addMinutes, formatDuration, intervalToDuration } from 'date-fns';
 import { ActionButton } from '@/components/action-button.tsx';
 import { parseDuration } from '@/lib/date.ts';
 import {
@@ -27,6 +17,7 @@ import {
 import { DateTimePicker24h } from '@/components/date-time-picker.tsx';
 import { Link } from 'react-router-dom';
 import { InlineAlert } from '@/components/inline-alert.tsx';
+import { AvailabilityCard } from '@/components/availability-card.tsx';
 
 type Availabilities = {
 	readonly totalDuration: string;
@@ -69,7 +60,6 @@ export function AvailabilitiesPage() {
 	return (
 		<div className={'h-full flex flex-col gap-4'}>
 			<Container
-				className={'flex flex-col gap-2'}
 				title={'Je prête ma place'}
 				description={
 					!isLoading && !hasSpot ? (
@@ -89,7 +79,12 @@ export function AvailabilitiesPage() {
 				}>
 				{hasAvailabilities &&
 					availabilities?.availabilities.map((availability, i) => (
-						<AvailabilityCard key={i} availability={availability} />
+						<AvailabilityCard
+							key={i}
+							from={new Date(availability.from)}
+							to={new Date(availability.to)}
+							duration={parseDuration(availability.duration)}
+						/>
 					))}
 			</Container>
 			<LendSpotPopup onSubmit={forceRefresh}>
@@ -110,37 +105,6 @@ export function AvailabilitiesPage() {
 				</ActionButton>
 			</LendSpotPopup>
 		</div>
-	);
-}
-
-function AvailabilityCard(props: { availability: Availability }) {
-	const from = new Date(props.availability.from);
-	const to = new Date(props.availability.to);
-	const now = new Date();
-	const isCurrent = from.getTime() <= now.getTime() && to.getTime() > now.getTime();
-
-	return (
-		<Card className={'p-4'}>
-			<CardTitle className={'flex text-lg items-center justify-between capitalize'}>
-				{formatRelative(from, now)}
-				{!isCurrent && isToday(from) && <Badge>Aujourd&apos;hui</Badge>}
-				{isTomorrow(from) && <Badge>Demain</Badge>}
-				{isCurrent && <Badge>Maintenant</Badge>}
-			</CardTitle>
-			<CardDescription className={'flex flex-col gap-4'}>
-				<div className={'flex gap-2 items-center text-primary'}>
-					<Clock size={18} />
-					{formatDuration(parseDuration(props.availability.duration), {
-						format: ['days', 'hours', 'minutes']
-					})}
-				</div>
-				<div className={'flex gap-2 items-center'}>
-					<span>{format(from, 'PPp')}</span>
-					<ArrowRight size={16} />
-					<span>{format(to, 'PPp')}</span>
-				</div>
-			</CardDescription>
-		</Card>
 	);
 }
 

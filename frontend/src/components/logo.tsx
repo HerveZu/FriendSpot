@@ -84,7 +84,7 @@ export function LoaderProvider(props: { className?: string; children: ReactNode 
 
 	return (
 		<LoaderContext.Provider value={{ isLoading, setIsLoading, refreshTrigger, forceRefresh }}>
-			<Delay delay={50}>
+			<Delay delay={150}>
 				{isLoading && (
 					<div
 						className={cn(

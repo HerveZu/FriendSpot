@@ -17,6 +17,7 @@ public sealed record GetBookingResponse
     {
         public required Guid BookingId { get; init; }
         public required DateTimeOffset From { get; init; }
+        public required DateTimeOffset To { get; init; }
         public required TimeSpan Duration { get; init; }
         public required BookingStatusInfo? Info { get; init; }
 
@@ -44,13 +45,14 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
         var bookingsPerSpot = await (
                 from parkingSpot in dbContext.Set<ParkingSpot>()
                 select parkingSpot.Bookings
-                    .Where(booking => booking.From >= now)
+                    .Where(booking => booking.To >= now)
                     .Where(booking => booking.BookingUserId == currentUser.Identity)
                     .Select(
                         booking => new GetBookingResponse.BookingStatus
                         {
                             BookingId = booking.Id,
                             From = booking.From,
+                            To = booking.To,
                             Duration = booking.Duration,
                             Info = booking.From > now
                                 ? null
