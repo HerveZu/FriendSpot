@@ -64,7 +64,7 @@ setDefaultOptions({ locale: fr });
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<div className={'flex flex-col gap-12 w-screen h-screen p-6'}>
+		<div className={'flex flex-col gap-12 w-dvw h-dvh p-6'}>
 			<Auth0Provider
 				domain={import.meta.env.VITE__AUTH0__DOMAIN}
 				clientId={import.meta.env.VITE__AUTH0__CLIENT__ID}
