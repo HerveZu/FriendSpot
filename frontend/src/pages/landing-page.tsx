@@ -114,7 +114,7 @@ export function LandingPage() {
 			<>
 				{bookings && bookings.bookings.length > 0 ? (
 					<>
-						<Container title={'Mes réservations'}>
+						<Container shrink title={'Mes réservations'}>
 							{bookings.bookings.map((booking, i) => (
 								<AvailabilityCard
 									key={i}
