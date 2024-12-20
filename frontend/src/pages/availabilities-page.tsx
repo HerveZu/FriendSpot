@@ -65,7 +65,7 @@ export function AvailabilitiesPage() {
 					!isLoading && !hasSpot ? (
 						<InlineAlert className={'space-x-1'} icon={<TriangleAlert />}>
 							<Link to={'/myspot'} className={'text-primary'}>
-								Défini un spot
+								Défini ton spot
 							</Link>
 							<span>pour prêter ta place !</span>
 						</InlineAlert>

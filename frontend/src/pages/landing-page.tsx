@@ -10,13 +10,13 @@ import {
 	useState
 } from 'react';
 import { cn } from '@/lib/utils.ts';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ActionButton } from '@/components/action-button.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Title } from '@/components/title.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
-import { ArrowRight, LoaderCircle } from 'lucide-react';
+import { ArrowRight, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import {
 	Dialog,
@@ -38,6 +38,7 @@ import {
 import { parseDuration } from '@/lib/date.ts';
 import { Container } from '@/components/container.tsx';
 import { AvailabilityCard } from '@/components/availability-card.tsx';
+import { InlineAlert } from '@/components/inline-alert.tsx';
 
 interface BookingsResponse {
 	bookings: Booking[];
@@ -52,6 +53,12 @@ interface Booking {
 		spotName: string;
 	};
 }
+
+type MySpot = {
+	spot?: {
+		lotName?: string;
+	};
+};
 
 /*-------------------------------------
 
@@ -73,10 +80,17 @@ export function LandingPage() {
 	const { apiRequest } = useApiRequest();
 	const navigate = useNavigate();
 	const auth0 = useAuth0();
+	const [mySpot, setMySpot] = useState<MySpot>();
 
 	const routeForAction: { [action: string]: string } = {
 		lend: '/availabilities'
 	};
+
+	useEffect(() => {
+		apiRequest<MySpot>('/@me/spot', 'GET').then(setMySpot);
+	}, []);
+
+	const hasSpot = !!mySpot?.spot;
 
 	useEffect(() => {
 		if (!bookingModalOpen) {
@@ -136,12 +150,22 @@ export function LandingPage() {
 							Bonjour <span className="text-primary">{auth0.user?.name}</span>, <br />{' '}
 							que souhaites-tu faire ?
 						</Title>
+						{!hasSpot && (
+							<InlineAlert className={'space-x-1'} icon={<TriangleAlert />}>
+								<Link to={'/myspot'} className={'text-primary'}>
+									Défini ton spot
+								</Link>
+								<span>pour réserver une place</span>
+							</InlineAlert>
+						)}
 					</div>
 				)}
 				<div className="flex flex-col gap-8">
 					<div className="flex flex-col gap-6">
 						<BookingModal open={bookingModalOpen} onOpenChange={setBookingModalOpen}>
-							<ActionButton large>Je réserve une place</ActionButton>
+							<ActionButton disabled={!hasSpot} large>
+								Je réserve une place
+							</ActionButton>
 						</BookingModal>
 						<span className="mx-auto text-md">ou</span>
 						<ActionButton
