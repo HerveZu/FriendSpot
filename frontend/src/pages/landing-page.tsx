@@ -121,6 +121,9 @@ export function LandingPage() {
 									from={new Date(booking.from)}
 									to={new Date(booking.to)}
 									duration={parseDuration(booking.duration)}
+									nowInfo={
+										booking.info?.spotName && `n° ${booking.info.spotName}`
+									}
 								/>
 							))}
 						</Container>
