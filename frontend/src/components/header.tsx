@@ -70,7 +70,11 @@ export function Header() {
 						</DropdownMenuItem>
 						<Separator />
 						<DropdownMenuItem asChild>
-							<Button variant={'destructive'} onClick={() => logout()}>
+							<Button
+								variant={'destructive'}
+								onClick={() =>
+									logout({ logoutParams: { returnTo: window.location.origin } })
+								}>
 								<LogOut />
 								Se déconnecter
 							</Button>
