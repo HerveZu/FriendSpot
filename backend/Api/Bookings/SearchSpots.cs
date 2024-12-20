@@ -64,7 +64,7 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                     .Where(availability => availability.From <= req.From && availability.To >= req.To)
                     .Where(
                         availability => !parkingLot.Bookings
-                            .Any(booking => booking.From <= availability.To && availability.From <= booking.To))
+                            .Any(booking => booking.From <= req.To && req.From <= booking.To))
                     .Select(
                         availability => new SearchSpotsResponse.AvailableSpot
                         {

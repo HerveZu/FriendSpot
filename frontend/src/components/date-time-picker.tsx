@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dispatch, SetStateAction, useMemo } from 'react';
+import { useMemo } from 'react';
 import { format } from 'date-fns';
 
 import { cn } from '@/lib/utils';
@@ -20,8 +20,8 @@ import { Clock } from 'lucide-react';
 export function DateTimePicker24h(props: {
 	dateFormat: string;
 	removeYear?: boolean;
-	date?: Date;
-	setDate: Dispatch<SetStateAction<Date | undefined>>;
+	date: Date | undefined;
+	onDateChange: (date: Date) => void;
 	className?: string;
 }) {
 	const [isOpen, setIsOpen] = React.useState(false);
@@ -29,7 +29,7 @@ export function DateTimePicker24h(props: {
 	const hours = Array.from({ length: 24 }, (_, i) => i);
 	const handleDateSelect = (selectedDate: Date | undefined) => {
 		if (selectedDate) {
-			props.setDate(selectedDate);
+			props.onDateChange(selectedDate);
 		}
 	};
 
@@ -41,7 +41,7 @@ export function DateTimePicker24h(props: {
 			} else if (type === 'minute') {
 				newDate.setMinutes(parseInt(value));
 			}
-			props.setDate(newDate);
+			props.onDateChange(newDate);
 		}
 	};
 
