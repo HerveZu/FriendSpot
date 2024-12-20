@@ -127,7 +127,7 @@ export function LandingPage() {
 						<HeroLogo action={action} className={'h-12 shrink-0 my-12'} />
 					</>
 				) : (
-					<div className={'flex flex-col gap-16'}>
+					<div className={'flex flex-col justify-evenly h-full'}>
 						<HeroLogo action={action} className={'mb-12 h-28'} />
 						<Title>
 							Bonjour <span className="text-primary">{auth0.user?.name}</span>, <br />{' '}
