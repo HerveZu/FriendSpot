@@ -127,7 +127,7 @@ export function LandingPage() {
 								/>
 							))}
 						</Container>
-						<HeroLogo action={action} className={'h-12 shrink-0 my-12'} />
+						<HeroLogo action={action} className={'h-8 shrink-0 my-8'} />
 					</>
 				) : (
 					<div className={'flex flex-col justify-evenly h-full'}>
