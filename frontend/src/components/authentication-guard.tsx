@@ -53,7 +53,7 @@ export function UserProvider(props: { children: ReactNode }) {
 }
 
 function LandingConnect() {
-	const { loginWithRedirect } = useAuth0();
+	const { loginWithPopup } = useAuth0();
 
 	return (
 		<div className="flex flex-col items-center w-full h-full justify-center">
@@ -66,7 +66,7 @@ function LandingConnect() {
 				</div>
 				<ActionButton
 					info={"Connecte-toi pour utiliser l'application !"}
-					onClick={() => loginWithRedirect()}
+					onClick={() => loginWithPopup()}
 					variant={'default'}>
 					S&apos;authentifier
 				</ActionButton>
