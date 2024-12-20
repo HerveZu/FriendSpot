@@ -11,7 +11,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo, LogoCard } from '@/components/logo.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
-import { Car, Clock, Dot, LogOut, LoaderCircle, Flag } from 'lucide-react';
+import { Car, Clock, Dot, Flag, LoaderCircle, LogOut } from 'lucide-react';
 import { Separator } from '@/components/ui/separator.tsx';
 import {
 	Dialog,
@@ -144,7 +144,7 @@ function FeedbackDialog(props: DialogProps) {
 	return (
 		<Dialog {...props}>
 			<DialogContent
-				className={'w-full'}
+				className={'w-11/12 rounded-lg'}
 				onAnimationStart={() => feedbackInputRef.current?.focus()}>
 				<DialogHeader>
 					<DialogTitle>Que penses-tu de FriendSpot ?</DialogTitle>
