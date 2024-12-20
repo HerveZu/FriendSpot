@@ -34,14 +34,31 @@ export function UserProvider(props: { children: ReactNode }) {
 	const { setIsLoading, refreshTrigger } = useLoading('user-provider');
 	const { apiRequest } = useApiRequest();
 	const [userStatus, setUserStatus] = useState<UserStatus>();
+	const [retryCount, setRetryCount] = useState(0);
+
+	const MAX_RETRY_COUNT = 3;
 
 	useEffect(() => {
+		if (retryCount >= MAX_RETRY_COUNT) {
+			console.error(`Max retry count reached (${retryCount})`);
+			return;
+		}
+
 		setIsLoading(true);
 
 		apiRequest<UserStatus>('/@me/status', 'GET')
-			.then(setUserStatus)
+			.then((status) => {
+				setUserStatus(status);
+				setRetryCount(0);
+			})
+			// likely that the user hasn't been registered
+			.catch(() => {
+				apiRequest<void>('/@me/register', 'POST').finally(() =>
+					setRetryCount((retryCount) => retryCount + 1)
+				);
+			})
 			.finally(() => setIsLoading(false));
-	}, [refreshTrigger]);
+	}, [retryCount, refreshTrigger]);
 
 	return (
 		userStatus && (
