@@ -346,22 +346,21 @@ function BookingModal(props: {
 			<DialogContent className="w-11/12 rounded-lg">
 				<DialogHeader>
 					<DialogTitle>Réserver une place</DialogTitle>
-					{selectedSpot !== undefined && (
-						<DialogDescription
-							className={cn(
-								'justify-center inline-flex gap-2 items-center',
-								!selectedSpot && 'text-destructive'
-							)}>
-							{selectedSpot ? (
+					<DialogDescription
+						className={cn(
+							'justify-center inline-flex gap-2 items-center',
+							!selectedSpot && 'text-destructive'
+						)}>
+						{selectedSpot !== undefined &&
+							(selectedSpot ? (
 								<>
 									Un spot trouvé dans ton parking !
 									<SearchCheck className={'text-primary'} />
 								</>
 							) : (
 								<>Aucun spot trouvé dans ton parking, essaie un autre créneau !</>
-							)}
-						</DialogDescription>
-					)}
+							))}
+					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col gap-6">
 					<DateTimeRangePicker from={from} setFrom={setFrom} to={to} setTo={setTo} />
