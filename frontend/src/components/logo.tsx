@@ -89,7 +89,7 @@ export function LoaderProvider(props: { className?: string; children: ReactNode 
 					<div
 						className={cn(
 							props.className,
-							'z-50 w-full h-full absolute left-0 top-0 backdrop-blur-sm'
+							'z-50 w-full h-full absolute left-0 top-0 backdrop-blur-xl'
 						)}>
 						<div
 							className={
