@@ -97,7 +97,8 @@ export function DateTimeRangePicker(props: {
 				/>
 			</div>
 			{props.from && props.to && (
-				<div className="text-sm">
+				<div className="flex items-center gap-2 text-sm">
+					<Clock size={16} />
 					{formatDuration(intervalToDuration({ start: props.from, end: props.to }), {
 						format: ['days', 'hours', 'minutes']
 					})}
