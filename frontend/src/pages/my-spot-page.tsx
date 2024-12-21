@@ -11,13 +11,7 @@ import {
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
-import {
-	Command,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList
-} from '@/components/ui/command';
+import { Command, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useLoading } from '@/components/logo';
 import { ActionButton } from '@/components/action-button.tsx';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card.tsx';
@@ -151,28 +145,26 @@ function ParkingSearch() {
 						onValueChange={setSearch}
 						placeholder="Recherchez un parking"
 					/>
-					<CommandList className={'h-full'}>
-						<CommandGroup>
-							{dataParking?.map((parking) => (
-								<CommandItem
-									key={parking.id}
-									className="mt-3"
-									onSelect={() => setSelectedParking(parking)}>
-									<div className="flex w-full px-2 gap-2 items-center justify-between">
-										<span className={'flex flex-col gap-2'}>
-											<span className={'font-semibold'}>{parking.name}</span>
-											<span className={'flex gap-2 text-xs opacity-75'}>
-												<MapPin />
-												{parking.address}
-											</span>
+					<CommandList className={'h-0 grow shrink overflow-y-auto'}>
+						{dataParking?.map((parking) => (
+							<CommandItem
+								key={parking.id}
+								className="mt-3"
+								onSelect={() => setSelectedParking(parking)}>
+								<div className="flex w-full px-2 gap-2 items-center justify-between">
+									<span className={'flex flex-col gap-2'}>
+										<span className={'font-semibold'}>{parking.name}</span>
+										<span className={'flex gap-2 text-xs opacity-75'}>
+											<MapPin />
+											{parking.address}
 										</span>
-										{parking.id === selectedParking?.id && (
-											<Check className={'text-primary'} />
-										)}
-									</div>
-								</CommandItem>
-							))}
-						</CommandGroup>
+									</span>
+									{parking.id === selectedParking?.id && (
+										<Check className={'text-primary'} />
+									)}
+								</div>
+							</CommandItem>
+						))}
 					</CommandList>
 				</Command>
 				<div className="flex items-center gap-4 w-full justify-between">
