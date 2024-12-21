@@ -15,17 +15,17 @@ import { UserStatusContext } from '@/components/authentication-guard.tsx';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Title } from '@/components/title.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
-import { LoaderCircle, TriangleAlert } from 'lucide-react';
+import { LoaderCircle, SearchCheck, TriangleAlert } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger
 } from '@/components/ui/dialog.tsx';
 import { DateTimeRangePicker } from '@/components/date-time-picker.tsx';
-import { DialogDescription } from '@radix-ui/react-dialog';
 import { parseDuration } from '@/lib/date.ts';
 import { Container } from '@/components/container.tsx';
 import { AvailabilityCard } from '@/components/availability-card.tsx';
@@ -150,22 +150,20 @@ export function LandingPage() {
 						)}
 					</div>
 				)}
-				<div className="flex flex-col gap-8">
-					<div className="flex flex-col gap-6">
-						<BookingModal open={bookingModalOpen} onOpenChange={setBookingModalOpen}>
-							<ActionButton disabled={!hasSpot} large>
-								Je réserve une place
-							</ActionButton>
-						</BookingModal>
-						<span className="mx-auto text-md">ou</span>
-						<ActionButton
-							large
-							info="Gagner des crédits en prêtant votre place"
-							variant="outline"
-							onClick={() => setAction('lend')}>
-							Je prête ma place
+				<div className="flex flex-col gap-6">
+					<BookingModal open={bookingModalOpen} onOpenChange={setBookingModalOpen}>
+						<ActionButton disabled={!hasSpot} large>
+							Je réserve une place
 						</ActionButton>
-					</div>
+					</BookingModal>
+					<span className="mx-auto text-md">ou</span>
+					<ActionButton
+						large
+						info="Gagner des crédits en prêtant votre place"
+						variant="outline"
+						onClick={() => setAction('lend')}>
+						Je prête ma place
+					</ActionButton>
 				</div>
 			</>
 		</div>
@@ -254,9 +252,10 @@ function BookingModal(props: {
 	const [isLoading, setIsLoading] = useState(false);
 	const [from, setFrom] = useState<Date | undefined>(new Date());
 	const [to, setTo] = useState<Date>();
-	const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
+
+	// null means not found, whereas undefined means unknown
+	const [selectedSpot, setSelectedSpot] = useState<AvailableSpot | null>();
 	const [usedCredits, setUsedCredits] = useState<number>();
-	const [infoMessage, setInfoMessage] = useState<string>('');
 	const { user } = useContext(UserStatusContext);
 
 	const { apiRequest } = useApiRequest();
@@ -331,13 +330,11 @@ function BookingModal(props: {
 			);
 
 			if (!response.availableSpots || response.availableSpots.length === 0) {
-				setInfoMessage('Aucun spot trouvé dans ton parking 😞\nEssaie un autre créneau !');
 				setUsedCredits(0);
-				setSelectedSpot(undefined);
+				setSelectedSpot(null);
 				return;
 			}
 
-			setInfoMessage('Un spot trouvé dans ton parking ! 🤗');
 			const selectedSpot = selectRandomSpot(response.availableSpots);
 
 			setSelectedSpot(selectedSpot);
@@ -355,9 +352,23 @@ function BookingModal(props: {
 			<DialogContent className="w-11/12 rounded-lg">
 				<DialogHeader>
 					<DialogTitle>Réserver une place</DialogTitle>
-					<DialogDescription />
+					{selectedSpot !== undefined && (
+						<DialogDescription
+							className={cn(
+								'justify-center inline-flex gap-2 items-center',
+								!selectedSpot && 'text-destructive'
+							)}>
+							{selectedSpot ? (
+								<>
+									Un spot trouvé dans ton parking !
+									<SearchCheck className={'text-primary'} />
+								</>
+							) : (
+								<>Aucun spot trouvé dans ton parking, essaie un autre créneau !</>
+							)}
+						</DialogDescription>
+					)}
 				</DialogHeader>
-				<div className="text-center">{infoMessage}</div>
 				<div className="flex flex-col gap-6">
 					<DateTimeRangePicker from={from} setFrom={setFrom} to={to} setTo={setTo} />
 					<ActionButton
