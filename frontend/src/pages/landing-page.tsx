@@ -64,7 +64,7 @@ Refactorisation du code :
 -------------------------------------*/
 
 export function LandingPage() {
-	const { setIsLoading, refreshTrigger, forceRefresh } = useLoading('LandingPage');
+	const { setIsLoadingOnce, refreshTrigger, forceRefresh } = useLoading('LandingPage');
 	const [action, setAction] = useState<HeroAction>();
 	const [bookings, setBookings] = useState<BookingsResponse>();
 	const [bookingModalOpen, setBookingModalOpen] = useState(false);
@@ -72,7 +72,6 @@ export function LandingPage() {
 	const navigate = useNavigate();
 	const auth0 = useAuth0();
 	const [mySpot, setMySpot] = useState<MySpot>();
-	const [hasLoaded, setHasLoaded] = useState(false);
 
 	const routeForAction: { [action: string]: string } = {
 		lend: '/availabilities'
@@ -101,16 +100,11 @@ export function LandingPage() {
 
 	// Checks whether the user has reserved parking spaces
 	useEffect(() => {
-		if (!hasLoaded) {
-			setIsLoading(true);
-		}
+		setIsLoadingOnce(true);
 
 		apiRequest<BookingsResponse>('/spots/booking', 'GET')
 			.then(setBookings)
-			.finally(() => {
-				setIsLoading(false);
-				setHasLoaded(true);
-			});
+			.finally(() => setIsLoadingOnce(false));
 	}, [refreshTrigger]);
 
 	return (

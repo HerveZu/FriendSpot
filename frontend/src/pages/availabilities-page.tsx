@@ -39,22 +39,17 @@ type MySpot = {
 
 export function AvailabilitiesPage() {
 	const { apiRequest } = useApiRequest();
-	const { isLoading, setIsLoading, refreshTrigger, forceRefresh } = useLoading('availabilities');
+	const { isLoading, setIsLoadingOnce, refreshTrigger, forceRefresh } =
+		useLoading('availabilities');
 	const [availabilities, setAvailabilities] = useState<Availabilities>();
 	const [mySpot, setMySpot] = useState<MySpot>();
-	const [hasLoaded, setHasLoaded] = useState(false);
 
 	useEffect(() => {
-		if (!hasLoaded) {
-			setIsLoading(true);
-		}
+		setIsLoadingOnce(true);
 
 		apiRequest<Availabilities>('/spots/availabilities', 'GET')
 			.then(setAvailabilities)
-			.finally(() => {
-				setIsLoading(false);
-				setHasLoaded(true);
-			});
+			.finally(() => setIsLoadingOnce(false));
 	}, [refreshTrigger]);
 
 	useEffect(() => {

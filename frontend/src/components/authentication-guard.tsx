@@ -31,7 +31,7 @@ type UserStatusContext = {
 export const UserStatusContext = createContext<UserStatusContext>(null!);
 
 export function UserProvider(props: { children: ReactNode }) {
-	const { setIsLoading, refreshTrigger } = useLoading('user-provider');
+	const { setIsLoadingOnce, refreshTrigger } = useLoading('user-provider');
 	const { apiRequest } = useApiRequest();
 	const [userStatus, setUserStatus] = useState<UserStatus>();
 	const [retryCount, setRetryCount] = useState(0);
@@ -44,7 +44,7 @@ export function UserProvider(props: { children: ReactNode }) {
 			return;
 		}
 
-		setIsLoading(true);
+		setIsLoadingOnce(true);
 
 		apiRequest<UserStatus>('/@me/status', 'GET')
 			.then((status) => {
@@ -57,7 +57,7 @@ export function UserProvider(props: { children: ReactNode }) {
 					setRetryCount((retryCount) => retryCount + 1)
 				);
 			})
-			.finally(() => setIsLoading(false));
+			.finally(() => setIsLoadingOnce(false));
 	}, [retryCount, refreshTrigger]);
 
 	return (

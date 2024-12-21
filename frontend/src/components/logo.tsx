@@ -10,6 +10,7 @@ import {
 	useState
 } from 'react';
 import { Delay } from '@/components/delay.tsx';
+import { useLocation } from 'react-router-dom';
 
 export function Logo(props: { className?: string }) {
 	return (
@@ -45,18 +46,42 @@ const LoaderContext = createContext<LoaderContext>(null!);
 
 export function useLoading(key: string) {
 	const { setIsLoading, ...other } = useContext(LoaderContext);
+	const [hasLoaded, setHasLoaded] = useState(false);
+	const location = useLocation();
 
 	const setIsLoadingBound = useCallback(
 		(isLoading: boolean) => setIsLoading(key, isLoading),
 		[setIsLoading]
 	);
 
+	const setIsLoadingOnce = useCallback(
+		(isLoading: boolean) => {
+			if (!isLoading) {
+				setIsLoadingBound(false);
+				return;
+			}
+
+			if (hasLoaded) {
+				return;
+			}
+
+			setIsLoadingBound(isLoading);
+			setHasLoaded(true);
+		},
+		[hasLoaded, setHasLoaded, setIsLoadingBound]
+	);
+
+	// clear hasLoaded on page change
+	useEffect(() => {
+		setHasLoaded(false);
+	}, [location.pathname, setHasLoaded]);
+
 	// clear loading state
 	useEffect(() => {
 		return () => setIsLoading(key, false);
 	}, []);
 
-	return { setIsLoading: setIsLoadingBound, ...other };
+	return { setIsLoading: setIsLoadingBound, setIsLoadingOnce, ...other };
 }
 
 export function LoaderProvider(props: { className?: string; children: ReactNode }) {
