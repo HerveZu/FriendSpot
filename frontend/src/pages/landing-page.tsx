@@ -4,7 +4,6 @@ import {
 	HTMLProps,
 	ReactNode,
 	SetStateAction,
-	useCallback,
 	useContext,
 	useEffect,
 	useState
@@ -16,7 +15,7 @@ import { UserStatusContext } from '@/components/authentication-guard.tsx';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Title } from '@/components/title.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
-import { ArrowRight, LoaderCircle, TriangleAlert } from 'lucide-react';
+import { LoaderCircle, TriangleAlert } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import {
 	Dialog,
@@ -25,16 +24,8 @@ import {
 	DialogTitle,
 	DialogTrigger
 } from '@/components/ui/dialog.tsx';
-import { DateTimePicker24h } from '@/components/date-time-picker.tsx';
-import { Slider } from '@/components/ui/slider';
+import { DateTimeRangePicker } from '@/components/date-time-picker.tsx';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import {
-	addHours,
-	addMinutes,
-	differenceInHours,
-	formatDuration,
-	intervalToDuration
-} from 'date-fns';
 import { parseDuration } from '@/lib/date.ts';
 import { Container } from '@/components/container.tsx';
 import { AvailabilityCard } from '@/components/availability-card.tsx';
@@ -261,52 +252,26 @@ function BookingModal(props: {
 	open: boolean;
 	onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
-	const MAX_HOURS = 24 * 3;
-	const INITIAL_DURATION_HOURS = 2;
-
 	const [isLoading, setIsLoading] = useState(false);
-
-	const [from, setFrom] = useState(new Date());
+	const [from, setFrom] = useState<Date | undefined>(new Date());
 	const [to, setTo] = useState<Date>();
-	const [durationPercent, setDurationPercent] = useState(INITIAL_DURATION_HOURS / MAX_HOURS);
-	const [availableSpots, setAvailableSpots] = useState<AvailableSpot[]>();
+	const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
 	const [usedCredits, setUsedCredits] = useState<number>();
 	const [infoMessage, setInfoMessage] = useState<string>('');
 	const { user } = useContext(UserStatusContext);
-	const now = new Date();
 
 	const { apiRequest } = useApiRequest();
 
-	const [fromDebounce] = useDebounce(from, 500);
-	const [toDebounce] = useDebounce(to, 500);
+	const [fromDebounce] = useDebounce(from, 200);
+	const [toDebounce] = useDebounce(to, 200);
 
 	function selectRandomSpot(spot: AvailableSpot[]) {
 		const randomIndex = Math.floor(Math.random() * spot.length);
-		const selectedSpot = [spot[randomIndex]];
-		setAvailableSpots(selectedSpot);
-		simulateSpot(selectedSpot[0].parkingLotId);
+		return spot[randomIndex];
 	}
 
-	const everySecond = now.getTime() % 1000;
-
-	useEffect(() => {
-		if (!from || from <= now) {
-			setFrom(addMinutes(now, 30));
-		}
-
-		if (to && to < now) {
-			setTo(addMinutes(now, 30));
-		}
-	}, [everySecond]);
-
-	useEffect(() => {
-		if (from && to && from.getTime() >= to.getTime()) {
-			setTo(addMinutes(from, 30));
-		}
-	}, [from, to]);
-
 	async function simulateSpot(parkingLotId: string) {
-		if (!from || !to || !availableSpots) {
+		if (!from || !to) {
 			return;
 		}
 
@@ -329,7 +294,7 @@ function BookingModal(props: {
 	}
 
 	async function makeBooking() {
-		if (!from || !to || !availableSpots) {
+		if (!from || !to || !selectedSpot) {
 			return;
 		}
 
@@ -338,7 +303,7 @@ function BookingModal(props: {
 			from: string;
 			to: string;
 		} = {
-			parkingLotId: availableSpots[0].parkingLotId,
+			parkingLotId: selectedSpot.parkingLotId,
 			from: from.toJSON(),
 			to: to?.toJSON()
 		};
@@ -353,17 +318,6 @@ function BookingModal(props: {
 
 		props.onOpenChange(false);
 	}
-
-	useEffect(() => {
-		setTo(from && addHours(from, durationPercent * MAX_HOURS));
-	}, [durationPercent, from]);
-
-	const updateDurationPercent = useCallback(
-		(from: Date, to: Date) => {
-			setDurationPercent(differenceInHours(to, from) / MAX_HOURS);
-		},
-		[from, to]
-	);
 
 	// Check if user parking is available at certain times?
 	useEffect(() => {
@@ -380,17 +334,15 @@ function BookingModal(props: {
 			if (!response.availableSpots || response.availableSpots.length === 0) {
 				setInfoMessage('Aucun spot trouvé dans ton parking 😞\nEssaie un autre créneau !');
 				setUsedCredits(0);
-				setAvailableSpots([]);
+				setSelectedSpot(undefined);
 				return;
 			}
 
 			setInfoMessage('Un spot trouvé dans ton parking ! 🤗');
-			if (response.availableSpots.length > 1) {
-				selectRandomSpot(response.availableSpots);
-			} else {
-				setAvailableSpots(response.availableSpots);
-				simulateSpot(response.availableSpots[0].parkingLotId);
-			}
+			const selectedSpot = selectRandomSpot(response.availableSpots);
+
+			setSelectedSpot(selectedSpot);
+			await simulateSpot(selectedSpot.parkingLotId);
 		}
 
 		checkBookingAvailable();
@@ -407,52 +359,10 @@ function BookingModal(props: {
 					<DialogDescription />
 				</DialogHeader>
 				<div className="text-center">{infoMessage}</div>
-				<div className="flex flex-col gap-5">
-					<div className="flex gap-4 items-center justify-between">
-						<DateTimePicker24h
-							date={from}
-							onDateChange={(from) => {
-								setFrom(from);
-
-								if (from && to) {
-									updateDurationPercent(from, to);
-								}
-							}}
-							dateFormat="PPp"
-							removeYear
-						/>
-						<ArrowRight size={16} className="shrink-0" />
-						<DateTimePicker24h
-							date={to}
-							onDateChange={(to) => {
-								setTo(to);
-
-								if (from && to) {
-									updateDurationPercent(from, to);
-								}
-							}}
-							dateFormat="PPp"
-							removeYear
-						/>
-					</div>
-
-					{to && (
-						<div className="text-sm">
-							{formatDuration(intervalToDuration({ start: from, end: to }), {
-								format: ['days', 'hours', 'minutes']
-							})}
-						</div>
-					)}
-					<Slider
-						defaultValue={[100]}
-						value={[durationPercent * 100]}
-						onValueChange={(values) => {
-							setDurationPercent(values[0] / 100);
-						}}
-					/>
-
+				<div className="flex flex-col gap-6">
+					<DateTimeRangePicker from={from} setFrom={setFrom} to={to} setTo={setTo} />
 					<ActionButton
-						disabled={notEnoughCredits || availableSpots?.length === 0}
+						disabled={notEnoughCredits || !selectedSpot}
 						onClick={makeBooking}>
 						{isLoading && <LoaderCircle className={'animate-spin'} />}
 						{usedCredits

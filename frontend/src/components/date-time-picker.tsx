@@ -1,6 +1,13 @@
 import * as React from 'react';
-import { useMemo } from 'react';
-import { format } from 'date-fns';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	addHours,
+	addMinutes,
+	differenceInHours,
+	format,
+	formatDuration,
+	intervalToDuration
+} from 'date-fns';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -15,7 +22,97 @@ import {
 	DialogTrigger
 } from '@/components/ui/dialog.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
-import { Clock } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
+import { Slider } from '@/components/ui/slider.tsx';
+
+export function DateTimeRangePicker(props: {
+	className?: string;
+	from: Date | undefined;
+	setFrom: Dispatch<SetStateAction<Date | undefined>>;
+	to: Date | undefined;
+	setTo: Dispatch<SetStateAction<Date | undefined>>;
+}) {
+	const MAX_HOURS = 24 * 3;
+	const INITIAL_DURATION_HOURS = 2;
+
+	const [durationPercent, setDurationPercent] = useState(INITIAL_DURATION_HOURS / MAX_HOURS);
+	const now = new Date();
+
+	const everySecond = now.getTime() % 1000;
+
+	useEffect(() => {
+		props.setTo(props.from && addHours(props.from, durationPercent * MAX_HOURS));
+	}, [durationPercent, props.from]);
+
+	const updateDurationPercent = useCallback(
+		(from: Date, to: Date) => {
+			setDurationPercent(differenceInHours(to, from) / MAX_HOURS);
+		},
+		[props.from, props.to]
+	);
+
+	useEffect(() => {
+		if (!props.from || props.from <= now) {
+			props.setFrom(addMinutes(now, 30));
+		}
+
+		if (props.to && props.to < now) {
+			props.setTo(addMinutes(now, 30));
+		}
+	}, [everySecond]);
+
+	useEffect(() => {
+		if (props.from && props.to && props.from.getTime() >= props.to.getTime()) {
+			props.setTo(addMinutes(props.from, 30));
+		}
+	}, [props.from, props.to]);
+
+	return (
+		<div className={cn('flex flex-col gap-4', props.className)}>
+			<div className={cn('flex gap-4 items-center justify-between')}>
+				<DateTimePicker24h
+					date={props.from}
+					onDateChange={(from) => {
+						props.setFrom(from);
+
+						if (from && props.to) {
+							updateDurationPercent(from, props.to);
+						}
+					}}
+					dateFormat="PPp"
+					removeYear
+				/>
+				<ArrowRight size={16} className="shrink-0" />
+				<DateTimePicker24h
+					date={props.to}
+					onDateChange={(to) => {
+						props.setTo(to);
+
+						if (props.from && to) {
+							updateDurationPercent(props.from, to);
+						}
+					}}
+					dateFormat="PPp"
+					removeYear
+				/>
+			</div>
+			{props.from && props.to && (
+				<div className="text-sm">
+					{formatDuration(intervalToDuration({ start: props.from, end: props.to }), {
+						format: ['days', 'hours', 'minutes']
+					})}
+				</div>
+			)}
+			<Slider
+				defaultValue={[100]}
+				value={[durationPercent * 100]}
+				onValueChange={(values) => {
+					setDurationPercent(values[0] / 100);
+				}}
+			/>
+		</div>
+	);
+}
 
 export function DateTimePicker24h(props: {
 	dateFormat: string;
@@ -25,6 +122,7 @@ export function DateTimePicker24h(props: {
 	className?: string;
 }) {
 	const [isOpen, setIsOpen] = React.useState(false);
+	const now = new Date();
 
 	const hours = Array.from({ length: 24 }, (_, i) => i);
 	const handleDateSelect = (selectedDate: Date | undefined) => {
@@ -80,6 +178,7 @@ export function DateTimePicker24h(props: {
 						mode="single"
 						selected={props.date}
 						onSelect={handleDateSelect}
+						fromDate={now}
 						initialFocus
 					/>
 					<Separator />
@@ -89,7 +188,7 @@ export function DateTimePicker24h(props: {
 						</span>
 						<ScrollArea className="w-60 overflow-hidden">
 							<div className="flex sm:flex-col">
-								{hours.reverse().map((hour) => (
+								{hours.map((hour) => (
 									<Button
 										key={hour}
 										size="icon"

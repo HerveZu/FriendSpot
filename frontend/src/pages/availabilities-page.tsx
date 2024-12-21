@@ -2,8 +2,8 @@ import { Container } from '@/components/container.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useLoading } from '@/components/logo.tsx';
-import { ArrowRight, Clock, Info, LoaderCircle, TriangleAlert } from 'lucide-react';
-import { addMinutes, formatDuration, intervalToDuration } from 'date-fns';
+import { Info, LoaderCircle, TriangleAlert } from 'lucide-react';
+import { formatDuration } from 'date-fns';
 import { ActionButton } from '@/components/action-button.tsx';
 import { parseDuration } from '@/lib/date.ts';
 import {
@@ -14,10 +14,11 @@ import {
 	DialogTitle,
 	DialogTrigger
 } from '@/components/ui/dialog.tsx';
-import { DateTimePicker24h } from '@/components/date-time-picker.tsx';
+import { DateTimeRangePicker } from '@/components/date-time-picker.tsx';
 import { Link } from 'react-router-dom';
 import { InlineAlert } from '@/components/inline-alert.tsx';
 import { AvailabilityCard } from '@/components/availability-card.tsx';
+import { useDebounce } from 'use-debounce';
 
 type Availabilities = {
 	readonly totalDuration: string;
@@ -31,8 +32,8 @@ type Availability = {
 };
 
 type MySpot = {
-	spot?: {
-		lotName?: string;
+	readonly spot?: {
+		readonly lotName?: string;
 	};
 };
 
@@ -121,14 +122,16 @@ type MakeSpotAvailableResponse = {
 function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 	const [from, setFrom] = useState<Date>();
 	const [to, setTo] = useState<Date>();
-	const now = new Date();
 	const { apiRequest } = useApiRequest();
 	const [isLoading, setIsLoading] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 	const [simulatedLend, setSimulatedLend] = useState<MakeSpotAvailableResponse>();
 
+	const [fromDebounce] = useDebounce(from, 200);
+	const [toDebounce] = useDebounce(to, 200);
+
 	useEffect(() => {
-		if (!from || !to) {
+		if (!fromDebounce || !toDebounce) {
 			return;
 		}
 
@@ -136,41 +139,13 @@ function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 			'/spots/availabilities?simulation=true',
 			'POST',
 			{
-				from: from.toISOString(),
-				to: to.toISOString()
+				from: fromDebounce.toISOString(),
+				to: toDebounce.toISOString()
 			}
 		).then(setSimulatedLend);
-	}, [from, to]);
-
-	const everySecond = now.getTime() % 1000;
-
-	useEffect(() => {
-		if (!from || from <= now) {
-			setFrom(addMinutes(now, 30));
-		}
-
-		if (to && to < now) {
-			setTo(addMinutes(now, 30));
-		}
-	}, [everySecond]);
-
-	useEffect(() => {
-		if (from && to && from.getTime() >= to.getTime()) {
-			setTo(addMinutes(from, 30));
-		}
-	}, [from, to]);
+	}, [fromDebounce, toDebounce]);
 
 	const isValid = useMemo(() => from && to, [from, to]);
-	const duration = useMemo(
-		() =>
-			to && from
-				? intervalToDuration({
-						start: from,
-						end: to
-					})
-				: undefined,
-		[from, to]
-	);
 
 	async function makeSpotAvailable() {
 		if (!from || !to) {
@@ -204,21 +179,7 @@ function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 					</DialogDescription>
 				</DialogHeader>
 				<div className={'flex flex-col gap-6'}>
-					<div className={'flex gap-4 items-center justify-between'}>
-						<DateTimePicker24h
-							date={from}
-							onDateChange={setFrom}
-							dateFormat={'PPp'}
-							removeYear
-						/>
-						<ArrowRight size={16} className={'shrink-0'} />
-						<DateTimePicker24h
-							date={to}
-							onDateChange={setTo}
-							dateFormat={'PPp'}
-							removeYear
-						/>
-					</div>
+					<DateTimeRangePicker from={from} setFrom={setFrom} to={to} setTo={setTo} />
 
 					{simulatedLend?.overlaps && (
 						<InlineAlert icon={<TriangleAlert />} className={'h-8 text-sm'}>
@@ -226,17 +187,6 @@ function LendSpotPopup(props: { children: ReactNode; onSubmit: () => void }) {
 						</InlineAlert>
 					)}
 					<ActionButton
-						info={
-							// duration = 0 is falsy, but still needs to be displayed
-							duration !== undefined ? (
-								<span className={'flex items-center gap-2'}>
-									<Clock size={16} />
-									{formatDuration(duration, {
-										format: ['days', 'hours', 'minutes']
-									})}
-								</span>
-							) : undefined
-						}
 						disabled={!isValid || simulatedLend?.earnedCredits === 0}
 						onClick={makeSpotAvailable}>
 						{isLoading && <LoaderCircle className={'animate-spin'} />}
