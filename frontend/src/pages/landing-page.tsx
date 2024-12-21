@@ -72,6 +72,7 @@ export function LandingPage() {
 	const navigate = useNavigate();
 	const auth0 = useAuth0();
 	const [mySpot, setMySpot] = useState<MySpot>();
+	const [hasLoaded, setHasLoaded] = useState(false);
 
 	const routeForAction: { [action: string]: string } = {
 		lend: '/availabilities'
@@ -100,18 +101,16 @@ export function LandingPage() {
 
 	// Checks whether the user has reserved parking spaces
 	useEffect(() => {
-		async function fetchBooking() {
+		if (!hasLoaded) {
 			setIsLoading(true);
-
-			try {
-				const response = await apiRequest<BookingsResponse>('/spots/booking', 'GET');
-				setBookings(response);
-			} finally {
-				setIsLoading(false);
-			}
 		}
 
-		fetchBooking();
+		apiRequest<BookingsResponse>('/spots/booking', 'GET')
+			.then(setBookings)
+			.finally(() => {
+				setIsLoading(false);
+				setHasLoaded(true);
+			});
 	}, [refreshTrigger]);
 
 	return (
