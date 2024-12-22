@@ -72,7 +72,8 @@ createRoot(document.getElementById('root')!).render(
 					redirect_uri: `${window.location.origin}${import.meta.env.VITE__AUTH0__CALLBACK__PATH}`,
 					audience: 'https://friendspot.me'
 				}}
-				useRefreshTokens={true}>
+				useRefreshTokens={true}
+				cacheLocation={'localstorage'}>
 				<LoaderProvider>
 					<RouterProvider
 						router={router}
