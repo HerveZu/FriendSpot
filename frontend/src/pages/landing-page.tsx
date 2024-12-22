@@ -141,7 +141,7 @@ export function LandingPage() {
 					<span className="mx-auto text-md">ou</span>
 					<ActionButton
 						large
-						info="Gagner des crédits en prêtant votre place"
+						info="Gagne des crédits en prêtant ta place !"
 						variant="outline"
 						onClick={() => setAction('lend')}>
 						Je prête ma place
@@ -358,7 +358,7 @@ function BookingModal(props: {
 						{isLoading && <LoaderCircle className={'animate-spin'} />}
 						{usedCredits
 							? usedCredits > user.wallet.credits
-								? `Vous n'avez pas assez de crédits (${usedCredits})`
+								? `Crédits insuffisant (${usedCredits})`
 								: `Réserver pour ${usedCredits} crédits`
 							: 'Réserver une place'}
 					</ActionButton>
