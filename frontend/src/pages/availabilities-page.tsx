@@ -1,6 +1,6 @@
 import { Container } from '@/components/container.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request.ts';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useLoading } from '@/components/logo.tsx';
 import { Info, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { formatDuration } from 'date-fns';
@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import { InlineAlert } from '@/components/inline-alert.tsx';
 import { AvailabilityCard } from '@/components/availability-card.tsx';
 import { useDebounce } from 'use-debounce';
+import { UserStatusContext } from '@/components/authentication-guard.tsx';
 
 type Availabilities = {
 	readonly totalDuration: string;
@@ -31,18 +32,12 @@ type Availability = {
 	readonly duration: string;
 };
 
-type MySpot = {
-	readonly spot?: {
-		readonly lotName?: string;
-	};
-};
-
 export function AvailabilitiesPage() {
 	const { apiRequest } = useApiRequest();
 	const { isLoading, setIsLoadingOnce, refreshTrigger, forceRefresh } =
 		useLoading('availabilities');
 	const [availabilities, setAvailabilities] = useState<Availabilities>();
-	const [mySpot, setMySpot] = useState<MySpot>();
+	const { user } = useContext(UserStatusContext);
 
 	useEffect(() => {
 		setIsLoadingOnce(true);
@@ -52,11 +47,6 @@ export function AvailabilitiesPage() {
 			.finally(() => setIsLoadingOnce(false));
 	}, [refreshTrigger]);
 
-	useEffect(() => {
-		apiRequest<MySpot>('/@me/spot', 'GET').then(setMySpot);
-	}, []);
-
-	const hasSpot = !!mySpot?.spot;
 	const hasAvailabilities = availabilities && availabilities.availabilities.length > 0;
 
 	return (
@@ -64,7 +54,7 @@ export function AvailabilitiesPage() {
 			<Container
 				title={'Je prête ma place'}
 				description={
-					!isLoading && !hasSpot ? (
+					!isLoading && !user.hasSpot ? (
 						<InlineAlert className={'space-x-1'} icon={<TriangleAlert />}>
 							<Link to={'/myspot'} className={'text-primary'}>
 								Défini ton spot
@@ -91,7 +81,7 @@ export function AvailabilitiesPage() {
 			</Container>
 			<LendSpotPopup onSubmit={forceRefresh}>
 				<ActionButton
-					disabled={!hasSpot}
+					disabled={!user.hasSpot}
 					large
 					info={
 						hasAvailabilities

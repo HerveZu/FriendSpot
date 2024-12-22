@@ -1,4 +1,6 @@
+using Api.Common;
 using Api.Common.Infrastructure;
+using Domain.ParkingSpots;
 using Domain.Wallets;
 using FastEndpoints;
 using JetBrains.Annotations;
@@ -9,6 +11,7 @@ namespace Api.Me;
 [PublicAPI]
 public sealed record ViewStatusResponse
 {
+    public required bool HasSpot { get; init; }
     public required WalletStatus Wallet { get; init; }
 
     [PublicAPI]
@@ -28,6 +31,8 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
 
     public override async Task HandleAsync(CancellationToken ct)
     {
+        var user = HttpContext.ToCurrentUser();
+
         var walletStatus = await (from wallet in dbContext.Set<Wallet>()
             select new ViewStatusResponse.WalletStatus
             {
@@ -35,9 +40,13 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                 PendingCredits = wallet.PendingCredits
             }).FirstAsync(ct);
 
+        var hasSpot = await dbContext.Set<ParkingSpot>()
+            .AnyAsync(spot => spot.OwnerId == user.Identity, ct);
+
         await SendOkAsync(
             new ViewStatusResponse
             {
+                HasSpot = hasSpot,
                 Wallet = walletStatus
             },
             ct);

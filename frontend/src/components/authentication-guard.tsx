@@ -18,14 +18,15 @@ export function AuthenticationGuard(props: { children: ReactNode }) {
 }
 
 type UserStatus = {
-	wallet: {
-		credits: number;
-		pendingCredits: number;
+	readonly hasSpot: boolean;
+	readonly wallet: {
+		readonly credits: number;
+		readonly pendingCredits: number;
 	};
 };
 
 type UserStatusContext = {
-	user: UserStatus;
+	readonly user: UserStatus;
 };
 
 export const UserStatusContext = createContext<UserStatusContext>(null!);

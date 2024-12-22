@@ -45,12 +45,6 @@ interface Booking {
 	};
 }
 
-type MySpot = {
-	spot?: {
-		lotName?: string;
-	};
-};
-
 /*-------------------------------------
 
 Chose à faire (je précise pour pour moi (& hervé evidemment qui va venir fouiner ici :p))
@@ -71,17 +65,11 @@ export function LandingPage() {
 	const { apiRequest } = useApiRequest();
 	const navigate = useNavigate();
 	const auth0 = useAuth0();
-	const [mySpot, setMySpot] = useState<MySpot>();
+	const { user } = useContext(UserStatusContext);
 
 	const routeForAction: { [action: string]: string } = {
 		lend: '/availabilities'
 	};
-
-	useEffect(() => {
-		apiRequest<MySpot>('/@me/spot', 'GET').then(setMySpot);
-	}, []);
-
-	const hasSpot = !!mySpot?.spot;
 
 	useEffect(() => {
 		if (!bookingModalOpen) {
@@ -134,7 +122,7 @@ export function LandingPage() {
 							Bonjour <span className="text-primary">{auth0.user?.name}</span>, <br />{' '}
 							que souhaites-tu faire ?
 						</Title>
-						{!hasSpot && (
+						{!user.hasSpot && (
 							<InlineAlert className={'space-x-1'} icon={<TriangleAlert />}>
 								<Link to={'/myspot'} className={'text-primary'}>
 									Défini ton spot
@@ -146,7 +134,7 @@ export function LandingPage() {
 				)}
 				<div className="flex flex-col gap-6">
 					<BookingModal open={bookingModalOpen} onOpenChange={setBookingModalOpen}>
-						<ActionButton disabled={!hasSpot} large>
+						<ActionButton disabled={!user.hasSpot} large>
 							Je réserve une place
 						</ActionButton>
 					</BookingModal>
