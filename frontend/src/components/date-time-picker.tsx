@@ -6,7 +6,9 @@ import {
 	differenceInHours,
 	format,
 	formatDuration,
-	intervalToDuration
+	intervalToDuration,
+	isSameDay,
+	isSameHour
 } from 'date-fns';
 
 import { cn } from '@/lib/utils';
@@ -40,30 +42,34 @@ export function DateTimeRangePicker(props: {
 
 	const everySecond = now.getTime() % 1000;
 
-	useEffect(() => {
-		props.setTo(props.from && addHours(props.from, durationPercent * MAX_HOURS));
-	}, [durationPercent, props.from]);
+	const updateDurationPercent = useCallback((from: Date, to: Date) => {
+		setDurationPercent(differenceInHours(to, from) / MAX_HOURS);
+	}, []);
 
-	const updateDurationPercent = useCallback(
-		(from: Date, to: Date) => {
-			setDurationPercent(differenceInHours(to, from) / MAX_HOURS);
+	const updatePeriodDate = useCallback(
+		(durationPercent: number) => {
+			props.setTo(props.from && addHours(props.from, durationPercent * MAX_HOURS));
 		},
-		[props.from, props.to]
+		[props.from]
 	);
 
 	useEffect(() => {
+		updatePeriodDate(durationPercent);
+	}, [props.from]);
+
+	useEffect(() => {
 		if (!props.from || props.from <= now) {
-			props.setFrom(addMinutes(now, 30));
+			props.setFrom(addMinutes(now, 15));
 		}
 
 		if (props.to && props.to < now) {
-			props.setTo(addMinutes(now, 30));
+			props.setTo(addMinutes(now, 15));
 		}
 	}, [everySecond]);
 
 	useEffect(() => {
 		if (props.from && props.to && props.from.getTime() >= props.to.getTime()) {
-			props.setTo(addMinutes(props.from, 30));
+			props.setTo(addMinutes(props.from, 15));
 		}
 	}, [props.from, props.to]);
 
@@ -72,6 +78,7 @@ export function DateTimeRangePicker(props: {
 			<div className={cn('flex gap-4 items-center justify-between')}>
 				<DateTimePicker24h
 					date={props.from}
+					fromDate={now}
 					onDateChange={(from) => {
 						props.setFrom(from);
 
@@ -85,6 +92,7 @@ export function DateTimeRangePicker(props: {
 				<ArrowRight size={16} className="shrink-0" />
 				<DateTimePicker24h
 					date={props.to}
+					fromDate={props.from ?? now}
 					onDateChange={(to) => {
 						props.setTo(to);
 
@@ -108,7 +116,10 @@ export function DateTimeRangePicker(props: {
 				defaultValue={[100]}
 				value={[durationPercent * 100]}
 				onValueChange={(values) => {
-					setDurationPercent(values[0] / 100);
+					const durationPercent = values[0] / 100;
+
+					setDurationPercent(durationPercent);
+					updatePeriodDate(durationPercent);
 				}}
 			/>
 		</div>
@@ -119,13 +130,33 @@ export function DateTimePicker24h(props: {
 	dateFormat: string;
 	removeYear?: boolean;
 	date: Date | undefined;
+	fromDate: Date | undefined;
 	onDateChange: (date: Date) => void;
 	className?: string;
 }) {
 	const [isOpen, setIsOpen] = React.useState(false);
-	const now = new Date();
 
 	const hours = Array.from({ length: 24 }, (_, i) => i);
+	const minutes = Array.from({ length: 12 }, (_, i) => i * 5);
+
+	const isHourDisabled = (hour: number): boolean => {
+		return (
+			!!props.date &&
+			!!props.fromDate &&
+			isSameDay(props.fromDate, props.date) &&
+			props.fromDate.getHours() > hour
+		);
+	};
+
+	const isMinuteDisabled = (minute: number): boolean => {
+		return (
+			!!props.date &&
+			!!props.fromDate &&
+			isSameHour(props.fromDate, props.date) &&
+			props.fromDate.getMinutes() > minute
+		);
+	};
+
 	const handleDateSelect = (selectedDate: Date | undefined) => {
 		if (selectedDate) {
 			props.onDateChange(selectedDate);
@@ -179,7 +210,7 @@ export function DateTimePicker24h(props: {
 						mode="single"
 						selected={props.date}
 						onSelect={handleDateSelect}
-						fromDate={now}
+						fromDate={props.fromDate}
 						initialFocus
 					/>
 					<Separator />
@@ -192,6 +223,7 @@ export function DateTimePicker24h(props: {
 								{hours.map((hour) => (
 									<Button
 										key={hour}
+										disabled={isHourDisabled(hour)}
 										size="icon"
 										variant={
 											props.date && props.date.getHours() === hour
@@ -208,9 +240,10 @@ export function DateTimePicker24h(props: {
 						</ScrollArea>
 						<ScrollArea className="w-60">
 							<div className="flex sm:flex-col">
-								{Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
+								{minutes.map((minute) => (
 									<Button
 										key={minute}
+										disabled={isMinuteDisabled(minute)}
 										size="icon"
 										variant={
 											props.date && props.date.getMinutes() === minute
