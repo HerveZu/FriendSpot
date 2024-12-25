@@ -122,10 +122,12 @@ app
     .UseFastEndpoints(
         config => config.Endpoints.Configurator = ep =>
         {
+            ep.PreProcessor<EnsureUserExists>(Order.After);
+            ep.PostProcessor<ReturnBusinessErrors>(Order.Before);
+
             ep.Options(
                 routeBuilder => routeBuilder
-                    .AddEndpointFilter<RunInTransaction>()
-                    .AddEndpointFilter<EnsureUserExists>());
+                    .AddEndpointFilter<RunInTransaction>());
         });
 
 await app.RunAsync();

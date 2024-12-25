@@ -1,37 +1,42 @@
+using System.Net;
 using Api.Common.Infrastructure;
 using Api.Me;
 using Domain.Users;
+using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Common;
 
-internal sealed class EnsureUserExists(AppDbContext dbContext) : IEndpointFilter
+internal sealed class EnsureUserExists : IGlobalPreProcessor
 {
-    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+    public async Task PreProcessAsync(IPreProcessorContext context, CancellationToken ct)
     {
+        var dbContext = context.HttpContext.Resolve<AppDbContext>();
+
+        // skip checks on register otherwise user is not able to first register
         if (context.HttpContext.Request.Path == Register.Path)
         {
-            return await next(context);
+            return;
         }
 
         var currentUser = context.HttpContext.ToCurrentUserOrAnonymous();
 
         if (currentUser is null)
         {
-            return await next(context);
+            return;
         }
 
         var userExists = await dbContext.Set<User>()
-            .AnyAsync(user => user.Identity == currentUser.Identity);
+            .AnyAsync(user => user.Identity == currentUser.Identity, ct);
 
         if (userExists)
         {
-            return await next(context);
+            return;
         }
 
-        context.HttpContext.Response.StatusCode = 401;
-        await context.HttpContext.Response.WriteAsync("User is not registered.");
-
-        return await next(context);
+        await context.HttpContext.Response.SendAsync(
+            "User is not registered.",
+            (int)HttpStatusCode.Unauthorized,
+            cancellation: ct);
     }
 }

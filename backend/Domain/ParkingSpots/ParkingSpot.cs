@@ -67,17 +67,17 @@ public sealed class ParkingSpot : IBroadcastEvents
     {
         if (bookingUserId == OwnerId)
         {
-            throw new InvalidOperationException("Cannot book your own spot");
+            throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book your own spot.");
         }
 
         if (from < DateTimeOffset.UtcNow)
         {
-            throw new InvalidOperationException("Cannot book spot in the past");
+            throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book spot in the past.");
         }
 
         if (duration <= TimeSpan.Zero)
         {
-            throw new InvalidOperationException("Booking duration must be positive");
+            throw new BusinessException("ParkingSpot.InvalidBooking", "Booking duration must be positive.");
         }
 
         var until = from + duration;
@@ -87,7 +87,7 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         if (availability is null)
         {
-            throw new InvalidOperationException("This parking spot has no availability");
+            throw new BusinessException("ParkingSpot.NoAvailability", "This parking spot has no availability.");
         }
 
         var newBooking = ParkingSpotBooking.New(bookingUserId, from, duration);
@@ -98,7 +98,7 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         if (overlappingBookings.Any(booking => booking.BookingUserId != bookingUserId))
         {
-            throw new InvalidOperationException("This spot has already been booked.");
+            throw new BusinessException("ParkingSpot.NoAvailability", "This spot has already been booked.");
         }
 
         foreach (var overlappingBooking in overlappingBookings)

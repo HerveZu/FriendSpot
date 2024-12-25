@@ -14,7 +14,6 @@ public sealed class Wallet : IUserPrivateResource
     }
 
     public Guid Id { get; init; }
-    public string UserId { get; }
     public IReadOnlyList<CreditsTransaction> Transactions => _transactions.AsReadOnly();
 
     public Credits Credits => new(
@@ -27,6 +26,8 @@ public sealed class Wallet : IUserPrivateResource
             .Where(transaction => transaction.State is TransactionState.Pending)
             .Sum(transaction => transaction.Credits.Amount));
 
+    public string UserId { get; }
+
     public static Wallet Create(string userId)
     {
         return new Wallet(Guid.CreateVersion7(), userId);
@@ -36,7 +37,7 @@ public sealed class Wallet : IUserPrivateResource
     {
         if (credits.Amount < 0)
         {
-            throw new InvalidOperationException("Cannot credit a negative amount.");
+            throw new BusinessException("Wallet.NegativeCreditAmount", "Cannot credit a negative amount.");
         }
 
         IdempotentTransaction(CreditsTransaction.Create(reference, credits, state));
@@ -46,12 +47,14 @@ public sealed class Wallet : IUserPrivateResource
     {
         if (credits.Amount < 0)
         {
-            throw new InvalidOperationException("Cannot charge a negative amount.");
+            throw new BusinessException("Wallet.NegativeChargeAmount", "Cannot charge a negative amount.");
         }
 
         if (Credits < credits.Amount)
         {
-            throw new InvalidOperationException($"Not enough credits ({Credits}), required at least {credits}");
+            throw new BusinessException(
+                "Wallet.NotEnoughCredits",
+                $"Not enough credits ({Credits}), required at least {credits}.");
         }
 
         IdempotentTransaction(CreditsTransaction.Create(reference, -credits, TransactionState.Confirmed));

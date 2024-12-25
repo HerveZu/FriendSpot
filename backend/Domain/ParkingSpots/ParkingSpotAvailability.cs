@@ -24,7 +24,9 @@ public sealed class ParkingSpotAvailability
     {
         if (from >= to)
         {
-            throw new InvalidOperationException("Availability end date should be after its start date");
+            throw new BusinessException(
+                "ParkingSpot.InvalidAvailabilities",
+                "Availability end date should be after its start date.");
         }
 
         var duration = to - from;
@@ -39,7 +41,9 @@ public sealed class ParkingSpotAvailability
     {
         if (from < DateTimeOffset.UtcNow)
         {
-            throw new InvalidOperationException("Availability date should be in the future");
+            throw new BusinessException(
+                "ParkingSpot.InvalidAvailabilities",
+                "Availability date should be in the future.");
         }
 
         return Create(from, to);
@@ -49,7 +53,9 @@ public sealed class ParkingSpotAvailability
     {
         if (!existing.Overlaps(@new))
         {
-            throw new InvalidOperationException("Cannot merge non overlapping availabilities");
+            throw new BusinessException(
+                "ParkingSpot.InvalidAvailabilities",
+                "Cannot merge non overlapping availabilities.");
         }
 
         var minFrom = new[] { existing.From, @new.From }.Min();

@@ -25,6 +25,11 @@ public sealed class User : IBroadcastEvents
 
     public static User Register(string identity)
     {
+        if (string.IsNullOrWhiteSpace(identity))
+        {
+            throw new BusinessException("Users.InvalidIdentity", "Cannot register null or empty identity.");
+        }
+
         var user = new User(identity);
 
         user._domainEvents.Register(

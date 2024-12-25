@@ -78,8 +78,8 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("other")}}
 
 {
-  "from": "2024-11-29T01:17:00+01:00",
-  "to": "2024-11-29T19:00:00+01:00"
+  "from": "2025-11-29T01:17:00+01:00",
+  "to": "2026-11-29T19:00:00+01:00"
 }
 
 ###
@@ -102,13 +102,13 @@ Authorization: Bearer {{$auth.token("me")}}
 
 ###
 
-POST {{Api_HostAddress}}/spots/booking?simulation=true
+POST {{Api_HostAddress}}/spots/booking?simulation=false
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer {{$auth.token("other")}}
+Authorization: Bearer {{$auth.token("me")}}
 
 {
-  "parkingLotId": "01937546-612e-7a69-a017-f0169ee915c2",
-  "from": "2024-12-18T12:21:00+00:00",
-  "to": "2024-12-18T12:30:00+00:00"
+  "parkingLotId": "01937546-63e8-7a16-a8b1-f59e86555d9c",
+  "from": "2025-11-29T01:17:00+01:00",
+  "to": "2026-11-29T19:00:00+01:00"
 }
