@@ -17,6 +17,9 @@ export function useApiRequest() {
 				},
 				body: body ? JSON.stringify(body) : null
 			});
+			if (!response.ok) {
+				throw new Error('One or more error(s) are occured');
+			}
 			return (await response.json()) as TResponse;
 		},
 		[]
