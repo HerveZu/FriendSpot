@@ -18,7 +18,7 @@ export function useApiRequest() {
 				body: body ? JSON.stringify(body) : null
 			});
 			if (!response.ok) {
-				throw new Error('One or more error(s) are occured');
+				throw new Error(`Api request at '${url}' failed : ${await response.text()}`);
 			}
 			return (await response.json()) as TResponse;
 		},
