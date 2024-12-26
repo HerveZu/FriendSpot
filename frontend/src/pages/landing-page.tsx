@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils.ts';
 import { Link, useNavigate } from 'react-router-dom';
 import { ActionButton } from '@/components/action-button.tsx';
 import { UserStatusContext } from '@/components/authentication-guard.tsx';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth0, User } from '@auth0/auth0-react';
 import { Title } from '@/components/title.tsx';
 import { useApiRequest } from '@/lib/hooks/use-api-request';
 import { LoaderCircle, SearchCheck, TriangleAlert } from 'lucide-react';
@@ -95,6 +95,10 @@ export function LandingPage() {
 			.finally(() => setIsLoadingOnce(false));
 	}, [refreshTrigger]);
 
+	function GetUserDisplayName(user: User) {
+		return user.preferred_username ?? user.given_name ?? user.nickname ?? user.address;
+	}
+
 	return (
 		<div className="flex flex-col w-full h-full justify-between">
 			<>
@@ -119,8 +123,11 @@ export function LandingPage() {
 					<div className={'flex flex-col justify-evenly h-full'}>
 						<HeroLogo action={action} className={'mb-12 h-28'} />
 						<Title>
-							Bonjour <span className="text-primary">{auth0.user?.name}</span>, <br />{' '}
-							que souhaites-tu faire ?
+							Bonjour{' '}
+							<span className="text-primary">
+								{auth0.user && GetUserDisplayName(auth0.user)}
+							</span>
+							, <br /> que souhaites-tu faire ?
 						</Title>
 						{!user.hasSpot && (
 							<InlineAlert className={'space-x-1'} icon={<TriangleAlert />}>
