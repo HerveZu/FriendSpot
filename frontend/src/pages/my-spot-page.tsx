@@ -64,15 +64,15 @@ export function MySpotPage() {
 
 function Spot() {
 	const { apiRequest } = useApiRequest();
-	const { setIsLoading, refreshTrigger } = useLoading('MySpot.Spot');
+	const { setIsLoadingOnce, refreshTrigger } = useLoading('MySpot.Spot');
 	const { spot, setSpot } = useContext(MySpotContext);
 
 	useEffect(() => {
-		setIsLoading(true);
+		setIsLoadingOnce(true);
 
 		apiRequest<ParkingAlreadyRegistered>('/@me/spot', 'GET')
 			.then((data) => setSpot(data.spot))
-			.finally(() => setIsLoading(false));
+			.finally(() => setIsLoadingOnce(false));
 	}, [refreshTrigger, setSpot]);
 
 	return (
@@ -97,12 +97,13 @@ function Spot() {
 
 function ParkingSearch() {
 	const { apiRequest } = useApiRequest();
-	const { isLoading, setIsLoading, forceRefresh } = useLoading('MySpot.ParkingSearch');
+	const { forceRefresh } = useLoading('MySpot.ParkingSearch');
 	const { spot } = useContext(MySpotContext);
 	const [selectedParking, setSelectedParking] = useState<Parking>();
 	const [lotName, setLotName] = useState('');
 	const [search, setSearch] = useState('');
 	const [dataParking, setDataParking] = useState<Parking[]>();
+	const [isSaving, setIsSaving] = useState(false);
 	const [debounceSearch] = useDebounce(search, 200);
 
 	useEffect(() => {
@@ -111,14 +112,13 @@ function ParkingSearch() {
 	}, [spot]);
 
 	useEffect(() => {
-		setIsLoading(true);
-		apiRequest<Parking[]>(`/parking?search=${debounceSearch ?? ''}`, 'GET')
-			.then(setDataParking)
-			.finally(() => setIsLoading(false));
+		apiRequest<Parking[]>(`/parking?search=${debounceSearch ?? ''}`, 'GET').then(
+			setDataParking
+		);
 	}, [debounceSearch]);
 
 	const saveParking = useCallback(async () => {
-		setIsLoading(true);
+		setIsSaving(true);
 
 		try {
 			await apiRequest<SetMySpot>('/@me/spot', 'PUT', {
@@ -126,7 +126,7 @@ function ParkingSearch() {
 				lotName: lotName
 			});
 		} finally {
-			setIsLoading(false);
+			setIsSaving(false);
 			forceRefresh();
 		}
 	}, [selectedParking, lotName]);
@@ -180,7 +180,7 @@ function ParkingSearch() {
 					className="w-full cursor-none"
 					onClick={() => saveParking()}
 					disabled={!selectedParking || !lotName || !hasChanged}>
-					{isLoading && <LoaderCircle className={'animate-spin'} />}
+					{isSaving && <LoaderCircle className={'animate-spin'} />}
 					Enregistrer
 				</ActionButton>
 			</CardContent>
