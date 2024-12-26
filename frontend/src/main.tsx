@@ -73,6 +73,7 @@ createRoot(document.getElementById('root')!).render(
 					audience: 'https://friendspot.me'
 				}}
 				useRefreshTokens={true}
+				useRefreshTokensFallback={true}
 				cacheLocation={'localstorage'}>
 				<LoaderProvider>
 					<RouterProvider
