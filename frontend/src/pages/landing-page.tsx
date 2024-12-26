@@ -123,7 +123,7 @@ export function LandingPage() {
 							que souhaites-tu faire ?
 						</Title>
 						{!user.hasSpot && (
-							<InlineAlert className={'space-x-1 my-2'} icon={<TriangleAlert />}>
+							<InlineAlert className={'space-x-1'} icon={<TriangleAlert />}>
 								<Link to={'/myspot'} className={'text-primary'}>
 									Défini ton spot
 								</Link>
