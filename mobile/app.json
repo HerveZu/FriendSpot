@@ -11,7 +11,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "react-native-auth0",
+        {
+          "domain": "friendspot-app.eu.auth0.com"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
@@ -30,14 +36,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.friendspot"
+      "bundleIdentifier": "com.friendspot"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.friendspot"
+      "package": "com.friendspot"
     }
   }
 }

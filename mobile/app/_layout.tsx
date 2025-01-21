@@ -5,16 +5,15 @@ import { Icon } from '@roninoss/icons';
 import { Link, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, View } from 'react-native';
+import { Auth0Provider } from 'react-native-auth0';
 
+import UserProvider from '~/authentication/user-provider';
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { cn } from '~/lib/cn';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export default function RootLayout() {
   useInitialAndroidBarSync();
@@ -26,24 +25,25 @@ export default function RootLayout() {
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
       />
-      {/* WRAP YOUR APP WITH ANY ADDITIONAL PROVIDERS HERE */}
-      {/* <ExampleProvider> */}
-
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
-        <Stack screenOptions={SCREEN_OPTIONS}>
-          <Stack.Screen name="index" options={INDEX_OPTIONS} />
-          <Stack.Screen name="modal" options={MODAL_OPTIONS} />
-        </Stack>
+        <Auth0Provider
+          domain="friendspot-app.eu.auth0.com"
+          clientId="XcLvPvhtk6eNqD8ZxbKXWxVpaTNpb2SR">
+          <UserProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: 'ios_from_right',
+              }}>
+              <Stack.Screen name="index" options={INDEX_OPTIONS} />
+              <Stack.Screen name="modal" options={MODAL_OPTIONS} />
+            </Stack>
+          </UserProvider>
+        </Auth0Provider>
       </NavThemeProvider>
-
-      {/* </ExampleProvider> */}
     </>
   );
 }
-
-const SCREEN_OPTIONS = {
-  animation: 'ios_from_right', // for android
-} as const;
 
 const INDEX_OPTIONS = {
   headerLargeTitle: true,
