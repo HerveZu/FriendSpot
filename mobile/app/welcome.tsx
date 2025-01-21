@@ -4,6 +4,7 @@ import { Platform, View } from 'react-native';
 import { useAuth0 } from 'react-native-auth0';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ContentView from '~/components/ContentView';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -16,12 +17,12 @@ export default function WelcomeScreen() {
   async function login() {
     await authorize({
       audience: 'https://friendspot.me',
-    }).then(() => router.navigate('/'));
+    }).then(() => router.navigate('/home'));
   }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View className="mx-auto w-full max-w-sm flex-1 justify-between gap-4 px-8 py-4">
+      <ContentView className="mx-auto flex-1 justify-between gap-4">
         <View className="ios:pt-8 pt-12">
           <Text variant="largeTitle" className="ios:text-left ios:font-black text-center font-bold">
             Bienvenue sur
@@ -52,10 +53,10 @@ export default function WelcomeScreen() {
         </View>
         <View className="gap-4">
           <Button onPress={login} size={Platform.select({ ios: 'lg', default: 'md' })}>
-            <Text>Me connecter</Text>
+            <Text>Se connecter</Text>
           </Button>
         </View>
-      </View>
+      </ContentView>
     </SafeAreaView>
   );
 }
