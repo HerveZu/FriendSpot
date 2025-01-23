@@ -13,6 +13,8 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
     "@gorhom/bottom-sheet": "^5.0.6",
+    "@react-native-community/datetimepicker": "8.2.0",
+    "@react-native-community/slider": "4.5.5",
     "@react-navigation/native": "^7.0.3",
     "@rn-primitives/avatar": "^1.1.0",
     "@rn-primitives/slot": "^1.1.0",
@@ -20,6 +22,7 @@
     "@shopify/flash-list": "1.7.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "date-fns": "^4.1.0",
     "expo": "^52.0.27",
     "expo-constants": "~17.0.4",
     "expo-dev-client": "~5.0.4",
@@ -42,7 +45,8 @@
     "react-native-screens": "~4.4.0",
     "react-native-uitextview": "^1.1.4",
     "react-native-web": "~0.19.10",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "use-debounce": "^10.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

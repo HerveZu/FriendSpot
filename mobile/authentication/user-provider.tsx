@@ -1,11 +1,11 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, SafeAreaView } from 'react-native';
 import { useAuth0 } from 'react-native-auth0';
 
 import { useGetProfile, UserProfile } from '~/endpoints/get-profile';
 
 type UserProfileContext = {
-  userProfile: UserProfile;
+  readonly userProfile: UserProfile;
 };
 
 const _UserProfileContext = createContext<UserProfileContext>(null!);
@@ -32,6 +32,8 @@ export default function UserProvider(props: PropsWithChildren) {
       {props.children}
     </_UserProfileContext.Provider>
   ) : (
-    <ActivityIndicator />
+    <SafeAreaView className="h-full flex-col justify-center">
+      <ActivityIndicator />
+    </SafeAreaView>
   );
 }

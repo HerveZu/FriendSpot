@@ -3,9 +3,9 @@ import { useCallback } from 'react';
 import { useApiRequest } from '~/endpoints/use-api-request';
 
 export type UserProfile = {
-  wallet: {
-    credits: number;
-    pendingCredits: number;
+  readonly wallet: {
+    readonly credits: number;
+    readonly pendingCredits: number;
   };
 };
 

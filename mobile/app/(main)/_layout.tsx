@@ -16,7 +16,7 @@ export default function MainLayout() {
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,
-          tabBarStyle: { paddingTop: 15 },
+          tabBarStyle: { paddingTop: 5 },
           tabBarIconStyle: { height: 32 },
         }}>
         <Tabs.Screen
