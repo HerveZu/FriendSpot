@@ -14,7 +14,7 @@ export default function AuthenticationGuard(props: PropsWithChildren) {
       return;
     }
 
-    !isAuthenticated && router.navigate('/welcome');
+    router.navigate(isAuthenticated ? '/home' : '/welcome');
   }, [isAuthenticated, rootNavigationState?.key]);
 
   return props.children;
