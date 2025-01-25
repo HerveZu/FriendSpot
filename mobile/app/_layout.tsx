@@ -2,6 +2,8 @@ import '../global.css';
 import 'expo-dev-client';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
+import { setDefaultOptions } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Auth0Provider } from 'react-native-auth0';
@@ -12,6 +14,8 @@ import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 
 export { ErrorBoundary } from 'expo-router';
+
+setDefaultOptions({ locale: fr });
 
 export default function RootLayout() {
   useInitialAndroidBarSync();

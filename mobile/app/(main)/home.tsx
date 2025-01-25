@@ -1,4 +1,3 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import {
@@ -15,6 +14,7 @@ import { useAuth0 } from 'react-native-auth0';
 import { useDebounce } from 'use-debounce';
 
 import ContentView from '~/components/ContentView';
+import { TFA } from '~/components/TFA';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
@@ -25,6 +25,7 @@ import {
   AvailableSpotsResponse,
   useGetAvailableSpots,
 } from '~/endpoints/get-available-spots';
+import { capitalize } from '~/lib/utils';
 
 export default function HomeScreen() {
   const { user } = useAuth0();
@@ -36,10 +37,11 @@ export default function HomeScreen() {
         <ContentView className="flex-col justify-between pb-8">
           <Text>Salut {user?.name}</Text>
           <Button
+            size="lg"
             variant="primary"
             className="w-full"
             onPress={() => bottomSheetModalRef.current?.present()}>
-            <FontAwesome name="search" size={32} className="color-accent" />
+            <TFA name="search" size={18} />
             <Text>Rechercher un spot</Text>
           </Button>
         </ContentView>
@@ -111,7 +113,7 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
                     <Pressable key={i} onPress={() => setSelectedSpot(spot)}>
                       <View className="flex-row justify-between rounded-lg bg-background p-4">
                         <View>
-                          <Text variant="title1">{formatRelative(from, now)}</Text>
+                          <Text variant="title1">{capitalize(formatRelative(from, now))}</Text>
                           <Text variant="subhead">
                             {formatDuration(
                               intervalToDuration({
@@ -122,14 +124,14 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
                             )}
                           </Text>
                         </View>
-                        {selected && <FontAwesome name="check" size={32} />}
+                        {selected && <TFA name="check" size={32} />}
                       </View>
                     </Pressable>
                   );
                 })}
               </View>
               <View className="flex-col items-center justify-between gap-2">
-                <View className="flex-row items-center gap-6 self-center">
+                <View className="w-full flex-row items-center justify-between">
                   <Text className="w-24">Réserver du</Text>
                   <DatePicker
                     minimumDate={now}
@@ -142,7 +144,7 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
                     }}
                   />
                 </View>
-                <View className="flex-row items-center gap-6">
+                <View className="w-full flex-row items-center justify-between">
                   <Text className="w-24">Jusqu'au</Text>
                   <DatePicker
                     minimumDate={minTo(from)}
@@ -169,6 +171,7 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
               </View>
               <Button
                 variant="primary"
+                size="lg"
                 disabled={!selectedSpot}
                 onPress={() =>
                   selectedSpot &&

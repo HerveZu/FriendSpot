@@ -1,9 +1,9 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { SafeAreaView } from 'react-native';
 
 import UserProvider from '~/authentication/user-provider';
 import Header from '~/components/Header';
+import { TFA } from '~/components/TFA';
 import UserProfile from '~/components/UserProfile';
 
 export default function MainLayout() {
@@ -22,7 +22,7 @@ export default function MainLayout() {
         <Tabs.Screen
           name="home"
           options={{
-            tabBarIcon: () => <FontAwesome name="home" size={32} />,
+            tabBarIcon: () => <TFA name="home" size={32} />,
           }}
         />
         <Tabs.Screen
