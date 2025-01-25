@@ -16,7 +16,7 @@ import { useDebounce } from 'use-debounce';
 import { useCurrentUser } from '~/authentication/user-provider';
 import ContentView from '~/components/ContentView';
 import { Rating } from '~/components/Rating';
-import { TFA } from '~/components/TFA';
+import { ThemedIcon } from '~/components/ThemedIcon';
 import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
@@ -46,7 +46,7 @@ export default function HomeScreen() {
             variant="primary"
             className="w-full"
             onPress={() => setBookSheetOpen(true)}>
-            <TFA name="search" size={18} />
+            <ThemedIcon name="search" size={18} />
             <Text>Rechercher un spot</Text>
           </Button>
         </ContentView>
@@ -140,7 +140,7 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
             <View className="h-full flex-col gap-8 pb-8 pt-2">
               <View className="grow flex-col gap-6">
                 <View className="flex-row items-center gap-4">
-                  <TFA name="calendar" size={24} />
+                  <ThemedIcon name="calendar" size={24} />
                   <Text variant="title1" className="font-bold">
                     {capitalize(formatRelative(from, now))}
                   </Text>
@@ -148,7 +148,7 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
 
                 {spots.length === 0 ? (
                   <View className="my-auto flex-col items-center gap-8">
-                    <TFA name="question" size={36} color="red" />
+                    <ThemedIcon name="question" size={36} color="red" />
                     <Text variant="title3" className="text-center text-destructive">
                       Aucun spot trouvé durant la période sélectionée
                     </Text>

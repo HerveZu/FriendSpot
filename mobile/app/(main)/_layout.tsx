@@ -1,10 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { SafeAreaView } from 'react-native';
 
 import UserProvider from '~/authentication/user-provider';
 import Header from '~/components/Header';
-import { TFA } from '~/components/TFA';
+import { ThemedIcon } from '~/components/ThemedIcon';
 import UserProfile from '~/components/UserProfile';
+import { cn } from '~/lib/cn';
 
 export default function MainLayout() {
   return (
@@ -22,12 +24,20 @@ export default function MainLayout() {
         <Tabs.Screen
           name="home"
           options={{
-            tabBarIcon: () => <TFA name="home" size={32} />,
+            tabBarIcon: ({ focused }) => (
+              <ThemedIcon name={focused ? 'home' : 'home-outline'} component={Ionicons} size={28} />
+            ),
           }}
         />
         <Tabs.Screen
           name="my-spot"
-          options={{ tabBarIcon: () => <UserProfile className="aspect-square h-full" /> }}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <UserProfile
+                className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
+              />
+            ),
+          }}
         />
       </Tabs>
     </UserProvider>
