@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native';
 import UserProvider from '~/authentication/user-provider';
 import Header from '~/components/Header';
 import { ThemedIcon } from '~/components/ThemedIcon';
-import UserProfile from '~/components/UserProfile';
+import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 
 export default function MainLayout() {
@@ -33,7 +33,7 @@ export default function MainLayout() {
           name="my-spot"
           options={{
             tabBarIcon: ({ focused }) => (
-              <UserProfile
+              <MeAvatar
                 className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
               />
             ),

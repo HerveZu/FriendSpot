@@ -1,13 +1,18 @@
 import { useCallback } from 'react';
 import { useAuth0 } from 'react-native-auth0';
+
 type httpMethod = 'GET' | 'POST' | 'PUT';
+
+const apiConfig = {
+  backendUrl: process.env.EXPO_PUBLIC_BACKEND_API_URL,
+};
 
 export function useApiRequest() {
   const { getCredentials } = useAuth0();
   const apiRequest = useCallback(
     async <TResponse, TBody = unknown>(path: string, method: httpMethod, body?: TBody) => {
       const credentials = await getCredentials();
-      const response = await fetch('https://friendspot-backend-7546e1d52299.herokuapp.com' + path, {
+      const response = await fetch(apiConfig.backendUrl + path, {
         method,
         headers: {
           Authorization: `Bearer ${credentials?.accessToken}`,
@@ -20,6 +25,11 @@ export function useApiRequest() {
         console.error(errorMessage);
         throw new Error(errorMessage);
       }
+
+      if (response.status === 204) {
+        return;
+      }
+
       return (await response.json()) as TResponse;
     },
     []

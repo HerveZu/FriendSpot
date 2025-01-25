@@ -17,7 +17,7 @@ import { useCurrentUser } from '~/authentication/user-provider';
 import ContentView from '~/components/ContentView';
 import { Rating } from '~/components/Rating';
 import { ThemedIcon } from '~/components/ThemedIcon';
-import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
+import { UserAvatar } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
@@ -127,6 +127,7 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
   }
 
   const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
+  const justAfterNow = addMinutes(now, 5);
 
   return (
     <Sheet
@@ -155,14 +156,17 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
                   </View>
                 ) : (
                   <View className="grow flex-col gap-2">
-                    {spots.map((spot, i) => (
-                      <AvailableSpotCard
-                        key={i}
-                        spot={spot}
-                        selectedSpot={selectedSpot}
-                        onSelect={() => setSelectedSpot(spot)}
-                      />
-                    ))}
+                    {spots
+                      .sort((spot) => spot.owner.rating)
+                      .reverse()
+                      .map((spot, i) => (
+                        <AvailableSpotCard
+                          key={i}
+                          spot={spot}
+                          selectedSpot={selectedSpot}
+                          onSelect={() => setSelectedSpot(spot)}
+                        />
+                      ))}
                   </View>
                 )}
               </View>
@@ -170,11 +174,11 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
                 <View className="w-full flex-row items-center justify-between">
                   <Text className="w-24">Réserver du</Text>
                   <DatePicker
-                    minimumDate={now}
+                    minimumDate={justAfterNow}
                     value={from}
                     mode="datetime"
                     onChange={(ev) => {
-                      const from = maxDate(now, new Date(ev.nativeEvent.timestamp));
+                      const from = maxDate(justAfterNow, new Date(ev.nativeEvent.timestamp));
                       setFrom(from);
                       setTo(maxDate(minTo(from), to));
                     }}
@@ -240,14 +244,18 @@ function AvailableSpotCard(props: {
           selected && '-m-[1px] border border-primary'
         )}>
         <View className="flex-row items-center gap-2">
-          <Avatar alt="user thumbnail">
-            <AvatarFallback>
-              <Text>TT</Text>
-            </AvatarFallback>
-          </Avatar>
-          <Text className="font-semibold">Jimmy Le Francais</Text>
+          <UserAvatar
+            displayName={props.spot.owner.displayName}
+            pictureUrl={props.spot.owner.pictureUrl}
+          />
+          <Text className="font-semibold">{props.spot.owner.displayName}</Text>
         </View>
-        <Rating rating={Math.random() * 3} stars={3} className="grow-0" color={colors.primary} />
+        <Rating
+          rating={props.spot.owner.rating}
+          stars={3}
+          className="grow-0"
+          color={colors.primary}
+        />
       </View>
     </Pressable>
   );

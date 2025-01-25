@@ -14,7 +14,7 @@ internal sealed class EnsureUserExists : IGlobalPreProcessor
         var dbContext = context.HttpContext.Resolve<AppDbContext>();
 
         // skip checks on register otherwise user is not able to first register
-        if (context.HttpContext.Request.Path == Register.Path)
+        if (context.HttpContext.Request.Path == RegisterUser.Path)
         {
             return;
         }

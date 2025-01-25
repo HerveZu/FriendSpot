@@ -8,8 +8,11 @@ export type AvailableSpotsResponse = {
 
 export type AvailableSpot = {
   readonly parkingLotId: string;
-  readonly from: Date;
-  readonly until: Date;
+  readonly owner: {
+    readonly displayName: string;
+    readonly pictureUrl: string | undefined;
+    readonly rating: number;
+  };
 };
 
 export function useGetAvailableSpots() {

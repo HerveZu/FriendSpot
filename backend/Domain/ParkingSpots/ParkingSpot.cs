@@ -23,6 +23,12 @@ public sealed record ParkingSpotBooked : IDomainEvent
     public required Credits Cost { get; init; }
 }
 
+public sealed record ParkingSpotBookingRated : IDomainEvent
+{
+    public required string OwnerId { get; init; }
+    public required BookRating Rating { get; init; }
+}
+
 public sealed class ParkingSpot : IBroadcastEvents
 {
     private readonly List<ParkingSpotAvailability> _availabilities = [];
@@ -162,6 +168,30 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         return (earnedCredits, overlappingAvailabilities.Any());
     }
+
+    public void RateBooking(string ratingUserId, Guid bookingId, BookRating rating)
+    {
+        var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId)
+            ?? throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+
+        if (ratingUserId != booking.BookingUserId)
+        {
+            throw new BusinessException("ParkingSpot.InvalidRating", "Cannot rate another person's booking");
+        }
+
+        if (booking.Rating is not null)
+        {
+            throw new BusinessException("ParkingSpot.InvalidRating", "This booking has already been rated");
+        }
+
+        booking.Rate(rating);
+
+        _domainEvents.Register(new ParkingSpotBookingRated
+        {
+            OwnerId = OwnerId,
+            Rating = rating
+        });
+    }
 }
 
 internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
@@ -195,6 +225,7 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
                 bookingBuilder.HasOne<User>().WithMany().HasForeignKey(x => x.BookingUserId);
                 bookingBuilder.Property(x => x.From);
                 bookingBuilder.Property(x => x.To);
+                bookingBuilder.Property(x => x.Rating);
             });
     }
 }
