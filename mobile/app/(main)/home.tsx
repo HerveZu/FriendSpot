@@ -1,4 +1,4 @@
-import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import {
   addHours,
@@ -8,11 +8,12 @@ import {
   formatRelative,
   intervalToDuration,
 } from 'date-fns';
-import React, { forwardRef, useEffect, useMemo, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, View } from 'react-native';
 import { useAuth0 } from 'react-native-auth0';
 import { useDebounce } from 'use-debounce';
 
+import { useCurrentUser } from '~/authentication/user-provider';
 import ContentView from '~/components/ContentView';
 import { TFA } from '~/components/TFA';
 import { Button } from '~/components/nativewindui/Button';
@@ -29,7 +30,7 @@ import { capitalize } from '~/lib/utils';
 
 export default function HomeScreen() {
   const { user } = useAuth0();
-  const bottomSheetModalRef = useSheetRef();
+  const [bookSheetOpen, setBookSheetOpen] = useState(false);
 
   return (
     <>
@@ -40,18 +41,20 @@ export default function HomeScreen() {
             size="lg"
             variant="primary"
             className="w-full"
-            onPress={() => bottomSheetModalRef.current?.present()}>
+            onPress={() => setBookSheetOpen(true)}>
             <TFA name="search" size={18} />
             <Text>Rechercher un spot</Text>
           </Button>
         </ContentView>
       </SafeAreaView>
-      <BookingSheet ref={bottomSheetModalRef} />
+      <BookingSheet open={bookSheetOpen} onOpen={setBookSheetOpen} />
     </>
   );
 }
 
-const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
+function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {
+  const ref = useSheetRef();
+
   const MIN_DURATION_HOURS = 0.5;
   const MAX_DURATION_HOURS = 12;
 
@@ -64,6 +67,7 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
 
   const book = useBook();
   const getAvailableSpots = useGetAvailableSpots();
+  const { refreshProfile } = useCurrentUser();
   const [toDebounce] = useDebounce(to, 200);
   const [fromDebounce] = useDebounce(from, 200);
 
@@ -77,6 +81,14 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
       setAvailableSpots(availableSpots);
     });
   }, [fromDebounce, toDebounce]);
+
+  useEffect(() => {
+    if (props.open) {
+      ref.current?.present();
+    } else {
+      ref.current?.dismiss();
+    }
+  }, [ref.current, props.open]);
 
   useEffect(() => {
     if (!selectedSpot) {
@@ -100,35 +112,58 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
     return addHours(from, MIN_DURATION_HOURS);
   }
 
+  function bookSpot(from: Date, to: Date, parkingLotId: string) {
+    book({
+      from,
+      to,
+      parkingLotId,
+    })
+      .then(refreshProfile)
+      .then(() => props.onOpen(false));
+  }
+
+  const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
+
   return (
-    <Sheet ref={ref} enableDynamicSizing>
+    <Sheet
+      ref={ref}
+      enableDynamicSizing={false}
+      onDismiss={() => props.onOpen(false)}
+      snapPoints={[600]}>
       <BottomSheetView>
         <SafeAreaView>
           <ContentView>
-            <View className="flex-col gap-8">
-              <View className="flex-col gap-2">
-                {availableSpots?.availableSpots.map((spot, i) => {
-                  const selected = selectedSpot?.parkingLotId === spot.parkingLotId;
-                  return (
-                    <Pressable key={i} onPress={() => setSelectedSpot(spot)}>
-                      <View className="flex-row justify-between rounded-lg bg-background p-4">
-                        <View>
-                          <Text variant="title1">{capitalize(formatRelative(from, now))}</Text>
-                          <Text variant="subhead">
-                            {formatDuration(
-                              intervalToDuration({
-                                start: spot.from,
-                                end: spot.until,
-                              }),
-                              { format: ['days', 'hours', 'minutes'] }
-                            )}
-                          </Text>
-                        </View>
-                        {selected && <TFA name="check" size={32} />}
-                      </View>
-                    </Pressable>
-                  );
-                })}
+            <View className="h-full flex-col gap-8 pb-8 pt-2">
+              <View className="grow flex-col gap-6">
+                <View className="flex-row items-center gap-4">
+                  <TFA name="calendar" size={24} />
+                  <Text variant="title1" className="font-bold">
+                    {capitalize(formatRelative(from, now))}
+                  </Text>
+                </View>
+
+                {spots.length === 0 ? (
+                  <View className="my-auto flex-col items-center gap-8">
+                    <TFA name="question" size={36} color="red" />
+                    <Text variant="title3" className="text-center text-destructive">
+                      Aucun spot trouvé durant la période sélectionée
+                    </Text>
+                  </View>
+                ) : (
+                  <View className="grow flex-col gap-2">
+                    {spots.map((spot, i) => {
+                      const selected = selectedSpot?.parkingLotId === spot.parkingLotId;
+                      return (
+                        <Pressable key={i} onPress={() => setSelectedSpot(spot)}>
+                          <View className="flex-row justify-between rounded-lg bg-background p-4">
+                            <Text>Place disponnible</Text>
+                            {selected && <TFA name="check" size={24} />}
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
               </View>
               <View className="flex-col items-center justify-between gap-2">
                 <View className="w-full flex-row items-center justify-between">
@@ -173,14 +208,7 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
                 variant="primary"
                 size="lg"
                 disabled={!selectedSpot}
-                onPress={() =>
-                  selectedSpot &&
-                  book({
-                    from,
-                    to,
-                    parkingLotId: selectedSpot.parkingLotId,
-                  })
-                }>
+                onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
                 <Text>
                   {bookingSimulation
                     ? `Réserver pour ${bookingSimulation.usedCredits} crédits`
@@ -193,4 +221,4 @@ const BookingSheet = forwardRef<BottomSheetModal>((_, ref) => {
       </BottomSheetView>
     </Sheet>
   );
-});
+}

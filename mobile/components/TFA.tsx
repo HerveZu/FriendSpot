@@ -1,6 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useTheme } from '@react-navigation/core';
 import { OpaqueColorValue } from 'react-native';
+
+import { useColorScheme } from '~/lib/useColorScheme';
 
 export function TFA(props: {
   name: string;
@@ -8,13 +9,13 @@ export function TFA(props: {
   className?: string;
   color?: string | OpaqueColorValue;
 }) {
-  const theme = useTheme();
+  const colorScheme = useColorScheme();
 
   return (
     <FontAwesome
       name={props.name as any}
       size={props.size}
-      color={props.color ?? theme.colors.text}
+      color={props.color ?? (colorScheme.isDarkColorScheme ? 'white' : 'dark')}
     />
   );
 }

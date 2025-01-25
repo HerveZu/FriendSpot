@@ -71,7 +71,7 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                             ParkingLotId = parkingLot.Id,
                             // we don't show that the spot was available in the past
                             From = req.From,
-                            Until = availability.To
+                            Until = req.To
                         }))
             .SelectMany(availabilities => availabilities)
             .ToArrayAsync(ct);
