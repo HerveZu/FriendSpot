@@ -1,4 +1,4 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { FontAwesome } from '@expo/vector-icons';
 import { OpaqueColorValue } from 'react-native';
 
 import { useColorScheme } from '~/lib/useColorScheme';

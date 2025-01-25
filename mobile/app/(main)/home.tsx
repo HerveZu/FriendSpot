@@ -15,7 +15,9 @@ import { useDebounce } from 'use-debounce';
 
 import { useCurrentUser } from '~/authentication/user-provider';
 import ContentView from '~/components/ContentView';
+import { Rating } from '~/components/Rating';
 import { TFA } from '~/components/TFA';
+import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
@@ -26,6 +28,8 @@ import {
   AvailableSpotsResponse,
   useGetAvailableSpots,
 } from '~/endpoints/get-available-spots';
+import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
 import { capitalize } from '~/lib/utils';
 
 export default function HomeScreen() {
@@ -129,7 +133,7 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
       ref={ref}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpen(false)}
-      snapPoints={[600]}>
+      snapPoints={[650]}>
       <BottomSheetView>
         <SafeAreaView>
           <ContentView>
@@ -151,17 +155,14 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
                   </View>
                 ) : (
                   <View className="grow flex-col gap-2">
-                    {spots.map((spot, i) => {
-                      const selected = selectedSpot?.parkingLotId === spot.parkingLotId;
-                      return (
-                        <Pressable key={i} onPress={() => setSelectedSpot(spot)}>
-                          <View className="flex-row justify-between rounded-lg bg-background p-4">
-                            <Text>Place disponnible</Text>
-                            {selected && <TFA name="check" size={24} />}
-                          </View>
-                        </Pressable>
-                      );
-                    })}
+                    {spots.map((spot, i) => (
+                      <AvailableSpotCard
+                        key={i}
+                        spot={spot}
+                        selectedSpot={selectedSpot}
+                        onSelect={() => setSelectedSpot(spot)}
+                      />
+                    ))}
                   </View>
                 )}
               </View>
@@ -220,5 +221,34 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
         </SafeAreaView>
       </BottomSheetView>
     </Sheet>
+  );
+}
+
+function AvailableSpotCard(props: {
+  spot: AvailableSpot;
+  selectedSpot: AvailableSpot | undefined;
+  onSelect: () => void;
+}) {
+  const { colors } = useColorScheme();
+  const selected = props.selectedSpot?.parkingLotId === props.spot.parkingLotId;
+
+  return (
+    <Pressable onPress={props.onSelect}>
+      <View
+        className={cn(
+          'flex-row items-center justify-between rounded-lg bg-background p-4',
+          selected && '-m-[1px] border border-primary'
+        )}>
+        <View className="flex-row items-center gap-2">
+          <Avatar alt="user thumbnail">
+            <AvatarFallback>
+              <Text>TT</Text>
+            </AvatarFallback>
+          </Avatar>
+          <Text className="font-semibold">Jimmy Le Francais</Text>
+        </View>
+        <Rating rating={Math.random() * 3} stars={3} className="grow-0" color={colors.primary} />
+      </View>
+    </Pressable>
   );
 }
