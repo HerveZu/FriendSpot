@@ -137,10 +137,10 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
       <BottomSheetView>
         <SafeAreaView>
           <ContentView>
-            <View className="h-full flex-col gap-8 pb-8 pt-2">
+            <View className="h-full flex-col gap-8 pb-8">
               <View className="grow flex-col gap-6">
                 <View className="flex-row items-center gap-4">
-                  <ThemedIcon name="calendar" size={24} />
+                  <ThemedIcon name="calendar" size={22} />
                   <Text variant="title1" className="font-bold">
                     {capitalize(formatRelative(from, now))}
                   </Text>
