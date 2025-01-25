@@ -69,7 +69,8 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                         availability => new SearchSpotsResponse.AvailableSpot
                         {
                             ParkingLotId = parkingLot.Id,
-                            From = availability.From,
+                            // we don't show that the spot was available in the past
+                            From = req.From,
                             Until = availability.To
                         }))
             .SelectMany(availabilities => availabilities)
