@@ -1,0 +1,71 @@
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native';
+
+import { AuthForm, AuthFormInput } from '~/authentication/AuthForm';
+import { firebaseAuth } from '~/authentication/firebase';
+import { HeroTitle } from '~/components/HeroTitle';
+import { notEmpty } from '~/lib/utils';
+
+function strongPassword(password?: string) {
+  return !!password && password.length >= 6;
+}
+
+export default function StepTwoScreen() {
+  const [password, setPassword] = useState<string>();
+  const [passwordConfirm, setPasswordConfirm] = useState<string>();
+  const [error, setError] = useState<string>();
+  const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
+
+  const router = useRouter();
+
+  if (!email || !displayName) {
+    return <Redirect href="/signUp/step-one" />;
+  }
+
+  return (
+    <SafeAreaView>
+      <AuthForm
+        error={error}
+        title={<HeroTitle part1="Créer un" part2="compte" />}
+        onSubmit={() =>
+          createUserWithEmailAndPassword(firebaseAuth, email, password!)
+            .then(() => router.navigate('/home'))
+            .catch((e) => {
+              console.error(e);
+              setError('Cette addresse e-mail est déjà utilisé');
+            })
+        }
+        submitText="S'inscrire">
+        <AuthFormInput
+          value={password}
+          onValueChange={setPassword}
+          placeholder="Mot de passe"
+          secure
+          validators={[
+            {
+              validate: strongPassword,
+              message: 'Le mot de passe doit faire 6 charactères de long',
+            },
+          ]}
+        />
+        <AuthFormInput
+          value={passwordConfirm}
+          onValueChange={setPasswordConfirm}
+          placeholder="Confirmer le mot de passe"
+          secure
+          validators={[
+            {
+              validate: (confirm?: string) => !confirm || confirm === password,
+              message: 'Les mots de passes ne sont pas identiques',
+            },
+            {
+              validate: notEmpty,
+            },
+          ]}
+        />
+      </AuthForm>
+    </SafeAreaView>
+  );
+}

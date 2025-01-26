@@ -1,5 +1,7 @@
+import { getIdToken } from '@firebase/auth';
 import { useCallback } from 'react';
-import { useAuth0 } from 'react-native-auth0';
+
+import { useAuth } from '~/authentication/AuthProvider';
 
 type httpMethod = 'GET' | 'POST' | 'PUT';
 
@@ -8,14 +10,13 @@ const apiConfig = {
 };
 
 export function useApiRequest() {
-  const { getCredentials } = useAuth0();
+  const { firebaseUser } = useAuth();
   const apiRequest = useCallback(
     async <TResponse, TBody = unknown>(path: string, method: httpMethod, body?: TBody) => {
-      const credentials = await getCredentials();
       const response = await fetch(apiConfig.backendUrl + path, {
         method,
         headers: {
-          Authorization: `Bearer ${credentials?.accessToken}`,
+          Authorization: `Bearer ${await getIdToken(firebaseUser)}`,
           ...(body && { 'Content-Type': 'application/json' }),
         },
         body: body ? JSON.stringify(body) : null,

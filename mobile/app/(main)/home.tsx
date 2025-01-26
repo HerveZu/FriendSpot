@@ -10,10 +10,9 @@ import {
 } from 'date-fns';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, View } from 'react-native';
-import { useAuth0 } from 'react-native-auth0';
 import { useDebounce } from 'use-debounce';
 
-import { useCurrentUser } from '~/authentication/user-provider';
+import { useCurrentUser } from '~/authentication/UserProvider';
 import ContentView from '~/components/ContentView';
 import { Rating } from '~/components/Rating';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -33,14 +32,14 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { capitalize } from '~/lib/utils';
 
 export default function HomeScreen() {
-  const { user } = useAuth0();
+  const { userProfile } = useCurrentUser();
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
 
   return (
     <>
       <SafeAreaView>
         <ContentView className="flex-col justify-between pb-8">
-          <Text>Salut {user?.name}</Text>
+          <Text>Salut {userProfile.displayName}</Text>
           <Button
             size="lg"
             variant="primary"

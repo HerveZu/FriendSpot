@@ -11,14 +11,10 @@ export function ThemedIcon<TGlyph extends string>(props: {
   className?: string;
   color?: string | OpaqueColorValue;
 }) {
-  const colorScheme = useColorScheme();
+  const { colors } = useColorScheme();
   const Icon = props.component ?? FontAwesome;
 
   return (
-    <Icon
-      name={props.name as any}
-      size={props.size}
-      color={props.color ?? (colorScheme.isDarkColorScheme ? 'white' : 'dark')}
-    />
+    <Icon name={props.name as any} size={props.size} color={props.color ?? colors.foreground} />
   );
 }

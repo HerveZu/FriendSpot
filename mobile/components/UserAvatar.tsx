@@ -1,6 +1,6 @@
 import { ViewProps } from 'react-native';
 
-import { useCurrentUser } from '~/authentication/user-provider';
+import { useCurrentUser } from '~/authentication/UserProvider';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { Text } from '~/components/nativewindui/Text';
 

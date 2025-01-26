@@ -6,9 +6,9 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { ActivityIndicator, SafeAreaView } from 'react-native';
-import { useAuth0 } from 'react-native-auth0';
 
+import { useAuth } from '~/authentication/AuthProvider';
+import { Loader } from '~/components/Loader';
 import { useGetProfile, UserProfile } from '~/endpoints/get-profile';
 import { useRegisterUser } from '~/endpoints/register-user';
 
@@ -24,20 +24,18 @@ export function useCurrentUser() {
 }
 
 export default function UserProvider(props: PropsWithChildren) {
-  const { user } = useAuth0();
+  const { firebaseUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>();
   const registerUser = useRegisterUser();
   const getProfile = useGetProfile();
 
   useEffect(() => {
-    if (!user) return;
+    const displayName = firebaseUser.displayName ?? firebaseUser.email ?? '';
 
-    const displayName = user.nickname ?? user.name ?? user.email ?? '';
-
-    registerUser({ displayName, pictureUrl: user.picture }).then(() =>
+    registerUser({ displayName, pictureUrl: firebaseUser.photoURL }).then(() =>
       getProfile().then(setUserProfile)
     );
-  }, [user]);
+  }, [firebaseUser]);
 
   const refreshProfile = useCallback(async () => {
     await getProfile().then(setUserProfile);
@@ -48,8 +46,6 @@ export default function UserProvider(props: PropsWithChildren) {
       {props.children}
     </_UserProfileContext.Provider>
   ) : (
-    <SafeAreaView className="h-full flex-col justify-center">
-      <ActivityIndicator />
-    </SafeAreaView>
+    <Loader />
   );
 }
