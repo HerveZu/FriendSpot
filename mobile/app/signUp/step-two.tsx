@@ -1,5 +1,5 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 
@@ -20,6 +20,18 @@ export default function StepTwoScreen() {
 
   const router = useRouter();
 
+  function createAccount() {
+    createUserWithEmailAndPassword(firebaseAuth, email, password!)
+      .then((result) => {
+        updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
+      })
+      .then(() => router.navigate('/home'))
+      .catch((e) => {
+        console.error(e);
+        setError('Cette addresse e-mail est déjà utilisé');
+      });
+  }
+
   if (!email || !displayName) {
     return <Redirect href="/signUp/step-one" />;
   }
@@ -29,14 +41,7 @@ export default function StepTwoScreen() {
       <AuthForm
         error={error}
         title={<HeroTitle part1="Créer un" part2="compte" />}
-        onSubmit={() =>
-          createUserWithEmailAndPassword(firebaseAuth, email, password!)
-            .then(() => router.navigate('/home'))
-            .catch((e) => {
-              console.error(e);
-              setError('Cette addresse e-mail est déjà utilisé');
-            })
-        }
+        onSubmit={createAccount}
         submitText="S'inscrire">
         <AuthFormInput
           value={password}

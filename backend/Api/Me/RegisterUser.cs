@@ -33,12 +33,26 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
     {
         var userIdentity = HttpContext.ToCurrentUser().Identity;
 
-        var user = await dbContext.Set<User>().FirstOrDefaultAsync(user => user.Identity == userIdentity, ct)
-            ?? Domain.Users.User.Register(userIdentity, req.DisplayName);
+        var newUser = false;
+        var user = await dbContext.Set<User>().FirstOrDefaultAsync(user => user.Identity == userIdentity, ct);
+
+        if (user is null)
+        {
+            newUser = true;
+            user = Domain.Users.User.Register(userIdentity, req.DisplayName);
+        }
 
         user.UpdateInfo(req.DisplayName, req.PictureUrl);
 
-        dbContext.Set<User>().Update(user);
+        if (newUser)
+        {
+            await dbContext.Set<User>().AddAsync(user, ct);
+        }
+        else
+        {
+            dbContext.Set<User>().Update(user);
+        }
+
         await dbContext.SaveChangesAsync(ct);
     }
 }
