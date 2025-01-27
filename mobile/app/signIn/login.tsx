@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import { isEmail } from 'validator';
 
-import { AuthForm, AuthFormInput } from '~/authentication/AuthForm';
-import { HeroTitle } from '~/components/HeroTitle';
+import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { notEmpty } from '~/lib/utils';
 
 export default function LoginScreen() {
@@ -18,7 +17,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView>
       <AuthForm
-        title={<HeroTitle part1="Se" part2="connecter" />}
+        title={<AuthFormTitle title="Se connecter" />}
         error={error}
         onSubmit={() =>
           signInWithEmailAndPassword(auth, email!, password!)

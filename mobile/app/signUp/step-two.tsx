@@ -3,9 +3,8 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 
-import { AuthForm, AuthFormInput } from '~/authentication/AuthForm';
+import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { firebaseAuth } from '~/authentication/firebase';
-import { HeroTitle } from '~/components/HeroTitle';
 import { notEmpty } from '~/lib/utils';
 
 function strongPassword(password?: string) {
@@ -25,7 +24,6 @@ export default function StepTwoScreen() {
       .then((result) => {
         updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
       })
-      .then(() => router.navigate('/home'))
       .catch((e) => {
         console.error(e);
         setError('Cette addresse e-mail est déjà utilisé');
@@ -40,7 +38,7 @@ export default function StepTwoScreen() {
     <SafeAreaView>
       <AuthForm
         error={error}
-        title={<HeroTitle part1="Créer un" part2="compte" />}
+        title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={createAccount}
         submitText="S'inscrire">
         <AuthFormInput

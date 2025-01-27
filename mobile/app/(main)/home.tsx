@@ -1,3 +1,4 @@
+import { signOut } from '@firebase/auth';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import {
@@ -13,6 +14,7 @@ import { Pressable, SafeAreaView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
+import { firebaseAuth } from '~/authentication/firebase';
 import ContentView from '~/components/ContentView';
 import { Rating } from '~/components/Rating';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -39,7 +41,12 @@ export default function HomeScreen() {
     <>
       <SafeAreaView>
         <ContentView className="flex-col justify-between pb-8">
-          <Text>Salut {userProfile.displayName}</Text>
+          <View className="flex-row items-center gap-8">
+            <Text>Salut {userProfile.displayName}</Text>
+            <Button onPress={() => signOut(firebaseAuth)}>
+              <Text>Logout</Text>
+            </Button>
+          </View>
           <Button
             disabled={!userProfile.hasSpot}
             size="lg"

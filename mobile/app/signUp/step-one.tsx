@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import { isEmail } from 'validator';
 
-import { AuthForm, AuthFormInput } from '~/authentication/AuthForm';
-import { HeroTitle } from '~/components/HeroTitle';
+import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { minLength, notEmpty } from '~/lib/utils';
 
 export default function StepOneScreen() {
@@ -22,7 +21,7 @@ export default function StepOneScreen() {
   return (
     <SafeAreaView>
       <AuthForm
-        title={<HeroTitle part1="Créer un" part2="compte" />}
+        title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={() => handleSubmit(email!)}
         submitText="Suivant">
         <AuthFormInput
@@ -49,11 +48,6 @@ export default function StepOneScreen() {
               validate: (email) => !email || isEmail(email),
               message: "L'adresse e-mail n'est pas valide",
             },
-            // todo
-            // {
-            //   validate: checkMailUnique,
-            //   message: "Cette adresse e-mail est déjà utilisé",
-            // },
             {
               validate: notEmpty,
             },
