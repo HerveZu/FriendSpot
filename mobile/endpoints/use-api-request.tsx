@@ -1,7 +1,7 @@
-import {getIdToken} from '@firebase/auth';
-import {useCallback, useEffect, useMemo} from 'react';
+import { getIdToken } from '@firebase/auth';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import {useAuth} from '~/authentication/AuthProvider';
+import { useAuth } from '~/authentication/AuthProvider';
 
 type httpMethod = 'GET' | 'POST' | 'PUT';
 
@@ -11,16 +11,16 @@ const apiConfig = {
 
 export function useApiRequest() {
   const { firebaseUser } = useAuth();
-    const abortController = useMemo(() => new AbortController(), []);
+  const abortController = useMemo(() => new AbortController(), []);
 
-    useEffect(() => {
-        return () => abortController.abort();
-    }, [abortController]);
+  useEffect(() => {
+    return () => abortController.abort();
+  }, [abortController]);
 
-    const apiRequest = useCallback(
+  const apiRequest = useCallback(
     async <TResponse, TBody = unknown>(path: string, method: httpMethod, body?: TBody) => {
       const response = await fetch(apiConfig.backendUrl + path, {
-          signal: abortController.signal,
+        signal: abortController.signal,
         method,
         headers: {
           Authorization: `Bearer ${await getIdToken(firebaseUser)}`,
@@ -43,5 +43,5 @@ export function useApiRequest() {
     []
   );
 
-    return {apiRequest};
+  return { apiRequest };
 }

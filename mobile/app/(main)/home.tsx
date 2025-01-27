@@ -1,27 +1,38 @@
-import {signOut} from '@firebase/auth';
-import {BottomSheetView} from '@gorhom/bottom-sheet';
+import { signOut } from '@firebase/auth';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
-import {addHours, addMinutes, differenceInHours, formatDuration, formatRelative, intervalToDuration,} from 'date-fns';
-import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from 'react';
-import {Pressable, SafeAreaView, View} from 'react-native';
-import {useDebounce} from 'use-debounce';
+import {
+  addHours,
+  addMinutes,
+  differenceInHours,
+  formatDuration,
+  formatRelative,
+  intervalToDuration,
+} from 'date-fns';
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { Pressable, SafeAreaView, View } from 'react-native';
+import { useDebounce } from 'use-debounce';
 
-import {useCurrentUser} from '~/authentication/UserProvider';
-import {firebaseAuth} from '~/authentication/firebase';
+import { useCurrentUser } from '~/authentication/UserProvider';
+import { firebaseAuth } from '~/authentication/firebase';
 import ContentView from '~/components/ContentView';
-import {Rating} from '~/components/Rating';
-import {ThemedIcon} from '~/components/ThemedIcon';
-import {UserAvatar} from '~/components/UserAvatar';
-import {Button} from '~/components/nativewindui/Button';
-import {DatePicker} from '~/components/nativewindui/DatePicker';
-import {Sheet, useSheetRef} from '~/components/nativewindui/Sheet';
-import {Text} from '~/components/nativewindui/Text';
-import {BookSpotResponse, useBook} from '~/endpoints/book';
-import {AvailableSpot, AvailableSpotsResponse, useGetAvailableSpots,} from '~/endpoints/get-available-spots';
-import {cn} from '~/lib/cn';
-import {useColorScheme} from '~/lib/useColorScheme';
-import {capitalize} from '~/lib/utils';
-import {COLORS} from '~/theme/colors';
+import { Rating } from '~/components/Rating';
+import { ThemedIcon } from '~/components/ThemedIcon';
+import { UserAvatar } from '~/components/UserAvatar';
+import { Button } from '~/components/nativewindui/Button';
+import { DatePicker } from '~/components/nativewindui/DatePicker';
+import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Text } from '~/components/nativewindui/Text';
+import { BookSpotResponse, useBook } from '~/endpoints/book';
+import {
+  AvailableSpot,
+  AvailableSpotsResponse,
+  useGetAvailableSpots,
+} from '~/endpoints/get-available-spots';
+import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { capitalize } from '~/lib/utils';
+import { COLORS } from '~/theme/colors';
 
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
@@ -39,17 +50,17 @@ export default function HomeScreen() {
             </Button>
           </View>
           <Button
-              disabled={!userProfile.spot}
+            disabled={!userProfile.spot}
             size="lg"
             variant="primary"
             className="w-full"
             onPress={() => setBookSheetOpen(true)}>
-            <ThemedIcon name="search" size={18} color={COLORS.white}/>
+            <ThemedIcon name="search" size={18} color={COLORS.white} />
             <Text>Rechercher un spot</Text>
           </Button>
         </ContentView>
       </SafeAreaView>
-      {userProfile.spot && <BookingSheet open={bookSheetOpen} onOpen={setBookSheetOpen}/>}
+      {userProfile.spot && <BookingSheet open={bookSheetOpen} onOpen={setBookSheetOpen} />}
     </>
   );
 }

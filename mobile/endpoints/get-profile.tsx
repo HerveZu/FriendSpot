@@ -1,6 +1,6 @@
-import {useCallback} from 'react';
+import { useCallback } from 'react';
 
-import {useApiRequest} from '~/endpoints/use-api-request';
+import { useApiRequest } from '~/endpoints/use-api-request';
 
 export type UserProfile = {
   readonly displayName: string;
