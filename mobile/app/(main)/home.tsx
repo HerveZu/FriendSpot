@@ -44,7 +44,6 @@ export default function HomeScreen() {
         <ContentView className="flex-col justify-between pb-8">
           <View className="flex-col items-center gap-8">
             <Text>Salut {userProfile.displayName}</Text>
-            <Text>{JSON.stringify(userProfile, undefined, 4)}</Text>
             <Button onPress={() => signOut(firebaseAuth)}>
               <Text>Logout</Text>
             </Button>

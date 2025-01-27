@@ -36,7 +36,7 @@ export default function MainLayout() {
             }}
           />
           <Tabs.Screen
-            name="my-spot"
+            name="user-profile"
             options={{
               tabBarIcon: ({ focused }) => (
                 <MeAvatar
