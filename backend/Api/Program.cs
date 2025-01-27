@@ -67,10 +67,14 @@ builder.Services
     .AddJwtBearer(
         options =>
         {
-            options.Authority = "https://friendspot-app.eu.auth0.com/";
-            options.Audience = "https://friendspot.me";
+            options.Authority = "https://securetoken.google.com/friendspot-app";
+            options.Audience = "friendspot-app";
             options.TokenValidationParameters = new TokenValidationParameters
             {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
                 NameClaimType = ClaimTypes.NameIdentifier
             };
         });
