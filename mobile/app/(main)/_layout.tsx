@@ -1,35 +1,52 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { SafeAreaView } from 'react-native';
 
-import UserProvider from '~/authentication/user-provider';
+import { AuthProvider } from '~/authentication/AuthProvider';
+import UserProvider from '~/authentication/UserProvider';
 import Header from '~/components/Header';
-import UserProfile from '~/components/UserProfile';
+import { ThemedIcon } from '~/components/ThemedIcon';
+import { MeAvatar } from '~/components/UserAvatar';
+import { cn } from '~/lib/cn';
 
 export default function MainLayout() {
   return (
-    <UserProvider>
-      <SafeAreaView>
-        <Header />
-      </SafeAreaView>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarStyle: { paddingTop: 15 },
-          tabBarIconStyle: { height: 32 },
-        }}>
-        <Tabs.Screen
-          name="home"
-          options={{
-            tabBarIcon: () => <FontAwesome name="home" size={32} />,
-          }}
-        />
-        <Tabs.Screen
-          name="my-spot"
-          options={{ tabBarIcon: () => <UserProfile className="aspect-square h-full" /> }}
-        />
-      </Tabs>
-    </UserProvider>
+    <AuthProvider>
+      <UserProvider>
+        <SafeAreaView>
+          <Header />
+        </SafeAreaView>
+        <Tabs
+          screenOptions={{
+            headerShown: false,
+            tabBarShowLabel: false,
+            tabBarStyle: { paddingTop: 5 },
+            tabBarIconStyle: { height: 32 },
+          }}>
+          <Tabs.Screen
+            name="home"
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <ThemedIcon
+                  name={focused ? 'home' : 'home-outline'}
+                  component={Ionicons}
+                  size={28}
+                />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="my-spot"
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <MeAvatar
+                  className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
+                />
+              ),
+            }}
+          />
+        </Tabs>
+      </UserProvider>
+    </AuthProvider>
   );
 }

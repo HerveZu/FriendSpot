@@ -13,9 +13,14 @@
     "plugins": [
       "expo-router",
       [
-        "react-native-auth0",
+        "expo-build-properties",
         {
-          "domain": "friendspot-app.eu.auth0.com"
+          "ios": {
+            "useFrameworks": "static",
+            "podfileProperties": {
+              "use_modular_headers!": true
+            }
+          }
         }
       ]
     ],

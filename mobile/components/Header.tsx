@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { useCurrentUser } from '~/authentication/user-provider';
+import { useCurrentUser } from '~/authentication/UserProvider';
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { Text } from '~/components/nativewindui/Text';
 

@@ -4,6 +4,7 @@ using Domain.ParkingSpots;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Bookings;
 
@@ -44,6 +45,17 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
     public override async Task HandleAsync(BookSpotRequest req, CancellationToken ct)
     {
         var currentUser = HttpContext.ToCurrentUser();
+
+        var usersParkingLot = await dbContext
+            .Set<ParkingSpot>()
+            .FirstOrDefaultAsync(parkingLot => parkingLot.OwnerId == currentUser.Identity, ct);
+
+        if (usersParkingLot is null)
+        {
+            ThrowError("You must have a parking lot to book another spot");
+            return;
+        }
+
         var parkingSpot = await dbContext.Set<ParkingSpot>().FindAsync([req.ParkingLotId], ct);
 
         if (parkingSpot is null)

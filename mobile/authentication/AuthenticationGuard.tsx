@@ -1,9 +1,11 @@
 import { useRootNavigationState, useRouter } from 'expo-router';
 import { PropsWithChildren, useEffect } from 'react';
-import { useAuth0 } from 'react-native-auth0';
+import { useAuthState } from 'react-firebase-hooks/auth';
+
+import { firebaseAuth } from '~/authentication/firebase';
 
 export default function AuthenticationGuard(props: PropsWithChildren) {
-  const { user } = useAuth0();
+  const [user] = useAuthState(firebaseAuth);
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();
 
@@ -14,7 +16,7 @@ export default function AuthenticationGuard(props: PropsWithChildren) {
       return;
     }
 
-    !isAuthenticated && router.navigate('/welcome');
+    router.navigate(isAuthenticated ? '/home' : '/welcome');
   }, [isAuthenticated, rootNavigationState?.key]);
 
   return props.children;

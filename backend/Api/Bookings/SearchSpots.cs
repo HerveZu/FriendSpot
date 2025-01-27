@@ -1,7 +1,7 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Domain.Parkings;
 using Domain.ParkingSpots;
+using Domain.Users;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
@@ -29,8 +29,14 @@ public sealed record SearchSpotsResponse
     public sealed record AvailableSpot
     {
         public required Guid ParkingLotId { get; init; }
-        public required DateTimeOffset From { get; init; }
-        public required DateTimeOffset Until { get; init; }
+        public SpotOwner? Owner { get; init; }
+
+        [PublicAPI]
+        public sealed record SpotOwner
+        {
+            public required string DisplayName { get; init; }
+            public required decimal Rating { get; init; }
+        }
     }
 }
 
@@ -53,13 +59,21 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
     {
         var currentUser = HttpContext.ToCurrentUser();
 
+        var usersParkingLot = await dbContext
+            .Set<ParkingSpot>()
+            .FirstOrDefaultAsync(parkingLot => parkingLot.OwnerId == currentUser.Identity, ct);
+
+        if (usersParkingLot is null)
+        {
+            ThrowError("You must have a parking lot to search for available spots");
+            return;
+        }
+
         var availableSpots = await (
-                from myParking in from parkingLot in dbContext.Set<ParkingSpot>()
-                    where parkingLot.OwnerId == currentUser.Identity
-                    join parking in dbContext.Set<Parking>() on parkingLot.ParkingId equals parking.Id
-                    select parking
-                join parkingLot in dbContext.Set<ParkingSpot>() on myParking.Id equals parkingLot.ParkingId
+                from parkingLot in dbContext.Set<ParkingSpot>()
                 where parkingLot.OwnerId != currentUser.Identity
+                where parkingLot.ParkingId == usersParkingLot.ParkingId
+                join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity
                 select parkingLot.Availabilities
                     .Where(availability => availability.From <= req.From && availability.To >= req.To)
                     .Where(
@@ -68,9 +82,12 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                     .Select(
                         availability => new SearchSpotsResponse.AvailableSpot
                         {
-                            ParkingLotId = parkingLot.Id,
-                            From = availability.From,
-                            Until = availability.To
+                            Owner = new SearchSpotsResponse.AvailableSpot.SpotOwner
+                            {
+                                DisplayName = owner.DisplayName,
+                                Rating = owner.Rating.Rating
+                            },
+                            ParkingLotId = parkingLot.Id
                         }))
             .SelectMany(availabilities => availabilities)
             .ToArrayAsync(ct);
