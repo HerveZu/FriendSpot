@@ -1,6 +1,5 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Api.MySpot.Contracts;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
@@ -25,8 +24,7 @@ internal sealed class DefineMySpotValidator : Validator<DefineMySpotRequest>
     }
 }
 
-internal sealed class DefineMySpot(AppDbContext dbContext)
-    : Endpoint<DefineMySpotRequest, MySpotResponse>
+internal sealed class DefineMySpot(AppDbContext dbContext) : Endpoint<DefineMySpotRequest>
 {
     public override void Configure()
     {
@@ -59,13 +57,5 @@ internal sealed class DefineMySpot(AppDbContext dbContext)
         }
 
         await dbContext.SaveChangesAsync(ct);
-
-        await SendOkAsync(
-            new MySpotResponse
-            {
-                LotName = parkingSpot.SpotName,
-                Parking = parking.ToDto()
-            },
-            ct);
     }
 }
