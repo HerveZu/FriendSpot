@@ -59,9 +59,20 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
     {
         var currentUser = HttpContext.ToCurrentUser();
 
+        var usersParkingLot = await dbContext
+            .Set<ParkingSpot>()
+            .FirstOrDefaultAsync(parkingLot => parkingLot.OwnerId == currentUser.Identity, ct);
+
+        if (usersParkingLot is null)
+        {
+            ThrowError("You must have a parking lot to search for available spots");
+            return;
+        }
+
         var availableSpots = await (
                 from parkingLot in dbContext.Set<ParkingSpot>()
                 where parkingLot.OwnerId != currentUser.Identity
+                where parkingLot.ParkingId == usersParkingLot.ParkingId
                 join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity
                 select parkingLot.Availabilities
                     .Where(availability => availability.From <= req.From && availability.To >= req.To)

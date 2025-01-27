@@ -41,6 +41,7 @@ export default function HomeScreen() {
         <ContentView className="flex-col justify-between pb-8">
           <Text>Salut {userProfile.displayName}</Text>
           <Button
+            disabled={!userProfile.hasSpot}
             size="lg"
             variant="primary"
             className="w-full"
@@ -50,7 +51,7 @@ export default function HomeScreen() {
           </Button>
         </ContentView>
       </SafeAreaView>
-      <BookingSheet open={bookSheetOpen} onOpen={setBookSheetOpen} />
+      {userProfile.hasSpot && <BookingSheet open={bookSheetOpen} onOpen={setBookSheetOpen} />}
     </>
   );
 }
