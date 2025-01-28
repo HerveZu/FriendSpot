@@ -1,6 +1,7 @@
 using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
+using Domain.Users;
 using FastEndpoints;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -19,13 +20,15 @@ public sealed record GetBookingResponse
         public required DateTimeOffset From { get; init; }
         public required DateTimeOffset To { get; init; }
         public required TimeSpan Duration { get; init; }
-        public required BookingStatusInfo? Info { get; init; }
+        public required SpotOwner Owner { get; init; }
+        public required string? SpotName { get; init; }
 
         [PublicAPI]
-        public sealed record BookingStatusInfo
+        public sealed record SpotOwner
         {
-            public required string OwnerId { get; init; }
-            public required string SpotName { get; init; }
+            public required string UserId { get; init; }
+            public required string DisplayName { get; init; }
+            public required string PictureUrl { get; init; }
         }
     }
 }
@@ -54,13 +57,19 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
                             From = booking.From,
                             To = booking.To,
                             Duration = booking.Duration,
-                            Info = booking.From > now
+                            Owner = dbContext.Set<User>()
+                                .Where(user => user.Identity == parkingSpot.OwnerId)
+                                .Select(
+                                    owner => new GetBookingResponse.BookingStatus.SpotOwner
+                                    {
+                                        UserId = owner.Identity,
+                                        DisplayName = owner.DisplayName,
+                                        PictureUrl = owner.PictureUrl
+                                    })
+                                .First(),
+                            SpotName = booking.From > now
                                 ? null
-                                : new GetBookingResponse.BookingStatus.BookingStatusInfo
-                                {
-                                    OwnerId = parkingSpot.OwnerId,
-                                    SpotName = parkingSpot.SpotName
-                                }
+                                : parkingSpot.SpotName
                         })
             )
             .AsNoTracking()

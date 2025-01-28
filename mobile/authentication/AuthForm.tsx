@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 
 import { BackButton } from '~/components/BackButton';
-import ContentView from '~/components/ContentView';
+import { ContentView } from '~/components/ContentView';
 import { TextInput } from '~/components/TextInput';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';

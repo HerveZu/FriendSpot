@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import { Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ContentView from '~/components/ContentView';
+import { ContentView } from '~/components/ContentView';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 

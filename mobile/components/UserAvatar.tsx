@@ -12,17 +12,17 @@ export function UserAvatar({
   displayName: string;
   pictureUrl?: string;
 } & ViewProps) {
-  const userInitials = displayName
-    .split(' ')
-    .slice(0, 2)
-    .map((letter) => letter[0].toUpperCase())
-    .join('');
+  const namesInitials = displayName.split(' ').map((name) => name[0]);
+  const userInitials = [
+    namesInitials[0],
+    namesInitials.length > 1 ? namesInitials[namesInitials.length - 1] : undefined,
+  ];
 
   return (
     <Avatar alt="Profile" {...props}>
       <AvatarImage src={pictureUrl} />
       <AvatarFallback>
-        <Text>{userInitials}</Text>
+        <Text>{userInitials.join('')}</Text>
       </AvatarFallback>
     </Avatar>
   );
