@@ -1,14 +1,15 @@
 import { differenceInSeconds, intervalToDuration, secondsToMilliseconds } from 'date-fns';
 import { toSeconds } from 'duration-fns';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { AppState, AppStateStatus, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
+import { Loader } from '~/components/Loader';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { BookingResponse } from '~/endpoints/get-booking';
+import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { parseDuration, rgbToHex } from '~/lib/utils';
 
@@ -35,6 +36,42 @@ export default function SpotCountDownScreen() {
   );
 }
 
+const RENDER_ON_SATES: AppStateStatus[] = ['background'];
+
+export function SpotCountDownOnRender(props: PropsWithChildren) {
+  const [loading, setLoading] = useState(false);
+  const getBooking = useGetBooking();
+  const router = useRouter();
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (appState) => {
+      if (!RENDER_ON_SATES.includes(appState)) {
+        return;
+      }
+
+      setLoading(true);
+      getBooking()
+        .then((bookings) => {
+          const activeBookings = bookings.bookings.filter((booking) => !!booking.spotName);
+          activeBookings.length > 0 &&
+            router.navigate({
+              pathname: '/spot-count-down',
+              params: {
+                activeBookingsJson: JSON.stringify(activeBookings),
+              } as SpotCountDownScreenParams,
+            });
+        })
+        .finally(() => setLoading(false));
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  return loading ? <Loader /> : props.children;
+}
+
 const DRAMATIC_COUNT_DOWN_AFTER_ELAPSED = 0.75;
 
 function SpotCountDown(props: { activeBooking: BookingResponse }) {
@@ -48,17 +85,17 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
   return (
     <CountdownCircleTimer
       strokeWidth={25}
-      trailColor={colors.background}
+      trailColor={colors.card}
       size={350}
       isPlaying
       initialRemainingTime={initialRemainingSeconds}
       duration={durationSeconds}
-      colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
+      colors={[rgbToHex(colors.destructive), rgbToHex(colors.primary)]}
       colorsTime={[
         DRAMATIC_COUNT_DOWN_AFTER_ELAPSED * durationSeconds,
         (1 - DRAMATIC_COUNT_DOWN_AFTER_ELAPSED) * durationSeconds,
       ]}>
-      {({ remainingTime }) => {
+      {({ remainingTime, color }) => {
         const remaining = intervalToDuration({
           start: 0,
           end: new Date(secondsToMilliseconds(remainingTime)),
@@ -68,9 +105,21 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
           <View className="-mb-16 flex-col items-center gap-8">
             <View className="flex-row gap-4">
               {remaining.days && (
-                <Text variant="largeTitle">{remaining.days > 0 && remaining.days}J</Text>
+                <Text
+                  variant="largeTitle"
+                  className="font-bold"
+                  style={{
+                    color,
+                  }}>
+                  {remaining.days > 0 && remaining.days}J
+                </Text>
               )}
-              <Text variant="largeTitle">
+              <Text
+                variant="largeTitle"
+                className="font-bold"
+                style={{
+                  color,
+                }}>
                 {remaining.hours?.toString().padStart(2, '0') ?? '00'}:
                 {remaining.minutes?.toString().padStart(2, '0') ?? '00'}:
                 {remaining.seconds?.toString().padStart(2, '0') ?? '00'}

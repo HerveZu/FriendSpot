@@ -47,26 +47,12 @@ import { COLORS } from '~/theme/colors';
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
-  const router = useRouter();
   const getBooking = useGetBooking();
   const getAvailabilities = useGetAvailabilities();
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
   const [booking, setBooking] = useState<BookingsResponse>();
   const [availabilities, setAvailabilities] = useState<AvailabilitiesResponse>();
-
-  const activeBookings =
-    booking?.bookings
-      .sort((booking) => new Date(booking.from).getTime())
-      .filter((booking) => !!booking.spotName) ?? [];
-
-  useEffect(() => {
-    activeBookings.length > 0 &&
-      router.push({
-        pathname: '/spot-count-down',
-        params: { activeBookingsJson: JSON.stringify(activeBookings) } as SpotCountDownScreenParams,
-      });
-  }, [activeBookings]);
 
   useEffect(() => {
     !bookSheetOpen && getBooking().then(setBooking);
@@ -79,13 +65,13 @@ export default function HomeScreen() {
   return (
     <>
       <SafeAreaView>
-        <ContentView className="flex-col gap-12 pb-8">
+        <ContentView className="flex-col gap-20 pb-8">
           <View className="h-1/2 flex-col gap-6">
             <Text variant="title1">Mes réservations</Text>
             {booking && (
               <View className="flex-col gap-4">
                 {booking.bookings.slice(0, 2).map((booking, id) => (
-                  <BookingCard key={id} booking={booking} />
+                  <BookingCard key={id} booking={booking} countdownOnTap />
                 ))}
 
                 {booking.bookings.length > 0 && (
@@ -132,53 +118,70 @@ export default function HomeScreen() {
   );
 }
 
-function BookingCard(props: { booking: BookingResponse }) {
+function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean }) {
+  const router = useRouter();
+
   const elapsedMinutes =
     props.booking.spotName && differenceInMinutes(new Date(), props.booking.from);
   const duration = parseDuration(props.booking.duration);
 
   return (
-    <View className="flex-col gap-4 rounded-xl bg-card p-4">
-      <View className="flex-row justify-between">
-        <View className="relative flex-row items-center gap-4">
-          <UserAvatar
-            displayName={props.booking.owner.displayName}
-            pictureUrl={props.booking.owner.pictureUrl}
-          />
-          <Text variant="heading">{props.booking.owner.displayName}</Text>
+    <Pressable
+      onPress={() =>
+        props.countdownOnTap &&
+        props.booking.spotName &&
+        router.navigate({
+          pathname: '/spot-count-down',
+          params: {
+            activeBookingsJson: JSON.stringify([props.booking]),
+          } as SpotCountDownScreenParams,
+        })
+      }>
+      <View className="flex-col gap-4 rounded-xl bg-card p-4">
+        <View className="flex-row justify-between">
+          <View className="relative flex-row items-center gap-4">
+            <UserAvatar
+              displayName={props.booking.owner.displayName}
+              pictureUrl={props.booking.owner.pictureUrl}
+            />
+            <Text variant="heading">{props.booking.owner.displayName}</Text>
+          </View>
+          {props.booking.spotName ? (
+            <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
+              <Text>Place n° {props.booking.spotName}</Text>
+            </View>
+          ) : (
+            <>
+              {isToday(props.booking.from) && (
+                <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
+                  <Text>Aujourd'hui</Text>
+                </View>
+              )}
+              {isTomorrow(props.booking.from) && (
+                <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
+                  <Text>Demain</Text>
+                </View>
+              )}
+            </>
+          )}
         </View>
-        {props.booking.spotName ? (
-          <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
-            <Text>Place n° {props.booking.spotName}</Text>
+        {elapsedMinutes ? (
+          <View className="flex-col gap-2">
+            <Text>Il reste {formatDistance(props.booking.to, new Date())}</Text>
+            <ProgressIndicator
+              className="h-4"
+              value={(100 * elapsedMinutes) / toMinutes(duration)}
+            />
           </View>
         ) : (
-          <>
-            {isToday(props.booking.from) && (
-              <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
-                <Text>Aujourd'hui</Text>
-              </View>
-            )}
-            {isTomorrow(props.booking.from) && (
-              <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
-                <Text>Demain</Text>
-              </View>
-            )}
-          </>
+          <View className="flex-row items-center gap-2">
+            <Text variant="subhead">{format(props.booking.from, 'dd MMMM HH:mm')}</Text>
+            <ThemedIcon name="arrow-right" />
+            <Text variant="subhead">{format(props.booking.to, 'dd MMMM HH:mm')}</Text>
+          </View>
         )}
       </View>
-      {elapsedMinutes ? (
-        <View className="flex-col gap-2">
-          <Text>Il reste {formatDistance(props.booking.to, new Date())}</Text>
-          <ProgressIndicator className="h-4" value={(100 * elapsedMinutes) / toMinutes(duration)} />
-        </View>
-      ) : (
-        <View className="flex-row items-center gap-2">
-          <Text variant="subhead">{format(props.booking.from, 'dd MMMM HH:mm')}</Text>
-          <ThemedIcon name="arrow-right" />
-          <Text variant="subhead">{format(props.booking.to, 'dd MMMM HH:mm')}</Text>
-        </View>
-      )}
-    </View>
+    </Pressable>
   );
 }
 
