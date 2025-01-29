@@ -15,10 +15,12 @@ import {
   isTomorrow,
 } from 'date-fns';
 import { toMinutes } from 'duration-fns';
+import { useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
+import { SpotCountDownScreenParams } from '~/app/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ContentSheetView, ContentView } from '~/components/ContentView';
 import { Rating } from '~/components/Rating';
@@ -45,12 +47,26 @@ import { COLORS } from '~/theme/colors';
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
+  const router = useRouter();
   const getBooking = useGetBooking();
   const getAvailabilities = useGetAvailabilities();
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
   const [booking, setBooking] = useState<BookingsResponse>();
   const [availabilities, setAvailabilities] = useState<AvailabilitiesResponse>();
+
+  const activeBookings =
+    booking?.bookings
+      .sort((booking) => new Date(booking.from).getTime())
+      .filter((booking) => !!booking.spotName) ?? [];
+
+  useEffect(() => {
+    activeBookings.length > 0 &&
+      router.push({
+        pathname: '/spot-count-down',
+        params: { activeBookingsJson: JSON.stringify(activeBookings) } as SpotCountDownScreenParams,
+      });
+  }, [activeBookings]);
 
   useEffect(() => {
     !bookSheetOpen && getBooking().then(setBooking);
@@ -117,7 +133,7 @@ export default function HomeScreen() {
 }
 
 function BookingCard(props: { booking: BookingResponse }) {
-  const differenceMinutes =
+  const elapsedMinutes =
     props.booking.spotName && differenceInMinutes(new Date(), props.booking.from);
   const duration = parseDuration(props.booking.duration);
 
@@ -150,19 +166,16 @@ function BookingCard(props: { booking: BookingResponse }) {
           </>
         )}
       </View>
-      {differenceMinutes ? (
+      {elapsedMinutes ? (
         <View className="flex-col gap-2">
           <Text>Il reste {formatDistance(props.booking.to, new Date())}</Text>
-          <ProgressIndicator
-            className="h-4"
-            value={(100 * differenceMinutes) / toMinutes(duration)}
-          />
+          <ProgressIndicator className="h-4" value={(100 * elapsedMinutes) / toMinutes(duration)} />
         </View>
       ) : (
         <View className="flex-row items-center gap-2">
-          <Text variant="subhead">{format(props.booking.from, 'dd MMMM hh:mm')}</Text>
+          <Text variant="subhead">{format(props.booking.from, 'dd MMMM HH:mm')}</Text>
           <ThemedIcon name="arrow-right" />
-          <Text variant="subhead">{format(props.booking.to, 'dd MMMM hh:mm')}</Text>
+          <Text variant="subhead">{format(props.booking.to, 'dd MMMM HH:mm')}</Text>
         </View>
       )}
     </View>
