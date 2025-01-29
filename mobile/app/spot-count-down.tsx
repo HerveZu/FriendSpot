@@ -43,26 +43,32 @@ export function SpotCountDownOnRender(props: PropsWithChildren) {
   const getBooking = useGetBooking();
   const router = useRouter();
 
+  function displayCountdown() {
+    setLoading(true);
+    getBooking()
+      .then((bookings) => {
+        const activeBookings = bookings.bookings.filter((booking) => !!booking.spotName);
+        activeBookings.length > 0 &&
+          router.navigate({
+            pathname: '/spot-count-down',
+            params: {
+              activeBookingsJson: JSON.stringify(activeBookings),
+            } as SpotCountDownScreenParams,
+          });
+      })
+      .finally(() => setLoading(false));
+  }
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (appState) => {
       if (!RENDER_ON_SATES.includes(appState)) {
         return;
       }
 
-      setLoading(true);
-      getBooking()
-        .then((bookings) => {
-          const activeBookings = bookings.bookings.filter((booking) => !!booking.spotName);
-          activeBookings.length > 0 &&
-            router.navigate({
-              pathname: '/spot-count-down',
-              params: {
-                activeBookingsJson: JSON.stringify(activeBookings),
-              } as SpotCountDownScreenParams,
-            });
-        })
-        .finally(() => setLoading(false));
+      displayCountdown();
     });
+
+    displayCountdown();
 
     return () => {
       subscription.remove();
