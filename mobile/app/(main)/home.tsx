@@ -170,7 +170,7 @@ function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean
             <Text>Il reste {formatDistance(props.booking.to, new Date())}</Text>
             <ProgressIndicator
               className="h-4"
-              value={(100 * elapsedMinutes) / toMinutes(duration)}
+              value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
             />
           </View>
         ) : (
@@ -244,6 +244,7 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
   const [to, setTo] = useState(addHours(from, 2));
   const [availableSpots, setAvailableSpots] = useState<AvailableSpotsResponse>();
 
+  const { userProfile } = useCurrentUser();
   const book = useBook();
   const getAvailableSpots = useGetAvailableSpots();
   const { refreshProfile } = useCurrentUser();
@@ -386,7 +387,10 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
             <Button
               variant="primary"
               size="lg"
-              disabled={!selectedSpot}
+              disabled={
+                !selectedSpot ||
+                (bookingSimulation && bookingSimulation?.usedCredits > userProfile.wallet.credits)
+              }
               onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
               <Text>
                 {bookingSimulation

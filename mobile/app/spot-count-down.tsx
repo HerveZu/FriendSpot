@@ -5,6 +5,7 @@ import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { AppState, AppStateStatus, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
+import { ContentView } from '~/components/ContentView';
 import { Loader } from '~/components/Loader';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { Button } from '~/components/nativewindui/Button';
@@ -22,16 +23,21 @@ export default function SpotCountDownScreen() {
 
   return (
     <SafeAreaView className=" h-screen w-screen flex-col gap-8 bg-background">
-      <View className="relative w-full">
-        <Button variant="plain" className="absolute right-0 m-4" onPress={() => router.dismiss()}>
-          <ThemedIcon name="close" size={24} />
-        </Button>
-      </View>
-      <View className="w-full grow flex-col items-center justify-around">
-        {activeBookings.map((activeBooking, i) => (
-          <SpotCountDown key={i} activeBooking={activeBooking} />
-        ))}
-      </View>
+      <ContentView>
+        <View className="relative w-full">
+          <Button
+            variant="plain"
+            className="absolute right-0 top-0"
+            onPress={() => router.dismiss()}>
+            <ThemedIcon name="close" size={24} />
+          </Button>
+        </View>
+        <View className="w-full grow flex-col items-center justify-around">
+          {activeBookings.map((activeBooking, i) => (
+            <SpotCountDown key={i} activeBooking={activeBooking} />
+          ))}
+        </View>
+      </ContentView>
     </SafeAreaView>
   );
 }
@@ -39,7 +45,8 @@ export default function SpotCountDownScreen() {
 const RENDER_ON_SATES: AppStateStatus[] = ['background'];
 
 export function SpotCountDownOnRender(props: PropsWithChildren) {
-  const [loading, setLoading] = useState(false);
+  // default to 'true' to prevent rendering one frame before loading
+  const [loading, setLoading] = useState(true);
   const getBooking = useGetBooking();
   const router = useRouter();
 
