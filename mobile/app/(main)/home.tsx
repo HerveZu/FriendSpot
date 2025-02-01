@@ -28,7 +28,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Pressable, SafeAreaView, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -157,7 +157,11 @@ export default function HomeScreen() {
       </SafeAreaView>
       {booking && (
         <ListSheet
-          title={<Text variant="title1">Toutes mes réservations</Text>}
+          title={
+            <Text variant="title1" className="font-bold">
+              Toutes mes réservations
+            </Text>
+          }
           action={
             <>
               <ThemedIcon component={FontAwesome6} name="car" size={18} color={COLORS.white} />
@@ -174,7 +178,11 @@ export default function HomeScreen() {
       )}
       {availabilities && (
         <ListSheet
-          title={<Text variant="title1">Je prête mon spot</Text>}
+          title={
+            <Text variant="title1" className="font-bold">
+              Je prête mon spot
+            </Text>
+          }
           action={
             <>
               <ThemedIcon
@@ -339,12 +347,14 @@ function ListSheet(
 
 function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {
   const ref = useSheetRef();
-  const lendSpot = useLendSpot();
+  const lend = useLendSpot();
 
   const now = new Date();
+  const { refreshProfile } = useCurrentUser();
   const { colors } = useColorScheme();
   const [from, setFrom] = useState(addMinutes(now, 15));
   const [to, setTo] = useState(addHours(from, 2));
+  const [actionPending, setActionPending] = useState(false);
   const [simulation, setSimulation] = useState<LendSpotResponse>();
 
   const [toDebounce] = useDebounce(to, 200);
@@ -355,14 +365,15 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   const MIN_DURATION_HOURS = 0.5;
 
   useEffect(() => {
-    lendSpot(
-      {
-        from: fromDebounce,
-        to: toDebounce,
-      },
-      true
-    ).then(setSimulation);
-  }, [fromDebounce, toDebounce]);
+    props.open &&
+      lend(
+        {
+          from: fromDebounce,
+          to: toDebounce,
+        },
+        true
+      ).then(setSimulation);
+  }, [props.open, fromDebounce, toDebounce]);
 
   useEffect(() => {
     if (props.open) {
@@ -374,6 +385,18 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
 
   function minTo(from: Date): Date {
     return addHours(from, MIN_DURATION_HOURS);
+  }
+
+  function lendSpot(from: Date, to: Date) {
+    setActionPending(true);
+
+    lend({
+      from,
+      to,
+    })
+      .then(refreshProfile)
+      .then(() => props.onOpen(false))
+      .finally(() => setActionPending(false));
   }
 
   const justAfterNow = addMinutes(now, 5);
@@ -441,7 +464,8 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               variant="primary"
               size="lg"
               disabled={simulation && simulation.earnedCredits <= 0}
-              onPress={() => lendSpot({ from, to })}>
+              onPress={() => lendSpot(from, to)}>
+              {actionPending && <ActivityIndicator color={COLORS.white} />}
               <Text>
                 {simulation
                   ? `Prêter mon spot pour ${simulation?.earnedCredits} crédits`
@@ -467,6 +491,7 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
   const [from, setFrom] = useState(addMinutes(now, 15));
   const [to, setTo] = useState(addHours(from, 2));
   const [availableSpots, setAvailableSpots] = useState<AvailableSpotsResponse>();
+  const [actionPending, setActionPending] = useState(false);
 
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
@@ -479,10 +504,11 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
 
   useEffect(() => {
-    getAvailableSpots(fromDebounce, toDebounce).then((availableSpots) => {
-      setAvailableSpots(availableSpots);
-    });
-  }, [fromDebounce, toDebounce]);
+    props.open &&
+      getAvailableSpots(fromDebounce, toDebounce).then((availableSpots) => {
+        setAvailableSpots(availableSpots);
+      });
+  }, [props.open, fromDebounce, toDebounce]);
 
   useEffect(() => {
     if (props.open) {
@@ -507,13 +533,16 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
   }
 
   function bookSpot(from: Date, to: Date, parkingLotId: string) {
+    setActionPending(true);
+
     book({
       from,
       to,
       parkingLotId,
     })
       .then(refreshProfile)
-      .then(() => props.onOpen(false));
+      .then(() => props.onOpen(false))
+      .finally(() => setActionPending(false));
   }
 
   const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
@@ -609,6 +638,7 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
                 (bookingSimulation && bookingSimulation?.usedCredits > userProfile.wallet.credits)
               }
               onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
+              {actionPending && <ActivityIndicator color={COLORS.white} />}
               <Text>
                 {bookingSimulation
                   ? `Réserver pour ${bookingSimulation.usedCredits} crédits`
