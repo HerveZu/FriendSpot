@@ -85,8 +85,6 @@ export function SpotCountDownOnRender(props: PropsWithChildren) {
   return loading ? <Loader /> : props.children;
 }
 
-const DRAMATIC_COUNT_DOWN_AFTER_ELAPSED = 0.75;
-
 function SpotCountDown(props: { activeBooking: BookingResponse }) {
   const { colors } = useColorScheme();
   const initialRemainingSeconds = useMemo(
@@ -104,10 +102,7 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
       initialRemainingTime={initialRemainingSeconds}
       duration={durationSeconds}
       colors={[rgbToHex(colors.destructive), rgbToHex(colors.primary)]}
-      colorsTime={[
-        DRAMATIC_COUNT_DOWN_AFTER_ELAPSED * durationSeconds,
-        (1 - DRAMATIC_COUNT_DOWN_AFTER_ELAPSED) * durationSeconds,
-      ]}>
+      colorsTime={[0.95 * durationSeconds, 0.05 * durationSeconds]}>
       {({ remainingTime, color }) => {
         const remaining = intervalToDuration({
           start: 0,

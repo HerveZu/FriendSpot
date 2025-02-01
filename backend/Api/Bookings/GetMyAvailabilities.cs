@@ -3,9 +3,20 @@ using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
 using FastEndpoints;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Bookings;
+
+[PublicAPI]
+public sealed record GetMyAvailabilitiesRequest
+{
+    [FromQuery]
+    public required DateTimeOffset From { get; init; }
+
+    [FromQuery]
+    public DateTimeOffset? To { get; init; }
+}
 
 [PublicAPI]
 public sealed record GetMyAvailabilitiesResponse
@@ -22,23 +33,22 @@ public sealed record GetMyAvailabilitiesResponse
     }
 }
 
-internal sealed class GetMyAvailabilities(AppDbContext dbContext) : EndpointWithoutRequest<GetMyAvailabilitiesResponse>
+internal sealed class GetMyAvailabilities(AppDbContext dbContext) : Endpoint<GetMyAvailabilitiesRequest, GetMyAvailabilitiesResponse>
 {
     public override void Configure()
     {
         Get("/spots/availabilities");
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(GetMyAvailabilitiesRequest req, CancellationToken ct)
     {
         var currentUser = HttpContext.ToCurrentUser();
-        var now = DateTimeOffset.UtcNow;
 
         var availabilities = await dbContext
             .Set<ParkingSpot>()
             .Where(parkingSpot => parkingSpot.OwnerId == currentUser.Identity)
             .SelectMany(parkingSpot => parkingSpot.Availabilities)
-            .Where(availability => availability.To >= now)
+            .Where(availability => availability.To >= req.From && (req.To == null || availability.From <= req.To))
             .OrderBy(availability => availability.From)
             .Select(
                 availability => new GetMyAvailabilitiesResponse.Availability

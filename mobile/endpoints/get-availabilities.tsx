@@ -4,10 +4,10 @@ import { useApiRequest } from '~/endpoints/use-api-request';
 
 export type AvailabilitiesResponse = {
   readonly totalDuration: string;
-  readonly availabilities: Availability[];
+  readonly availabilities: SpotAvailability[];
 };
 
-type Availability = {
+export type SpotAvailability = {
   readonly from: string;
   readonly to: string;
   readonly duration: string;
@@ -17,7 +17,11 @@ export function useGetAvailabilities() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
-    () => apiRequest<AvailabilitiesResponse>(`/spots/availabilities`, 'GET'),
+    (from: Date, to?: Date) =>
+      apiRequest<AvailabilitiesResponse>(
+        `/spots/availabilities?from=${from.toISOString()}${to ? to?.toISOString() : ''}`,
+        'GET'
+      ),
     [apiRequest]
   );
 }
