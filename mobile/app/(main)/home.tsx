@@ -28,7 +28,14 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  View,
+} from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -82,6 +89,9 @@ export default function HomeScreen() {
     !lendSheetOpen && getAvailabilities(startOfToday).then(setAvailabilities);
   }, [startOfToday.getTime(), lendSheetOpen]);
 
+  // avoid to overcrowd
+  const showBookingCount = Dimensions.get('window').height > 900 ? 2 : 1;
+
   return (
     <>
       <SafeAreaView>
@@ -90,7 +100,7 @@ export default function HomeScreen() {
             <Text variant="title1">Mes réservations</Text>
             {booking && (
               <View className="flex-col gap-4">
-                {booking.bookings.slice(0, 2).map((booking, id) => (
+                {booking.bookings.slice(0, showBookingCount).map((booking, id) => (
                   <BookingCard key={id} booking={booking} countdownOnTap />
                 ))}
 
@@ -419,7 +429,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               </View>
               <View className="flex-row items-center gap-4">
                 <ThemedIcon component={FontAwesome6} name="clock" size={18} />
-                <Text variant="title2">
+                <Text variant="title3">
                   {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
                 </Text>
               </View>
