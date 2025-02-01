@@ -2,13 +2,11 @@ import { differenceInSeconds, intervalToDuration, secondsToMilliseconds } from '
 import { toSeconds } from 'duration-fns';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { AppState, AppStateStatus, SafeAreaView, View } from 'react-native';
+import { AppState, AppStateStatus, Pressable, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
 import { ContentView } from '~/components/ContentView';
 import { Loader } from '~/components/Loader';
-import { ThemedIcon } from '~/components/ThemedIcon';
-import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -22,23 +20,15 @@ export default function SpotCountDownScreen() {
   const activeBookings = JSON.parse(activeBookingsJson) as BookingResponse[];
 
   return (
-    <SafeAreaView className=" h-screen w-screen flex-col gap-8 bg-background">
-      <ContentView>
-        <View className="relative w-full">
-          <Button
-            variant="plain"
-            className="absolute right-0 top-0"
-            onPress={() => router.dismiss()}>
-            <ThemedIcon name="close" size={24} />
-          </Button>
-        </View>
-        <View className="w-full grow flex-col items-center justify-around">
+    <Pressable onPress={() => router.dismiss()}>
+      <SafeAreaView className="h-screen w-screen flex-col gap-8 bg-background">
+        <ContentView className="w-full grow flex-col items-center justify-around">
           {activeBookings.map((activeBooking, i) => (
             <SpotCountDown key={i} activeBooking={activeBooking} />
           ))}
-        </View>
-      </ContentView>
-    </SafeAreaView>
+        </ContentView>
+      </SafeAreaView>
+    </Pressable>
   );
 }
 
@@ -95,6 +85,7 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
 
   return (
     <CountdownCircleTimer
+      isGrowing
       strokeWidth={25}
       trailColor={colors.card}
       size={350}
