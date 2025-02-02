@@ -306,6 +306,7 @@ function DateRange(props: { from: Date | string; to: Date | string; duration: st
     </View>
   ) : (
     <View className="flex-row items-center gap-2">
+      <ThemedIcon name="calendar" />
       <Text variant="subhead">{format(props.from, 'dd MMMM HH:mm')}</Text>
       <ThemedIcon name="arrow-right" />
       <Text variant="subhead">{format(props.to, 'dd MMMM HH:mm')}</Text>
