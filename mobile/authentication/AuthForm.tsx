@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -23,6 +24,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { notEmpty } from '~/lib/utils';
+import { COLORS } from '~/theme/colors';
 
 type AuthFormContext = {
   error: (id: string, error: boolean) => void;
@@ -37,13 +39,14 @@ export function AuthForm(
   props: {
     title: ReactNode;
     error?: string;
-    onSubmit: () => void;
+    onSubmit: () => Promise<void>;
     submitText: string;
   } & PropsWithChildren
 ) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
   const [isTouched, setIsTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [pendingAction, setPendingAction] = useState(false);
   const [touchTrigger, setTouchTrigger] = useState({});
 
   const error = useCallback(
@@ -80,11 +83,14 @@ export function AuthForm(
               size={Platform.select({ ios: 'lg', default: 'md' })}
               disabled={!isTouched || inputErrors.length > 0}
               onPress={() => {
+                setPendingAction(true);
                 setIsSubmitted(true);
-                props.onSubmit();
+
+                props.onSubmit().finally(() => setPendingAction(false));
               }}
               variant="primary"
               className="w-full">
+              {pendingAction && <ActivityIndicator color={COLORS.white} />}
               <Text>{props.submitText}</Text>
             </Button>
           </ContentView>
