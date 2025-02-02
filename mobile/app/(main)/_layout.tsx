@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from 'expo-router';
-import { SafeAreaView } from 'react-native';
 
 import { SpotCountDownOnRender } from '~/app/spot-count-down';
 import { AuthProvider } from '~/authentication/AuthProvider';
@@ -9,17 +9,25 @@ import Header from '~/components/Header';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { opacity } from '~/lib/utils';
 import { AskUserToRate } from '~/rating/AskUserToRate';
 
 export default function MainLayout() {
+  const { colors } = useColorScheme();
+
   return (
     <AuthProvider>
       <UserProvider>
         <SpotCountDownOnRender>
           <AskUserToRate>
-            <SafeAreaView>
-              <Header />
-            </SafeAreaView>
+            <LinearGradient
+              className="absolute left-0 right-0 top-0"
+              colors={[opacity(colors.primary, 0.6), opacity(colors.card, 0.2), colors.background]}
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 3 }}>
+              <Header className="mt-safe-offset-4 mb-6" />
+            </LinearGradient>
             <Tabs
               screenOptions={{
                 headerShown: false,

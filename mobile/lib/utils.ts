@@ -65,3 +65,7 @@ export function rgbToHex(rgb: string): HexColor {
 
   return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}` as HexColor;
 }
+
+export function opacity(rgb: string, opacity: number): string {
+  return rgb.replace('rgb', 'rgba').replace(')', `, ${opacity})`);
+}
