@@ -1,31 +1,26 @@
-import { Icon } from '@roninoss/icons';
+import { Entypo } from '@expo/vector-icons';
 import { Pressable, View } from 'react-native';
 import Animated, { LayoutAnimationConfig, ZoomInRotate } from 'react-native-reanimated';
 
+import { ThemedIcon } from '~/components/ThemedIcon';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { COLORS } from '~/theme/colors';
 
 export function ThemeToggle() {
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
   return (
     <LayoutAnimationConfig skipEntering>
-      <Animated.View
-        className="items-center justify-center"
-        key={`toggle-${colorScheme}`}
-        entering={ZoomInRotate}>
+      <Animated.View className="items-center justify-center" entering={ZoomInRotate}>
         <Pressable onPress={toggleColorScheme} className="opacity-80">
-          {colorScheme === 'dark'
-            ? ({ pressed }) => (
-                <View className={cn('px-0.5', pressed && 'opacity-50')}>
-                  <Icon namingScheme="sfSymbol" name="moon.stars" color={COLORS.white} />
-                </View>
-              )
-            : ({ pressed }) => (
-                <View className={cn('px-0.5', pressed && 'opacity-50')}>
-                  <Icon namingScheme="sfSymbol" name="sun.min" color={COLORS.black} />
-                </View>
-              )}
+          {({ pressed }) => (
+            <View className={cn('px-0.5', pressed && 'opacity-50')}>
+              <ThemedIcon
+                component={Entypo}
+                size={22}
+                name={isDarkColorScheme ? 'light-up' : 'moon'}
+              />
+            </View>
+          )}
         </Pressable>
       </Animated.View>
     </LayoutAnimationConfig>

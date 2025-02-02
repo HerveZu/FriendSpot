@@ -46,6 +46,7 @@ public sealed record MeResponse
         public sealed record SpotUser
         {
             public required string Id { get; init; }
+            public required string? PictureUrl { get; init; }
             public required string DisplayName { get; init; }
         }
     }
@@ -84,7 +85,8 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                                     bookingUser => new MeResponse.SpotStatus.SpotUser
                                     {
                                         Id = bookingUser.Identity,
-                                        DisplayName = bookingUser.DisplayName
+                                        DisplayName = bookingUser.DisplayName,
+                                        PictureUrl = bookingUser.PictureUrl
                                     })
                                 .FirstOrDefault(),
                             Available = spot.Availabilities

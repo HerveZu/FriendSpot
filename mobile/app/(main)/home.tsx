@@ -6,13 +6,14 @@ import {
   addMinutes,
   differenceInHours,
   differenceInMinutes,
+  endOfDay,
   format,
   formatDistance,
   formatDuration,
   formatRelative,
   intervalToDuration,
-  isToday,
   isTomorrow,
+  isWithinInterval,
   max,
   min,
   startOfDay,
@@ -30,11 +31,11 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   Pressable,
   SafeAreaView,
   ScrollView,
   View,
+  ViewProps,
 } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
@@ -42,6 +43,7 @@ import { SpotCountDownScreenParams } from '~/app/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ContentSheetView, ContentView } from '~/components/ContentView';
 import { Rating } from '~/components/Rating';
+import { Tag } from '~/components/Tag';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { UserAvatar } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
@@ -69,7 +71,6 @@ import { COLORS } from '~/theme/colors';
 
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
-  const { colors } = useColorScheme();
   const getBooking = useGetBooking();
   const getAvailabilities = useGetAvailabilities();
   const [lendSheetOpen, setLendSheetOpen] = useState(false);
@@ -89,18 +90,15 @@ export default function HomeScreen() {
     !lendSheetOpen && getAvailabilities(startOfToday).then(setAvailabilities);
   }, [startOfToday.getTime(), lendSheetOpen]);
 
-  // avoid to overcrowd
-  const showBookingCount = Dimensions.get('window').height > 900 ? 2 : 1;
-
   return (
     <>
       <SafeAreaView>
-        <ContentView className="flex-col justify-between gap-12 pb-8">
-          <View className="h-1/2 flex-col gap-6">
+        <ContentView className="flex-col justify-between">
+          <View className="flex-col gap-6">
             <Text variant="title1">Mes réservations</Text>
             {booking && (
-              <View className="flex-col gap-4">
-                {booking.bookings.slice(0, showBookingCount).map((booking, id) => (
+              <View className="flex-col gap-2">
+                {booking.bookings.slice(0, 1).map((booking, id) => (
                   <BookingCard key={id} booking={booking} countdownOnTap />
                 ))}
 
@@ -112,46 +110,26 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
-          <View className="grow flex-col">
-            <View className="flex-row justify-between">
+          <View className="flex-col gap-6">
+            <View className="flex-row items-center justify-between">
               <Text variant="title1">Mon spot</Text>
-              <View className="flex-row items-center gap-2">
-                <Button
-                  disabled={!userProfile.spot}
-                  variant="secondary"
-                  onPress={() => setAvailabilityListSheetOpen(true)}>
-                  <ThemedIcon name="list" size={22} color={colors.primary} />
-                </Button>
-                <Button
-                  disabled={!userProfile.spot}
-                  variant="primary"
-                  onPress={() => setLendSheetOpen(true)}>
-                  <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
-                </Button>
-              </View>
+              <Button
+                disabled={!userProfile.spot}
+                variant="primary"
+                onPress={() => setLendSheetOpen(true)}>
+                <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
+              </Button>
             </View>
-            {userProfile.spot && (
-              <View className="bg-primary/15 my-6 rounded-lg">
-                <Text
-                  variant="subhead"
-                  className="w-full rounded-lg border border-primary text-center text-primary">
-                  {userProfile.spot.currentlyUsedBy
-                    ? `${userProfile.spot.currentlyUsedBy.displayName} utilise actuellement votre place`
-                    : userProfile.spot.available
-                      ? 'Ton spot est actuellement disponnible'
-                      : 'Tu utilise actuellement ton spot'}
-                </Text>
-              </View>
-            )}
             {availabilities && (
               <View className="w-full grow flex-col justify-center gap-2">
                 {availabilities.availabilities.slice(0, 1).map((availability, i) => (
-                  <MySpotAvailabilityCard
-                    key={i}
-                    availability={availability}
-                    info={<Text>Prochain</Text>}
-                  />
+                  <MySpotAvailabilityCard key={i} availability={availability} />
                 ))}
+                {availabilities.availabilities.length > 0 && (
+                  <Button variant="tonal" onPress={() => setAvailabilityListSheetOpen(true)}>
+                    <Text>Voir plus</Text>
+                  </Button>
+                )}
               </View>
             )}
           </View>
@@ -222,34 +200,30 @@ export default function HomeScreen() {
   );
 }
 
-function MySpotAvailabilityCard(props: { availability: SpotAvailability; info?: ReactNode }) {
+function MySpotAvailabilityCard(props: { availability: SpotAvailability }) {
   return (
-    <View className="flex-col gap-4 rounded-lg bg-card p-4">
+    <Card>
       <View className="relative">
         <Text variant="heading" className="font-bold">
           {capitalize(formatRelative(props.availability.from, new Date()))}
         </Text>
-        {props.info && (
-          <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
-            {props.info}
-          </View>
-        )}
+        <DateStatus
+          from={props.availability.from}
+          to={props.availability.to}
+          className="absolute right-0 top-0"
+        />
       </View>
-      <View className="flex-row items-center gap-2">
-        <Text variant="subhead">{format(props.availability.from, 'dd MMMM HH:mm')}</Text>
-        <ThemedIcon name="arrow-right" />
-        <Text variant="subhead">{format(props.availability.to, 'dd MMMM HH:mm')}</Text>
-      </View>
-    </View>
+      <DateRange
+        from={props.availability.from}
+        to={props.availability.to}
+        duration={props.availability.duration}
+      />
+    </Card>
   );
 }
 
 function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean }) {
   const router = useRouter();
-
-  const elapsedMinutes =
-    props.booking.spotName && differenceInMinutes(new Date(), props.booking.from);
-  const duration = parseDuration(props.booking.duration);
 
   return (
     <Pressable
@@ -263,51 +237,79 @@ function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean
           } as SpotCountDownScreenParams,
         })
       }>
-      <View className="flex-col gap-4 rounded-xl bg-card p-4">
-        <View className="flex-row justify-between">
-          <View className="relative flex-row items-center gap-4">
-            <UserAvatar
-              displayName={props.booking.owner.displayName}
-              pictureUrl={props.booking.owner.pictureUrl}
-            />
-            <Text variant="heading">{props.booking.owner.displayName}</Text>
-          </View>
+      <Card>
+        <View className="flex-row items-center justify-between">
+          <Text variant="heading" className="font-bold">
+            {capitalize(formatRelative(props.booking.from, new Date()))}
+          </Text>
           {props.booking.spotName ? (
-            <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
-              <Text>Place n° {props.booking.spotName}</Text>
-            </View>
+            <Tag text={`n° ${props.booking.spotName}`} />
           ) : (
-            <>
-              {isToday(props.booking.from) && (
-                <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
-                  <Text>Aujourd'hui</Text>
-                </View>
-              )}
-              {isTomorrow(props.booking.from) && (
-                <View className="absolute right-0 top-0 w-fit rounded-xl bg-primary px-2">
-                  <Text>Demain</Text>
-                </View>
-              )}
-            </>
+            <DateStatus from={props.booking.from} to={props.booking.to} />
           )}
         </View>
-        {elapsedMinutes ? (
-          <View className="flex-col gap-2">
-            <Text>Il reste {formatDistance(props.booking.to, new Date())}</Text>
-            <ProgressIndicator
-              className="h-4"
-              value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
-            />
-          </View>
-        ) : (
-          <View className="flex-row items-center gap-2">
-            <Text variant="subhead">{format(props.booking.from, 'dd MMMM HH:mm')}</Text>
-            <ThemedIcon name="arrow-right" />
-            <Text variant="subhead">{format(props.booking.to, 'dd MMMM HH:mm')}</Text>
-          </View>
-        )}
-      </View>
+        <View className="flex-row items-center gap-4">
+          <UserAvatar
+            className="h-8 w-8"
+            displayName={props.booking.owner.displayName}
+            pictureUrl={props.booking.owner.pictureUrl}
+          />
+          <Text>{props.booking.owner.displayName}</Text>
+        </View>
+        <DateRange
+          from={props.booking.from}
+          to={props.booking.to}
+          duration={props.booking.duration}
+        />
+      </Card>
     </Pressable>
+  );
+}
+
+function Card({ className, ...props }: ViewProps) {
+  return <View className={cn('flex-col gap-6 rounded-xl bg-card p-4', className)} {...props} />;
+}
+
+function DateStatus({
+  from,
+  to,
+  className,
+  ...props
+}: { from: Date | string; to: Date | string } & ViewProps) {
+  const text = isWithinInterval(new Date(), {
+    start: startOfDay(from),
+    end: endOfDay(to),
+  })
+    ? "Aujourd'hui"
+    : isTomorrow(from)
+      ? 'Demain'
+      : undefined;
+
+  return text && <Tag className={className} text={text} {...props} />;
+}
+
+function DateRange(props: { from: Date | string; to: Date | string; duration: string }) {
+  const inProgress = isWithinInterval(new Date(), {
+    start: startOfDay(props.from),
+    end: endOfDay(props.to),
+  });
+  const elapsedMinutes = inProgress && differenceInMinutes(new Date(), props.from);
+  const duration = parseDuration(props.duration);
+
+  return elapsedMinutes ? (
+    <View className="flex-col gap-2">
+      <Text>Il reste {formatDistance(props.to, new Date())}</Text>
+      <ProgressIndicator
+        className="h-4"
+        value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
+      />
+    </View>
+  ) : (
+    <View className="flex-row items-center gap-2">
+      <Text variant="subhead">{format(props.from, 'dd MMMM HH:mm')}</Text>
+      <ThemedIcon name="arrow-right" />
+      <Text variant="subhead">{format(props.to, 'dd MMMM HH:mm')}</Text>
+    </View>
   );
 }
 
@@ -359,11 +361,15 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   const ref = useSheetRef();
   const lend = useLendSpot();
 
+  const MIN_DURATION_HOURS = 0.5;
+  const INITIAL_FROM_MARGIN_MINUTES = 15;
+  const INITIAL_DURATION_HOURS = 2;
+
   const now = new Date();
   const { refreshProfile } = useCurrentUser();
   const { colors } = useColorScheme();
-  const [from, setFrom] = useState(addMinutes(now, 15));
-  const [to, setTo] = useState(addHours(from, 2));
+  const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
+  const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
   const [actionPending, setActionPending] = useState(false);
   const [simulation, setSimulation] = useState<LendSpotResponse>();
 
@@ -372,18 +378,20 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
 
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
 
-  const MIN_DURATION_HOURS = 0.5;
+  useEffect(() => {
+    setFrom(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
+    setTo(addHours(from, INITIAL_DURATION_HOURS));
+  }, [props.open]);
 
   useEffect(() => {
-    props.open &&
-      lend(
-        {
-          from: fromDebounce,
-          to: toDebounce,
-        },
-        true
-      ).then(setSimulation);
-  }, [props.open, fromDebounce, toDebounce]);
+    lend(
+      {
+        from: fromDebounce,
+        to: toDebounce,
+      },
+      true
+    ).then(setSimulation);
+  }, [fromDebounce, toDebounce]);
 
   useEffect(() => {
     if (props.open) {
@@ -494,12 +502,14 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
 
   const MIN_DURATION_HOURS = 0.5;
   const MAX_DURATION_HOURS = 12;
+  const INITIAL_FROM_MARGIN_MINUTES = 15;
+  const INITIAL_DURATION_HOURS = 2;
 
   const now = new Date();
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
   const [bookingSimulation, setBookingSimulation] = useState<BookSpotResponse>();
-  const [from, setFrom] = useState(addMinutes(now, 15));
-  const [to, setTo] = useState(addHours(from, 2));
+  const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
+  const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
   const [availableSpots, setAvailableSpots] = useState<AvailableSpotsResponse>();
   const [actionPending, setActionPending] = useState(false);
 
@@ -514,11 +524,15 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
 
   useEffect(() => {
-    props.open &&
-      getAvailableSpots(fromDebounce, toDebounce).then((availableSpots) => {
-        setAvailableSpots(availableSpots);
-      });
-  }, [props.open, fromDebounce, toDebounce]);
+    setFrom(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
+    setTo(addHours(from, INITIAL_DURATION_HOURS));
+  }, [props.open]);
+
+  useEffect(() => {
+    getAvailableSpots(fromDebounce, toDebounce).then((availableSpots) => {
+      setAvailableSpots(availableSpots);
+    });
+  }, [fromDebounce, toDebounce]);
 
   useEffect(() => {
     if (props.open) {
@@ -529,13 +543,11 @@ function BookingSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<bo
   }, [ref.current, props.open]);
 
   useEffect(() => {
-    if (!selectedSpot) {
-      return;
-    }
-    book(
-      { from: fromDebounce, to: toDebounce, parkingLotId: selectedSpot.parkingLotId },
-      true
-    ).then(setBookingSimulation);
+    selectedSpot &&
+      book(
+        { from: fromDebounce, to: toDebounce, parkingLotId: selectedSpot.parkingLotId },
+        true
+      ).then(setBookingSimulation);
   }, [selectedSpot, fromDebounce, toDebounce]);
 
   function minTo(from: Date): Date {

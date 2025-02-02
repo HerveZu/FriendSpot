@@ -8,7 +8,7 @@ export default function Header() {
   const { userProfile } = useCurrentUser();
 
   return (
-    <View className="flex-row justify-end gap-8 px-8">
+    <View className="mt-4 flex-row justify-end gap-8 px-8">
       <View className="flex-row items-center gap-4">
         <Text>{userProfile.wallet.credits}</Text>
         <Text>{userProfile.wallet.pendingCredits}</Text>

@@ -17,6 +17,7 @@ export type UserProfile = {
     readonly currentlyUsedBy?: {
       readonly id: string;
       readonly displayName: string;
+      readonly pictureUrl: string;
     };
   };
   readonly wallet: {

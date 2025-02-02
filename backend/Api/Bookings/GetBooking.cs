@@ -28,7 +28,7 @@ public sealed record GetBookingResponse
         {
             public required string UserId { get; init; }
             public required string DisplayName { get; init; }
-            public required string PictureUrl { get; init; }
+            public required string? PictureUrl { get; init; }
         }
     }
 }
@@ -69,7 +69,7 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
                                 .First(),
                             SpotName = booking.From > now
                                 ? null
-                                : parkingSpot.SpotName
+                                : (string?)parkingSpot.SpotName
                         })
             )
             .AsNoTracking()

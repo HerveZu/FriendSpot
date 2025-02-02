@@ -3,9 +3,10 @@ import { PropsWithChildren, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 import { firebaseAuth } from '~/authentication/firebase';
+import { Loader } from '~/components/Loader';
 
 export default function AuthenticationGuard(props: PropsWithChildren) {
-  const [user] = useAuthState(firebaseAuth);
+  const [user, isLoading] = useAuthState(firebaseAuth);
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();
 
@@ -19,5 +20,5 @@ export default function AuthenticationGuard(props: PropsWithChildren) {
     router.navigate(isAuthenticated ? '/home' : '/welcome');
   }, [isAuthenticated, rootNavigationState?.key]);
 
-  return props.children;
+  return isLoading ? <Loader /> : props.children;
 }
