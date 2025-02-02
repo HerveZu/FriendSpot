@@ -2,7 +2,7 @@ import { differenceInSeconds, intervalToDuration, secondsToMilliseconds } from '
 import { toSeconds } from 'duration-fns';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { AppState, AppStateStatus, Pressable, SafeAreaView, View } from 'react-native';
+import { Pressable, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
 import { ContentView } from '~/components/ContentView';
@@ -10,6 +10,7 @@ import { Loader } from '~/components/Loader';
 import { Text } from '~/components/nativewindui/Text';
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { parseDuration, rgbToHex } from '~/lib/utils';
 
 export type SpotCountDownScreenParams = { activeBookingsJson: string };
@@ -32,15 +33,14 @@ export default function SpotCountDownScreen() {
   );
 }
 
-const RENDER_ON_SATES: AppStateStatus[] = ['background'];
-
 export function SpotCountDownOnRender(props: PropsWithChildren) {
   // default to 'true' to prevent rendering one frame before loading
   const [loading, setLoading] = useState(true);
   const getBooking = useGetBooking();
   const router = useRouter();
+  const stateTrigger = useListenOnAppStateChange('background');
 
-  function displayCountdown() {
+  useEffect(() => {
     setLoading(true);
     getBooking()
       .then((bookings) => {
@@ -54,23 +54,7 @@ export function SpotCountDownOnRender(props: PropsWithChildren) {
           });
       })
       .finally(() => setLoading(false));
-  }
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (appState) => {
-      if (!RENDER_ON_SATES.includes(appState)) {
-        return;
-      }
-
-      displayCountdown();
-    });
-
-    displayCountdown();
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+  }, [stateTrigger]);
 
   return loading ? <Loader /> : props.children;
 }
@@ -85,14 +69,13 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
 
   return (
     <CountdownCircleTimer
-      isGrowing
       strokeWidth={25}
       trailColor={colors.card}
       size={350}
       isPlaying
       initialRemainingTime={initialRemainingSeconds}
       duration={durationSeconds}
-      colors={[rgbToHex(colors.destructive), rgbToHex(colors.primary)]}
+      colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
       colorsTime={[0.95 * durationSeconds, 0.05 * durationSeconds]}>
       {({ remainingTime, color }) => {
         const remaining = intervalToDuration({
@@ -124,7 +107,9 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
                 {remaining.seconds?.toString().padStart(2, '0') ?? '00'}
               </Text>
             </View>
-            <Text variant="title1">n° {props.activeBooking.spotName}</Text>
+            <Text variant="title1" className="font-semibold">
+              n° {props.activeBooking.spotName}
+            </Text>
           </View>
         );
       }}

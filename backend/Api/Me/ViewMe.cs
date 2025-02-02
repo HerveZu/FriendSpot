@@ -18,6 +18,14 @@ public sealed record MeResponse
     public required decimal Rating { get; init; }
     public required SpotStatus? Spot { get; init; }
     public required WalletStatus Wallet { get; init; }
+    public required Booking? BookingToRate { get; init; }
+
+    [PublicAPI]
+    public sealed record Booking
+    {
+        public required Guid ParkingLotId { get; init; }
+        public required Guid Id { get; init; }
+    }
 
     [PublicAPI]
     public sealed record WalletStatus
@@ -65,54 +73,72 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
 
         var now = DateTimeOffset.Now;
         var me = await (from user in dbContext.Set<User>()
-            where user.Identity == currentUser.Identity
-            select new MeResponse
-            {
-                DisplayName = user.DisplayName,
-                PictureUrl = user.PictureUrl,
-                Rating = user.Rating.Rating,
-                Spot = dbContext.Set<ParkingSpot>()
-                    .Where(spot => spot.OwnerId == user.Identity)
-                    .Select(
-                        spot => new MeResponse.SpotStatus
-                        {
-                            CurrentlyUsedBy = spot.Bookings
-                                .Where(booking => now >= booking.From && booking.To >= now)
-                                .Select(
-                                    booking => dbContext.Set<User>()
-                                        .First(bookingUser => bookingUser.Identity == booking.BookingUserId))
-                                .Select(
-                                    bookingUser => new MeResponse.SpotStatus.SpotUser
-                                    {
-                                        Id = bookingUser.Identity,
-                                        DisplayName = bookingUser.DisplayName,
-                                        PictureUrl = bookingUser.PictureUrl
-                                    })
-                                .FirstOrDefault(),
-                            Available = spot.Availabilities
-                                .Any(availability => now >= availability.From && availability.To >= now),
-                            Name = spot.SpotName,
-                            Parking = dbContext.Set<Parking>()
-                                .Where(parking => parking.Id == spot.ParkingId)
-                                .Select(
-                                    parking => new MeResponse.SpotStatus.SpotParking
-                                    {
-                                        Id = parking.Id,
-                                        Name = parking.Name,
-                                        Address = parking.Address
-                                    })
-                                .First()
-                        })
-                    .FirstOrDefault(),
-                Wallet = dbContext.Set<Wallet>()
-                    .Select(
-                        wallet => new MeResponse.WalletStatus
-                        {
-                            Credits = wallet.Credits,
-                            PendingCredits = wallet.PendingCredits
-                        })
-                    .First()
-            }).FirstAsync(ct);
+                where user.Identity == currentUser.Identity
+                select new MeResponse
+                {
+                    DisplayName = user.DisplayName,
+                    PictureUrl = user.PictureUrl,
+                    Rating = user.Rating.Rating,
+                    BookingToRate = dbContext.Set<ParkingSpot>()
+                        .SelectMany(
+                            spot => spot.Bookings
+                                .Where(booking => booking.BookingUserId == user.Identity)
+                                .Where(booking => booking.To < now)
+                                .Select(booking => new { booking, spotId = spot.Id }))
+                        .OrderByDescending(x => x.booking.To)
+                        .Take(1)
+                        .Where(x => x.booking.Rating == null)
+                        .Select(
+                            x => new MeResponse.Booking
+                            {
+                                Id = x.booking.Id,
+                                ParkingLotId = x.spotId
+                            })
+                        .FirstOrDefault(),
+                    Spot = dbContext.Set<ParkingSpot>()
+                        .Where(spot => spot.OwnerId == user.Identity)
+                        .Select(
+                            spot => new MeResponse.SpotStatus
+                            {
+                                CurrentlyUsedBy = spot.Bookings
+                                    .Where(booking => now >= booking.From && booking.To >= now)
+                                    .Select(
+                                        booking => dbContext.Set<User>()
+                                            .First(bookingUser => bookingUser.Identity == booking.BookingUserId))
+                                    .Select(
+                                        bookingUser => new MeResponse.SpotStatus.SpotUser
+                                        {
+                                            Id = bookingUser.Identity,
+                                            DisplayName = bookingUser.DisplayName,
+                                            PictureUrl = bookingUser.PictureUrl
+                                        })
+                                    .FirstOrDefault(),
+                                Available = spot.Availabilities
+                                    .Any(availability => now >= availability.From && availability.To >= now),
+                                Name = spot.SpotName,
+                                Parking = dbContext.Set<Parking>()
+                                    .Where(parking => parking.Id == spot.ParkingId)
+                                    .Select(
+                                        parking => new MeResponse.SpotStatus.SpotParking
+                                        {
+                                            Id = parking.Id,
+                                            Name = parking.Name,
+                                            Address = parking.Address
+                                        })
+                                    .First()
+                            })
+                        .FirstOrDefault(),
+                    Wallet = dbContext.Set<Wallet>()
+                        .Select(
+                            wallet => new MeResponse.WalletStatus
+                            {
+                                Credits = wallet.Credits,
+                                PendingCredits = wallet.PendingCredits
+                            })
+                        .First()
+                })
+            .AsSplitQuery()
+            .FirstAsync(ct);
 
         await SendOkAsync(me, ct);
     }

@@ -290,9 +290,10 @@ function DateStatus({
 
 function DateRange(props: { from: Date | string; to: Date | string; duration: string }) {
   const inProgress = isWithinInterval(new Date(), {
-    start: startOfDay(props.from),
-    end: endOfDay(props.to),
+    start: props.from,
+    end: props.to,
   });
+
   const elapsedMinutes = inProgress && differenceInMinutes(new Date(), props.from);
   const duration = parseDuration(props.duration);
 
@@ -334,7 +335,7 @@ function ListSheet(
   }, [ref.current, props.open]);
 
   return (
-    <Sheet ref={ref} onDismiss={() => props.onOpen(false)}>
+    <Sheet ref={ref} onDismiss={() => props.onOpen(false)} topInset={150}>
       <BottomSheetView>
         <SafeAreaView>
           <ContentSheetView className="flex-col justify-between gap-4">
