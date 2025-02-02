@@ -12,7 +12,7 @@ export function UserAvatar({
   displayName: string;
   pictureUrl?: string;
 } & ViewProps) {
-  const namesInitials = displayName.split(' ').map((name) => name[0].toUpperCase());
+  const namesInitials = displayName.split(' ').map((name) => name[0]?.toUpperCase());
   const userInitials = [
     namesInitials[0],
     namesInitials.length > 1 ? namesInitials[namesInitials.length - 1] : undefined,

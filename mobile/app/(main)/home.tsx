@@ -19,7 +19,7 @@ import {
   startOfDay,
 } from 'date-fns';
 import { toMinutes } from 'duration-fns';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import React, {
   Dispatch,
   PropsWithChildren,
@@ -42,7 +42,6 @@ import { useDebounce } from 'use-debounce';
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ContentSheetView, ContentView } from '~/components/ContentView';
-import { Logo } from '~/components/Logo';
 import { Rating } from '~/components/Rating';
 import { Tag } from '~/components/Tag';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -80,9 +79,6 @@ export default function HomeScreen() {
   const [availabilityListSheetOpen, setAvailabilityListSheetOpen] = useState(false);
   const [booking, setBooking] = useState<BookingsResponse>();
   const [availabilities, setAvailabilities] = useState<AvailabilitiesResponse>();
-
-  const router = useRouter();
-
   const startOfToday = startOfDay(new Date());
 
   useEffect(() => {
@@ -98,19 +94,7 @@ export default function HomeScreen() {
       <SafeAreaView>
         <ContentView className="flex-col justify-between">
           {!userProfile.spot ? (
-            <View className="mx-auto my-auto flex-col gap-24">
-              <View className="flex-row justify-center">
-                <Logo />
-              </View>
-              <View className="flex-col gap-12">
-                <Text variant="largeTitle" className="text-center font-bold">
-                  Défini ton spot pour utiliser l'application
-                </Text>
-                <Button variant="primary" size="lg" onPress={() => router.push('/user-profile')}>
-                  <Text>C'est parti</Text>
-                </Button>
-              </View>
-            </View>
+            <Redirect href="/user-profile" />
           ) : (
             <>
               <View className="flex-col gap-6">

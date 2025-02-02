@@ -2,9 +2,9 @@ import { View, ViewProps } from 'react-native';
 
 import { cn } from '~/lib/cn';
 
-export function Logo() {
+export function Logo({ className, ...props }: ViewProps) {
   return (
-    <View className="flex-row items-center">
+    <View className={cn('flex-row items-center', className)} {...props}>
       <LogoCard className="-mr-2 -rotate-12" />
       <LogoCard className="-ml-2 rotate-12" primary />
     </View>
