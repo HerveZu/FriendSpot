@@ -42,6 +42,7 @@ import { useDebounce } from 'use-debounce';
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ContentSheetView, ContentView } from '~/components/ContentView';
+import { Logo } from '~/components/Logo';
 import { Rating } from '~/components/Rating';
 import { Tag } from '~/components/Tag';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -80,6 +81,8 @@ export default function HomeScreen() {
   const [booking, setBooking] = useState<BookingsResponse>();
   const [availabilities, setAvailabilities] = useState<AvailabilitiesResponse>();
 
+  const router = useRouter();
+
   const startOfToday = startOfDay(new Date());
 
   useEffect(() => {
@@ -94,53 +97,71 @@ export default function HomeScreen() {
     <>
       <SafeAreaView>
         <ContentView className="flex-col justify-between">
-          <View className="flex-col gap-6">
-            <Text variant="title1">Mes réservations</Text>
-            {booking && (
-              <View className="flex-col gap-2">
-                {booking.bookings.slice(0, 1).map((booking, id) => (
-                  <BookingCard key={id} booking={booking} countdownOnTap />
-                ))}
+          {!userProfile.spot ? (
+            <View className="mx-auto my-auto flex-col gap-24">
+              <View className="flex-row justify-center">
+                <Logo />
+              </View>
+              <View className="flex-col gap-12">
+                <Text variant="largeTitle" className="text-center font-bold">
+                  Défini ton spot pour utiliser l'application
+                </Text>
+                <Button variant="primary" size="lg" onPress={() => router.push('/user-profile')}>
+                  <Text>C'est parti</Text>
+                </Button>
+              </View>
+            </View>
+          ) : (
+            <>
+              <View className="flex-col gap-6">
+                <Text variant="title1">Mes réservations</Text>
+                {booking && (
+                  <View className="flex-col gap-2">
+                    {booking.bookings.slice(0, 1).map((booking, id) => (
+                      <BookingCard key={id} booking={booking} countdownOnTap />
+                    ))}
 
-                {booking.bookings.length > 0 && (
-                  <Button variant="tonal" onPress={() => setBookingListSheetOpen(true)}>
-                    <Text>Voir plus</Text>
-                  </Button>
+                    {booking.bookings.length > 0 && (
+                      <Button variant="tonal" onPress={() => setBookingListSheetOpen(true)}>
+                        <Text>Voir plus</Text>
+                      </Button>
+                    )}
+                  </View>
                 )}
               </View>
-            )}
-          </View>
-          <View className="flex-col gap-6">
-            <View className="flex-row items-center justify-between">
-              <Text variant="title1">Mon spot</Text>
+              <View className="flex-col gap-6">
+                <View className="flex-row items-center justify-between">
+                  <Text variant="title1">Mon spot</Text>
+                  <Button
+                    disabled={!userProfile.spot}
+                    variant="primary"
+                    onPress={() => setLendSheetOpen(true)}>
+                    <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
+                  </Button>
+                </View>
+                {availabilities && (
+                  <View className="w-full grow flex-col justify-center gap-2">
+                    {availabilities.availabilities.slice(0, 1).map((availability, i) => (
+                      <MySpotAvailabilityCard key={i} availability={availability} />
+                    ))}
+                    {availabilities.availabilities.length > 0 && (
+                      <Button variant="tonal" onPress={() => setAvailabilityListSheetOpen(true)}>
+                        <Text>Voir plus</Text>
+                      </Button>
+                    )}
+                  </View>
+                )}
+              </View>
               <Button
                 disabled={!userProfile.spot}
+                size="lg"
                 variant="primary"
-                onPress={() => setLendSheetOpen(true)}>
-                <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
+                onPress={() => setBookSheetOpen(true)}>
+                <ThemedIcon component={FontAwesome6} name="car" size={18} color={COLORS.white} />
+                <Text>Trouver un spot</Text>
               </Button>
-            </View>
-            {availabilities && (
-              <View className="w-full grow flex-col justify-center gap-2">
-                {availabilities.availabilities.slice(0, 1).map((availability, i) => (
-                  <MySpotAvailabilityCard key={i} availability={availability} />
-                ))}
-                {availabilities.availabilities.length > 0 && (
-                  <Button variant="tonal" onPress={() => setAvailabilityListSheetOpen(true)}>
-                    <Text>Voir plus</Text>
-                  </Button>
-                )}
-              </View>
-            )}
-          </View>
-          <Button
-            disabled={!userProfile.spot}
-            size="lg"
-            variant="primary"
-            onPress={() => setBookSheetOpen(true)}>
-            <ThemedIcon component={FontAwesome6} name="car" size={18} color={COLORS.white} />
-            <Text>Trouver un spot</Text>
-          </Button>
+            </>
+          )}
         </ContentView>
       </SafeAreaView>
       {booking && (
