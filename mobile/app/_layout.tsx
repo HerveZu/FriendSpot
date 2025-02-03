@@ -1,3 +1,4 @@
+import React from 'react';
 import '../global.css';
 import 'expo-dev-client';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
