@@ -66,11 +66,10 @@ export default function UserProfileScreen() {
             <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
           </View>
         </View>
-        <View className="mt-10 gap-2">
-          <Text variant={'title2'}>Email</Text>
-          <View className="flex-row items-center">
+        <View className="mt-12 gap-2">
+          <View className="flex-row items-center border-2 border-red-500">
             <TextInput
-              className="flex w-full items-center bg-primary p-2"
+              className="flex w-full justify-center bg-primary "
               value={currentEmail}
               editable={true}
               onChangeText={(text) => setCurrentEmail(text)}
@@ -87,18 +86,18 @@ export default function UserProfileScreen() {
           <Text className="mx-4">Mon spot</Text>
           <View className="h-px flex-1 bg-primary" />
         </View>
-        <Button className="mt-5 h-auto flex-col items-start justify-start">
-          <Text>
+        <Button className="mt-5 h-auto flex-col items-start justify-start border-2 border-red-500">
+          <Text className="border-2 border-red-500">
             {userProfile.spot ? userProfile.spot.parking.name : 'Aucun nom de parking de défini'}
           </Text>
-          <Button className="flex-row items-center gap-2">
+          <View className="w-11/12 flex-row items-center justify-start gap-2 border-2 border-red-500 py-2">
             <ThemedIcon name={'map-marker'} size={24} />
             <Text className="text-md">
               {userProfile.spot?.parking
                 ? userProfile.spot?.parking?.address
                 : 'Aucune adresse parking définie'}
             </Text>
-          </Button>
+          </View>
         </Button>
         <View className="mt-6 flex-row justify-around">
           <View className="h-52 w-36 border-2 border-dashed border-primary"></View>
