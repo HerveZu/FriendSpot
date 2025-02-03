@@ -35,7 +35,7 @@ export function useApiRequest() {
       }
 
       if (response.status === 204) {
-        return;
+        return null as TResponse;
       }
 
       return (await response.json()) as TResponse;

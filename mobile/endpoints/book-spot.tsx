@@ -13,7 +13,7 @@ export type BookSpotResponse = {
   readonly usedCredits: number;
 };
 
-export function useBook() {
+export function useBookSpot() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
