@@ -19,15 +19,14 @@ export default function StepTwoScreen() {
 
   const router = useRouter();
 
-  function createAccount() {
-    createUserWithEmailAndPassword(firebaseAuth, email, password!)
-      .then((result) => {
-        updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
-      })
-      .catch((e) => {
-        console.error(e);
-        setError('Cette addresse e-mail est déjà utilisé');
-      });
+  async function createAccount() {
+    try {
+      const result = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
+      updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
+    } catch (e) {
+      console.error(e);
+      setError('Cette addresse e-mail est déjà utilisé');
+    }
   }
 
   if (!email || !displayName) {

@@ -96,6 +96,7 @@ Authorization: Bearer {{$auth.token("other")}}
 
 ###
 
+
 GET {{Api_HostAddress}}/spots/availabilities
 Accept: application/json
 Authorization: Bearer {{$auth.token("me")}}

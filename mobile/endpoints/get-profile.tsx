@@ -6,6 +6,7 @@ export type UserProfile = {
   readonly displayName: string;
   readonly pictureUrl?: string;
   readonly rating: number;
+  readonly bookingToRate?: BookingToRate;
   readonly spot?: {
     readonly available: boolean;
     readonly name: string;
@@ -17,12 +18,18 @@ export type UserProfile = {
     readonly currentlyUsedBy?: {
       readonly id: string;
       readonly displayName: string;
+      readonly pictureUrl: string;
     };
   };
   readonly wallet: {
     readonly credits: number;
     readonly pendingCredits: number;
   };
+};
+
+export type BookingToRate = {
+  id: string;
+  parkingLotId: string;
 };
 
 export function useGetProfile() {

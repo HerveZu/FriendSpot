@@ -11,7 +11,7 @@ export default function StepOneScreen() {
   const [email, setEmail] = useState<string>();
   const router = useRouter();
 
-  function handleSubmit(email: string) {
+  function goToStep2(email: string) {
     router.push({
       pathname: '/signUp/step-two',
       params: { displayName, email },
@@ -22,7 +22,7 @@ export default function StepOneScreen() {
     <SafeAreaView>
       <AuthForm
         title={<AuthFormTitle title="Créer un compte" />}
-        onSubmit={() => handleSubmit(email!)}
+        onSubmit={async () => goToStep2(email!)}
         submitText="Suivant">
         <AuthFormInput
           value={displayName}

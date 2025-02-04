@@ -12,7 +12,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { firebaseAuth } from '~/authentication/firebase';
 import { getAuth, updateEmail, verifyBeforeUpdateEmail } from 'firebase/auth';
 import validator from 'validator';
-import ContentView from '~/components/ContentView';
+import { ContentView } from '~/components/ContentView';
 import { Text } from '~/components/nativewindui/Text';
 import { Rating } from '~/components/Rating';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
