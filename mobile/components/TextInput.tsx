@@ -26,7 +26,7 @@ export function TextInput({ className, onFocus, onBlur, style, ...props }: TextI
         onBlur && onBlur(e);
       }}
       value={props.value}
-      className={cn('rounded-lg border p-4 text-xl', className)}
+      className={cn('rounded-lg p-4 text-xl', className)}
       placeholderTextColor={colors.grey}
       style={[
         {
