@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { SafeAreaView, View, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { firebaseAuth } from '~/authentication/firebase';
@@ -90,30 +97,34 @@ export default function UserProfileScreen() {
   }, [bottomSheetModalRef.current, bookSheetOpen]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ContentView className="w-[95%]">
-          <View className="flex-row items-center justify-around gap-5 ">
-            <View>
-              {userProfile.pictureUrl ? (
-                <Image
-                  source={{ uri: userProfile.pictureUrl }}
-                  style={{ width: 100, height: 100 }}
-                />
-              ) : (
-                <Image source={avatar} style={{ width: 100, height: 100 }} />
-              )}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={100}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <ContentView className="mx-auto w-full rounded-lg p-4 shadow-lg ">
+            <View className="flex-row items-center justify-around gap-5 ">
+              <View>
+                {userProfile.pictureUrl ? (
+                  <Image
+                    source={{ uri: userProfile.pictureUrl }}
+                    style={{ width: 100, height: 100, borderRadius: 50 }}
+                  />
+                ) : (
+                  <Image source={avatar} style={{ width: 130, height: 130, borderRadius: 65 }} />
+                )}
+              </View>
+              <View className="items-center gap-4">
+                <Text variant={'largeTitle'} className="rounded-lg bg-primary px-2 text-white">
+                  {userProfile.displayName}
+                </Text>
+                <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
+              </View>
             </View>
-            <View className="gap-4">
-              <Text variant={'largeTitle'} className={`rounded-lg bg-primary px-2`}>
-                {userProfile.displayName}
-              </Text>
-              <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
-            </View>
-          </View>
-          <View className="mt-10 flex-row items-center ">
             <TextInput
-              className="flex h-auto w-full justify-center bg-primary text-lg "
+              className="mt-10 h-auto w-full justify-center rounded-lg bg-primary p-2 text-xl"
+              style={{ color: 'white' }}
               value={currentEmail}
               editable={true}
               onChangeText={(text) => setCurrentEmail(text)}
@@ -123,39 +134,49 @@ export default function UserProfileScreen() {
               }}
               onEndEditing={(event) => verifyEmail(event.nativeEvent.text)}
             />
-          </View>
-          <View className="mt-10 flex-row items-center justify-center">
-            <View className="h-px flex-1 bg-primary" />
-            <Text className="mx-4">Mon spot</Text>
-            <View className="h-px flex-1 bg-primary" />
-          </View>
-          <Button
-            className="mt-5 h-auto flex-col items-start justify-start"
-            onPress={() => setBookSheetOpen(true)}>
-            <Text className="pt-1">
-              {userProfile.spot ? userProfile.spot.parking.name : 'Aucun nom de parking de défini'}
-            </Text>
-            <View className="w-11/12 flex-row items-center justify-start gap-2 pb-1">
-              <ThemedIcon name={'map-marker'} size={24} />
-              <Text className="text-md">
-                {userProfile.spot?.parking
-                  ? userProfile.spot?.parking?.address
-                  : 'Aucune adresse parking définie'}
+            <View className="mt-10 flex-row items-center justify-center">
+              <View className="h-px flex-1 bg-primary" />
+              <Text className="mx-4 text-primary">Mon spot</Text>
+              <View className="h-px flex-1 bg-primary" />
+            </View>
+            <Button
+              className="mt-10 h-auto flex-col items-start justify-start rounded-lg bg-primary p-2"
+              onPress={() => setBookSheetOpen(true)}>
+              <Text className="text-xl text-white">
+                {userProfile.spot
+                  ? userProfile.spot.parking.name
+                  : 'Aucun nom de parking de défini'}
               </Text>
-            </View>
-          </Button>
-          <View className="mt-8 flex-row justify-around">
-            <View className="h-52 w-36 border-2 border-dashed border-primary"></View>
-            <View className="mt-5 flex">
-              <Text className="text-lg">Place n°</Text>
-              <Button className="h-auto">
-                <Text className="text-white">
-                  {userProfile.spot ? userProfile.spot.name : 'A43'}
+              <View className="w-11/12 flex-row items-center justify-start gap-2 py-1">
+                <ThemedIcon name={'map-marker'} size={20} color={'white'} />
+                <View>
+                  <Text className="text-md text-white ">
+                    {userProfile.spot?.parking
+                      ? userProfile.spot?.parking?.address
+                      : 'Aucune adresse parking définie'}
+                  </Text>
+                  {/* Ici */}
+                </View>
+              </View>
+            </Button>
+            <View className=" mt-6 flex-row justify-between rounded-lg px-4 py-2">
+              <View className="mb-2 items-center gap-3">
+                <Text className="max-w-32 rounded-lg">
+                  Utilisé par {userProfile.spot?.currentlyUsedBy?.displayName ?? 'hervé'}
                 </Text>
-              </Button>
+                <View className="h-40 w-32 rounded-lg border-2 border-dashed border-primary"></View>
+              </View>
+              <View className="mt-5 flex gap-2">
+                <Text className="text-xl">Place n°</Text>
+                <Button className="h-auto rounded-lg bg-primary p-2">
+                  <Text className="text-xl text-white">
+                    {userProfile.spot ? userProfile.spot.name : 'A43'}
+                  </Text>
+                </Button>
+              </View>
             </View>
-          </View>
-        </ContentView>
+          </ContentView>
+        </ScrollView>
         <Sheet
           ref={bottomSheetModalRef}
           enableDynamicSizing={false}
@@ -165,37 +186,37 @@ export default function UserProfileScreen() {
           snapPoints={[550]}>
           <BottomSheetView>
             <SafeAreaView>
-              <ContentView>
-                <View className="h-full flex-col gap-8 pb-8">
+              <ContentView className="rounded-lg p-4 shadow-lg">
+                <View className="h-full flex-1 flex-col gap-8 pb-8 ">
                   <View className="mx-auto w-11/12 grow flex-col gap-6">
-                    <View className="flex-row items-center gap-4 rounded-lg border border-foreground">
+                    <View className="flex-row items-center gap-4 rounded-lg border border-foreground p-2">
                       <TextInput
-                        className="flex w-full justify-center border border-foreground"
+                        className="flex w-full justify-center rounded-lg border border-foreground p-2"
                         editable={true}
                         value={search}
                         onChangeText={(text) => setSearch(text)}
                         onEndEditing={(event) => verifyEmail(event.nativeEvent.text)}
-                        placeholder="Rechercher un parking..."
+                        placeholder="Rechercher un parking"
                       />
                     </View>
                     <View className="mx-auto mt-2 h-full gap-8">
                       {parking &&
                         parking.slice(0, 2).map((parking) => (
                           <Button
-                            className="min-h-16 w-full min-w-80 justify-between"
+                            className="min-h-16 w-full min-w-80 justify-between rounded-lg bg-primary p-2"
                             key={parking.id}
                             onPress={() => {
                               setSelectedParking(parking), setSearch(parking.address);
                             }}>
                             <Text className="max-w-52">{parking.address}</Text>
-                            <Text>32 spots</Text>
+                            <Text className="text-white">32 spots</Text>
                           </Button>
                         ))}
                       <Button
-                        className="mt-20"
+                        className="mt-20 rounded-lg bg-primary p-2"
                         disabled={!selectedParking}
                         onPress={() => saveParking()}>
-                        <Text>Enregistrer</Text>
+                        <Text className="py-2 text-white">Enregistrer</Text>
                       </Button>
                     </View>
                   </View>
