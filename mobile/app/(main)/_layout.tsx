@@ -23,16 +23,20 @@ export default function MainLayout() {
           <AskUserToRate>
             <LinearGradient
               className="absolute left-0 right-0 top-0"
-              colors={[opacity(colors.primary, 0.6), opacity(colors.card, 0.2), colors.background]}
+              colors={[
+                opacity(colors.primary, 0.8),
+                opacity(colors.card, 0.3),
+                opacity(colors.background, 0),
+              ]}
               start={{ x: 1, y: 0 }}
-              end={{ x: 0, y: 3 }}>
-              <Header className="mt-safe-offset-4 mb-6" />
+              end={{ x: 0.3, y: 3 }}>
+              <Header className="mt-safe-offset-2 mb-4" />
             </LinearGradient>
             <Tabs
               screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: false,
-                tabBarStyle: { paddingTop: 5 },
+                tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
                 tabBarIconStyle: { height: 32 },
               }}>
               <Tabs.Screen
