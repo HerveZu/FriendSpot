@@ -32,7 +32,11 @@ export function TextInput({
   }, [focus, inputRef.current]);
 
   return (
-    <View className={cn('relative w-full flex-row items-center gap-4', className)}>
+    <View
+      className={cn(
+        `relative w-full flex-row items-center ${iconPosition === 'left' && 'gap-4'}`,
+        className
+      )}>
       {icon && iconPosition === 'left' && (
         <ThemedIcon name={icon} size={iconSize} color={colors.primary} />
       )}
@@ -50,8 +54,8 @@ export function TextInput({
         placeholderTextColor={colors.grey}
         style={[
           {
-            color: colors.foreground,
             borderColor: focus ? colors.primary : colors.card,
+            color: colors.foreground,
           },
           omitObj(style),
         ]}
@@ -59,7 +63,7 @@ export function TextInput({
         className="flex-1"
       />
       {icon && iconPosition === 'right' && (
-        <ThemedIcon name={icon} size={iconSize} color={colors.primary} />
+        <ThemedIcon name={icon} size={iconSize} color={colors.foreground} />
       )}
     </View>
   );
