@@ -47,10 +47,10 @@ export default function UserProfileScreen() {
   const [selectedParking, setSelectedParking] = useState<Parking>();
   const [value] = useDebounce(search, 400);
 
-  // useEffect(() => {
-  //   apiRequest<Parking[]>(`/parking?search=${value}`, 'GET').then(setParking);
-  //   console.log(parking);
-  // }, [value]);
+  useEffect(() => {
+    apiRequest<Parking[]>(`/parking?search=${value}`, 'GET').then(setParking);
+    console.log(parking);
+  }, [value]);
 
   const saveParking = useCallback(async () => {
     try {
@@ -105,30 +105,32 @@ export default function UserProfileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={100}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <ContentView className="mx-auto w-full rounded-lg p-4">
-            <View className="flex-row items-center justify-around gap-5 ">
-              <View className="">
+          <ContentView className="bg-gray mx-auto w-full rounded-lg p-4">
+            <View className="flex w-full flex-row items-center">
+              <View className="flex-1">
                 {userProfile.pictureUrl ? (
                   <Image
                     source={{ uri: userProfile.pictureUrl }}
                     style={{ width: 130, height: 130, borderRadius: 50 }}
                   />
                 ) : (
-                  <View className="shadow-lg shadow-primary">
+                  <View className="shadow-md shadow-primary">
                     <Image source={avatar} style={{ width: 130, height: 130, borderRadius: 65 }} />
                   </View>
                 )}
               </View>
-              <View className="items-center gap-4">
-                <Text variant={'title1'} className="rounded-lg bg-primary px-2 text-white">
-                  {userProfile.displayName}
+              <View className="flex-1 gap-2">
+                <Text variant={'title1'} className="flex font-bold text-foreground">
+                  {userProfile.displayName} {'Catalano'}
                 </Text>
                 <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
               </View>
             </View>
             <TextInput
-              className="my-auto mt-10 h-auto w-full justify-center rounded-lg bg-primary text-lg"
-              style={{ color: 'white' }}
+              className="mt-8 rounded-lg border border-primary p-4 text-xl"
+              icon={'pencil'}
+              iconPosition="right"
+              iconSize={18}
               value={currentEmail}
               editable={true}
               onChangeText={(text) => setCurrentEmail(text)}
@@ -138,59 +140,55 @@ export default function UserProfileScreen() {
               }}
               onEndEditing={(event) => verifyEmail(event.nativeEvent.text)}
             />
-            <View className="mt-8 flex-row items-center justify-center">
-              <View className="h-px flex-1 bg-primary" />
-              <Text className="mx-4 text-primary">Mon spot</Text>
-              <View className="h-px flex-1 bg-primary" />
-            </View>
             <Button
-              className="mt-8 h-auto flex-col items-start rounded-lg bg-primary"
+              className="mt-6 h-auto flex-col items-start rounded-lg bg-card"
               onPress={() => setBookSheetOpen(true)}>
-              <View className="w-full flex-row items-center justify-between px-1">
-                <Text className="text-lg text-white">
+              <View className="w-full flex-row items-center justify-between">
+                <Text className="max-w-64 text-lg text-foreground">
                   {userProfile.spot
                     ? userProfile.spot.parking.name
                     : 'Aucun nom de parking de défini'}
                 </Text>
-                <ThemedIcon name={'pencil'} size={18} color={'white'} />
+                <ThemedIcon name={'pencil'} size={18} />
               </View>
-              <View className="w-11/12 flex-row items-center justify-start gap-2">
-                <ThemedIcon name={'map-marker'} size={20} color={'white'} />
-                <View>
-                  <Text className="text-sm text-white ">
-                    {userProfile.spot?.parking
-                      ? userProfile.spot?.parking?.address
-                      : 'Aucune adresse parking définie'}
-                  </Text>
-                </View>
+              <View className="w-11/12 flex-row items-center justify-start gap-4">
+                <ThemedIcon name={'map-marker'} size={20} />
+                <Text className="max-w-64 text-sm text-foreground">
+                  {userProfile.spot?.parking
+                    ? userProfile.spot?.parking?.address
+                    : 'Aucune adresse parking définie'}
+                </Text>
               </View>
             </Button>
-            <View className=" mt-8 flex-row justify-center gap-4 rounded-lg border-2 border-primary px-2 py-2">
-              <View className="mb-2 flex-1 items-center gap-5 ">
-                <View className="flex-row items-center gap-2 ">
-                  <Text className="max-w-32 text-ellipsis rounded-lg text-sm">
-                    Utilisé par {'\n'}{' '}
-                    <Text className="text-primary">
-                      {userProfile.spot?.currentlyUsedBy?.displayName ?? 'Jean-marc'}
-                    </Text>
-                  </Text>
-                  <Image source={avatar2} style={{ width: 25, height: 25, borderRadius: 65 }} />
-                </View>
+            <View className="mt-6 flex-row justify-center gap-4 rounded-lg border-4 border-card px-2 py-2">
+              <View className="mb-2 h-full items-center gap-2">
                 {/* <View className="h-40 w-32 rounded-lg border-2 border-dashed border-primary"></View> */}
-                <View className="justify-centert h-32 w-40">
-                  <Image className="h-full w-full rotate-90 " source={car} alt="car" />
+                <View className="h-26 w-32 flex-1">
+                  <Image className="h-full w-full rotate-90" source={car} alt="car" />
                 </View>
+                <Text className="item-center text-base text-xl font-bold text-foreground">
+                  {userProfile.spot ? userProfile.spot.name : 'A43'}
+                </Text>
               </View>
-              <View className="my-auto h-44 rounded-lg border-2 border-white"></View>
-              <View className="mt-5 flex-1 items-center gap-2">
-                <Text className="text-xl">Place n°</Text>
-                <Button className="h-auto w-[50%] rounded-lg bg-primary p-2">
-                  <Text className="text-xl text-white">
-                    {userProfile.spot ? userProfile.spot.name : 'A43'}
-                  </Text>
-                </Button>
+              <View className="my-auto h-44 rounded-lg border border-foreground"></View>
+
+              <View className="flex-1 flex-col justify-center gap-6">
+                <Text className="text-center text-lg font-bold">En cours d'utilisation</Text>
+                <View className="flex flex-col gap-4">
+                  <View className="flex-row items-center gap-2">
+                    <Image className="h-6 w-6" source={avatar2} alt="avatar" />
+                    <Text className="text-base">Jimmy Catalano</Text>
+                  </View>
+                </View>
+                <View className="mt-2 flex-row items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2">
+                  <ThemedIcon name={'clock-o'} size={18} color={'white'} />
+                  <Text className="text-center text-sm text-white">Encore 2h</Text>
+                </View>
               </View>
             </View>
+            <Button className="mt-20 bg-destructive">
+              <Text>Se déconnecter</Text>
+            </Button>
           </ContentView>
         </ScrollView>
         <Sheet
@@ -208,6 +206,9 @@ export default function UserProfileScreen() {
                     <View className="flex-row items-center gap-4 rounded-lg border border-primary p-2">
                       <TextInput
                         className="flex w-full justify-center rounded-lg p-2 text-base"
+                        icon={'search'}
+                        iconPosition="left"
+                        iconSize={18}
                         editable={true}
                         value={search}
                         onChangeText={(text) => setSearch(text)}
@@ -230,7 +231,7 @@ export default function UserProfileScreen() {
                         ))}
                     </View>
                     <Button
-                      className="absolute bottom-24 mt-auto w-full rounded-lg bg-primary p-2"
+                      className="absolute bottom-24 w-full rounded-lg bg-primary "
                       disabled={!selectedParking}
                       onPress={() => saveParking()}>
                       <Text className="py-2 text-white">Enregistrer</Text>
