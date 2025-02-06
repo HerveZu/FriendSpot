@@ -10,7 +10,13 @@ import {
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { firebaseAuth } from '~/authentication/firebase';
-import { getAuth, updateEmail, verifyBeforeUpdateEmail } from 'firebase/auth';
+import {
+  getAuth,
+  updateEmail,
+  verifyBeforeUpdateEmail,
+  updateProfile,
+  signOut,
+} from 'firebase/auth';
 import validator from 'validator';
 import { ContentView } from '~/components/ContentView';
 import { Text } from '~/components/nativewindui/Text';
@@ -26,6 +32,7 @@ import { useApiRequest } from '~/endpoints/use-api-request';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
 import car from '../../assets/car-user-profil.png';
+import * as ImagePicker from 'expo-image-picker';
 
 interface Parking {
   id: string;
@@ -37,6 +44,7 @@ export default function UserProfileScreen() {
   const { userProfile } = useCurrentUser();
   const [user] = useAuthState(firebaseAuth);
   const { colors } = useColorScheme();
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
   const [oldEmail, setOldEmail] = useState<string>('');
   const [currentEmail, setCurrentEmail] = useState<string>('');
@@ -46,6 +54,47 @@ export default function UserProfileScreen() {
   const [search, setSearch] = useState('');
   const [selectedParking, setSelectedParking] = useState<Parking>();
   const [value] = useDebounce(search, 400);
+  const auth = getAuth();
+  const bottomSheetModalRef = useSheetRef();
+
+  const handleLogout = () => {
+    const auth = getAuth();
+    signOut(auth).catch((error) => {
+      alert('La déconnexion à échouée');
+      console.error('Error signing out: ', error);
+    });
+  };
+
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+    if (!result.canceled) {
+      savePhotoUrl(result.assets[0].uri);
+    } else {
+      alert("Vous n'avez sélectionné aucune image");
+    }
+  };
+
+  const savePhotoUrl = useCallback(
+    async (image: string) => {
+      if (auth.currentUser) {
+        updateProfile(auth.currentUser, {
+          photoURL: image,
+        })
+          .then(() => {
+            console.log("L'image à bien été mise à jour");
+            setSelectedImage(image);
+          })
+          .catch((error) => {
+            console.log("ERREUR, l'image n'a pas été mise à jour");
+          });
+      }
+    },
+    [selectedImage]
+  );
 
   useEffect(() => {
     apiRequest<Parking[]>(`/parking?search=${value}`, 'GET').then(setParking);
@@ -61,10 +110,6 @@ export default function UserProfileScreen() {
       setSelectedParking(undefined);
     }
   }, [selectedParking]);
-
-  const bottomSheetModalRef = useSheetRef();
-
-  const auth = getAuth();
 
   // Not working because before changing mail, you need re-login user and verify email
   const verifyEmail = async (text: string) => {
@@ -107,9 +152,13 @@ export default function UserProfileScreen() {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <ContentView className="bg-gray mx-auto w-full rounded-lg p-4">
             <View className="flex w-full flex-row items-center">
-              <View className="flex-1">
-                <MeAvatar iconPencil={true} style={{ width: 130, height: 130, borderRadius: 50 }} />
-              </View>
+              <Button variant="plain" className="flex-1" onPress={pickImageAsync}>
+                <MeAvatar
+                  newSelectedImage={selectedImage}
+                  iconPencil={true}
+                  style={{ width: 130, height: 130, borderRadius: 50 }}
+                />
+              </Button>
               <View className="flex-1 gap-2">
                 <Text variant={'title1'} className="flex font-bold text-foreground">
                   {userProfile.displayName} {'Catalano'}
@@ -177,7 +226,7 @@ export default function UserProfileScreen() {
                 </View>
               </View>
             </View>
-            <Button className="mt-10 bg-destructive">
+            <Button className="mt-10 bg-destructive" onPress={() => handleLogout()}>
               <Text>Se déconnecter</Text>
             </Button>
           </ContentView>

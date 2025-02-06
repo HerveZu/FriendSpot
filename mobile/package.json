@@ -58,7 +58,8 @@
     "react-native-web": "~0.19.10",
     "tailwind-merge": "^2.2.1",
     "use-debounce": "^10.0.4",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "expo-image-picker": "~16.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
