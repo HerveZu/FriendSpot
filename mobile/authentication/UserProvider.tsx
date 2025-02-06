@@ -1,3 +1,4 @@
+import { User, updateProfile, updateEmail } from 'firebase/auth';
 import {
   createContext,
   PropsWithChildren,
@@ -16,6 +17,7 @@ import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 type UserProfileContext = {
   readonly userProfile: UserProfile;
   refreshProfile: () => Promise<void>;
+  updateInternalProfile: (photoURL: string, displayName: string) => Promise<void>;
 };
 
 const _UserProfileContext = createContext<UserProfileContext>(null!);
@@ -30,14 +32,33 @@ export default function UserProvider(props: PropsWithChildren) {
   const registerUser = useRegisterUser();
   const getProfile = useGetProfile();
   const stateTrigger = useListenOnAppStateChange('background');
+  const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
+
+  const updateInternalProfile = useCallback(
+    async (photoURL: string, displayName: string) => {
+      await updateProfile(firebaseUser, {
+        displayName: displayName,
+        photoURL: photoURL,
+      }).then(() => {
+        setInternalFirebaseUser((firebaseUser) => {
+          return {
+            ...firebaseUser,
+            photoURL,
+            displayName,
+          };
+        });
+      });
+    },
+    [updateProfile, setInternalFirebaseUser]
+  );
 
   useEffect(() => {
-    const displayName = firebaseUser.displayName ?? firebaseUser.email ?? '';
+    const displayName = internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? '';
 
-    registerUser({ displayName, pictureUrl: firebaseUser.photoURL }).then(() =>
+    registerUser({ displayName, pictureUrl: internalFirebaseUser.photoURL }).then(() =>
       getProfile().then(setUserProfile)
     );
-  }, [firebaseUser]);
+  }, [internalFirebaseUser]);
 
   useEffect(() => {
     refreshProfile().then();
@@ -48,7 +69,7 @@ export default function UserProvider(props: PropsWithChildren) {
   }, [getProfile, setUserProfile]);
 
   return userProfile ? (
-    <_UserProfileContext.Provider value={{ userProfile, refreshProfile }}>
+    <_UserProfileContext.Provider value={{ userProfile, refreshProfile, updateInternalProfile }}>
       {props.children}
     </_UserProfileContext.Provider>
   ) : (

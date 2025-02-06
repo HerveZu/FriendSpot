@@ -41,11 +41,8 @@ interface Parking {
 }
 
 export default function UserProfileScreen() {
-  const { userProfile } = useCurrentUser();
   const [user] = useAuthState(firebaseAuth);
   const { colors } = useColorScheme();
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-
   const [oldEmail, setOldEmail] = useState<string>('');
   const [currentEmail, setCurrentEmail] = useState<string>('');
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
@@ -56,6 +53,7 @@ export default function UserProfileScreen() {
   const [value] = useDebounce(search, 400);
   const auth = getAuth();
   const bottomSheetModalRef = useSheetRef();
+  const { userProfile, updateInternalProfile } = useCurrentUser();
 
   const handleLogout = () => {
     const auth = getAuth();
@@ -72,29 +70,11 @@ export default function UserProfileScreen() {
       quality: 1,
     });
     if (!result.canceled) {
-      savePhotoUrl(result.assets[0].uri);
+      updateInternalProfile(result.assets[0].uri, userProfile.displayName);
     } else {
       alert("Vous n'avez sélectionné aucune image");
     }
   };
-
-  const savePhotoUrl = useCallback(
-    async (image: string) => {
-      if (auth.currentUser) {
-        updateProfile(auth.currentUser, {
-          photoURL: image,
-        })
-          .then(() => {
-            console.log("L'image à bien été mise à jour");
-            setSelectedImage(image);
-          })
-          .catch((error) => {
-            console.log("ERREUR, l'image n'a pas été mise à jour");
-          });
-      }
-    },
-    [selectedImage]
-  );
 
   useEffect(() => {
     apiRequest<Parking[]>(`/parking?search=${value}`, 'GET').then(setParking);
@@ -158,7 +138,7 @@ export default function UserProfileScreen() {
                   accessibilityLabel="Edit Avatar">
                   <ThemedIcon name={'pencil'} size={14} color={'white'} />
                 </View>
-                <MeAvatar className="relative h-36 w-auto" newSelectedImage={selectedImage} />
+                <MeAvatar className="relative h-32 w-auto" />
               </Button>
               <View className="w-full flex-1 items-center gap-2">
                 <Text
@@ -170,7 +150,7 @@ export default function UserProfileScreen() {
               </View>
             </View>
             <TextInput
-              className="mt-8 rounded-lg border border-primary p-4 text-xl"
+              className="mt-8 rounded-lg border border-primary p-4"
               icon={'pencil'}
               iconPosition="right"
               iconSize={18}

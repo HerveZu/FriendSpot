@@ -6,7 +6,6 @@ import { Text } from '~/components/nativewindui/Text';
 export function UserAvatar({
   displayName,
   pictureUrl,
-  newSelectedImage,
   ...props
 }: {
   displayName: string;
@@ -21,15 +20,7 @@ export function UserAvatar({
 
   return (
     <Avatar alt="Profile" {...props}>
-      <AvatarImage
-        source={
-          newSelectedImage
-            ? { uri: newSelectedImage }
-            : pictureUrl
-              ? { uri: pictureUrl }
-              : undefined
-        }
-      />
+      <AvatarImage source={{ uri: pictureUrl }} />
       <AvatarFallback className="relative">
         <Text>{userInitials.join('')}</Text>
       </AvatarFallback>
@@ -37,17 +28,13 @@ export function UserAvatar({
   );
 }
 
-export function MeAvatar({
-  newSelectedImage,
-  ...props
-}: { newSelectedImage?: string } & ViewProps) {
+export function MeAvatar({ ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
 
   return (
     <UserAvatar
       displayName={userProfile.displayName}
       pictureUrl={userProfile.pictureUrl}
-      newSelectedImage={newSelectedImage}
       {...props}
     />
   );
