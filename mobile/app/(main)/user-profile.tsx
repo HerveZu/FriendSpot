@@ -21,10 +21,10 @@ import { Button } from '~/components/nativewindui/Button';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
-import avatar from '../../assets/avatar.png';
 import avatar2 from '../../assets/avatar-2.png';
 import { useApiRequest } from '~/endpoints/use-api-request';
 import { useDebounce } from 'use-debounce';
+import { MeAvatar } from '~/components/UserAvatar';
 import car from '../../assets/car-user-profil.png';
 
 interface Parking {
@@ -108,16 +108,7 @@ export default function UserProfileScreen() {
           <ContentView className="bg-gray mx-auto w-full rounded-lg p-4">
             <View className="flex w-full flex-row items-center">
               <View className="flex-1">
-                {userProfile.pictureUrl ? (
-                  <Image
-                    source={{ uri: userProfile.pictureUrl }}
-                    style={{ width: 130, height: 130, borderRadius: 50 }}
-                  />
-                ) : (
-                  <View className="shadow-md shadow-primary">
-                    <Image source={avatar} style={{ width: 130, height: 130, borderRadius: 65 }} />
-                  </View>
-                )}
+                <MeAvatar iconPencil={true} style={{ width: 130, height: 130, borderRadius: 50 }} />
               </View>
               <View className="flex-1 gap-2">
                 <Text variant={'title1'} className="flex font-bold text-foreground">
@@ -166,7 +157,7 @@ export default function UserProfileScreen() {
                 <View className="h-26 w-32 flex-1">
                   <Image className="h-full w-full rotate-90" source={car} alt="car" />
                 </View>
-                <Text className="item-center text-base text-xl font-bold text-foreground">
+                <Text className="item-center text-xl font-bold text-foreground">
                   {userProfile.spot ? userProfile.spot.name : 'A43'}
                 </Text>
               </View>
@@ -186,7 +177,7 @@ export default function UserProfileScreen() {
                 </View>
               </View>
             </View>
-            <Button className="mt-20 bg-destructive">
+            <Button className="mt-10 bg-destructive">
               <Text>Se déconnecter</Text>
             </Button>
           </ContentView>
