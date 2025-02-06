@@ -151,17 +151,20 @@ export default function UserProfileScreen() {
         keyboardVerticalOffset={100}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <ContentView className="bg-gray mx-auto w-full rounded-lg p-4">
-            <View className="flex w-full flex-row items-center">
-              <Button variant="plain" className="flex-1" onPress={pickImageAsync}>
-                <MeAvatar
-                  newSelectedImage={selectedImage}
-                  iconPencil={true}
-                  style={{ width: 130, height: 130, borderRadius: 50 }}
-                />
+            <View className="flex w-full flex-row items-center justify-between gap-4">
+              <Button className="" variant="plain" size={'none'} onPress={pickImageAsync}>
+                <View
+                  className="absolute bottom-0 right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-primary"
+                  accessibilityLabel="Edit Avatar">
+                  <ThemedIcon name={'pencil'} size={14} color={'white'} />
+                </View>
+                <MeAvatar className="relative h-36 w-auto" newSelectedImage={selectedImage} />
               </Button>
-              <View className="flex-1 gap-2">
-                <Text variant={'title1'} className="flex font-bold text-foreground">
-                  {userProfile.displayName} {'Catalano'}
+              <View className="w-full flex-1 items-center gap-2">
+                <Text
+                  variant={'title1'}
+                  className="flex w-full text-center font-bold text-foreground">
+                  {userProfile.displayName}
                 </Text>
                 <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
               </View>
