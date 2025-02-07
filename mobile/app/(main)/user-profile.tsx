@@ -10,14 +10,7 @@ import {
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { firebaseAuth } from '~/authentication/firebase';
-import {
-  getAuth,
-  updateEmail,
-  verifyBeforeUpdateEmail,
-  updateProfile,
-  signOut,
-} from 'firebase/auth';
-import validator from 'validator';
+import { getAuth, signOut } from 'firebase/auth';
 import { ContentView } from '~/components/ContentView';
 import { Text } from '~/components/nativewindui/Text';
 import { Rating } from '~/components/Rating';
@@ -33,6 +26,7 @@ import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
 import car from '../../assets/car-user-profil.png';
 import * as ImagePicker from 'expo-image-picker';
+import { LogoCard } from '~/components/Logo';
 
 interface Parking {
   id: string;
@@ -43,17 +37,16 @@ interface Parking {
 export default function UserProfileScreen() {
   const [user] = useAuthState(firebaseAuth);
   const { colors } = useColorScheme();
-  const [oldEmail, setOldEmail] = useState<string>('');
-  const [currentEmail, setCurrentEmail] = useState<string>('');
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const { apiRequest } = useApiRequest();
   const [parking, setParking] = useState<Parking[]>();
   const [search, setSearch] = useState('');
   const [selectedParking, setSelectedParking] = useState<Parking>();
   const [value] = useDebounce(search, 400);
-  const auth = getAuth();
   const bottomSheetModalRef = useSheetRef();
   const { userProfile, updateInternalProfile } = useCurrentUser();
+  const [currentDisplayName, setCurrentDisplayName] = useState<string>(userProfile.displayName);
+  const [oldDisplayName, setOldDisplayName] = useState<string>(userProfile.displayName);
 
   const handleLogout = () => {
     const auth = getAuth();
@@ -78,7 +71,6 @@ export default function UserProfileScreen() {
 
   useEffect(() => {
     apiRequest<Parking[]>(`/parking?search=${value}`, 'GET').then(setParking);
-    console.log(parking);
   }, [value]);
 
   const saveParking = useCallback(async () => {
@@ -91,30 +83,6 @@ export default function UserProfileScreen() {
     }
   }, [selectedParking]);
 
-  // Not working because before changing mail, you need re-login user and verify email
-  const verifyEmail = async (text: string) => {
-    if (validator.isEmail(text)) {
-      if (auth.currentUser) {
-        await verifyBeforeUpdateEmail(auth.currentUser, text).then(() => {
-          if (auth.currentUser) {
-            updateEmail(auth.currentUser, text);
-          } else {
-            return;
-          }
-        });
-      }
-    } else {
-      setCurrentEmail(oldEmail);
-      return;
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      setCurrentEmail(user.email ?? '');
-    }
-  }, [user]);
-
   useEffect(() => {
     if (bookSheetOpen) {
       bottomSheetModalRef.current?.present();
@@ -122,6 +90,17 @@ export default function UserProfileScreen() {
       bottomSheetModalRef.current?.dismiss();
     }
   }, [bottomSheetModalRef.current, bookSheetOpen]);
+
+  function checkDisplayName() {
+    if (currentDisplayName.trim() === '' || currentDisplayName === oldDisplayName) {
+      setCurrentDisplayName(oldDisplayName);
+      return;
+    } else {
+      if (user?.photoURL) {
+        updateInternalProfile(user?.photoURL, currentDisplayName);
+      }
+    }
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -134,35 +113,44 @@ export default function UserProfileScreen() {
             <View className="flex w-full flex-row items-center justify-between gap-4">
               <Button className="" variant="plain" size={'none'} onPress={pickImageAsync}>
                 <View
-                  className="absolute bottom-0 right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-primary"
+                  className="absolute bottom-0 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
                   accessibilityLabel="Edit Avatar">
                   <ThemedIcon name={'pencil'} size={14} color={'white'} />
                 </View>
                 <MeAvatar className="relative h-32 w-auto" />
               </Button>
-              <View className="w-full flex-1 items-center gap-2">
-                <Text
-                  variant={'title1'}
-                  className="flex w-full text-center font-bold text-foreground">
-                  {userProfile.displayName}
-                </Text>
+              <View className="w-full flex-1 flex-col gap-6">
+                <View className="flex-row items-center gap-4">
+                  <View className="flex-row gap-2">
+                    <Text className="text-xl font-semibold">{userProfile.wallet.credits}</Text>
+                    <LogoCard primary className="h-6 w-4 rounded" />
+                  </View>
+                  <View className="flex-row gap-2">
+                    <Text className="text-xl font-semibold">
+                      {userProfile.wallet.pendingCredits}
+                    </Text>
+                    <LogoCard className="h-6 w-4 rounded" />
+                  </View>
+                </View>
                 <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
               </View>
             </View>
             <TextInput
-              className="mt-8 rounded-lg border border-primary p-4"
+              className="mt-8 rounded-lg border border-foreground p-4"
               icon={'pencil'}
               iconPosition="right"
               iconSize={18}
-              value={currentEmail}
+              value={currentDisplayName}
               editable={true}
-              onChangeText={(text) => setCurrentEmail(text)}
+              onChangeText={(text) => setCurrentDisplayName(text)}
               onPressIn={() => {
-                setOldEmail(currentEmail);
-                setCurrentEmail('');
+                setOldDisplayName(currentDisplayName);
               }}
-              onEndEditing={(event) => verifyEmail(event.nativeEvent.text)}
+              onEndEditing={checkDisplayName}
             />
+            <View className="mt-5 w-full rounded-lg border border-foreground px-4 py-3 opacity-50">
+              <Text className="text-base">{user?.email}</Text>
+            </View>
             <Button
               className="mt-6 h-auto flex-col items-start rounded-lg bg-card"
               onPress={() => setBookSheetOpen(true)}>
@@ -235,7 +223,6 @@ export default function UserProfileScreen() {
                         editable={true}
                         value={search}
                         onChangeText={(text) => setSearch(text)}
-                        onEndEditing={(event) => verifyEmail(event.nativeEvent.text)}
                         placeholder="Rechercher un parking"
                       />
                     </View>
