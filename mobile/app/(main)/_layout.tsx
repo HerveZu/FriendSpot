@@ -4,8 +4,8 @@ import { Tabs } from 'expo-router';
 
 import { SpotCountDownOnRender } from '~/app/spot-count-down';
 import { AuthProvider } from '~/authentication/AuthProvider';
-import UserProvider from '~/authentication/UserProvider';
-import Header from '~/components/Header';
+import { UserProvider } from '~/authentication/UserProvider';
+import { Header } from '~/components/Header';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';

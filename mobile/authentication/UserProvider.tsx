@@ -24,7 +24,7 @@ export function useCurrentUser() {
   return useContext(_UserProfileContext);
 }
 
-export default function UserProvider(props: PropsWithChildren) {
+export function UserProvider(props: PropsWithChildren) {
   const { firebaseUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>();
   const registerUser = useRegisterUser();

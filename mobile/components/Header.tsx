@@ -6,7 +6,7 @@ import { LogoCard } from '~/components/Logo';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 
-export default function Header({ className, ...props }: ViewProps) {
+export function Header({ className, ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
 
   return (
