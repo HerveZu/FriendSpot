@@ -38,7 +38,7 @@ export function TextInput({
         className
       )}>
       {icon && iconPosition === 'left' && (
-        <ThemedIcon name={icon} size={iconSize} color={colors.primary} />
+        <ThemedIcon name={icon} size={iconSize} color={colors.foreground} />
       )}
       <ReactTextInput
         ref={inputRef}
