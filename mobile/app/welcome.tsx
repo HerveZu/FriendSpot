@@ -20,7 +20,7 @@ export default function WelcomeScreen() {
             FriendSpot
           </Text>
         </View>
-        <Logo className="mx-auto" />
+        <Logo className="mx-auto h-28 w-20" />
         <View className="flex-grow-2 w-full items-center gap-6">
           <View className="flex w-full flex-col items-center gap-4 p-4">
             <Link href="/signIn/login" asChild>

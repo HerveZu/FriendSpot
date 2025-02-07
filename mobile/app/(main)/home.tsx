@@ -1,4 +1,4 @@
-import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome5, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import {
@@ -71,6 +71,7 @@ import { COLORS } from '~/theme/colors';
 
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
+
   const getBooking = useGetBooking();
   const getAvailabilities = useGetAvailabilities();
   const [lendSheetOpen, setLendSheetOpen] = useState(false);
@@ -97,51 +98,53 @@ export default function HomeScreen() {
             <Redirect href="/user-profile" />
           ) : (
             <>
-              <View className="flex-col gap-6">
-                <Text variant="title1">Mes réservations</Text>
-                {booking && (
+              {booking && booking.bookings.length > 0 && (
+                <View className="flex-col gap-6">
+                  <View className="flex-row items-center gap-4">
+                    <ThemedIcon size={24} name="ticket" />
+                    <Text variant="title1">Mes réservations</Text>
+                  </View>
                   <View className="flex-col gap-2">
                     {booking.bookings.slice(0, 1).map((booking, id) => (
                       <BookingCard key={id} booking={booking} countdownOnTap />
                     ))}
-
-                    {booking.bookings.length > 0 && (
-                      <Button variant="tonal" onPress={() => setBookingListSheetOpen(true)}>
-                        <Text>Voir plus</Text>
-                      </Button>
-                    )}
+                    <Button variant="tonal" onPress={() => setBookingListSheetOpen(true)}>
+                      <Text>Voir plus</Text>
+                    </Button>
                   </View>
-                )}
-              </View>
-              <View className="flex-col gap-6">
-                <View className="flex-row items-center justify-between">
-                  <Text variant="title1">Mon spot</Text>
-                  <Button
-                    disabled={!userProfile.spot}
-                    variant="primary"
-                    onPress={() => setLendSheetOpen(true)}>
-                    <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
-                  </Button>
                 </View>
-                {availabilities && (
+              )}
+              {availabilities && availabilities.availabilities.length > 0 && (
+                <View className="flex-col gap-6">
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-4">
+                      <ThemedIcon size={24} name="car-side" component={FontAwesome5} />
+                      <Text variant="title1">Mon spot</Text>
+                    </View>
+                    <Button
+                      disabled={!userProfile.spot}
+                      variant="primary"
+                      onPress={() => setLendSheetOpen(true)}>
+                      <Text>Prêter</Text>
+                      <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
+                    </Button>
+                  </View>
                   <View className="w-full grow flex-col justify-center gap-2">
                     {availabilities.availabilities.slice(0, 1).map((availability, i) => (
                       <MySpotAvailabilityCard key={i} availability={availability} />
                     ))}
-                    {availabilities.availabilities.length > 0 && (
-                      <Button variant="tonal" onPress={() => setAvailabilityListSheetOpen(true)}>
-                        <Text>Voir plus</Text>
-                      </Button>
-                    )}
+                    <Button variant="tonal" onPress={() => setAvailabilityListSheetOpen(true)}>
+                      <Text>Voir plus</Text>
+                    </Button>
                   </View>
-                )}
-              </View>
+                </View>
+              )}
               <Button
                 disabled={!userProfile.spot}
                 size="lg"
                 variant="primary"
                 onPress={() => setBookSheetOpen(true)}>
-                <ThemedIcon component={FontAwesome6} name="car" size={18} color={COLORS.white} />
+                <ThemedIcon name="search" size={18} color={COLORS.white} />
                 <Text>Trouver un spot</Text>
               </Button>
             </>
@@ -157,7 +160,7 @@ export default function HomeScreen() {
           }
           action={
             <>
-              <ThemedIcon component={FontAwesome6} name="car" size={18} color={COLORS.white} />
+              <ThemedIcon name="search" size={18} color={COLORS.white} />
               <Text>Trouver un spot</Text>
             </>
           }
@@ -210,13 +213,8 @@ function MySpotAvailabilityCard(props: { availability: SpotAvailability }) {
     <Card>
       <View className="relative">
         <Text variant="heading" className="font-bold">
-          {capitalize(formatRelative(props.availability.from, new Date()))}
+          Prêté {formatRelative(props.availability.from, new Date())}
         </Text>
-        <DateStatus
-          from={props.availability.from}
-          to={props.availability.to}
-          className="absolute right-0 top-0"
-        />
       </View>
       <DateRange
         from={props.availability.from}

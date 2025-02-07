@@ -12,14 +12,13 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  TextInputProps,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
 import { BackButton } from '~/components/BackButton';
 import { ContentView } from '~/components/ContentView';
-import { TextInput } from '~/components/TextInput';
+import { TextInput, TextInputProps } from '~/components/TextInput';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';

@@ -5,7 +5,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { firebaseAuth } from '~/authentication/firebase';
 import { Loader } from '~/components/Loader';
 
-export default function AuthenticationGuard(props: PropsWithChildren) {
+export function AuthenticationGuard(props: PropsWithChildren) {
   const [user, isLoading] = useAuthState(firebaseAuth);
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();

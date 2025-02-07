@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from 'expo-router';
 
@@ -32,7 +32,7 @@ export default function MainLayout() {
               screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: false,
-                tabBarStyle: { paddingTop: 5 },
+                tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
                 tabBarIconStyle: { height: 32 },
               }}>
               <Tabs.Screen
@@ -40,9 +40,10 @@ export default function MainLayout() {
                 options={{
                   tabBarIcon: ({ focused }) => (
                     <ThemedIcon
-                      name={focused ? 'home' : 'home-outline'}
-                      component={Ionicons}
-                      size={28}
+                      name="car"
+                      color={focused ? colors.foreground : colors.grey}
+                      component={FontAwesome6}
+                      size={24}
                     />
                   ),
                 }}

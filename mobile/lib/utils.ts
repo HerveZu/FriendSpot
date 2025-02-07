@@ -13,6 +13,10 @@ export function minLength(length: number): (value?: string) => boolean {
 }
 
 export function omitObj<T>(obj: T): T {
+  if (!obj) {
+    return obj;
+  }
+
   const magicObj = obj as any;
   return Object.keys(magicObj).reduce((acc, key) => {
     if (magicObj[key] === undefined) {
