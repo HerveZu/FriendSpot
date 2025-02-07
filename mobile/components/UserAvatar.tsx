@@ -9,7 +9,6 @@ export function UserAvatar({
   ...props
 }: {
   displayName: string;
-  newSelectedImage?: string;
   pictureUrl?: string;
 } & ViewProps) {
   const namesInitials = displayName.split(' ').map((name) => name[0]?.toUpperCase());
