@@ -37,6 +37,7 @@ public sealed record MeResponse
     [PublicAPI]
     public sealed record SpotStatus
     {
+        public required Guid Id { get; init; }
         public required bool CurrentlyAvailable { get; init; }
         public required DateTimeOffset? NextAvailability { get; init; }
         public required DateTimeOffset? NextUse { get; init; }
@@ -103,6 +104,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                         .Select(
                             spot => new MeResponse.SpotStatus
                             {
+                                Id = spot.Id,
                                 CurrentlyUsedBy = spot.Bookings
                                     .Where(booking => now >= booking.From && booking.To >= now)
                                     .Select(
@@ -156,6 +158,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                             })
                         .First()
                 })
+            .AsNoTracking()
             .AsSplitQuery()
             .FirstAsync(ct);
 

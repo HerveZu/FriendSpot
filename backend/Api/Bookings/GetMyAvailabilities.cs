@@ -27,13 +27,15 @@ public sealed record GetMyAvailabilitiesResponse
     [PublicAPI]
     public sealed record Availability
     {
+        public required Guid Id { get; init; }
         public required DateTimeOffset From { get; init; }
         public required DateTimeOffset To { get; init; }
         public required TimeSpan Duration { get; init; }
     }
 }
 
-internal sealed class GetMyAvailabilities(AppDbContext dbContext) : Endpoint<GetMyAvailabilitiesRequest, GetMyAvailabilitiesResponse>
+internal sealed class GetMyAvailabilities(AppDbContext dbContext)
+    : Endpoint<GetMyAvailabilitiesRequest, GetMyAvailabilitiesResponse>
 {
     public override void Configure()
     {
@@ -53,10 +55,12 @@ internal sealed class GetMyAvailabilities(AppDbContext dbContext) : Endpoint<Get
             .Select(
                 availability => new GetMyAvailabilitiesResponse.Availability
                 {
+                    Id = availability.Id,
                     From = availability.From,
                     To = availability.To,
                     Duration = availability.Duration
                 })
+            .AsNoTracking()
             .ToArrayAsync(ct);
 
         var totalDuration = new TimeSpan(availabilities.Sum(availability => availability.Duration.Ticks));
