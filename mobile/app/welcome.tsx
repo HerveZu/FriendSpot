@@ -3,15 +3,15 @@ import React from 'react';
 import { Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ContentView } from '~/components/ContentView';
 import { Logo } from '~/components/Logo';
+import { Screen } from '~/components/Screen';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 
 export default function WelcomeScreen() {
   return (
     <SafeAreaView>
-      <ContentView className="items-center justify-around">
+      <Screen className="items-center justify-around">
         <View className="flex flex-col gap-2">
           <Text variant="largeTitle" className="text-center">
             Bienvenue sur
@@ -38,7 +38,7 @@ export default function WelcomeScreen() {
             </Link>
           </View>
         </View>
-      </ContentView>
+      </Screen>
     </SafeAreaView>
   );
 }

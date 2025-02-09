@@ -1,50 +1,42 @@
-import { FontAwesome6 } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Entypo, FontAwesome6 } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
 import { SpotCountDownOnRender } from '~/app/spot-count-down';
 import { AuthProvider } from '~/authentication/AuthProvider';
 import { UserProvider } from '~/authentication/UserProvider';
-import { Header } from '~/components/Header';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import { ThemedIcon, ThemedIconProps } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { opacity } from '~/lib/utils';
 import { AskUserToRate } from '~/rating/AskUserToRate';
 
 export default function MainLayout() {
-  const { colors } = useColorScheme();
-
   return (
     <AuthProvider>
       <UserProvider>
         <SpotCountDownOnRender>
           <AskUserToRate>
-            <LinearGradient
-              className="absolute left-0 right-0 top-0"
-              colors={[opacity(colors.primary, 0.6), opacity(colors.card, 0.2), colors.background]}
-              start={{ x: 1, y: 0 }}
-              end={{ x: 0, y: 3 }}>
-              <Header className="mt-safe-offset-4 mb-6" />
-            </LinearGradient>
             <Tabs
+              initialRouteName="home"
               screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: false,
+                sceneStyle: { backgroundColor: 'transparent' },
                 tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
-                tabBarIconStyle: { height: 32 },
               }}>
+              <Tabs.Screen
+                name="my-spot"
+                options={{
+                  tabBarIcon: ({ focused }) => (
+                    <TabIcon name="car" component={FontAwesome6} size={22} focused={focused} />
+                  ),
+                }}
+              />
               <Tabs.Screen
                 name="home"
                 options={{
                   tabBarIcon: ({ focused }) => (
-                    <ThemedIcon
-                      name="car"
-                      color={focused ? colors.foreground : colors.grey}
-                      component={FontAwesome6}
-                      size={24}
-                    />
+                    <TabIcon name="home" component={Entypo} focused={focused} size={26} />
                   ),
                 }}
               />
@@ -64,4 +56,13 @@ export default function MainLayout() {
       </UserProvider>
     </AuthProvider>
   );
+}
+
+function TabIcon<TGlyph extends string>({
+  focused,
+  ...props
+}: { focused?: boolean } & ThemedIconProps<TGlyph>) {
+  const { colors } = useColorScheme();
+
+  return <ThemedIcon color={focused ? colors.foreground : colors.grey} size={24} {...props} />;
 }

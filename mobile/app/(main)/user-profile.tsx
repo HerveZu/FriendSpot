@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { firebaseAuth } from '~/authentication/firebase';
-import { ContentView } from '~/components/ContentView';
+import { Screen } from '~/components/Screen';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 
@@ -13,12 +13,12 @@ export default function UserProfileScreen() {
 
   return (
     <SafeAreaView>
-      <ContentView>
+      <Screen>
         <Text>{JSON.stringify(userProfile, undefined, 4)}</Text>
         <Button onPress={() => signOut(firebaseAuth)}>
           <Text>Logout</Text>
         </Button>
-      </ContentView>
+      </Screen>
     </SafeAreaView>
   );
 }

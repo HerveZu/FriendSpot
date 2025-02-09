@@ -68,4 +68,47 @@ public sealed class ParkingSpotAvailability
     {
         return From <= other.To && other.From <= To;
     }
+
+    public IEnumerable<ParkingSpotSplitAvailability> Split(ParkingSpotBooking[] bookings)
+    {
+        if (bookings.Length is 0)
+        {
+            yield return new ParkingSpotSplitAvailability
+            {
+                From = From,
+                To = To,
+            };
+            yield break;
+        }
+
+        var lastFrom = new []{From, bookings.First().From}.Min();
+
+        foreach (var booking in bookings.Where(booking => booking.From > lastFrom))
+        {
+            var slice = new ParkingSpotSplitAvailability
+            {
+                From = lastFrom,
+                To = booking.From,
+            };
+
+            yield return slice;
+
+            lastFrom = slice.To + booking.Duration;
+        }
+
+        if (lastFrom < To)
+        {
+            yield return new ParkingSpotSplitAvailability
+            {
+                From = lastFrom,
+                To = To,
+            };
+        }
+    }
+}
+
+public sealed record ParkingSpotSplitAvailability
+{
+    public required DateTimeOffset From { get; init; }
+    public required DateTimeOffset To { get; init; }
 }

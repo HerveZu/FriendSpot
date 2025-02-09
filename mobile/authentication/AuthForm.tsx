@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 
 import { BackButton } from '~/components/BackButton';
-import { ContentView } from '~/components/ContentView';
+import { Screen } from '~/components/Screen';
 import { TextInput, TextInputProps } from '~/components/TextInput';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
@@ -69,7 +69,7 @@ export function AuthForm(
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ContentView className="flex h-full flex-col justify-between">
+          <Screen className="flex h-full flex-col justify-between">
             <View className="relative w-full flex-row items-center justify-center">
               <BackButton className="absolute left-0" />
               <View className="self-center">{props.title}</View>
@@ -92,7 +92,7 @@ export function AuthForm(
               {pendingAction && <ActivityIndicator color={COLORS.white} />}
               <Text>{props.submitText}</Text>
             </Button>
-          </ContentView>
+          </Screen>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </_AuthFormContext.Provider>

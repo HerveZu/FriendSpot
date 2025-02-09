@@ -5,8 +5,8 @@ import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
-import { ContentView } from '~/components/ContentView';
 import { Loader } from '~/components/Loader';
+import { Screen } from '~/components/Screen';
 import { Text } from '~/components/nativewindui/Text';
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -23,11 +23,11 @@ export default function SpotCountDownScreen() {
   return (
     <Pressable onPress={() => router.dismiss()}>
       <SafeAreaView className="h-screen w-screen flex-col gap-8 bg-background">
-        <ContentView className="w-full grow flex-col items-center justify-around">
+        <Screen className="w-full grow flex-col items-center justify-around">
           {activeBookings.map((activeBooking, i) => (
             <SpotCountDown key={i} activeBooking={activeBooking} />
           ))}
-        </ContentView>
+        </Screen>
       </SafeAreaView>
     </Pressable>
   );
