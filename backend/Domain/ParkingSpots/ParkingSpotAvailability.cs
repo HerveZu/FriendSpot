@@ -81,14 +81,14 @@ public sealed class ParkingSpotAvailability
             yield break;
         }
 
-        var lastFrom = new []{From, bookings.First().From}.Min();
+        var lastFrom = new[] { From, bookings.First().From }.Min();
 
         foreach (var booking in bookings.Where(booking => booking.From > lastFrom))
         {
             var slice = new ParkingSpotSplitAvailability
             {
                 From = lastFrom,
-                To = booking.From,
+                To = booking.From - TimeSpan.FromMinutes(1)
             };
 
             yield return slice;
