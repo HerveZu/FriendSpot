@@ -27,7 +27,7 @@ export function ListSheet(
   return (
     <Sheet ref={ref} onDismiss={() => props.onOpen(false)} topInset={150}>
       <BottomSheetView>
-        <ContentSheetView className="flex-col justify-between gap-8 pt-4">
+        <ContentSheetView className="flex-col justify-between gap-8">
           <SheetTitle>{props.title}</SheetTitle>
           <ScrollView>
             <View className="flex-col gap-4">{props.children}</View>
