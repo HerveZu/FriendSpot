@@ -22,7 +22,7 @@ import { DateRange } from '~/components/DateRange';
 import { Deletable } from '~/components/Deletable';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
-import { Title } from '~/components/Title';
+import { SheetTitle } from '~/components/Title';
 import { User } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
@@ -203,7 +203,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
             <View className="flex-col gap-4">
               <View className="flex-row items-center gap-4">
                 <ThemedIcon name="calendar" size={22} />
-                <Title>{capitalize(formatRelative(from, now))}</Title>
+                <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
               </View>
               <View className="flex-row items-center gap-4">
                 <ThemedIcon component={FontAwesome6} name="clock" size={18} />

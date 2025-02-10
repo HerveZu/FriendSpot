@@ -3,7 +3,7 @@ import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useEffec
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { ContentSheetView } from '~/components/ContentView';
-import { Title } from '~/components/Title';
+import { SheetTitle } from '~/components/Title';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 
 export function ListSheet(
@@ -28,7 +28,7 @@ export function ListSheet(
     <Sheet ref={ref} onDismiss={() => props.onOpen(false)} topInset={150}>
       <BottomSheetView>
         <ContentSheetView className="flex-col justify-between gap-8 pt-4">
-          <Title>{props.title}</Title>
+          <SheetTitle>{props.title}</SheetTitle>
           <ScrollView>
             <View className="flex-col gap-4">{props.children}</View>
           </ScrollView>

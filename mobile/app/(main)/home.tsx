@@ -31,7 +31,7 @@ import { Rating } from '~/components/Rating';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { Tag } from '~/components/Tag';
 import { ThemedIcon } from '~/components/ThemedIcon';
-import { Title } from '~/components/Title';
+import { SheetTitle, Title } from '~/components/Title';
 import { User } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
@@ -307,9 +307,7 @@ function BookingSheet(props: {
             <View className="grow flex-col gap-6">
               <View className="flex-row items-center gap-4">
                 <ThemedIcon name="calendar" size={22} />
-                <Text variant="title1" className="font-bold">
-                  {capitalize(formatRelative(from, now))}
-                </Text>
+                <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
               </View>
 
               {spots.length === 0 ? (
