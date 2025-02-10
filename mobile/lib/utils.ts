@@ -77,6 +77,5 @@ export function opacity(rgb: string, opacity: number): string {
 
 export function fromUtc(date: string | Date): Date {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  console.log(date, new Date(toZonedTime(date, timezone).getTime()), timezone);
   return toZonedTime(date, timezone);
 }

@@ -1,4 +1,5 @@
 import { Entypo, FontAwesome6 } from '@expo/vector-icons';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Tabs } from 'expo-router';
 
 import { SpotCountDownOnRender } from '~/app/spot-count-down';
@@ -14,45 +15,48 @@ export default function MainLayout() {
   return (
     <AuthProvider>
       <UserProvider>
-        <SpotCountDownOnRender>
-          <AskUserToRate>
-            <Tabs
-              initialRouteName="home"
-              screenOptions={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                sceneStyle: { backgroundColor: 'transparent' },
-                tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
-              }}>
-              <Tabs.Screen
-                name="my-spot"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <TabIcon name="car" component={FontAwesome6} size={22} focused={focused} />
-                  ),
-                }}
-              />
-              <Tabs.Screen
-                name="home"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <TabIcon name="home" component={Entypo} focused={focused} size={26} />
-                  ),
-                }}
-              />
-              <Tabs.Screen
-                name="user-profile"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <MeAvatar
-                      className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
-                    />
-                  ),
-                }}
-              />
-            </Tabs>
-          </AskUserToRate>
-        </SpotCountDownOnRender>
+        {/*BottomSheetModalProvider needs to have access to currentUser*/}
+        <BottomSheetModalProvider>
+          <SpotCountDownOnRender>
+            <AskUserToRate>
+              <Tabs
+                initialRouteName="home"
+                screenOptions={{
+                  headerShown: false,
+                  tabBarShowLabel: false,
+                  sceneStyle: { backgroundColor: 'transparent' },
+                  tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
+                }}>
+                <Tabs.Screen
+                  name="my-spot"
+                  options={{
+                    tabBarIcon: ({ focused }) => (
+                      <TabIcon name="car" component={FontAwesome6} size={22} focused={focused} />
+                    ),
+                  }}
+                />
+                <Tabs.Screen
+                  name="home"
+                  options={{
+                    tabBarIcon: ({ focused }) => (
+                      <TabIcon name="home" component={Entypo} focused={focused} size={26} />
+                    ),
+                  }}
+                />
+                <Tabs.Screen
+                  name="user-profile"
+                  options={{
+                    tabBarIcon: ({ focused }) => (
+                      <MeAvatar
+                        className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
+                      />
+                    ),
+                  }}
+                />
+              </Tabs>
+            </AskUserToRate>
+          </SpotCountDownOnRender>
+        </BottomSheetModalProvider>
       </UserProvider>
     </AuthProvider>
   );

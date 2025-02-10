@@ -6,6 +6,7 @@ import {
   addMinutes,
   differenceInHours,
   endOfDay,
+  formatDistance,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -25,6 +26,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
+import { Deletable, DeletableStatus } from '~/components/Deletable';
 import { ListSheet } from '~/components/ListSheet';
 import { Rating } from '~/components/Rating';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
@@ -37,6 +39,7 @@ import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { BookSpotResponse, useBookSpot } from '~/endpoints/book-spot';
+import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
 import {
   AvailableSpot,
   AvailableSpotsResponse,
@@ -89,7 +92,7 @@ export default function Home() {
         </Button>
       }>
       <View className="flex-row justify-between">
-        <ScreenTitle title="Mes réservations" />
+        <ScreenTitle title="Accueil" />
         <Button
           variant="tonal"
           disabled={booking?.bookings.length === 0}
@@ -106,8 +109,12 @@ export default function Home() {
             <BookingCard key={id} booking={booking} countdownOnTap />
           ))}
         </View>
+      ) : booking.bookings.length > 0 ? (
+        <InfoCard
+          info={`La prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
+        />
       ) : (
-        <InfoCard info="Aucune réservation n'est en cours" />
+        <InfoCard info="Réserve ton premier spot maintenant !" />
       )}
       <View className="flex-col gap-6">
         <Title>Recommandé</Title>
@@ -170,41 +177,58 @@ function DateStatus({
 
 function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean }) {
   const router = useRouter();
+  const now = useActualTime(30_000);
+  const { refreshProfile } = useCurrentUser();
+  const cancelBooking = useCancelBooking();
+
+  const canDelete = differenceInHours(props.booking.to, now) >= 6;
+
+  function cancel() {
+    cancelBooking({
+      bookingId: props.booking.id,
+      parkingLotId: props.booking.parkingLot.id,
+    }).then(refreshProfile);
+  }
 
   return (
-    <Pressable
-      onPress={() =>
-        props.countdownOnTap &&
-        props.booking.spotName &&
-        router.navigate({
-          pathname: '/spot-count-down',
-          params: {
-            activeBookingsJson: JSON.stringify([props.booking]),
-          } as SpotCountDownScreenParams,
-        })
-      }>
-      <Card>
-        <View className="flex-row items-center justify-between">
-          <Text variant="heading" className="font-bold">
-            {capitalize(formatRelative(props.booking.from, new Date()))}
-          </Text>
-          {props.booking.spotName ? (
-            <Tag text={`n° ${props.booking.spotName}`} />
-          ) : (
-            <DateStatus from={props.booking.from} to={props.booking.to} />
-          )}
-        </View>
-        <User
-          displayName={props.booking.owner.displayName}
-          pictureUrl={props.booking.owner.pictureUrl}
-        />
-        <DateRange
-          from={props.booking.from}
-          to={props.booking.to}
-          duration={props.booking.duration}
-        />
-      </Card>
-    </Pressable>
+    <Deletable canDelete={canDelete} className="rounded-xl" onDelete={cancel}>
+      <Pressable
+        onPress={() =>
+          props.countdownOnTap &&
+          props.booking.parkingLot.name &&
+          router.navigate({
+            pathname: '/spot-count-down',
+            params: {
+              activeBookingsJson: JSON.stringify([props.booking]),
+            } as SpotCountDownScreenParams,
+          })
+        }>
+        <Card>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center gap-4">
+              <DeletableStatus />
+              <Text variant="heading" className="font-bold">
+                {capitalize(formatRelative(props.booking.from, new Date()))}
+              </Text>
+            </View>
+            {props.booking.parkingLot.name ? (
+              <Tag text={`n° ${props.booking.parkingLot.name}`} />
+            ) : (
+              <DateStatus from={props.booking.from} to={props.booking.to} />
+            )}
+          </View>
+          <User
+            displayName={props.booking.owner.displayName}
+            pictureUrl={props.booking.owner.pictureUrl}
+          />
+          <DateRange
+            from={props.booking.from}
+            to={props.booking.to}
+            duration={props.booking.duration}
+          />
+        </Card>
+      </Pressable>
+    </Deletable>
   );
 }
 
@@ -271,6 +295,7 @@ function BookingSheet(props: {
     if (props.open) {
       ref.current?.present();
     } else {
+      setSelectedSpot(undefined);
       ref.current?.dismiss();
     }
   }, [ref.current, props.open]);
@@ -333,7 +358,6 @@ function BookingSheet(props: {
                 <View className="grow flex-col gap-2">
                   {spots
                     .sort((spot) => spot.owner.rating)
-                    .reverse()
                     .map((spot, i) => (
                       <AvailableSpotCard
                         key={i}
@@ -444,9 +468,13 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
 
   return (
     <Card>
-      <Text variant="heading" className="font-bold">
-        {capitalize(formatRelative(props.suggestion.from, new Date()))}
-      </Text>
+      <View className="flex-row items-center gap-2">
+        <ThemedIcon name="star" color={colors.primary} size={18} />
+        <Text variant="heading" className="font-bold">
+          {capitalize(formatRelative(props.suggestion.from, new Date()))}
+        </Text>
+      </View>
+
       <Text>
         {`Pendant ${formatDuration(
           intervalToDuration({ start: props.suggestion.from, end: props.suggestion.to }),

@@ -44,7 +44,7 @@ export function SpotCountDownOnRender(props: PropsWithChildren) {
     setLoading(true);
     getBooking()
       .then((bookings) => {
-        const activeBookings = bookings.bookings.filter((booking) => !!booking.spotName);
+        const activeBookings = bookings.bookings.filter((booking) => !!booking.parkingLot.name);
         activeBookings.length > 0 &&
           router.navigate({
             pathname: '/spot-count-down',
@@ -108,7 +108,7 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
               </Text>
             </View>
             <Text variant="title1" className="font-semibold">
-              n° {props.activeBooking.spotName}
+              n° {props.activeBooking.parkingLot.name}
             </Text>
           </View>
         );

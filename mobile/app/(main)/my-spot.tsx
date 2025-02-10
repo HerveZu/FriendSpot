@@ -1,8 +1,9 @@
-import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome5, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import {
   addHours,
   addMinutes,
+  differenceInHours,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -19,7 +20,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
-import { Deletable } from '~/components/Deletable';
+import { Deletable, DeletableStatus } from '~/components/Deletable';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { SheetTitle } from '~/components/Title';
@@ -35,6 +36,7 @@ import {
   useGetAvailabilities,
 } from '~/endpoints/get-availabilities';
 import { LendSpotResponse, useLendSpot } from '~/endpoints/lend-spot';
+import { useActualTime } from '~/lib/use-actual-time';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
 import { capitalize } from '~/lib/utils';
@@ -89,9 +91,12 @@ export default function HomeScreen() {
 }
 
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
+  const { colors } = useColorScheme();
+
   return (
     <Card>
-      <View className="relative">
+      <View className="flex-row items-center gap-2">
+        <ThemedIcon name="user-friends" color={colors.primary} size={18} component={FontAwesome5} />
         <Text variant="heading" className="font-bold">
           Prêté {formatRelative(props.availability.from, new Date())}
         </Text>
@@ -113,6 +118,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 
   function BookingCard(props: { spotId: string; booking: AvailabilityBooking }) {
     const { refreshProfile } = useCurrentUser();
+    const now = useActualTime(30_000);
     const cancelBooking = useCancelBooking();
 
     function cancel(body: CancelSpotBooking) {
@@ -121,6 +127,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 
     return (
       <Deletable
+        canDelete={differenceInHours(props.booking.to, now) >= 6}
         onDelete={() =>
           cancel({
             bookingId: props.booking.id,
@@ -133,6 +140,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
               displayName={props.booking.bookedBy.displayName}
               pictureUrl={props.booking.bookedBy.pictureUrl}
             />
+            <DeletableStatus />
           </View>
           <DateRange
             from={props.booking.from}

@@ -7,11 +7,15 @@ export type BookingsResponse = {
 };
 
 export type BookingResponse = {
+  readonly id: string;
   readonly from: string;
   readonly to: string;
   readonly duration: string;
   readonly owner: BookingOwner;
-  readonly spotName: string | null;
+  readonly parkingLot: {
+    readonly id: string;
+    readonly name?: string;
+  };
 };
 
 type BookingOwner = {

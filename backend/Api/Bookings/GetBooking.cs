@@ -16,12 +16,19 @@ public sealed record GetBookingResponse
     [PublicAPI]
     public sealed record BookingStatus
     {
-        public required Guid BookingId { get; init; }
+        public required Guid Id { get; init; }
         public required DateTimeOffset From { get; init; }
         public required DateTimeOffset To { get; init; }
         public required TimeSpan Duration { get; init; }
         public required SpotOwner Owner { get; init; }
-        public required string? SpotName { get; init; }
+        public required ParkingLotStatus ParkingLot { get; init; }
+
+        [PublicAPI]
+        public sealed record ParkingLotStatus
+        {
+            public required Guid Id { get; init; }
+            public required string? Name { get; init; }
+        }
 
         [PublicAPI]
         public sealed record SpotOwner
@@ -53,7 +60,7 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
                     .Select(
                         booking => new GetBookingResponse.BookingStatus
                         {
-                            BookingId = booking.Id,
+                            Id = booking.Id,
                             From = booking.From,
                             To = booking.To,
                             Duration = booking.Duration,
@@ -67,9 +74,13 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
                                         PictureUrl = owner.PictureUrl
                                     })
                                 .First(),
-                            SpotName = booking.From > now
-                                ? null
-                                : (string?)parkingSpot.SpotName
+                            ParkingLot = new GetBookingResponse.BookingStatus.ParkingLotStatus
+                            {
+                                Id = parkingSpot.Id,
+                                Name = booking.From > now
+                                    ? null
+                                    : (string?)parkingSpot.SpotName
+                            }
                         })
             )
             .AsNoTracking()

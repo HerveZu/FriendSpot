@@ -178,7 +178,7 @@ public sealed class ParkingSpot : IBroadcastEvents
     public void RateBooking(string ratingUserId, Guid bookingId, BookRating rating)
     {
         var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId)
-            ?? throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+                      ?? throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
 
         if (ratingUserId != booking.BookingUserId)
         {
@@ -192,11 +192,12 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         booking.Rate(rating);
 
-        _domainEvents.Register(new ParkingSpotBookingRated
-        {
-            OwnerId = OwnerId,
-            Rating = rating
-        });
+        _domainEvents.Register(
+            new ParkingSpotBookingRated
+            {
+                OwnerId = OwnerId,
+                Rating = rating
+            });
     }
 
     public void CancelBooking(string cancelingUserId, Guid bookingId)
@@ -219,12 +220,20 @@ public sealed class ParkingSpot : IBroadcastEvents
             throw new BusinessException("ParkingSpot.InvalidCancelling", "Booking not found");
         }
 
-        _bookings.Remove(booking);
-        _domainEvents.Register(new ParkingSpotBookingCancelled
+        if (booking.To - DateTimeOffset.UtcNow < booking.FrozenFor)
         {
-            BookingUserId = booking.BookingUserId,
-            BookingId = booking.Id,
-        });
+            throw new BusinessException(
+                "ParkingSpot.InvalidCancelling",
+                $"Booking can only be cancelled at least {booking.FrozenFor} before it becomes active");
+        }
+
+        _bookings.Remove(booking);
+        _domainEvents.Register(
+            new ParkingSpotBookingCancelled
+            {
+                BookingUserId = booking.BookingUserId,
+                BookingId = booking.Id,
+            });
     }
 }
 
@@ -248,7 +257,6 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
                 availabilityBuilder.Property(x => x.Id);
                 availabilityBuilder.Property(x => x.From);
                 availabilityBuilder.Property(x => x.To);
-                availabilityBuilder.Property(x => x.Duration);
             });
 
         builder.OwnsMany(

@@ -5,19 +5,17 @@ public sealed class ParkingSpotAvailability
     private ParkingSpotAvailability(
         Guid id,
         DateTimeOffset from,
-        DateTimeOffset to,
-        TimeSpan duration)
+        DateTimeOffset to)
     {
         Id = id;
         From = from;
         To = to;
-        Duration = duration;
     }
 
     public Guid Id { get; }
     public DateTimeOffset From { get; }
     public DateTimeOffset To { get; }
-    public TimeSpan Duration { get; }
+    public TimeSpan Duration => To - From;
     public Credits Price => new((decimal)Duration.TotalHours);
 
     private static ParkingSpotAvailability Create(DateTimeOffset from, DateTimeOffset to)
@@ -29,12 +27,7 @@ public sealed class ParkingSpotAvailability
                 "Availability end date should be after its start date.");
         }
 
-        var duration = to - from;
-        return new ParkingSpotAvailability(
-            Guid.CreateVersion7(from),
-            from,
-            to,
-            duration);
+        return new ParkingSpotAvailability(Guid.CreateVersion7(from), from, to);
     }
 
     public static ParkingSpotAvailability New(DateTimeOffset from, DateTimeOffset to)
