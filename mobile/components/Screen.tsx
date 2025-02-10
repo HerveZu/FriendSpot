@@ -80,7 +80,9 @@ export function ScreenWithHeader(
       />
       <SafeAreaView>
         <Screen className={cn('pt-safe-offset-0 gap-4')}>
-          <ScrollView onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
             <View className={props.className}>{props.children}</View>
           </ScrollView>
           {props.stickyBottom}
