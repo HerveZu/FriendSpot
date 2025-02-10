@@ -6,7 +6,6 @@ import {
   addMinutes,
   differenceInHours,
   endOfDay,
-  formatDate,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -80,7 +79,10 @@ export default function Home() {
           disabled={!userProfile.spot}
           size="lg"
           variant="primary"
-          onPress={() => setBookSheetOpen(true)}>
+          onPress={() => {
+            setSelectedSuggestion(undefined);
+            setBookSheetOpen(true);
+          }}>
           <ThemedIcon name="search" size={18} color={COLORS.white} />
           <Text>Trouver un spot</Text>
         </Button>
@@ -107,7 +109,7 @@ export default function Home() {
         <InfoCard info="Aucune réservation n'est en cours" />
       )}
       <View className="flex-col gap-6">
-        <Title>Disponible aujourd'hui</Title>
+        <Title>Recommandé</Title>
         {!suggestedSpots ? (
           <ActivityIndicator />
         ) : (
@@ -245,8 +247,16 @@ function BookingSheet(props: {
   }, [props.selectedSuggestion]);
 
   useEffect(() => {
-    setFrom(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
-    setTo(addHours(from, INITIAL_DURATION_HOURS));
+    setFrom(
+      props.selectedSuggestion
+        ? max([now, new Date(props.selectedSuggestion.from)])
+        : addMinutes(now, INITIAL_FROM_MARGIN_MINUTES)
+    );
+    setTo(
+      props.selectedSuggestion
+        ? max([now, new Date(props.selectedSuggestion.to)])
+        : addHours(from, INITIAL_DURATION_HOURS)
+    );
 
     if (!props.open) {
       props.setSelectedSuggestion(undefined);
@@ -433,7 +443,10 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
   return (
     <Card>
       <Text variant="heading" className="font-bold">
-        {`À ${formatDate(props.suggestion.from, 'HH:mm')} pendant ${formatDuration(
+        {capitalize(formatRelative(props.suggestion.from, new Date()))}
+      </Text>
+      <Text>
+        {`Pendant ${formatDuration(
           intervalToDuration({ start: props.suggestion.from, end: props.suggestion.to }),
           { format: ['days', 'hours', 'minutes'] }
         )}`}
