@@ -82,18 +82,19 @@ public sealed class ParkingSpotAvailability
         }
 
         var lastFrom = new[] { From, bookings.First().From }.Min();
+        var borderMargin = TimeSpan.FromMinutes(1);
 
         foreach (var booking in bookings.Where(booking => booking.From > lastFrom))
         {
             var slice = new ParkingSpotSplitAvailability
             {
                 From = lastFrom,
-                To = booking.From - TimeSpan.FromMinutes(1)
+                To = booking.From - borderMargin
             };
 
             yield return slice;
 
-            lastFrom = slice.To + booking.Duration;
+            lastFrom = booking.From + booking.Duration + borderMargin;
         }
 
         if (lastFrom < To)
