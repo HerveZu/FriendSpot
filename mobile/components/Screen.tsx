@@ -1,29 +1,22 @@
-import { BlurView } from '@react-native-community/blur';
-import { LinearGradient } from 'expo-linear-gradient';
+import {BlurView} from '@react-native-community/blur';
+import {LinearGradient} from 'expo-linear-gradient';
 import React, {
-  createContext,
-  Dispatch,
-  PropsWithChildren,
-  ReactNode,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
+    createContext,
+    Dispatch,
+    PropsWithChildren,
+    ReactNode,
+    SetStateAction,
+    useContext,
+    useEffect,
+    useState,
 } from 'react';
-import {
-  Animated,
-  SafeAreaView,
-  ScrollView,
-  useAnimatedValue,
-  View,
-  ViewProps,
-} from 'react-native';
+import {Animated, SafeAreaView, ScrollView, useAnimatedValue, View, ViewProps,} from 'react-native';
 
-import { useCurrentUser } from '~/authentication/UserProvider';
-import { LogoCard } from '~/components/Logo';
-import { Text } from '~/components/nativewindui/Text';
-import { cn } from '~/lib/cn';
-import { useColorScheme } from '~/lib/useColorScheme';
+import {useCurrentUser} from '~/authentication/UserProvider';
+import {LogoCard} from '~/components/Logo';
+import {Text} from '~/components/nativewindui/Text';
+import {cn} from '~/lib/cn';
+import {useColorScheme} from '~/lib/useColorScheme';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -70,10 +63,10 @@ export function ScreenWithHeader(
         </Text>
       </Animated.View>
       <LinearGradient
-        colors={['darkblue', 'purple']}
+          colors={[colors.primary, colors.card]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{ height: '40%', width: '100%', position: 'absolute' }}
+          style={{height: '40%', width: '100%', position: 'absolute', opacity: 0.6}}
       />
       <LinearGradient
         colors={['transparent', colors.background]}

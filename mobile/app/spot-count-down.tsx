@@ -1,17 +1,17 @@
-import { differenceInSeconds, intervalToDuration, secondsToMilliseconds } from 'date-fns';
-import { toSeconds } from 'duration-fns';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { Pressable, SafeAreaView, View } from 'react-native';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import {differenceInSeconds, intervalToDuration, secondsToMilliseconds} from 'date-fns';
+import {toSeconds} from 'duration-fns';
+import {useLocalSearchParams, useRouter} from 'expo-router';
+import React, {PropsWithChildren, useEffect, useMemo, useState} from 'react';
+import {Pressable, SafeAreaView, View} from 'react-native';
+import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
 
-import { Loader } from '~/components/Loader';
-import { Screen } from '~/components/Screen';
-import { Text } from '~/components/nativewindui/Text';
-import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
-import { parseDuration, rgbToHex } from '~/lib/utils';
+import {Loader} from '~/components/Loader';
+import {Screen} from '~/components/Screen';
+import {Text} from '~/components/nativewindui/Text';
+import {BookingResponse, useGetBooking} from '~/endpoints/get-booking';
+import {useColorScheme} from '~/lib/useColorScheme';
+import {useListenOnAppStateChange} from '~/lib/useListenOnAppStateChange';
+import {parseDuration, rgbToHex} from '~/lib/utils';
 
 export type SpotCountDownScreenParams = { activeBookingsJson: string };
 
@@ -75,8 +75,8 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
       isPlaying
       initialRemainingTime={initialRemainingSeconds}
       duration={durationSeconds}
-      colors={[rgbToHex(colors.destructive), rgbToHex(colors.primary)]}
-      colorsTime={[0.75 * durationSeconds, 0.25 * durationSeconds]}>
+      colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
+      colorsTime={[0.25 * durationSeconds, 0.75 * durationSeconds]}>
       {({ remainingTime, color }) => {
         const remaining = intervalToDuration({
           start: 0,

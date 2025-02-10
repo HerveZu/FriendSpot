@@ -1,5 +1,5 @@
-import { FontAwesome6 } from '@expo/vector-icons';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
+import {FontAwesome6} from '@expo/vector-icons';
+import {BottomSheetView} from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import {
   addHours,
@@ -16,45 +16,42 @@ import {
   min,
   startOfDay,
 } from 'date-fns';
-import { Redirect, useRouter } from 'expo-router';
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, View, ViewProps } from 'react-native';
-import { useDebounce } from 'use-debounce';
+import {Redirect, useRouter} from 'expo-router';
+import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from 'react';
+import {ActivityIndicator, Pressable, SafeAreaView, View, ViewProps} from 'react-native';
+import {useDebounce} from 'use-debounce';
 
-import { SpotCountDownScreenParams } from '~/app/spot-count-down';
-import { useCurrentUser } from '~/authentication/UserProvider';
-import { Card, InfoCard } from '~/components/Card';
-import { ContentSheetView } from '~/components/ContentView';
-import { DateRange } from '~/components/DateRange';
-import { Deletable, DeletableStatus } from '~/components/Deletable';
-import { ListSheet } from '~/components/ListSheet';
-import { Rating } from '~/components/Rating';
-import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
-import { Tag } from '~/components/Tag';
-import { ThemedIcon } from '~/components/ThemedIcon';
-import { SheetTitle, Title } from '~/components/Title';
-import { User } from '~/components/UserAvatar';
-import { Button } from '~/components/nativewindui/Button';
-import { DatePicker } from '~/components/nativewindui/DatePicker';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
-import { Text } from '~/components/nativewindui/Text';
-import { BookSpotResponse, useBookSpot } from '~/endpoints/book-spot';
-import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
-import {
-  AvailableSpot,
-  AvailableSpotsResponse,
-  useGetAvailableSpots,
-} from '~/endpoints/get-available-spots';
-import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
-import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-spots';
-import { cn } from '~/lib/cn';
-import { useActualTime } from '~/lib/use-actual-time';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch } from '~/lib/useFetch';
-import { capitalize, fromUtc } from '~/lib/utils';
-import { COLORS } from '~/theme/colors';
+import {SpotCountDownScreenParams} from '~/app/spot-count-down';
+import {useCurrentUser} from '~/authentication/UserProvider';
+import {Card, InfoCard} from '~/components/Card';
+import {ContentSheetView} from '~/components/ContentView';
+import {DateRange} from '~/components/DateRange';
+import {Deletable, DeletableStatus} from '~/components/Deletable';
+import {ListSheet} from '~/components/ListSheet';
+import {Rating} from '~/components/Rating';
+import {ScreenTitle, ScreenWithHeader} from '~/components/Screen';
+import {Tag} from '~/components/Tag';
+import {ThemedIcon} from '~/components/ThemedIcon';
+import {SheetTitle, Title} from '~/components/Title';
+import {User} from '~/components/UserAvatar';
+import {Button} from '~/components/nativewindui/Button';
+import {DatePicker} from '~/components/nativewindui/DatePicker';
+import {Sheet, useSheetRef} from '~/components/nativewindui/Sheet';
+import {Text} from '~/components/nativewindui/Text';
+import {BookSpotResponse, useBookSpot} from '~/endpoints/book-spot';
+import {useCancelBooking} from '~/endpoints/cancel-spot-booking';
+import {AvailableSpot, useGetAvailableSpots} from '~/endpoints/get-available-spots';
+import {BookingResponse, useGetBooking} from '~/endpoints/get-booking';
+import {SpotSuggestion, useGetSuggestedSpots} from '~/endpoints/get-suggested-spots';
+import {cn} from '~/lib/cn';
+import {BOOKING_FROZEN_FOR_HOURS} from '~/lib/const';
+import {useActualTime} from '~/lib/use-actual-time';
+import {useColorScheme} from '~/lib/useColorScheme';
+import {useFetch} from '~/lib/useFetch';
+import {capitalize, fromUtc} from '~/lib/utils';
+import {COLORS} from '~/theme/colors';
 
-export default function Home() {
+export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
 
   const { colors } = useColorScheme();
@@ -117,17 +114,21 @@ export default function Home() {
         <InfoCard info="Réserve ton premier spot maintenant !" />
       )}
       <View className="flex-col gap-6">
-        <Title>Recommandé</Title>
         {!suggestedSpots ? (
           <ActivityIndicator />
         ) : (
-          <View className="flex-col gap-2">
-            {suggestedSpots.suggestions.map((suggestion, i) => (
-              <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
-                <SuggestedSpotCard suggestion={suggestion} />
-              </Pressable>
-            ))}
-          </View>
+            suggestedSpots.suggestions.length > 0 && (
+                <>
+                  <Title>Recommandé</Title>
+                  <View className="flex-col gap-2">
+                    {suggestedSpots.suggestions.map((suggestion, i) => (
+                        <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
+                          <SuggestedSpotCard suggestion={suggestion}/>
+                        </Pressable>
+                    ))}
+                  </View>
+                </>
+            )
         )}
       </View>
 
@@ -181,7 +182,7 @@ function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean
   const { refreshProfile } = useCurrentUser();
   const cancelBooking = useCancelBooking();
 
-  const canDelete = differenceInHours(props.booking.to, now) >= 6;
+  const canDelete = differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS;
 
   function cancel() {
     cancelBooking({
@@ -203,7 +204,7 @@ function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean
             } as SpotCountDownScreenParams,
           })
         }>
-        <Card>
+        <Card className="bg-background">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-4">
               <DeletableStatus />
@@ -250,7 +251,6 @@ function BookingSheet(props: {
   const [bookingSimulation, setBookingSimulation] = useState<BookSpotResponse>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
-  const [availableSpots, setAvailableSpots] = useState<AvailableSpotsResponse>();
   const [actionPending, setActionPending] = useState(false);
 
   const { userProfile } = useCurrentUser();
@@ -262,6 +262,11 @@ function BookingSheet(props: {
   const [fromDebounce] = useDebounce(from, 200);
 
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
+
+  const [availableSpots] = useFetch(
+      () => getAvailableSpots(fromDebounce, toDebounce),
+      [fromDebounce, toDebounce]
+  );
 
   useEffect(() => {
     if (!props.selectedSuggestion) {
@@ -279,23 +284,14 @@ function BookingSheet(props: {
       props.selectedSuggestion ? max([safeFrom, fromUtc(props.selectedSuggestion.from)]) : safeFrom
     );
     setTo(props.selectedSuggestion ? max([safeTo, fromUtc(props.selectedSuggestion.to)]) : safeTo);
-
-    if (!props.open) {
-      props.setSelectedSuggestion(undefined);
-    }
   }, [props.open]);
-
-  useEffect(() => {
-    getAvailableSpots(fromDebounce, toDebounce).then((availableSpots) => {
-      setAvailableSpots(availableSpots);
-    });
-  }, [fromDebounce, toDebounce]);
 
   useEffect(() => {
     if (props.open) {
       ref.current?.present();
     } else {
       setSelectedSpot(undefined);
+      props.setSelectedSuggestion(undefined);
       ref.current?.dismiss();
     }
   }, [ref.current, props.open]);
@@ -474,9 +470,8 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
           {capitalize(formatRelative(props.suggestion.from, new Date()))}
         </Text>
       </View>
-
       <Text>
-        {`Pendant ${formatDuration(
+        {`Disponible ${formatDuration(
           intervalToDuration({ start: props.suggestion.from, end: props.suggestion.to }),
           { format: ['days', 'hours', 'minutes'] }
         )}`}

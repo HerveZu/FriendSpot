@@ -1,58 +1,51 @@
-import { FontAwesome5, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
+import {FontAwesome5, FontAwesome6, MaterialIcons} from '@expo/vector-icons';
+import {BottomSheetView} from '@gorhom/bottom-sheet';
 import {
-  addHours,
-  addMinutes,
-  differenceInHours,
-  formatDuration,
-  formatRelative,
-  intervalToDuration,
-  max,
-  min,
-  startOfDay,
+    addHours,
+    addMinutes,
+    differenceInHours,
+    formatDuration,
+    formatRelative,
+    intervalToDuration,
+    max,
+    min,
 } from 'date-fns';
-import { Redirect } from 'expo-router';
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, View } from 'react-native';
-import { useDebounce } from 'use-debounce';
+import {Redirect} from 'expo-router';
+import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from 'react';
+import {ActivityIndicator, SafeAreaView, ScrollView, View} from 'react-native';
+import {useDebounce} from 'use-debounce';
 
-import { useCurrentUser } from '~/authentication/UserProvider';
-import { Card, InfoCard } from '~/components/Card';
-import { ContentSheetView } from '~/components/ContentView';
-import { DateRange } from '~/components/DateRange';
-import { Deletable, DeletableStatus } from '~/components/Deletable';
-import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
-import { ThemedIcon } from '~/components/ThemedIcon';
-import { SheetTitle } from '~/components/Title';
-import { User } from '~/components/UserAvatar';
-import { Button } from '~/components/nativewindui/Button';
-import { DatePicker } from '~/components/nativewindui/DatePicker';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
-import { Text } from '~/components/nativewindui/Text';
-import { CancelSpotBooking, useCancelBooking } from '~/endpoints/cancel-spot-booking';
-import {
-  AvailabilityBooking,
-  SpotAvailability,
-  useGetAvailabilities,
-} from '~/endpoints/get-availabilities';
-import { LendSpotResponse, useLendSpot } from '~/endpoints/lend-spot';
-import { useActualTime } from '~/lib/use-actual-time';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch } from '~/lib/useFetch';
-import { capitalize } from '~/lib/utils';
-import { COLORS } from '~/theme/colors';
+import {useCurrentUser} from '~/authentication/UserProvider';
+import {Card, InfoCard} from '~/components/Card';
+import {ContentSheetView} from '~/components/ContentView';
+import {DateRange} from '~/components/DateRange';
+import {Deletable, DeletableStatus} from '~/components/Deletable';
+import {ScreenTitle, ScreenWithHeader} from '~/components/Screen';
+import {ThemedIcon} from '~/components/ThemedIcon';
+import {SheetTitle} from '~/components/Title';
+import {User} from '~/components/UserAvatar';
+import {Button} from '~/components/nativewindui/Button';
+import {DatePicker} from '~/components/nativewindui/DatePicker';
+import {Sheet, useSheetRef} from '~/components/nativewindui/Sheet';
+import {Text} from '~/components/nativewindui/Text';
+import {CancelSpotBooking, useCancelBooking} from '~/endpoints/cancel-spot-booking';
+import {AvailabilityBooking, SpotAvailability, useGetAvailabilities,} from '~/endpoints/get-availabilities';
+import {LendSpotResponse, useLendSpot} from '~/endpoints/lend-spot';
+import {BOOKING_FROZEN_FOR_HOURS} from '~/lib/const';
+import {useActualTime} from '~/lib/use-actual-time';
+import {useColorScheme} from '~/lib/useColorScheme';
+import {useFetch} from '~/lib/useFetch';
+import {capitalize} from '~/lib/utils';
+import {COLORS} from '~/theme/colors';
 
-export default function HomeScreen() {
+export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();
 
   const getAvailabilities = useGetAvailabilities();
   const [lendSheetOpen, setLendSheetOpen] = useState(false);
-  const startOfToday = startOfDay(new Date());
+    const now = useActualTime(30_000);
 
-  const [availabilities] = useFetch(
-    () => getAvailabilities(startOfToday),
-    [startOfToday.getTime()]
-  );
+    const [availabilities] = useFetch(() => getAvailabilities(now), [now]);
 
   return !userProfile.spot ? (
     <Redirect href="/user-profile" />
@@ -107,10 +100,12 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         duration={props.availability.duration}
       />
       {props.availability.bookings.length > 0 && (
-        <ScrollView className="h-fit flex-col">
-          {props.availability.bookings.map((booking, i) => (
-            <BookingCard key={i} spotId={props.spotId} booking={booking} />
-          ))}
+          <ScrollView>
+              <View className="flex-col gap-2">
+                  {props.availability.bookings.map((booking, i) => (
+                      <BookingCard key={i} spotId={props.spotId} booking={booking}/>
+                  ))}
+              </View>
         </ScrollView>
       )}
     </Card>
@@ -127,14 +122,15 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 
     return (
       <Deletable
-        canDelete={differenceInHours(props.booking.to, now) >= 6}
+          className="rounded-xl"
+          canDelete={differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS}
         onDelete={() =>
           cancel({
             bookingId: props.booking.id,
             parkingLotId: props.spotId,
           })
         }>
-        <View className="flex-col gap-4 border-y border-card bg-background p-4">
+          <Card className="bg-background">
           <View className="flex-row justify-between">
             <User
               displayName={props.booking.bookedBy.displayName}
@@ -147,7 +143,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             to={props.booking.to}
             duration={props.booking.duration}
           />
-        </View>
+          </Card>
       </Deletable>
     );
   }
