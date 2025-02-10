@@ -22,7 +22,6 @@ import {
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { opacity } from '~/lib/utils';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -60,7 +59,7 @@ export function ScreenWithHeader(
           opacity: fadeOpacity,
         }}>
         <BlurView
-          blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'light'}
+          blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
           blurAmount={5}
           style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
         />
@@ -69,7 +68,7 @@ export function ScreenWithHeader(
         </Text>
       </Animated.View>
       <LinearGradient
-        colors={[colors.primary, opacity(colors.primary, 0)]}
+        colors={['darkblue', 'purple']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ height: '40%', width: '100%', position: 'absolute' }}
