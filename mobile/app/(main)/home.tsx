@@ -74,7 +74,7 @@ export default function Home() {
     <Redirect href="/user-profile" />
   ) : (
     <ScreenWithHeader
-      className="flex-col gap-6"
+      className="flex-col gap-16"
       stickyBottom={
         <Button
           disabled={!userProfile.spot}
@@ -85,45 +85,42 @@ export default function Home() {
           <Text>Trouver un spot</Text>
         </Button>
       }>
-      <View className="flex-col justify-between gap-16">
-        <View className="flex-col gap-10">
-          <View className="flex-row justify-between">
-            <ScreenTitle title="Mes réservations" />
-            <Button
-              variant="tonal"
-              disabled={booking?.bookings.length === 0}
-              onPress={() => setBookingListSheetOpen(true)}>
-              <ThemedIcon size={24} name="ticket" color={colors.primary} />
-              <Title>{booking?.bookings.length ?? 0}</Title>
-            </Button>
-          </View>
-          {!booking ? (
-            <ActivityIndicator />
-          ) : activeBookings.length > 0 ? (
-            <View className="flex-col gap-2">
-              {activeBookings.map((booking, id) => (
-                <BookingCard key={id} booking={booking} countdownOnTap />
-              ))}
-            </View>
-          ) : (
-            <InfoCard info="Aucune réservation n'est en cours" />
-          )}
-        </View>
-        <View className="flex-col gap-6">
-          <Title>Disponible aujourd'hui</Title>
-          {!suggestedSpots ? (
-            <ActivityIndicator />
-          ) : (
-            <View className="flex-col gap-2">
-              {suggestedSpots.suggestions.map((suggestion, i) => (
-                <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
-                  <SuggestedSpotCard suggestion={suggestion} />
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
+      <View className="flex-row justify-between">
+        <ScreenTitle title="Mes réservations" />
+        <Button
+          variant="tonal"
+          disabled={booking?.bookings.length === 0}
+          onPress={() => setBookingListSheetOpen(true)}>
+          <ThemedIcon size={24} name="ticket" color={colors.primary} />
+          <Title>{booking?.bookings.length ?? 0}</Title>
+        </Button>
       </View>
+      {!booking ? (
+        <ActivityIndicator />
+      ) : activeBookings.length > 0 ? (
+        <View className="flex-col gap-2">
+          {activeBookings.map((booking, id) => (
+            <BookingCard key={id} booking={booking} countdownOnTap />
+          ))}
+        </View>
+      ) : (
+        <InfoCard info="Aucune réservation n'est en cours" />
+      )}
+      <View className="flex-col gap-6">
+        <Title>Disponible aujourd'hui</Title>
+        {!suggestedSpots ? (
+          <ActivityIndicator />
+        ) : (
+          <View className="flex-col gap-2">
+            {suggestedSpots.suggestions.map((suggestion, i) => (
+              <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
+                <SuggestedSpotCard suggestion={suggestion} />
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </View>
+
       {booking && (
         <ListSheet
           title="Mes réservations"

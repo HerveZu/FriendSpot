@@ -64,7 +64,7 @@ export function ScreenWithHeader(
           blurAmount={5}
           style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
         />
-        <Text variant="heading" className="mx-auto my-4 text-xl">
+        <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
           {headerText}
         </Text>
       </Animated.View>
@@ -80,9 +80,9 @@ export function ScreenWithHeader(
         style={{ height: '100%', width: '100%', position: 'absolute' }}
       />
       <SafeAreaView>
-        <Screen className={cn('pt-safe-offset-0 gap-4', props.className)}>
+        <Screen className={cn('pt-safe-offset-0 gap-4')}>
           <ScrollView onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
-            {props.children}
+            <View className={props.className}>{props.children}</View>
           </ScrollView>
           {props.stickyBottom}
         </Screen>
@@ -92,7 +92,7 @@ export function ScreenWithHeader(
 }
 
 export function Screen({ className, ...props }: ViewProps) {
-  return <View className={cn('mx-auto h-full w-full p-4 pt-0', className)} {...props} />;
+  return <View className={cn('mx-auto h-full w-full p-6 pt-0', className)} {...props} />;
 }
 
 export function ScreenTitle(props: { title: string }) {

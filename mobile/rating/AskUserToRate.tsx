@@ -35,25 +35,22 @@ export function AskUserToRate(props: PropsWithChildren) {
           userProfile.bookingToRate && rate(userProfile.bookingToRate, 'Neutral')
         }
         backdropOpacity={0.5}
-        style={{
-          maxHeight: '25%',
-        }}
         className="my-auto">
         <SafeAreaView>
-          <View className="flex-col justify-between rounded-xl bg-card p-4">
+          <View className="flex-col gap-16 rounded-xl bg-card p-6">
             <Text variant="title1">Votre réservation s'est terminée, qu'en avez-vous pensé ?</Text>
             <View className="flex-row justify-between">
               <Button
                 variant="plain"
                 onPress={() => userProfile.bookingToRate && rate(userProfile.bookingToRate, 'Bad')}>
-                <ThemedIcon component={Feather} name="thumbs-down" size={24} />
+                <ThemedIcon component={Feather} name="thumbs-down" size={32} />
               </Button>
               <Button
                 variant="plain"
                 onPress={() =>
                   userProfile.bookingToRate && rate(userProfile.bookingToRate, 'Good')
                 }>
-                <ThemedIcon component={Feather} name="thumbs-up" size={24} />
+                <ThemedIcon component={Feather} name="thumbs-up" size={32} />
               </Button>
             </View>
           </View>

@@ -57,7 +57,7 @@ export default function HomeScreen() {
     <Redirect href="/user-profile" />
   ) : (
     <ScreenWithHeader
-      className="flex-col"
+      className="flex-col gap-16"
       stickyBottom={
         <Button
           disabled={!userProfile.spot}
@@ -68,42 +68,18 @@ export default function HomeScreen() {
           <Text>Prêter mon spot</Text>
         </Button>
       }>
-      <View className="flex-col gap-10">
-        <ScreenTitle title="Mon spot" />
-        {!availabilities ? (
-          <ActivityIndicator />
-        ) : availabilities.availabilities.length > 0 ? (
-          <View className="w-full grow flex-col justify-center gap-4">
-            {availabilities.availabilities.map((availability, i) => (
-              <MySpotAvailabilityCard key={i} availability={availability} />
-            ))}
-          </View>
-        ) : (
-          <InfoCard info="Tu ne prêtes pas encore ta place" />
-        )}
-      </View>
-
-      {/*{availabilities && (*/}
-      {/*  <ListSheet*/}
-      {/*    title="Je prête mon spot"*/}
-      {/*    action={*/}
-      {/*      <Button size="lg" variant="primary" onPress={() => setLendSheetOpen(true)}>*/}
-      {/*        <ThemedIcon*/}
-      {/*          component={MaterialIcons}*/}
-      {/*          name="more-time"*/}
-      {/*          size={22}*/}
-      {/*          color={COLORS.white}*/}
-      {/*        />*/}
-      {/*        <Text>Prêter mon spot</Text>*/}
-      {/*      </Button>*/}
-      {/*    }*/}
-      {/*    open={availabilityListSheetOpen}*/}
-      {/*    onOpen={setAvailabilityListSheetOpen}>*/}
-      {/*    {availabilities.availabilities.map((availability, i) => (*/}
-      {/*      <MySpotAvailabilityCard key={i} availability={availability} />*/}
-      {/*    ))}*/}
-      {/*  </ListSheet>*/}
-      {/*)}*/}
+      <ScreenTitle title="Mon spot" />
+      {!availabilities ? (
+        <ActivityIndicator />
+      ) : availabilities.availabilities.length > 0 ? (
+        <View className="w-full grow flex-col justify-center gap-4">
+          {availabilities.availabilities.map((availability, i) => (
+            <MySpotAvailabilityCard key={i} availability={availability} />
+          ))}
+        </View>
+      ) : (
+        <InfoCard info="Tu ne prêtes pas encore ta place" />
+      )}
       <LendSpotSheet open={lendSheetOpen} onOpen={setLendSheetOpen} />
     </ScreenWithHeader>
   );
