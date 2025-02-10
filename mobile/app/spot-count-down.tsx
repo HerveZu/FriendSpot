@@ -76,7 +76,7 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
       initialRemainingTime={initialRemainingSeconds}
       duration={durationSeconds}
       colors={[rgbToHex(colors.destructive), rgbToHex(colors.primary)]}
-      colorsTime={[0.95 * durationSeconds, 0.05 * durationSeconds]}>
+      colorsTime={[0.75 * durationSeconds, 0.25 * durationSeconds]}>
       {({ remainingTime, color }) => {
         const remaining = intervalToDuration({
           start: 0,

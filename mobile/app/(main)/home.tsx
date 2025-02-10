@@ -45,6 +45,7 @@ import {
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-spots';
 import { cn } from '~/lib/cn';
+import { useActualTime } from '~/lib/use-actual-time';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
@@ -60,7 +61,7 @@ export default function Home() {
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState<SpotSuggestion>();
 
-  const now = new Date();
+  const now = useActualTime(5000);
   const [booking] = useFetch(() => getBooking(), []);
   const [suggestedSpots] = useFetch(() => getSuggestedSpots(now, endOfDay(now)), []);
 

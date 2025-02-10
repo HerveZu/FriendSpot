@@ -1,6 +1,6 @@
 import { BlurView } from '@react-native-community/blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
+import React, {
   createContext,
   Dispatch,
   PropsWithChildren,
@@ -19,6 +19,8 @@ import {
   ViewProps,
 } from 'react-native';
 
+import { useCurrentUser } from '~/authentication/UserProvider';
+import { LogoCard } from '~/components/Logo';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -75,11 +77,11 @@ export function ScreenWithHeader(
       />
       <LinearGradient
         colors={['transparent', colors.background]}
-        locations={[0, 0.35]}
+        locations={[0, 0.45]}
         style={{ height: '100%', width: '100%', position: 'absolute' }}
       />
       <SafeAreaView>
-        <Screen className={cn('pt-safe-offset-0 gap-4')}>
+        <Screen className={cn('pt-safe-offset-0 gap-6')}>
           <ScrollView
             showsVerticalScrollIndicator={false}
             onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
@@ -98,6 +100,7 @@ export function Screen({ className, ...props }: ViewProps) {
 
 export function ScreenTitle(props: { title: string }) {
   const { hideHeader, headerText, setHeaderText } = useContext(HeaderContext);
+  const { userProfile } = useCurrentUser();
 
   const fadeOpacity = useAnimatedValue(1);
 
@@ -115,12 +118,23 @@ export function ScreenTitle(props: { title: string }) {
 
   return (
     <Animated.View
+      className="flex-col gap-4 "
       style={{
         opacity: fadeOpacity,
       }}>
       <Text variant="title1" className="text-3xl font-extrabold">
         {headerText}
       </Text>
+      <View className="flex-row items-center gap-8">
+        <View className="flex-row items-center gap-2">
+          <Text className="text-lg font-semibold">{userProfile.wallet.credits}</Text>
+          <LogoCard primary className="h-5 w-3 rounded" />
+        </View>
+        <View className="flex-row items-center gap-2">
+          <Text className="text-lg font-semibold">{userProfile.wallet.pendingCredits}</Text>
+          <LogoCard className="h-5 w-3 rounded" />
+        </View>
+      </View>
     </Animated.View>
   );
 }

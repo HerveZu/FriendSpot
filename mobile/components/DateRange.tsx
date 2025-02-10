@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { ProgressIndicator } from '~/components/nativewindui/ProgressIndicator';
 import { Text } from '~/components/nativewindui/Text';
+import { useActualTime } from '~/lib/use-actual-time';
 import { parseDuration } from '~/lib/utils';
 
 export function DateRange(props: { from: Date | string; to: Date | string; duration: string }) {
@@ -13,13 +14,14 @@ export function DateRange(props: { from: Date | string; to: Date | string; durat
     start: props.from,
     end: props.to,
   });
+  const now = useActualTime(5000);
 
-  const elapsedMinutes = inProgress && differenceInMinutes(new Date(), props.from);
+  const elapsedMinutes = inProgress && differenceInMinutes(now, props.from);
   const duration = parseDuration(props.duration);
 
   return elapsedMinutes ? (
     <View className="flex-col gap-2">
-      <Text>Il reste {formatDistance(props.to, new Date())}</Text>
+      <Text>Il reste {formatDistance(props.to, now)}</Text>
       <ProgressIndicator
         className="h-4"
         value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
