@@ -11,7 +11,7 @@ import {
   startOfDay,
 } from 'date-fns';
 import { Redirect } from 'expo-router';
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
@@ -28,6 +28,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
+import { CancelSpotBooking, useCancelBooking } from '~/endpoints/cancel-spot-booking';
 import {
   AvailabilityBooking,
   SpotAvailability,
@@ -47,10 +48,8 @@ export default function HomeScreen() {
   const startOfToday = startOfDay(new Date());
 
   const [availabilities] = useFetch(
-    useCallback(
-      () => !lendSheetOpen && getAvailabilities(startOfToday),
-      [startOfToday.getTime(), lendSheetOpen]
-    )
+    () => getAvailabilities(startOfToday),
+    [startOfToday.getTime()]
   );
 
   return !userProfile.spot ? (
@@ -74,7 +73,11 @@ export default function HomeScreen() {
       ) : availabilities.availabilities.length > 0 ? (
         <View className="w-full grow flex-col justify-center gap-4">
           {availabilities.availabilities.map((availability, i) => (
-            <MySpotAvailabilityCard key={i} availability={availability} />
+            <MySpotAvailabilityCard
+              key={i}
+              spotId={userProfile.spot!.id}
+              availability={availability}
+            />
           ))}
         </View>
       ) : (
@@ -85,7 +88,7 @@ export default function HomeScreen() {
   );
 }
 
-function MySpotAvailabilityCard(props: { availability: SpotAvailability }) {
+function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   return (
     <Card>
       <View className="relative">
@@ -101,16 +104,29 @@ function MySpotAvailabilityCard(props: { availability: SpotAvailability }) {
       {props.availability.bookings.length > 0 && (
         <ScrollView className="h-fit flex-col">
           {props.availability.bookings.map((booking, i) => (
-            <BookingCard key={i} booking={booking} />
+            <BookingCard key={i} spotId={props.spotId} booking={booking} />
           ))}
         </ScrollView>
       )}
     </Card>
   );
 
-  function BookingCard(props: { booking: AvailabilityBooking }) {
+  function BookingCard(props: { spotId: string; booking: AvailabilityBooking }) {
+    const { refreshProfile } = useCurrentUser();
+    const cancelBooking = useCancelBooking();
+
+    function cancel(body: CancelSpotBooking) {
+      cancelBooking(body).then(refreshProfile);
+    }
+
     return (
-      <Deletable onDelete={() => console.log('delete')}>
+      <Deletable
+        onDelete={() =>
+          cancel({
+            bookingId: props.booking.id,
+            parkingLotId: props.spotId,
+          })
+        }>
         <View className="flex-col gap-4 border-y border-card bg-background p-4">
           <View className="flex-row justify-between">
             <User

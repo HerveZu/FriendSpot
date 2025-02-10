@@ -16,7 +16,7 @@ import {
   startOfDay,
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, SafeAreaView, View, ViewProps } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
@@ -47,7 +47,7 @@ import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
-import { capitalize } from '~/lib/utils';
+import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 
 export default function Home() {
@@ -61,8 +61,8 @@ export default function Home() {
   const [selectedSuggestion, setSelectedSuggestion] = useState<SpotSuggestion>();
 
   const now = new Date();
-  const [booking] = useFetch(useCallback(() => !bookSheetOpen && getBooking(), [bookSheetOpen]));
-  const [suggestedSpots] = useFetch(useCallback(() => getSuggestedSpots(now, endOfDay(now)), []));
+  const [booking] = useFetch(() => getBooking(), []);
+  const [suggestedSpots] = useFetch(() => getSuggestedSpots(now, endOfDay(now)), []);
 
   const activeBookings =
     booking?.bookings.filter((booking) =>
@@ -247,16 +247,13 @@ function BookingSheet(props: {
   }, [props.selectedSuggestion]);
 
   useEffect(() => {
+    const safeFrom = addMinutes(now, INITIAL_FROM_MARGIN_MINUTES);
+    const safeTo = addHours(from, INITIAL_DURATION_HOURS);
+
     setFrom(
-      props.selectedSuggestion
-        ? max([now, new Date(props.selectedSuggestion.from)])
-        : addMinutes(now, INITIAL_FROM_MARGIN_MINUTES)
+      props.selectedSuggestion ? max([safeFrom, fromUtc(props.selectedSuggestion.from)]) : safeFrom
     );
-    setTo(
-      props.selectedSuggestion
-        ? max([now, new Date(props.selectedSuggestion.to)])
-        : addHours(from, INITIAL_DURATION_HOURS)
-    );
+    setTo(props.selectedSuggestion ? max([safeTo, fromUtc(props.selectedSuggestion.to)]) : safeTo);
 
     if (!props.open) {
       props.setSelectedSuggestion(undefined);
@@ -280,7 +277,11 @@ function BookingSheet(props: {
   useEffect(() => {
     selectedSpot &&
       book(
-        { from: fromDebounce, to: toDebounce, parkingLotId: selectedSpot.parkingLotId },
+        {
+          from: fromDebounce,
+          to: toDebounce,
+          parkingLotId: selectedSpot.parkingLotId,
+        },
         true
       ).then(setBookingSimulation);
   }, [selectedSpot, fromDebounce, toDebounce]);

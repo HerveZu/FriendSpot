@@ -16,6 +16,7 @@ export type SpotAvailability = {
 };
 
 export type AvailabilityBooking = {
+  readonly id: string;
   readonly from: string;
   readonly to: string;
   readonly duration: string;

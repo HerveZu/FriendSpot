@@ -16,6 +16,7 @@ import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 type UserProfileContext = {
   readonly userProfile: UserProfile;
   refreshProfile: () => Promise<void>;
+  refreshTrigger: unknown;
 };
 
 const _UserProfileContext = createContext<UserProfileContext>(null!);
@@ -27,6 +28,7 @@ export function useCurrentUser() {
 export function UserProvider(props: PropsWithChildren) {
   const { firebaseUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>();
+  const [refreshTrigger, setRefreshTrigger] = useState({});
   const registerUser = useRegisterUser();
   const getProfile = useGetProfile();
   const stateTrigger = useListenOnAppStateChange('background');
@@ -44,11 +46,13 @@ export function UserProvider(props: PropsWithChildren) {
   }, [stateTrigger]);
 
   const refreshProfile = useCallback(async () => {
-    await getProfile().then(setUserProfile);
+    await getProfile()
+      .then(setUserProfile)
+      .then(() => setRefreshTrigger({}));
   }, [getProfile, setUserProfile]);
 
   return userProfile ? (
-    <_UserProfileContext.Provider value={{ userProfile, refreshProfile }}>
+    <_UserProfileContext.Provider value={{ refreshTrigger, userProfile, refreshProfile }}>
       {props.children}
     </_UserProfileContext.Provider>
   ) : (

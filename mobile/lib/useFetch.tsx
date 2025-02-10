@@ -1,22 +1,28 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { Falsy } from 'react-native';
 
+import { useCurrentUser } from '~/authentication/UserProvider';
+
 export function useFetch<TResponse>(
-  fetchData: () => Promise<TResponse> | Falsy
+  fetchData: () => Promise<TResponse> | Falsy,
+  deps: unknown[]
 ): [TResponse | undefined, Dispatch<SetStateAction<TResponse | undefined>>, boolean] {
   const [data, setData] = useState<TResponse>();
   const [loading, setLoading] = useState(false);
+  const { refreshTrigger } = useCurrentUser();
+
+  const callback = useCallback(fetchData, [...deps, refreshTrigger]);
 
   useEffect(() => {
     setLoading(true);
-    const promise = fetchData();
+    const promise = callback();
 
     if (!promise) {
       return;
     }
 
     promise.then(setData).finally(() => setLoading(false));
-  }, [fetchData, setLoading]);
+  }, [callback, setLoading]);
 
   return [data, setData, loading];
 }

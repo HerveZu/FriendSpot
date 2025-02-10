@@ -1,4 +1,5 @@
 import { Duration } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 export function capitalize(val: string) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -72,4 +73,10 @@ export function rgbToHex(rgb: string): HexColor {
 
 export function opacity(rgb: string, opacity: number): string {
   return rgb.replace('rgb', 'rgba').replace(')', `, ${opacity})`);
+}
+
+export function fromUtc(date: string | Date): Date {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  console.log(date, new Date(toZonedTime(date, timezone).getTime()), timezone);
+  return toZonedTime(date, timezone);
 }

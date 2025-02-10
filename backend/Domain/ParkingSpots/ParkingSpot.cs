@@ -19,7 +19,7 @@ public sealed record ParkingSpotAvailabilityCancelled : IDomainEvent
 
 public sealed record ParkingSpotBooked : IDomainEvent
 {
-    public required Guid AvailabilityId { get; init; }
+    public required Guid BookingId { get; init; }
     public required Credits Cost { get; init; }
 }
 
@@ -27,6 +27,12 @@ public sealed record ParkingSpotBookingRated : IDomainEvent
 {
     public required string OwnerId { get; init; }
     public required BookRating Rating { get; init; }
+}
+
+public sealed record ParkingSpotBookingCancelled : IDomainEvent
+{
+    public required string BookingUserId { get; init; }
+    public required Guid BookingId { get; init; }
 }
 
 public sealed class ParkingSpot : IBroadcastEvents
@@ -121,7 +127,7 @@ public sealed class ParkingSpot : IBroadcastEvents
         _domainEvents.Register(
             new ParkingSpotBooked
             {
-                AvailabilityId = availability.Id,
+                BookingId = newBooking.Id,
                 Cost = cost
             });
 
@@ -190,6 +196,34 @@ public sealed class ParkingSpot : IBroadcastEvents
         {
             OwnerId = OwnerId,
             Rating = rating
+        });
+    }
+
+    public void CancelBooking(string cancelingUserId, Guid bookingId)
+    {
+        var allowedToCancel = _bookings
+            .Select(booking => booking.BookingUserId)
+            .Distinct()
+            .ToList();
+        allowedToCancel.Add(OwnerId);
+
+        if (!allowedToCancel.Contains(cancelingUserId))
+        {
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel booking");
+        }
+
+        var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId);
+
+        if (booking is null)
+        {
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Booking not found");
+        }
+
+        _bookings.Remove(booking);
+        _domainEvents.Register(new ParkingSpotBookingCancelled
+        {
+            BookingUserId = booking.BookingUserId,
+            BookingId = booking.Id,
         });
     }
 }

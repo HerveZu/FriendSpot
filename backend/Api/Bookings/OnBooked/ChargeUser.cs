@@ -13,7 +13,7 @@ internal sealed class ChargeUser(AppDbContext dbContext) : IDomainEventHandler<P
         var wallet = await dbContext.Set<Wallet>().FirstAsync(cancellationToken);
 
         wallet.Charge(
-            notification.AvailabilityId.ToString(),
+            notification.BookingId.ToString(),
             notification.Cost);
 
         dbContext.Set<Wallet>().Update(wallet);
