@@ -129,6 +129,82 @@ export default function UserProfileScreen() {
       .finally(() => setIsLoading(false));
   }
 
+  const DisplayCar = () => {
+    if (!userProfile?.spot?.available) {
+      return (
+        <View className="h-28 w-[105px] flex-1">
+          <Image
+            className="h-full w-full"
+            source={car}
+            alt="car"
+            style={{ transform: [{ rotate: '90deg' }], resizeMode: 'contain' }}
+          />
+        </View>
+      );
+    } else {
+      return (
+        <View className="h-40 w-32 flex-1 rounded-lg border-2 border-dashed border-primary"></View>
+      );
+    }
+  };
+
+  const SpotUsedBy = () => {
+    const totalDuration = () => {
+      const usingUntil = userProfile?.spot?.currentlyUsedBy?.usingUntil;
+      if (usingUntil) {
+        const now = new Date();
+        const endTime = new Date(usingUntil);
+        const diffInMilliseconds = endTime.getTime() - now.getTime();
+        const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
+        if (diffInMinutes > 60) {
+          const diffInHours = Math.floor(diffInMinutes / 60);
+          return diffInHours;
+        } else {
+          return diffInMinutes;
+        }
+      }
+    };
+
+    if (userProfile.spot?.currentlyUsedBy) {
+      return (
+        <View className="w-full flex-1 flex-col justify-center gap-6 border border-green-500">
+          <Text className="text-center text-base font-bold">En cours d'utilisation</Text>
+          <View className="flex flex-col gap-4">
+            <View className="flex-row items-center gap-2">
+              <Image
+                className="h-6 w-6"
+                // source={{ uri: userProfile.spot.currentlyUsedBy.pictureUrl }}
+                source={avatar2}
+              />
+              <Text className="text-base">{userProfile.spot.currentlyUsedBy.displayName}</Text>
+            </View>
+          </View>
+
+          <View className="mt-2 flex-row items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2">
+            <ThemedIcon name={'clock-o'} size={18} color={'white'} />
+            {userProfile.spot?.currentlyUsedBy?.usingUntil && (
+              <Text className="text-center text-sm text-white">
+                {`Encore ${totalDuration()} minutes`}
+              </Text>
+            )}
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <View className="w-full flex-1 flex-col justify-center gap-6 border border-green-500">
+          <Text className="text-center text-lg font-bold">{`${!userProfile.spot?.available ? 'Votre spot est libre' : 'Vous occupez votre place'}`}</Text>
+          <View className="mt-2 flex-row items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2">
+            <ThemedIcon name={'clock-o'} size={18} color={'white'} />
+            <Text className="text-center text-sm text-white">
+              {`Encore ${userProfile.spot?.nextAvailability}`}
+            </Text>
+          </View>
+        </View>
+      );
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <KeyboardAvoidingView
@@ -201,32 +277,20 @@ export default function UserProfileScreen() {
                 </Text>
               </View>
             </Button>
-            <View className="mt-6 flex-row justify-center gap-4 rounded-lg border-4 border-card px-2 py-2">
-              <View className="mb-2 h-full items-center gap-2">
-                {/* <View className="h-40 w-32 rounded-lg border-2 border-dashed border-primary"></View> */}
-                <View className="h-26 w-32 flex-1">
-                  <Image className="h-full w-full rotate-90" source={car} alt="car" />
-                </View>
+
+            {/* Car here */}
+            <View className="border-border-red-500 mt-6 flex-row justify-center gap-4 rounded-lg border-4 border-card px-2 py-2">
+              <View className="mb-2 h-full items-center">
+                <DisplayCar />
                 <Text className="item-center text-xl font-bold text-foreground">
-                  {userProfile.spot ? userProfile.spot.name : 'A43'}
+                  {userProfile.spot ? userProfile.spot.name : ''}
                 </Text>
               </View>
               <View className="my-auto h-44 rounded-lg border-2 border-card"></View>
-
-              <View className="flex-1 flex-col justify-center gap-6">
-                <Text className="text-center text-lg font-bold">En cours d'utilisation</Text>
-                <View className="flex flex-col gap-4">
-                  <View className="flex-row items-center gap-2">
-                    <Image className="h-6 w-6" source={avatar2} alt="avatar" />
-                    <Text className="text-base">Jimmy Catalano</Text>
-                  </View>
-                </View>
-                <View className="mt-2 flex-row items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2">
-                  <ThemedIcon name={'clock-o'} size={18} color={'white'} />
-                  <Text className="text-center text-sm text-white">Encore 2h</Text>
-                </View>
-              </View>
+              <SpotUsedBy />
             </View>
+            {/* Car here */}
+
             <Button className="mt-10 bg-destructive" onPress={() => handleLogout()}>
               <Text>Se déconnecter</Text>
             </Button>
