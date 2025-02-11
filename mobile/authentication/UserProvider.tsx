@@ -1,4 +1,4 @@
-import { User, updateProfile, updateEmail } from 'firebase/auth';
+import { User, updateProfile } from 'firebase/auth';
 import {
   createContext,
   PropsWithChildren,
