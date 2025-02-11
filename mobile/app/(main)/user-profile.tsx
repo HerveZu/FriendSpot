@@ -29,6 +29,8 @@ import { MeAvatar } from '~/components/UserAvatar';
 import car from '../../assets/car-user-profil.png';
 import * as ImagePicker from 'expo-image-picker';
 import { LogoCard } from '~/components/Logo';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import mime from 'mime';
 
 interface Parking {
   id: string;
@@ -40,7 +42,7 @@ interface Parking {
 export default function UserProfileScreen() {
   const [user] = useAuthState(firebaseAuth);
   const { colors } = useColorScheme();
-  const [bookSheetOpen, setBookSheetOpen] = useState(false);
+  const [bottomSheet, setBottomSheet] = useState(false);
   const { apiRequest } = useApiRequest();
   const [parking, setParking] = useState<Parking[]>();
   const [search, setSearch] = useState('');
@@ -60,15 +62,30 @@ export default function UserProfileScreen() {
       console.error('Error signing out: ', error);
     });
   };
-
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
     });
-    if (!result.canceled) {
-      updateInternalProfile(result.assets[0].uri, userProfile.displayName);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const storage = getStorage();
+      const imageUri = result.assets[0].uri;
+      const response = await fetch(imageUri);
+      console.log(response);
+      const blob = await response.blob();
+
+      const extension = mime.getExtension(result.assets[0].type || '') || 'jpg';
+
+      const userId = user?.uid;
+
+      const photoUrlRef = ref(storage, `images/${userId}.${extension}`);
+
+      await uploadBytes(photoUrlRef, blob);
+
+      getDownloadURL(ref(photoUrlRef)).then((url) => {
+        updateInternalProfile(url, userProfile.displayName);
+      });
     } else {
       return;
     }
@@ -79,12 +96,12 @@ export default function UserProfileScreen() {
   }, [value]);
 
   useEffect(() => {
-    if (bookSheetOpen) {
+    if (bottomSheet) {
       bottomSheetModalRef.current?.present();
     } else {
       bottomSheetModalRef.current?.dismiss();
     }
-  }, [bottomSheetModalRef.current, bookSheetOpen]);
+  }, [bottomSheetModalRef.current, bottomSheet]);
 
   function checkAndUpdateDisplayName() {
     if (currentDisplayName.trim() === '' || currentDisplayName === oldDisplayName) {
@@ -97,19 +114,6 @@ export default function UserProfileScreen() {
     }
   }
 
-  // function bookSpot(from: Date, to: Date, parkingLotId: string) {
-  //   setActionPending(true);
-
-  //   book({
-  //     from,
-  //     to,
-  //     parkingLotId,
-  //   })
-  //     .then(refreshProfile)
-  //     .then(() => props.onOpen(false))
-  //     .finally(() => setActionPending(false));
-  // }
-
   async function updateParking() {
     setIsLoading(true);
     if (!selectedParking || !currentSpotName) {
@@ -121,7 +125,7 @@ export default function UserProfileScreen() {
       lotName: currentSpotName,
     })
       .then(refreshProfile)
-      .then(() => setBookSheetOpen(false))
+      .then(() => setBottomSheet(false))
       .finally(() => setIsLoading(false));
   }
 
@@ -133,14 +137,14 @@ export default function UserProfileScreen() {
         keyboardVerticalOffset={100}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <ContentView className="bg-gray mx-auto w-full rounded-lg p-4">
-            <View className="flex w-full flex-row items-center gap-6 ">
+            <View className="flex w-full flex-row items-center gap-6">
               <Button className="" variant="plain" size={'none'} onPress={pickImageAsync}>
                 <View
                   className="absolute bottom-0 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
                   accessibilityLabel="Edit Avatar">
                   <ThemedIcon name={'pencil'} size={14} color={'white'} />
                 </View>
-                <MeAvatar className="relative h-32 w-auto" />
+                <MeAvatar className="relative h-32 w-32" />
               </Button>
               <View className="w-full gap-6">
                 <View className="gap-2">
@@ -179,7 +183,7 @@ export default function UserProfileScreen() {
             </View>
             <Button
               className="mt-6 h-auto flex-col items-start rounded-lg bg-card"
-              onPress={() => setBookSheetOpen(true)}>
+              onPress={() => setBottomSheet(true)}>
               <View className="w-full flex-row items-center justify-between pt-0.5">
                 <Text className="max-w-64 text-lg text-foreground">
                   {userProfile.spot
@@ -232,7 +236,7 @@ export default function UserProfileScreen() {
           ref={bottomSheetModalRef}
           enableDynamicSizing={false}
           onDismiss={() => {
-            setBookSheetOpen(false), setSearch(''), setSelectedParking(undefined);
+            setBottomSheet(false), setSearch(''), setSelectedParking(undefined);
           }}
           snapPoints={[550]}>
           <BottomSheetView>
@@ -283,7 +287,7 @@ export default function UserProfileScreen() {
                 </View>
                 <Button
                   className={`w-full rounded-lg bg-primary  ${!selectedParking || currentSpotName?.trim() === '' ? 'opacity-30' : ''}`}
-                  disabled={!selectedParking || currentSpotName?.trim() === ''}
+                  disabled={!selectedParking || currentSpotName?.trim() === '' || isLoading}
                   onPress={() => updateParking()}
                   size={'lg'}>
                   <Text className="text-white">Enregistrer</Text>
