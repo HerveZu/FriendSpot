@@ -1,0 +1,12 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "UserPictures_PublicRead",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::bucketeer-b3bfa9c5-21f8-4653-9f60-2eb4e739293a/userPictures/*"
+    }
+  ]
+}
