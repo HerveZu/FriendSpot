@@ -10,6 +10,8 @@ export type UserProfile = {
   readonly spot?: {
     readonly available: boolean;
     readonly name: string;
+    readonly nextAvailability: null | Date;
+    readonly nextUse: null | Date;
     readonly parking: {
       readonly id: string;
       readonly name: string;
@@ -19,6 +21,7 @@ export type UserProfile = {
       readonly id: string;
       readonly displayName: string;
       readonly pictureUrl: string;
+      readonly usingUntil: null | Date;
     };
   };
   readonly wallet: {
