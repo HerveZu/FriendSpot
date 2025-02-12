@@ -59,7 +59,7 @@ const buttonTextVariants = cva('font-medium', {
       icon: '',
       sm: 'text-[15px] leading-5',
       md: 'text-[17px] leading-7',
-      lg: 'text-[17px] leading-9',
+      lg: 'text-[17px] leading-8',
     },
   },
   defaultVariants: {
