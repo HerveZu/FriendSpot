@@ -70,6 +70,10 @@ export default function HomeScreen() {
       isWithinInterval(now, { start: booking.from, end: booking.to })
     ) ?? [];
 
+  useEffect(() => {
+    (!booking || booking.bookings.length === 0) && setBookingListSheetOpen(false);
+  }, [booking]);
+
   return !userProfile.spot ? (
     <Redirect href="/user-profile" />
   ) : (
