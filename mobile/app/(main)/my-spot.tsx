@@ -71,9 +71,9 @@ export default function MySpotScreen() {
         <ActivityIndicator />
       ) : availabilities.availabilities.length > 0 ? (
         <View className="w-full grow flex-col justify-center gap-4">
-          {availabilities.availabilities.map((availability, i) => (
+          {availabilities.availabilities.map((availability) => (
             <MySpotAvailabilityCard
-              key={i}
+              key={availability.id}
               spotId={userProfile.spot!.id}
               availability={availability}
             />

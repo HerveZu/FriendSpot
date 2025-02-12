@@ -1,17 +1,17 @@
-import {differenceInSeconds, intervalToDuration, secondsToMilliseconds} from 'date-fns';
-import {toSeconds} from 'duration-fns';
-import {useLocalSearchParams, useRouter} from 'expo-router';
-import React, {PropsWithChildren, useEffect, useMemo, useState} from 'react';
-import {Pressable, SafeAreaView, View} from 'react-native';
-import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
+import { differenceInSeconds, intervalToDuration, secondsToMilliseconds } from 'date-fns';
+import { toSeconds } from 'duration-fns';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { Pressable, SafeAreaView, View } from 'react-native';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
-import {Loader} from '~/components/Loader';
-import {Screen} from '~/components/Screen';
-import {Text} from '~/components/nativewindui/Text';
-import {BookingResponse, useGetBooking} from '~/endpoints/get-booking';
-import {useColorScheme} from '~/lib/useColorScheme';
-import {useListenOnAppStateChange} from '~/lib/useListenOnAppStateChange';
-import {parseDuration, rgbToHex} from '~/lib/utils';
+import { Loader } from '~/components/Loader';
+import { Screen } from '~/components/Screen';
+import { Text } from '~/components/nativewindui/Text';
+import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
+import { parseDuration, rgbToHex } from '~/lib/utils';
 
 export type SpotCountDownScreenParams = { activeBookingsJson: string };
 
@@ -24,8 +24,8 @@ export default function SpotCountDownScreen() {
     <Pressable onPress={() => router.dismiss()}>
       <SafeAreaView className="h-screen w-screen flex-col gap-8 bg-background">
         <Screen className="w-full grow flex-col items-center justify-around">
-          {activeBookings.map((activeBooking, i) => (
-            <SpotCountDown key={i} activeBooking={activeBooking} />
+          {activeBookings.map((activeBooking) => (
+            <SpotCountDown key={activeBooking.id} activeBooking={activeBooking} />
           ))}
         </Screen>
       </SafeAreaView>

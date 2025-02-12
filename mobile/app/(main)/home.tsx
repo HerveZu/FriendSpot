@@ -114,8 +114,8 @@ export default function HomeScreen() {
         <ActivityIndicator />
       ) : activeBookings.length > 0 ? (
         <View className="flex-col gap-2">
-          {activeBookings.map((booking, id) => (
-            <BookingCard key={id} booking={booking} countdownOnTap />
+          {activeBookings.map((booking) => (
+            <BookingCard key={booking.id} booking={booking} countdownOnTap />
           ))}
         </View>
       ) : booking.bookings.length > 0 ? (
