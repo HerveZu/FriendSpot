@@ -69,7 +69,7 @@ export function AuthForm(
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Screen className="flex h-full flex-col justify-between">
+          <Screen className="flex h-full flex-col justify-between pt-8">
             <View className="relative w-full flex-row items-center justify-center">
               <BackButton className="absolute left-0" />
               <View className="self-center">{props.title}</View>
@@ -100,7 +100,11 @@ export function AuthForm(
 }
 
 export function AuthFormTitle(props: { title: string }) {
-  return <Text variant="title1">{props.title}</Text>;
+  return (
+    <Text variant="title1" className="font-semibold">
+      {props.title}
+    </Text>
+  );
 }
 
 type Validator = {

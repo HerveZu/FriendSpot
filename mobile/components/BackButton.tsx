@@ -9,7 +9,7 @@ export function BackButton(props: ButtonProps) {
 
   return (
     <Button onPress={() => router.back()} variant="plain" {...props}>
-      <ThemedIcon name="arrow-left" size={18} />
+      <ThemedIcon name="chevron-left" size={18} />
     </Button>
   );
 }
