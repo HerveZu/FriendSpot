@@ -30,7 +30,7 @@ export function ListSheet(
         <ContentSheetView className="flex-col justify-between gap-8">
           <SheetTitle>{props.title}</SheetTitle>
           <ScrollView>
-            <View className="flex-col gap-2">{props.children}</View>
+            <View className="flex-col gap-4">{props.children}</View>
           </ScrollView>
           <Pressable onPress={() => props.onOpen(false)}>{props.action}</Pressable>
         </ContentSheetView>

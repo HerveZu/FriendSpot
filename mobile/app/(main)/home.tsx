@@ -63,7 +63,7 @@ export default function HomeScreen() {
 
   const now = useActualTime(5000);
   const [booking] = useFetch(() => getBooking(), []);
-  const [suggestedSpots] = useFetch(() => getSuggestedSpots(now, endOfDay(now)), []);
+  const [suggestedSpots] = useFetch(() => getSuggestedSpots(now, addHours(now, 12)), []);
 
   const activeBookings =
     booking?.bookings.filter((booking) =>
@@ -73,6 +73,14 @@ export default function HomeScreen() {
   useEffect(() => {
     (!booking || booking.bookings.length === 0) && setBookingListSheetOpen(false);
   }, [booking]);
+
+  useEffect(() => {
+    !bookSheetOpen && setSelectedSuggestion(undefined);
+  }, [bookSheetOpen]);
+
+  useEffect(() => {
+    setBookSheetOpen(!!selectedSuggestion);
+  }, [selectedSuggestion]);
 
   return !userProfile.spot ? (
     <Redirect href="/user-profile" />
@@ -124,7 +132,7 @@ export default function HomeScreen() {
           suggestedSpots.suggestions.length > 0 && (
             <>
               <Title>Recommandé</Title>
-              <View className="flex-col gap-2">
+              <View className="flex-col gap-4">
                 {suggestedSpots.suggestions.map((suggestion, i) => (
                   <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
                     <SuggestedSpotCard suggestion={suggestion} />
@@ -153,14 +161,13 @@ export default function HomeScreen() {
           }
           open={bookingListSheetOpen}
           onOpen={setBookingListSheetOpen}>
-          {booking.bookings.map((booking, i) => (
-            <BookingCard key={i} booking={booking} />
+          {booking.bookings.map((booking) => (
+            <BookingCard key={booking.id} booking={booking} />
           ))}
         </ListSheet>
       )}
       <BookingSheet
         selectedSuggestion={selectedSuggestion}
-        setSelectedSuggestion={setSelectedSuggestion}
         open={bookSheetOpen}
         onOpen={setBookSheetOpen}
       />
@@ -194,15 +201,16 @@ function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean
 
   const canDelete = differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS;
 
-  function cancel() {
-    cancelBooking({
-      bookingId: props.booking.id,
-      parkingLotId: props.booking.parkingLot.id,
-    }).then(refreshProfile);
-  }
-
   return (
-    <Deletable canDelete={canDelete} className="rounded-xl" onDelete={cancel}>
+    <Deletable
+      canDelete={canDelete}
+      className="rounded-xl"
+      onDelete={() =>
+        cancelBooking({
+          bookingId: props.booking.id,
+          parkingLotId: props.booking.parkingLot.id,
+        }).then(refreshProfile)
+      }>
       <Pressable
         onPress={() =>
           props.countdownOnTap &&
@@ -245,7 +253,6 @@ function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean
 
 function BookingSheet(props: {
   selectedSuggestion: SpotSuggestion | undefined;
-  setSelectedSuggestion: Dispatch<SetStateAction<SpotSuggestion | undefined>>;
   open: boolean;
   onOpen: Dispatch<SetStateAction<boolean>>;
 }) {
@@ -279,32 +286,27 @@ function BookingSheet(props: {
   );
 
   useEffect(() => {
-    if (!props.selectedSuggestion) {
+    if (props.open) {
+      ref.current?.present();
+    } else {
+      setSelectedSpot(undefined);
+      ref.current?.dismiss();
+    }
+  }, [ref.current, props.open]);
+
+  useEffect(() => {
+    if (!props.open) {
       return;
     }
 
-    props.onOpen(true);
-  }, [props.selectedSuggestion]);
-
-  useEffect(() => {
     const safeFrom = addMinutes(now, INITIAL_FROM_MARGIN_MINUTES);
     const safeTo = addHours(from, INITIAL_DURATION_HOURS);
 
     setFrom(
       props.selectedSuggestion ? max([safeFrom, fromUtc(props.selectedSuggestion.from)]) : safeFrom
     );
-    setTo(props.selectedSuggestion ? max([safeTo, fromUtc(props.selectedSuggestion.to)]) : safeTo);
-  }, [props.open]);
-
-  useEffect(() => {
-    if (props.open) {
-      ref.current?.present();
-    } else {
-      setSelectedSpot(undefined);
-      props.setSelectedSuggestion(undefined);
-      ref.current?.dismiss();
-    }
-  }, [ref.current, props.open]);
+    setTo(props.selectedSuggestion ? fromUtc(props.selectedSuggestion.to) : safeTo);
+  }, [props.open, props.selectedSuggestion]);
 
   useEffect(() => {
     selectedSpot &&

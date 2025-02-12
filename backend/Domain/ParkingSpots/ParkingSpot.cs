@@ -105,10 +105,11 @@ public sealed class ParkingSpot : IBroadcastEvents
         var newBooking = ParkingSpotBooking.New(bookingUserId, from, duration);
 
         var overlappingBookings = _bookings
+            .Where(booking => booking.BookingUserId != bookingUserId)
             .Where(booking => booking.From <= newBooking.To && newBooking.From <= booking.To)
             .ToArray();
 
-        if (overlappingBookings.Any(booking => booking.BookingUserId != bookingUserId))
+        if (overlappingBookings.Length is not 0)
         {
             throw new BusinessException("ParkingSpot.NoAvailability", "This spot has already been booked.");
         }

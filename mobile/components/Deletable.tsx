@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { Animated, View, ViewProps } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -16,8 +16,9 @@ export function Deletable({
   onDelete,
   className,
   ...props
-}: { canDelete: boolean; onDelete: () => void } & ViewProps) {
+}: { canDelete: boolean; onDelete: () => Promise<void> } & ViewProps) {
   const shakeAnimation = new Animated.Value(0);
+  const [deleted, setDeleted] = useState(false);
 
   const startShake = () => {
     Animated.loop(
@@ -31,13 +32,15 @@ export function Deletable({
 
   function RightAction() {
     return (
-      <View
-        className={cn('w-full flex-row items-center justify-end bg-destructive pr-4', className)}
-        {...props}>
-        <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-          <ThemedIcon name={canDelete ? 'trash' : 'lock'} size={32} />
-        </Animated.View>
-      </View>
+      !deleted && (
+        <View
+          className={cn('w-full flex-row items-center justify-end bg-destructive pr-4', className)}
+          {...props}>
+          <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
+            <ThemedIcon name={canDelete ? 'trash' : 'lock'} size={32} />
+          </Animated.View>
+        </View>
+      )
     );
   }
 
@@ -49,7 +52,7 @@ export function Deletable({
         enableTrackpadTwoFingerGesture
         rightThreshold={canDelete ? 100 : 100000}
         renderRightActions={RightAction}
-        onSwipeableWillOpen={() => canDelete && onDelete()}>
+        onSwipeableWillOpen={() => canDelete && onDelete().then(() => setDeleted(true))}>
         <DeletableContext.Provider value={{ canDelete }}>
           {props.children}
         </DeletableContext.Provider>

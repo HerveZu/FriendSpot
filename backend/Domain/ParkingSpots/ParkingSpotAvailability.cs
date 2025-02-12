@@ -18,7 +18,7 @@ public sealed class ParkingSpotAvailability
     public TimeSpan Duration => To - From;
     public Credits Price => new((decimal)Duration.TotalHours);
 
-    private static ParkingSpotAvailability Create(DateTimeOffset from, DateTimeOffset to)
+    private static ParkingSpotAvailability CreateValid(DateTimeOffset from, DateTimeOffset to)
     {
         if (from >= to)
         {
@@ -39,7 +39,7 @@ public sealed class ParkingSpotAvailability
                 "Availability date should be in the future.");
         }
 
-        return Create(from, to);
+        return CreateValid(from, to);
     }
 
     public static ParkingSpotAvailability Merge(ParkingSpotAvailability existing, ParkingSpotAvailability @new)
@@ -54,7 +54,7 @@ public sealed class ParkingSpotAvailability
         var minFrom = new[] { existing.From, @new.From }.Min();
         var maxTo = new[] { existing.To, @new.To }.Max();
 
-        return Create(minFrom, maxTo);
+        return CreateValid(minFrom, maxTo);
     }
 
     public bool Overlaps(ParkingSpotAvailability other)
@@ -62,47 +62,36 @@ public sealed class ParkingSpotAvailability
         return From <= other.To && other.From <= To;
     }
 
-    public IEnumerable<ParkingSpotSplitAvailability> Split(ParkingSpotBooking[] bookings)
+    public ParkingSpotAvailability[] Split(ParkingSpotBooking[] bookings)
     {
         if (bookings.Length is 0)
         {
-            yield return new ParkingSpotSplitAvailability
-            {
-                From = From,
-                To = To,
-            };
-            yield break;
+            return [CreateValid(From, To)];
         }
 
-        var lastFrom = new[] { From, bookings.First().From }.Min();
+        var availabilities = new Stack<ParkingSpotAvailability>();
+
+        var availableSince = new[] { From, bookings.First().From }.Min();
         var borderMargin = TimeSpan.FromMinutes(1);
 
-        foreach (var booking in bookings.Where(booking => booking.From > lastFrom))
+        foreach (var booking in bookings)
         {
-            var slice = new ParkingSpotSplitAvailability
+            var notAvailableFrom = booking.From - borderMargin;
+            var notAvailableTo = booking.From + booking.Duration + borderMargin;
+
+            if (notAvailableFrom > availableSince)
             {
-                From = lastFrom,
-                To = booking.From - borderMargin
-            };
+                availabilities.Push(CreateValid(availableSince, notAvailableFrom));
+            }
 
-            yield return slice;
-
-            lastFrom = booking.From + booking.Duration + borderMargin;
+            availableSince = notAvailableTo;
         }
 
-        if (lastFrom < To)
+        if (availableSince < To)
         {
-            yield return new ParkingSpotSplitAvailability
-            {
-                From = lastFrom,
-                To = To,
-            };
+            availabilities.Push(CreateValid(availableSince, To));
         }
+
+        return availabilities.ToArray();
     }
-}
-
-public sealed record ParkingSpotSplitAvailability
-{
-    public required DateTimeOffset From { get; init; }
-    public required DateTimeOffset To { get; init; }
 }

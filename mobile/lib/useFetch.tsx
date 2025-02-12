@@ -1,7 +1,7 @@
-import {Dispatch, SetStateAction, useCallback, useEffect, useState} from 'react';
-import {Falsy} from 'react-native';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { Falsy } from 'react-native';
 
-import {useCurrentUser} from '~/authentication/UserProvider';
+import { useCurrentUser } from '~/authentication/UserProvider';
 
 export function useFetch<TResponse>(
   fetchData: () => Promise<TResponse> | Falsy,

@@ -111,7 +111,7 @@ internal sealed class GetSuggestedSpots(AppDbContext dbContext)
                             ParkingLotId = x.ParkingLotId
                         }))
             .Where(suggestion => suggestion.To >= req.From && suggestion.From <= req.To)
-            .Where(suggestion => suggestion.To - req.From > TimeSpan.FromHours(1))
+            .Where(suggestion => suggestion.To - new []{req.From, suggestion.From}.Max() > TimeSpan.FromHours(1))
             .OrderByDescending(suggestion => suggestion.Owner.Rating)
             .ToArray();
 
