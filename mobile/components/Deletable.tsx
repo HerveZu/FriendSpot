@@ -49,7 +49,7 @@ export function Deletable({
         enableTrackpadTwoFingerGesture
         rightThreshold={canDelete ? 100 : 100000}
         renderRightActions={RightAction}
-        onSwipeableOpen={() => canDelete && onDelete()}>
+        onSwipeableWillOpen={() => canDelete && onDelete()}>
         <DeletableContext.Provider value={{ canDelete }}>
           {props.children}
         </DeletableContext.Provider>
