@@ -140,7 +140,13 @@ export default function HomeScreen() {
         <ListSheet
           title="Mes réservations"
           action={
-            <Button size="lg" variant="primary" onPress={() => setBookSheetOpen(true)}>
+            <Button
+              size="lg"
+              variant="primary"
+              onPress={() => {
+                setBookingListSheetOpen(false);
+                setBookSheetOpen(true);
+              }}>
               <ThemedIcon name="search" size={18} color={COLORS.white} />
               <Text>Trouver un spot</Text>
             </Button>
