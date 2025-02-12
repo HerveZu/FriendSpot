@@ -1,5 +1,5 @@
-import {FontAwesome6} from '@expo/vector-icons';
-import {BottomSheetView} from '@gorhom/bottom-sheet';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import {
   addHours,
@@ -16,40 +16,40 @@ import {
   min,
   startOfDay,
 } from 'date-fns';
-import {Redirect, useRouter} from 'expo-router';
-import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from 'react';
-import {ActivityIndicator, Pressable, SafeAreaView, View, ViewProps} from 'react-native';
-import {useDebounce} from 'use-debounce';
+import { Redirect, useRouter } from 'expo-router';
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, SafeAreaView, View, ViewProps } from 'react-native';
+import { useDebounce } from 'use-debounce';
 
-import {SpotCountDownScreenParams} from '~/app/spot-count-down';
-import {useCurrentUser} from '~/authentication/UserProvider';
-import {Card, InfoCard} from '~/components/Card';
-import {ContentSheetView} from '~/components/ContentView';
-import {DateRange} from '~/components/DateRange';
-import {Deletable, DeletableStatus} from '~/components/Deletable';
-import {ListSheet} from '~/components/ListSheet';
-import {Rating} from '~/components/Rating';
-import {ScreenTitle, ScreenWithHeader} from '~/components/Screen';
-import {Tag} from '~/components/Tag';
-import {ThemedIcon} from '~/components/ThemedIcon';
-import {SheetTitle, Title} from '~/components/Title';
-import {User} from '~/components/UserAvatar';
-import {Button} from '~/components/nativewindui/Button';
-import {DatePicker} from '~/components/nativewindui/DatePicker';
-import {Sheet, useSheetRef} from '~/components/nativewindui/Sheet';
-import {Text} from '~/components/nativewindui/Text';
-import {BookSpotResponse, useBookSpot} from '~/endpoints/book-spot';
-import {useCancelBooking} from '~/endpoints/cancel-spot-booking';
-import {AvailableSpot, useGetAvailableSpots} from '~/endpoints/get-available-spots';
-import {BookingResponse, useGetBooking} from '~/endpoints/get-booking';
-import {SpotSuggestion, useGetSuggestedSpots} from '~/endpoints/get-suggested-spots';
-import {cn} from '~/lib/cn';
-import {BOOKING_FROZEN_FOR_HOURS} from '~/lib/const';
-import {useActualTime} from '~/lib/use-actual-time';
-import {useColorScheme} from '~/lib/useColorScheme';
-import {useFetch} from '~/lib/useFetch';
-import {capitalize, fromUtc} from '~/lib/utils';
-import {COLORS} from '~/theme/colors';
+import { SpotCountDownScreenParams } from '~/app/spot-count-down';
+import { useCurrentUser } from '~/authentication/UserProvider';
+import { Card, InfoCard } from '~/components/Card';
+import { ContentSheetView } from '~/components/ContentView';
+import { DateRange } from '~/components/DateRange';
+import { Deletable, DeletableStatus } from '~/components/Deletable';
+import { ListSheet } from '~/components/ListSheet';
+import { Rating } from '~/components/Rating';
+import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
+import { Tag } from '~/components/Tag';
+import { ThemedIcon } from '~/components/ThemedIcon';
+import { SheetTitle, Title } from '~/components/Title';
+import { User } from '~/components/UserAvatar';
+import { Button } from '~/components/nativewindui/Button';
+import { DatePicker } from '~/components/nativewindui/DatePicker';
+import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Text } from '~/components/nativewindui/Text';
+import { BookSpotResponse, useBookSpot } from '~/endpoints/book-spot';
+import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
+import { AvailableSpot, useGetAvailableSpots } from '~/endpoints/get-available-spots';
+import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
+import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-spots';
+import { cn } from '~/lib/cn';
+import { BOOKING_FROZEN_FOR_HOURS } from '~/lib/const';
+import { useActualTime } from '~/lib/use-actual-time';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { useFetch } from '~/lib/useFetch';
+import { capitalize, fromUtc } from '~/lib/utils';
+import { COLORS } from '~/theme/colors';
 
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
@@ -117,18 +117,18 @@ export default function HomeScreen() {
         {!suggestedSpots ? (
           <ActivityIndicator />
         ) : (
-            suggestedSpots.suggestions.length > 0 && (
-                <>
-                  <Title>Recommandé</Title>
-                  <View className="flex-col gap-2">
-                    {suggestedSpots.suggestions.map((suggestion, i) => (
-                        <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
-                          <SuggestedSpotCard suggestion={suggestion}/>
-                        </Pressable>
-                    ))}
-                  </View>
-                </>
-            )
+          suggestedSpots.suggestions.length > 0 && (
+            <>
+              <Title>Recommandé</Title>
+              <View className="flex-col gap-2">
+                {suggestedSpots.suggestions.map((suggestion, i) => (
+                  <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
+                    <SuggestedSpotCard suggestion={suggestion} />
+                  </Pressable>
+                ))}
+              </View>
+            </>
+          )
         )}
       </View>
 
@@ -264,8 +264,8 @@ function BookingSheet(props: {
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
 
   const [availableSpots] = useFetch(
-      () => getAvailableSpots(fromDebounce, toDebounce),
-      [fromDebounce, toDebounce]
+    () => getAvailableSpots(fromDebounce, toDebounce),
+    [fromDebounce, toDebounce]
   );
 
   useEffect(() => {

@@ -2,18 +2,18 @@ import '../global.css';
 import 'expo-dev-client';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { setDefaultOptions } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
+import { getCurrentLocale } from '~/lib/locale';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 
 export { ErrorBoundary } from 'expo-router';
 
-setDefaultOptions({ locale: fr });
+setDefaultOptions({ locale: getCurrentLocale() });
 
 export default function RootLayout() {
   useInitialAndroidBarSync();
