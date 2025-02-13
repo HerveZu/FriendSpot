@@ -7,7 +7,6 @@ import {
   Platform,
   ScrollView,
   Pressable,
-  ActivityIndicator,
 } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -30,6 +29,7 @@ import car from '../../assets/car-user-profil.png';
 import * as ImagePicker from 'expo-image-picker';
 import { LogoCard } from '~/components/Logo';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { isToday, isTomorrow, format, differenceInMinutes, minutesToHours } from 'date-fns';
 import mime from 'mime';
 
 interface Parking {
@@ -54,6 +54,33 @@ export default function UserProfileScreen() {
   const bottomSheetModalRef = useSheetRef();
   const [currentSpotName, setCurrentSpotName] = useState<string>(userProfile.spot?.name || '');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const available = userProfile?.spot?.available;
+  const usingUntil = userProfile?.spot?.currentlyUsedBy?.usingUntil;
+  const nextUse = userProfile.spot?.nextUse;
+  const currentlyUsedBy = userProfile.spot?.currentlyUsedBy;
+
+  const checkIfPlural = (value: number, text: string) => {
+    if (value > 1) {
+      return text + 's';
+    } else {
+      return text;
+    }
+  };
+
+  const formatDate = (time: Date | null | undefined) => {
+    if (time) {
+      const date = new Date(time);
+      if (isToday(date)) {
+        return `aujourd'hui à ${format(date, 'HH:mm')}`;
+      } else if (isTomorrow(date)) {
+        return `demain à ${format(date, 'HH:mm')}`;
+      } else {
+        return format(date, 'dd/MM/yyyy à HH:mm');
+      }
+    }
+    return '';
+  };
 
   const handleLogout = () => {
     const auth = getAuth();
@@ -130,7 +157,7 @@ export default function UserProfileScreen() {
   }
 
   const DisplayCar = () => {
-    if (!userProfile?.spot?.available) {
+    if (!available || currentlyUsedBy) {
       return (
         <View className="h-28 w-[105px] flex-1">
           <Image
@@ -143,40 +170,46 @@ export default function UserProfileScreen() {
       );
     } else {
       return (
-        <View className="h-40 w-32 flex-1 rounded-lg border-2 border-dashed border-primary"></View>
+        <View className="h-40 w-28 flex-1 rounded-lg border-2 border-dashed border-primary"></View>
       );
     }
   };
 
   const SpotUsedBy = () => {
-    const totalDuration = () => {
-      const usingUntil = userProfile?.spot?.currentlyUsedBy?.usingUntil;
-      if (usingUntil) {
+    const getRemainingTime = (endTime: Date | null | undefined) => {
+      if (endTime) {
         const now = new Date();
-        const endTime = new Date(usingUntil);
-        const diffInMilliseconds = endTime.getTime() - now.getTime();
-        const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
-        if (diffInMinutes > 60) {
-          const diffInHours = Math.floor(diffInMinutes / 60);
-          return diffInHours;
+        const diffInMinutes = differenceInMinutes(endTime, now);
+
+        if (diffInMinutes <= 0) {
+          return 'Temps écoulé';
+        }
+
+        const hours = minutesToHours(diffInMinutes);
+        const minutes = diffInMinutes % 60;
+
+        if (hours > 0) {
+          return `${hours} ${checkIfPlural(hours, 'heure')} et ${minutes} ${checkIfPlural(minutes, 'minute')}`;
         } else {
-          return diffInMinutes;
+          return `${minutes} ${checkIfPlural(minutes, 'minute')}`;
         }
       }
+      return '';
     };
-
-    if (userProfile.spot?.currentlyUsedBy) {
+    if (currentlyUsedBy) {
       return (
-        <View className="w-full flex-1 flex-col justify-center gap-6 border border-green-500">
+        <View className="w-full flex-1 flex-col justify-center gap-6">
           <Text className="text-center text-base font-bold">En cours d'utilisation</Text>
           <View className="flex flex-col gap-4">
-            <View className="flex-row items-center gap-2">
+            <View className="flex-row items-center justify-center gap-2 ">
               <Image
                 className="h-6 w-6"
                 // source={{ uri: userProfile.spot.currentlyUsedBy.pictureUrl }}
                 source={avatar2}
               />
-              <Text className="text-base">{userProfile.spot.currentlyUsedBy.displayName}</Text>
+              <Text className="flex justify-center text-base">
+                {userProfile.spot.currentlyUsedBy.displayName}
+              </Text>
             </View>
           </View>
 
@@ -184,7 +217,7 @@ export default function UserProfileScreen() {
             <ThemedIcon name={'clock-o'} size={18} color={'white'} />
             {userProfile.spot?.currentlyUsedBy?.usingUntil && (
               <Text className="text-center text-sm text-white">
-                {`Encore ${totalDuration()} minutes`}
+                {`Pendant ${getRemainingTime(usingUntil)}`}
               </Text>
             )}
           </View>
@@ -192,14 +225,17 @@ export default function UserProfileScreen() {
       );
     } else {
       return (
-        <View className="w-full flex-1 flex-col justify-center gap-6 border border-green-500">
-          <Text className="text-center text-lg font-bold">{`${!userProfile.spot?.available ? 'Votre spot est libre' : 'Vous occupez votre place'}`}</Text>
-          <View className="mt-2 flex-row items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2">
-            <ThemedIcon name={'clock-o'} size={18} color={'white'} />
-            <Text className="text-center text-sm text-white">
-              {`Encore ${userProfile.spot?.nextAvailability}`}
-            </Text>
-          </View>
+        <View className="w-full flex-1 flex-col justify-center gap-6">
+          <Text className="text-center text-lg font-bold">{`${!available ? 'Votre spot est libre' : 'Vous occupez votre place'}`}</Text>
+
+          {userProfile.spot?.nextUse && (
+            <View className="mt-2 flex-row items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2">
+              <ThemedIcon name={'clock-o'} size={18} color={'white'} />
+              <Text className="text-center text-sm text-white">
+                {`Prochaine utilisation ${formatDate(nextUse)}`}
+              </Text>
+            </View>
+          )}
         </View>
       );
     }
@@ -278,18 +314,16 @@ export default function UserProfileScreen() {
               </View>
             </Button>
 
-            {/* Car here */}
-            <View className="border-border-red-500 mt-6 flex-row justify-center gap-4 rounded-lg border-4 border-card px-2 py-2">
+            <View className="border-border-red-500 mt-6 flex-row justify-center gap-4 rounded-lg border-4 border-card px-4 py-5">
               <View className="mb-2 h-full items-center">
                 <DisplayCar />
-                <Text className="item-center text-xl font-bold text-foreground">
+                <Text className="item-center mt-2 text-xl font-bold text-foreground">
                   {userProfile.spot ? userProfile.spot.name : ''}
                 </Text>
               </View>
               <View className="my-auto h-44 rounded-lg border-2 border-card"></View>
               <SpotUsedBy />
             </View>
-            {/* Car here */}
 
             <Button className="mt-10 bg-destructive" onPress={() => handleLogout()}>
               <Text>Se déconnecter</Text>
