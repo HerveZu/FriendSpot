@@ -8,7 +8,7 @@ export type UserProfile = {
   readonly rating: number;
   readonly bookingToRate?: BookingToRate;
   readonly spot?: {
-    readonly available: boolean;
+    readonly currentlyAvailable: boolean;
     readonly name: string;
     readonly nextAvailability: null | Date;
     readonly nextUse: null | Date;
