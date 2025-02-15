@@ -38,7 +38,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
-import { BookSpotResponse, useBookSpot } from '~/endpoints/book-spot';
+import { useBookSpot } from '~/endpoints/book-spot';
 import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
 import { AvailableSpot, useGetAvailableSpots } from '~/endpoints/get-available-spots';
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
@@ -123,7 +123,7 @@ export default function HomeScreen() {
           info={`La prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
         />
       ) : (
-        <InfoCard info="Réserve ton premier spot maintenant !" />
+        <InfoCard info="Réserve un spot maintenant !" />
       )}
       <View className="flex-col gap-6">
         {!suggestedSpots ? (
@@ -265,7 +265,6 @@ function BookingSheet(props: {
 
   const now = new Date();
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
-  const [bookingSimulation, setBookingSimulation] = useState<BookSpotResponse>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
   const [actionPending, setActionPending] = useState(false);
@@ -277,6 +276,20 @@ function BookingSheet(props: {
   const { refreshProfile } = useCurrentUser();
   const [toDebounce] = useDebounce(to, 200);
   const [fromDebounce] = useDebounce(from, 200);
+
+  const [bookingSimulation, setBookingSimulation] = useFetch(
+    () =>
+      selectedSpot &&
+      book(
+        {
+          from: fromDebounce,
+          to: toDebounce,
+          parkingLotId: selectedSpot.parkingLotId,
+        },
+        true
+      ),
+    [selectedSpot, fromDebounce, toDebounce]
+  );
 
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
 
@@ -290,6 +303,7 @@ function BookingSheet(props: {
       ref.current?.present();
     } else {
       setSelectedSpot(undefined);
+      setBookingSimulation(undefined);
       ref.current?.dismiss();
     }
   }, [ref.current, props.open]);
@@ -307,18 +321,6 @@ function BookingSheet(props: {
     );
     setTo(props.selectedSuggestion ? fromUtc(props.selectedSuggestion.to) : safeTo);
   }, [props.open, props.selectedSuggestion]);
-
-  useEffect(() => {
-    selectedSpot &&
-      book(
-        {
-          from: fromDebounce,
-          to: toDebounce,
-          parkingLotId: selectedSpot.parkingLotId,
-        },
-        true
-      ).then(setBookingSimulation);
-  }, [selectedSpot, fromDebounce, toDebounce]);
 
   function minTo(from: Date): Date {
     return addHours(from, MIN_DURATION_HOURS);
@@ -423,8 +425,7 @@ function BookingSheet(props: {
               variant="primary"
               size="lg"
               disabled={
-                !selectedSpot ||
-                (bookingSimulation && bookingSimulation?.usedCredits > userProfile.wallet.credits)
+                !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
               }
               onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
               {actionPending && <ActivityIndicator color={COLORS.white} />}
