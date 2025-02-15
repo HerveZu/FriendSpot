@@ -27,6 +27,7 @@ import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus } from '~/components/Deletable';
+import { List } from '~/components/List';
 import { ListSheet } from '~/components/ListSheet';
 import { Rating } from '~/components/Rating';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
@@ -120,7 +121,7 @@ export default function HomeScreen() {
         </View>
       ) : booking.bookings.length > 0 ? (
         <InfoCard
-          info={`La prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
+          info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
         />
       ) : (
         <InfoCard info="Réserve un spot maintenant !" />
@@ -132,13 +133,13 @@ export default function HomeScreen() {
           suggestedSpots.suggestions.length > 0 && (
             <>
               <Title>Recommandé</Title>
-              <View className="flex-col gap-4">
+              <List>
                 {suggestedSpots.suggestions.map((suggestion, i) => (
                   <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
                     <SuggestedSpotCard suggestion={suggestion} />
                   </Pressable>
                 ))}
-              </View>
+              </List>
             </>
           )
         )}

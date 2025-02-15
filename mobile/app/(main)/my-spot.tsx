@@ -20,6 +20,7 @@ import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus } from '~/components/Deletable';
+import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { SheetTitle } from '~/components/Title';
@@ -220,7 +221,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
       <BottomSheetView>
         <SafeAreaView>
           <ContentSheetView className="h-full flex-col justify-between">
-            <View className="flex-col gap-4">
+            <List>
               <View className="flex-row items-center gap-4">
                 <ThemedIcon name="calendar" size={22} />
                 <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
@@ -231,7 +232,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
                   {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
                 </Text>
               </View>
-            </View>
+            </List>
             {simulation?.overlaps && (
               <View className="mx-auto flex-row items-center gap-4">
                 <ThemedIcon name="info" size={26} color={colors.primary} />

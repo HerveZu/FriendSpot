@@ -1,8 +1,9 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useEffect } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 
 import { ContentSheetView } from '~/components/ContentView';
+import { List } from '~/components/List';
 import { SheetTitle } from '~/components/Title';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 
@@ -30,7 +31,7 @@ export function ListSheet(
         <ContentSheetView className="flex-col justify-between gap-8">
           <SheetTitle>{props.title}</SheetTitle>
           <ScrollView>
-            <View className="flex-col gap-4">{props.children}</View>
+            <List>{props.children}</List>
           </ScrollView>
           <Pressable onPress={() => props.onOpen(false)}>{props.action}</Pressable>
         </ContentSheetView>
