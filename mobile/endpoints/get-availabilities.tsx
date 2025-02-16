@@ -8,9 +8,23 @@ export type AvailabilitiesResponse = {
 };
 
 export type SpotAvailability = {
+  readonly id: string;
   readonly from: string;
   readonly to: string;
   readonly duration: string;
+  readonly bookings: AvailabilityBooking[];
+};
+
+export type AvailabilityBooking = {
+  readonly id: string;
+  readonly from: string;
+  readonly to: string;
+  readonly duration: string;
+  readonly bookedBy: {
+    readonly id: string;
+    readonly displayName: string;
+    readonly pictureUrl: string | null;
+  };
 };
 
 export function useGetAvailabilities() {

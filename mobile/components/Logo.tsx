@@ -1,25 +1,50 @@
 import { View, ViewProps } from 'react-native';
 
 import { cn } from '~/lib/cn';
+import { omitObj } from '~/lib/utils';
 
 export function Logo({ className, ...props }: ViewProps) {
   return (
-    <View className={cn('flex-row items-center', className)} {...props}>
-      <LogoCard className="-mr-2 -rotate-12" />
-      <LogoCard className="-ml-2 rotate-12" primary />
+    <View className={cn('relative', className)} {...props}>
+      <LogoCard
+        className="absolute h-full w-full -rotate-12"
+        style={{
+          left: '-17%',
+          top: '-4%',
+        }}
+      />
+      <LogoCard
+        className="absolute h-full w-full rotate-12"
+        primary
+        style={{
+          right: '-17%',
+          bottom: '-4%',
+        }}
+      />
     </View>
   );
 }
 
-export function LogoCard({ primary, className, ...props }: { primary?: boolean } & ViewProps) {
+export function LogoCard({
+  primary,
+  className,
+  style,
+  ...props
+}: { primary?: boolean } & ViewProps) {
   return (
     <View
       className={cn(
-        'h-24 w-14 rounded-xl',
-        primary && 'bg-primary',
+        'h-24 w-14 shadow-sm shadow-primary',
+        primary ? 'bg-primary' : 'bg-background',
         !primary && 'border-2 border-primary',
         className
       )}
+      style={[
+        {
+          borderRadius: '20%',
+        },
+        omitObj(style),
+      ]}
       {...props}
     />
   );

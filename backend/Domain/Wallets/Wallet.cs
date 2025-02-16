@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain.Wallets;
 
-public sealed class Wallet : IUserPrivateResource
+public sealed class Wallet
 {
     private readonly List<CreditsTransaction> _transactions = [];
 
@@ -33,16 +33,6 @@ public sealed class Wallet : IUserPrivateResource
         return new Wallet(Guid.CreateVersion7(), userId);
     }
 
-    public void Credit(string reference, Credits credits, TransactionState state)
-    {
-        if (credits.Amount < 0)
-        {
-            throw new BusinessException("Wallet.NegativeCreditAmount", "Cannot credit a negative amount.");
-        }
-
-        IdempotentTransaction(CreditsTransaction.Create(reference, credits, state));
-    }
-
     public void Charge(string reference, Credits credits)
     {
         if (credits.Amount < 0)
@@ -60,16 +50,44 @@ public sealed class Wallet : IUserPrivateResource
         IdempotentTransaction(CreditsTransaction.Create(reference, -credits, TransactionState.Confirmed));
     }
 
-    public void CancelTransaction(string reference)
+    public void Cancel(string reference)
     {
-        var transaction = _transactions.FirstOrDefault(transaction => transaction.Reference == reference);
+        var transaction = _transactions.Single(transaction => transaction.Reference == reference);
+        _transactions.Remove(transaction);
+    }
 
-        if (transaction is null)
+    public void CreditConfirmed(string reference, Credits credits)
+    {
+        Credit(reference, credits, TransactionState.Confirmed);
+    }
+
+    public void CreditPending(string reference, Credits credits)
+    {
+        Credit(reference, credits, TransactionState.Pending);
+    }
+
+    public void ConfirmPending(string reference)
+    {
+        var transaction = _transactions.Single(transaction => transaction.Reference == reference);
+
+        if (transaction.State is not TransactionState.Pending)
         {
-            return;
+            throw new BusinessException("Wallet.CannotConfirmPending", "Transaction is not pending");
         }
 
         _transactions.Remove(transaction);
+
+        Credit(reference, transaction.Credits, TransactionState.Confirmed);
+    }
+
+    private void Credit(string reference, Credits credits, TransactionState state)
+    {
+        if (credits.Amount < 0)
+        {
+            throw new BusinessException("Wallet.NegativeCreditAmount", "Cannot credit a negative amount.");
+        }
+
+        IdempotentTransaction(CreditsTransaction.Create(reference, credits, state));
     }
 
     private void IdempotentTransaction(CreditsTransaction newTransaction)
@@ -80,7 +98,7 @@ public sealed class Wallet : IUserPrivateResource
         }
 
         var existingTransaction = _transactions
-            .FirstOrDefault(transaction => transaction.Reference == newTransaction.Reference);
+            .SingleOrDefault(transaction => transaction.Reference == newTransaction.Reference);
 
         if (existingTransaction is not null)
         {

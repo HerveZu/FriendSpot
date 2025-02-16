@@ -5,22 +5,20 @@ public sealed class ParkingSpotAvailability
     private ParkingSpotAvailability(
         Guid id,
         DateTimeOffset from,
-        DateTimeOffset to,
-        TimeSpan duration)
+        DateTimeOffset to)
     {
         Id = id;
         From = from;
         To = to;
-        Duration = duration;
     }
 
     public Guid Id { get; }
     public DateTimeOffset From { get; }
     public DateTimeOffset To { get; }
-    public TimeSpan Duration { get; }
+    public TimeSpan Duration => To - From;
     public Credits Price => new((decimal)Duration.TotalHours);
 
-    private static ParkingSpotAvailability Create(DateTimeOffset from, DateTimeOffset to)
+    private static ParkingSpotAvailability CreateValid(DateTimeOffset from, DateTimeOffset to)
     {
         if (from >= to)
         {
@@ -29,12 +27,7 @@ public sealed class ParkingSpotAvailability
                 "Availability end date should be after its start date.");
         }
 
-        var duration = to - from;
-        return new ParkingSpotAvailability(
-            Guid.CreateVersion7(from),
-            from,
-            to,
-            duration);
+        return new ParkingSpotAvailability(Guid.CreateVersion7(from), from, to);
     }
 
     public static ParkingSpotAvailability New(DateTimeOffset from, DateTimeOffset to)
@@ -46,7 +39,7 @@ public sealed class ParkingSpotAvailability
                 "Availability date should be in the future.");
         }
 
-        return Create(from, to);
+        return CreateValid(from, to);
     }
 
     public static ParkingSpotAvailability Merge(ParkingSpotAvailability existing, ParkingSpotAvailability @new)
@@ -61,11 +54,44 @@ public sealed class ParkingSpotAvailability
         var minFrom = new[] { existing.From, @new.From }.Min();
         var maxTo = new[] { existing.To, @new.To }.Max();
 
-        return Create(minFrom, maxTo);
+        return CreateValid(minFrom, maxTo);
     }
 
     public bool Overlaps(ParkingSpotAvailability other)
     {
         return From <= other.To && other.From <= To;
+    }
+
+    public ParkingSpotAvailability[] Split(ParkingSpotBooking[] bookings)
+    {
+        if (bookings.Length is 0)
+        {
+            return [CreateValid(From, To)];
+        }
+
+        var availabilities = new Stack<ParkingSpotAvailability>();
+
+        var availableSince = new[] { From, bookings.First().From }.Min();
+        var borderMargin = TimeSpan.FromMinutes(1);
+
+        foreach (var booking in bookings)
+        {
+            var notAvailableFrom = booking.From - borderMargin;
+            var notAvailableTo = booking.From + booking.Duration + borderMargin;
+
+            if (notAvailableFrom > availableSince)
+            {
+                availabilities.Push(CreateValid(availableSince, notAvailableFrom));
+            }
+
+            availableSince = notAvailableTo;
+        }
+
+        if (availableSince < To)
+        {
+            availabilities.Push(CreateValid(availableSince, To));
+        }
+
+        return availabilities.ToArray();
     }
 }

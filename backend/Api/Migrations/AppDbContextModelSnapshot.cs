@@ -630,9 +630,6 @@ namespace Api.Migrations
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid");
 
-                            b1.Property<TimeSpan>("Duration")
-                                .HasColumnType("interval");
-
                             b1.Property<DateTimeOffset>("From")
                                 .HasColumnType("timestamp with time zone");
 

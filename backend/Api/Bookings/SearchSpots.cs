@@ -29,7 +29,7 @@ public sealed record SearchSpotsResponse
     public sealed record AvailableSpot
     {
         public required Guid ParkingLotId { get; init; }
-        public SpotOwner? Owner { get; init; }
+        public required SpotOwner Owner { get; init; }
 
         [PublicAPI]
         public sealed record SpotOwner
@@ -59,20 +59,20 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
     {
         var currentUser = HttpContext.ToCurrentUser();
 
-        var usersParkingLot = await dbContext
+        var parkingSpot = await dbContext
             .Set<ParkingSpot>()
             .FirstOrDefaultAsync(parkingLot => parkingLot.OwnerId == currentUser.Identity, ct);
 
-        if (usersParkingLot is null)
+        if (parkingSpot is null)
         {
-            ThrowError("You must have a parking lot to search for available spots");
+            ThrowError("You must have a parking spot to search for available spots");
             return;
         }
 
         var availableSpots = await (
                 from parkingLot in dbContext.Set<ParkingSpot>()
                 where parkingLot.OwnerId != currentUser.Identity
-                where parkingLot.ParkingId == usersParkingLot.ParkingId
+                where parkingLot.ParkingId == parkingSpot.ParkingId
                 join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity
                 select parkingLot.Availabilities
                     .Where(availability => availability.From <= req.From && availability.To >= req.To)
@@ -90,6 +90,7 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                             ParkingLotId = parkingLot.Id
                         }))
             .SelectMany(availabilities => availabilities)
+            .AsNoTracking()
             .ToArrayAsync(ct);
 
         await SendOkAsync(

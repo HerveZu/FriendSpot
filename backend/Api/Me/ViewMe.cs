@@ -37,7 +37,10 @@ public sealed record MeResponse
     [PublicAPI]
     public sealed record SpotStatus
     {
-        public required bool Available { get; init; }
+        public required Guid Id { get; init; }
+        public required bool CurrentlyAvailable { get; init; }
+        public required DateTimeOffset? NextAvailability { get; init; }
+        public required DateTimeOffset? NextUse { get; init; }
         public required string Name { get; init; }
         public required SpotParking Parking { get; init; }
         public required SpotUser? CurrentlyUsedBy { get; init; }
@@ -56,6 +59,7 @@ public sealed record MeResponse
             public required string Id { get; init; }
             public required string? PictureUrl { get; init; }
             public required string DisplayName { get; init; }
+            public required DateTimeOffset UsingUntil { get; init; }
         }
     }
 }
@@ -100,21 +104,38 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                         .Select(
                             spot => new MeResponse.SpotStatus
                             {
+                                Id = spot.Id,
                                 CurrentlyUsedBy = spot.Bookings
                                     .Where(booking => now >= booking.From && booking.To >= now)
                                     .Select(
-                                        booking => dbContext.Set<User>()
-                                            .First(bookingUser => bookingUser.Identity == booking.BookingUserId))
-                                    .Select(
-                                        bookingUser => new MeResponse.SpotStatus.SpotUser
+                                        booking => new
                                         {
-                                            Id = bookingUser.Identity,
-                                            DisplayName = bookingUser.DisplayName,
-                                            PictureUrl = bookingUser.PictureUrl
+                                            Booking = booking,
+                                            User = dbContext
+                                                .Set<User>()
+                                                .First(bookingUser => bookingUser.Identity == booking.BookingUserId)
+                                        })
+                                    .Select(
+                                        x => new MeResponse.SpotStatus.SpotUser
+                                        {
+                                            Id = x.User.Identity,
+                                            DisplayName = x.User.DisplayName,
+                                            PictureUrl = x.User.PictureUrl,
+                                            UsingUntil = x.Booking.To
                                         })
                                     .FirstOrDefault(),
-                                Available = spot.Availabilities
+                                CurrentlyAvailable = spot.Availabilities
                                     .Any(availability => now >= availability.From && availability.To >= now),
+                                NextAvailability = spot.Availabilities
+                                    .Where(availability => availability.From > now)
+                                    .Select(availability => availability.From)
+                                    .Order()
+                                    .First(),
+                                NextUse = spot.Bookings
+                                    .Where(booking => booking.From > now)
+                                    .Select(booking => booking.From)
+                                    .Order()
+                                    .First(),
                                 Name = spot.SpotName,
                                 Parking = dbContext.Set<Parking>()
                                     .Where(parking => parking.Id == spot.ParkingId)
@@ -129,6 +150,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                             })
                         .FirstOrDefault(),
                     Wallet = dbContext.Set<Wallet>()
+                        .Where(wallet => wallet.UserId == currentUser.Identity)
                         .Select(
                             wallet => new MeResponse.WalletStatus
                             {
@@ -137,6 +159,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                             })
                         .First()
                 })
+            .AsNoTracking()
             .AsSplitQuery()
             .FirstAsync(ct);
 

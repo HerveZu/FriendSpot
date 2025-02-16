@@ -1,21 +1,25 @@
 import React from 'react';
 import '../global.css';
 import 'expo-dev-client';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { setDefaultOptions } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { configureReanimatedLogger } from 'react-native-reanimated';
 
-import AuthenticationGuard from '~/authentication/AuthenticationGuard';
+import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
+import { getCurrentLocale } from '~/lib/locale';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 
 export { ErrorBoundary } from 'expo-router';
 
-setDefaultOptions({ locale: fr });
+setDefaultOptions({ locale: getCurrentLocale() });
+
+configureReanimatedLogger({
+  strict: false,
+});
 
 export default function RootLayout() {
   useInitialAndroidBarSync();
@@ -28,19 +32,17 @@ export default function RootLayout() {
         style={isDarkColorScheme ? 'light' : 'dark'}
       />
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <BottomSheetModalProvider>
-          <NavThemeProvider value={NAV_THEME[colorScheme]}>
-            <AuthenticationGuard>
-              <Stack
-                initialRouteName="welcome"
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'ios_from_right',
-                }}
-              />
-            </AuthenticationGuard>
-          </NavThemeProvider>
-        </BottomSheetModalProvider>
+        <NavThemeProvider value={NAV_THEME[colorScheme]}>
+          <AuthenticationGuard>
+            <Stack
+              initialRouteName="welcome"
+              screenOptions={{
+                headerShown: false,
+                animation: 'ios_from_right',
+              }}
+            />
+          </AuthenticationGuard>
+        </NavThemeProvider>
       </GestureHandlerRootView>
     </>
   );

@@ -138,3 +138,10 @@ Authorization: Bearer {{$auth.token("me")}}
   "from": "2025-11-29T01:17:00+01:00",
   "to": "2026-11-29T19:00:00+01:00"
 }
+
+###
+
+PUT {{Api_HostAddress}}/@me/picture
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("me")}}

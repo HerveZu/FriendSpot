@@ -1,5 +1,6 @@
 using Api.Common.Infrastructure;
 using Domain.Parkings;
+using Domain.ParkingSpots;
 using FastEndpoints;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ public sealed record ParkingResponse
     public required Guid Id { get; init; }
     public required string Name { get; init; }
     public required string Address { get; init; }
+    public required int SpotsCount { get; init; }
 }
 
 internal sealed class SearchAvailableParking(AppDbContext dbContext)
@@ -52,7 +54,10 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
                 {
                     Id = parking.Id,
                     Name = parking.Name,
-                    Address = parking.Address
+                    Address = parking.Address,
+                    SpotsCount = dbContext
+                        .Set<ParkingSpot>()
+                        .Count(spot => spot.ParkingId == parking.Id)
                 })
             .ToArrayAsync(ct);
 

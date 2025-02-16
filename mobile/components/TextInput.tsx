@@ -1,28 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { TextInput as ReactTextInput, TextInputProps, View } from 'react-native';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import React, { ReactNode, useEffect, useState } from 'react';
+import {
+  TextInput as ReactTextInput,
+  TextInputProps as NativeTextInputProps,
+  View,
+} from 'react-native';
 
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { omitObj } from '~/lib/utils';
 
-interface CustomTextInputProps extends TextInputProps {
-  className?: string;
-  icon?: string;
-  iconPosition?: 'left' | 'right';
-  iconSize?: number;
-}
+export type TextInputProps = {
+  icon?: {
+    element: ReactNode;
+    position: 'left' | 'right';
+  };
+} & NativeTextInputProps;
 
 export function TextInput({
   className,
   onFocus,
   onBlur,
-  icon,
   style,
-  iconPosition = 'right',
-  iconSize = 20,
+  icon,
   ...props
-}: CustomTextInputProps) {
+}: {
+  icon?: {
+    element: ReactNode;
+    position: 'left' | 'right';
+  };
+} & TextInputProps) {
   const [focus, setFocus] = useState(false);
   const { colors } = useColorScheme();
   const inputRef = React.createRef<ReactTextInput>();
@@ -32,14 +38,7 @@ export function TextInput({
   }, [focus, inputRef.current]);
 
   return (
-    <View
-      className={cn(
-        `relative w-full flex-row items-center ${iconPosition === 'left' && 'gap-4'}`,
-        className
-      )}>
-      {icon && iconPosition === 'left' && (
-        <ThemedIcon name={icon} size={iconSize} color={colors.foreground} />
-      )}
+    <View className={cn('fl')}>
       <ReactTextInput
         ref={inputRef}
         onFocus={(e) => {
@@ -51,19 +50,30 @@ export function TextInput({
           onBlur && onBlur(e);
         }}
         value={props.value}
+        className={cn(
+          'relative rounded-lg border bg-background p-3 pb-4 text-xl',
+          icon?.position === 'left' && 'pl-11',
+          className
+        )}
         placeholderTextColor={colors.grey}
         style={[
           {
-            borderColor: focus ? colors.primary : colors.card,
             color: colors.foreground,
+            borderColor: focus ? colors.primary : colors.card,
           },
           omitObj(style),
         ]}
         {...props}
-        className="flex-1"
       />
-      {icon && iconPosition === 'right' && (
-        <ThemedIcon name={icon} size={iconSize} color={colors.foreground} />
+      {icon && (
+        <View
+          className={cn(
+            'absolute top-0 h-full',
+            icon.position === 'right' && 'right-0',
+            icon.position === 'left' && 'left-0'
+          )}>
+          <View className="m-1 my-auto bg-background p-3">{icon.element}</View>
+        </View>
       )}
     </View>
   );

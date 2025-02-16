@@ -32,6 +32,8 @@ export default function LoginScreen() {
           onValueChange={setEmail}
           placeholder="Adresse email"
           inputMode="email"
+          autoCapitalize="none"
+          keyboardType="email-address"
           validators={[
             {
               validate: (email) => !email || isEmail(email),

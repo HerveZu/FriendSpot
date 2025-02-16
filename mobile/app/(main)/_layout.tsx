@@ -1,74 +1,72 @@
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Entypo, FontAwesome6 } from '@expo/vector-icons';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Tabs } from 'expo-router';
-import { usePathname } from 'expo-router';
 
 import { SpotCountDownOnRender } from '~/app/spot-count-down';
 import { AuthProvider } from '~/authentication/AuthProvider';
-import UserProvider from '~/authentication/UserProvider';
-import Header from '~/components/Header';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import { UserProvider } from '~/authentication/UserProvider';
+import { ThemedIcon, ThemedIconProps } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { opacity } from '~/lib/utils';
 import { AskUserToRate } from '~/rating/AskUserToRate';
 
 export default function MainLayout() {
-  const { colors } = useColorScheme();
-  const currentRoute = usePathname();
-
   return (
     <AuthProvider>
       <UserProvider>
-        <SpotCountDownOnRender>
-          <AskUserToRate>
-            {currentRoute !== '/user-profile' && (
-              <LinearGradient
-                className="absolute left-0 right-0 top-0"
-                colors={[
-                  opacity(colors.primary, 0.8),
-                  opacity(colors.card, 0.3),
-                  opacity(colors.background, 0),
-                ]}
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0.3, y: 3 }}>
-                <Header className="mt-safe-offset-2 mb-4" />
-              </LinearGradient>
-            )}
-            <Tabs
-              screenOptions={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
-                tabBarIconStyle: { height: 32 },
-              }}>
-              <Tabs.Screen
-                name="home"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <ThemedIcon
-                      name={focused ? 'home' : 'home-outline'}
-                      component={Ionicons}
-                      size={28}
-                    />
-                  ),
-                }}
-              />
-              <Tabs.Screen
-                name="user-profile"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <MeAvatar
-                      className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
-                    />
-                  ),
-                }}
-              />
-            </Tabs>
-          </AskUserToRate>
-        </SpotCountDownOnRender>
+        {/*BottomSheetModalProvider needs to have access to currentUser*/}
+        <BottomSheetModalProvider>
+          <SpotCountDownOnRender>
+            <AskUserToRate>
+              <Tabs
+                initialRouteName="home"
+                screenOptions={{
+                  headerShown: false,
+                  tabBarShowLabel: false,
+                  sceneStyle: { backgroundColor: 'transparent' },
+                  tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
+                }}>
+                <Tabs.Screen
+                  name="my-spot"
+                  options={{
+                    tabBarIcon: ({ focused }) => (
+                      <TabIcon name="car" component={FontAwesome6} size={22} focused={focused} />
+                    ),
+                  }}
+                />
+                <Tabs.Screen
+                  name="home"
+                  options={{
+                    tabBarIcon: ({ focused }) => (
+                      <TabIcon name="home" component={Entypo} focused={focused} size={26} />
+                    ),
+                  }}
+                />
+                <Tabs.Screen
+                  name="user-profile"
+                  options={{
+                    tabBarIcon: ({ focused }) => (
+                      <MeAvatar
+                        className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
+                      />
+                    ),
+                  }}
+                />
+              </Tabs>
+            </AskUserToRate>
+          </SpotCountDownOnRender>
+        </BottomSheetModalProvider>
       </UserProvider>
     </AuthProvider>
   );
+}
+
+function TabIcon<TGlyph extends string>({
+  focused,
+  ...props
+}: { focused?: boolean } & ThemedIconProps<TGlyph>) {
+  const { colors } = useColorScheme();
+
+  return <ThemedIcon color={focused ? colors.foreground : colors.grey} size={24} {...props} />;
 }

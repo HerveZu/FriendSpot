@@ -26,6 +26,7 @@ builder.Configuration
 
 builder.Services
     .ConfigureAndValidate<PostgresOptions>()
+    .ConfigureAndValidate<S3Options>()
     .ConfigureAndValidate<CorsOptions>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddMediatR(

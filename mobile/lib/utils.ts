@@ -1,4 +1,5 @@
 import { Duration } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 export function capitalize(val: string) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -13,7 +14,10 @@ export function minLength(length: number): (value?: string) => boolean {
 }
 
 export function omitObj<T>(obj: T): T {
-  if (!obj) return obj;
+  if (!obj) {
+    return obj;
+  }
+
   const magicObj = obj as any;
   return Object.keys(magicObj).reduce((acc, key) => {
     if (magicObj[key] === undefined) {
@@ -69,4 +73,9 @@ export function rgbToHex(rgb: string): HexColor {
 
 export function opacity(rgb: string, opacity: number): string {
   return rgb.replace('rgb', 'rgba').replace(')', `, ${opacity})`);
+}
+
+export function fromUtc(date: string | Date): Date {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return toZonedTime(date, timezone);
 }

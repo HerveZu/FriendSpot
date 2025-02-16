@@ -5,8 +5,8 @@ import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
-import { ContentView } from '~/components/ContentView';
 import { Loader } from '~/components/Loader';
+import { Screen } from '~/components/Screen';
 import { Text } from '~/components/nativewindui/Text';
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -23,11 +23,11 @@ export default function SpotCountDownScreen() {
   return (
     <Pressable onPress={() => router.dismiss()}>
       <SafeAreaView className="h-screen w-screen flex-col gap-8 bg-background">
-        <ContentView className="w-full grow flex-col items-center justify-around">
-          {activeBookings.map((activeBooking, i) => (
-            <SpotCountDown key={i} activeBooking={activeBooking} />
+        <Screen className="w-full grow flex-col items-center justify-around">
+          {activeBookings.map((activeBooking) => (
+            <SpotCountDown key={activeBooking.id} activeBooking={activeBooking} />
           ))}
-        </ContentView>
+        </Screen>
       </SafeAreaView>
     </Pressable>
   );
@@ -44,7 +44,7 @@ export function SpotCountDownOnRender(props: PropsWithChildren) {
     setLoading(true);
     getBooking()
       .then((bookings) => {
-        const activeBookings = bookings.bookings.filter((booking) => !!booking.spotName);
+        const activeBookings = bookings.bookings.filter((booking) => !!booking.parkingLot.name);
         activeBookings.length > 0 &&
           router.navigate({
             pathname: '/spot-count-down',
@@ -76,7 +76,7 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
       initialRemainingTime={initialRemainingSeconds}
       duration={durationSeconds}
       colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
-      colorsTime={[0.95 * durationSeconds, 0.05 * durationSeconds]}>
+      colorsTime={[0.25 * durationSeconds, 0.75 * durationSeconds]}>
       {({ remainingTime, color }) => {
         const remaining = intervalToDuration({
           start: 0,
@@ -108,7 +108,7 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
               </Text>
             </View>
             <Text variant="title1" className="font-semibold">
-              n° {props.activeBooking.spotName}
+              n° {props.activeBooking.parkingLot.name}
             </Text>
           </View>
         );

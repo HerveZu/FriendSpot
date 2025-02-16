@@ -12,14 +12,13 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  TextInputProps,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
 import { BackButton } from '~/components/BackButton';
-import { ContentView } from '~/components/ContentView';
-import { TextInput } from '~/components/TextInput';
+import { Screen } from '~/components/Screen';
+import { TextInput, TextInputProps } from '~/components/TextInput';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -70,7 +69,7 @@ export function AuthForm(
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ContentView className="flex h-full flex-col justify-between">
+          <Screen className="flex h-full flex-col justify-between pt-8">
             <View className="relative w-full flex-row items-center justify-center">
               <BackButton className="absolute left-0" />
               <View className="self-center">{props.title}</View>
@@ -93,7 +92,7 @@ export function AuthForm(
               {pendingAction && <ActivityIndicator color={COLORS.white} />}
               <Text>{props.submitText}</Text>
             </Button>
-          </ContentView>
+          </Screen>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </_AuthFormContext.Provider>
@@ -101,7 +100,11 @@ export function AuthForm(
 }
 
 export function AuthFormTitle(props: { title: string }) {
-  return <Text variant="title1">{props.title}</Text>;
+  return (
+    <Text variant="title1" className="font-semibold">
+      {props.title}
+    </Text>
+  );
 }
 
 type Validator = {

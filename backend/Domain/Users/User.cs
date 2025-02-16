@@ -33,6 +33,11 @@ public sealed class User : IBroadcastEvents
         PictureUrl = pictureUrl;
     }
 
+    public void UpdatePictureUrl(string pictureUrl)
+    {
+        PictureUrl = pictureUrl;
+    }
+
     public static User Register(string identity, string displayName)
     {
         if (string.IsNullOrWhiteSpace(identity))
@@ -62,10 +67,8 @@ internal sealed class UserConfig : IEntityConfiguration<User>
         builder.HasKey(x => x.Identity);
         builder.Property(x => x.DisplayName);
         builder.Property(x => x.PictureUrl);
-        builder.OwnsOne(x => x.Rating,
-            ratingBuilder =>
-            {
-                ratingBuilder.Property(x => x.Rating);
-            });
+        builder.OwnsOne(
+            x => x.Rating,
+            ratingBuilder => { ratingBuilder.Property(x => x.Rating); });
     }
 }

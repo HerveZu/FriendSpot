@@ -4,13 +4,15 @@ import { OpaqueColorValue } from 'react-native';
 
 import { useColorScheme } from '~/lib/useColorScheme';
 
-export function ThemedIcon<TGlyph extends string>(props: {
+export type ThemedIconProps<TGlyph extends string> = {
   name: TGlyph;
   component?: Icon<TGlyph, any>;
   size?: number;
   className?: string;
   color?: string | OpaqueColorValue;
-}) {
+};
+
+export function ThemedIcon<TGlyph extends string>(props: ThemedIconProps<TGlyph>) {
   const { colors } = useColorScheme();
   const Icon = props.component ?? FontAwesome;
 

@@ -4,29 +4,33 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain.ParkingSpots;
 
-public sealed record ParkingSpotAvailable : IDomainEvent
-{
-    public required Guid AvailabilityId { get; init; }
-    public required string OwnerId { get; init; }
-    public required Credits Credits { get; init; }
-    public required DateTimeOffset AvailableUntil { get; init; }
-}
-
-public sealed record ParkingSpotAvailabilityCancelled : IDomainEvent
-{
-    public required Guid AvailabilityId { get; init; }
-}
-
 public sealed record ParkingSpotBooked : IDomainEvent
 {
-    public required Guid AvailabilityId { get; init; }
+    public required Guid SpotId { get; init; }
+    public required Guid BookingId { get; init; }
     public required Credits Cost { get; init; }
+    public required DateTimeOffset BookedUntil { get; init; }
+    public required string OwnerId { get; init; }
+    public required string UserId { get; init; }
 }
 
 public sealed record ParkingSpotBookingRated : IDomainEvent
 {
     public required string OwnerId { get; init; }
     public required BookRating Rating { get; init; }
+}
+
+public sealed record ParkingSpotBookingCancelled : IDomainEvent
+{
+    public required Guid BookingId { get; init; }
+    public required string BookingUserId { get; init; }
+    public required string OwnerId { get; init; }
+}
+
+public sealed record ParkingSpotBookingCompleted : IDomainEvent
+{
+    public required Guid BookingId { get; init; }
+    public required string OwnerId { get; init; }
 }
 
 public sealed class ParkingSpot : IBroadcastEvents
@@ -99,10 +103,11 @@ public sealed class ParkingSpot : IBroadcastEvents
         var newBooking = ParkingSpotBooking.New(bookingUserId, from, duration);
 
         var overlappingBookings = _bookings
+            .Where(booking => booking.BookingUserId != bookingUserId)
             .Where(booking => booking.From <= newBooking.To && newBooking.From <= booking.To)
             .ToArray();
 
-        if (overlappingBookings.Any(booking => booking.BookingUserId != bookingUserId))
+        if (overlappingBookings.Length is not 0)
         {
             throw new BusinessException("ParkingSpot.NoAvailability", "This spot has already been booked.");
         }
@@ -121,8 +126,12 @@ public sealed class ParkingSpot : IBroadcastEvents
         _domainEvents.Register(
             new ParkingSpotBooked
             {
-                AvailabilityId = availability.Id,
-                Cost = cost
+                SpotId = Id,
+                BookingId = newBooking.Id,
+                Cost = cost,
+                BookedUntil = newBooking.To,
+                UserId = newBooking.BookingUserId,
+                OwnerId = OwnerId
             });
 
         return (newBooking, cost);
@@ -148,23 +157,9 @@ public sealed class ParkingSpot : IBroadcastEvents
         foreach (var overlappingAvailability in overlappingAvailabilities)
         {
             _availabilities.Remove(overlappingAvailability);
-            _domainEvents.Register(
-                new ParkingSpotAvailabilityCancelled
-                {
-                    AvailabilityId = overlappingAvailability.Id
-                });
         }
 
         _availabilities.Add(mergedAvailability);
-
-        _domainEvents.Register(
-            new ParkingSpotAvailable
-            {
-                OwnerId = OwnerId,
-                AvailabilityId = mergedAvailability.Id,
-                AvailableUntil = mergedAvailability.To,
-                Credits = totalCredits
-            });
 
         return (earnedCredits, overlappingAvailabilities.Any());
     }
@@ -172,7 +167,7 @@ public sealed class ParkingSpot : IBroadcastEvents
     public void RateBooking(string ratingUserId, Guid bookingId, BookRating rating)
     {
         var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId)
-            ?? throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+                      ?? throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
 
         if (ratingUserId != booking.BookingUserId)
         {
@@ -186,11 +181,61 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         booking.Rate(rating);
 
-        _domainEvents.Register(new ParkingSpotBookingRated
+        _domainEvents.Register(
+            new ParkingSpotBookingRated
+            {
+                OwnerId = OwnerId,
+                Rating = rating
+            });
+    }
+
+    public void CancelBooking(string cancelingUserId, Guid bookingId)
+    {
+        var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId);
+
+        if (booking is null)
         {
-            OwnerId = OwnerId,
-            Rating = rating
-        });
+            throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+        }
+
+        var allowedToCancel = new[] { OwnerId, booking.BookingUserId };
+        if (!allowedToCancel.Contains(cancelingUserId))
+        {
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel booking");
+        }
+
+        if (booking.To - DateTimeOffset.UtcNow < booking.FrozenFor)
+        {
+            throw new BusinessException(
+                "ParkingSpot.InvalidCancelling",
+                $"Booking can only be cancelled at least {booking.FrozenFor} before it becomes active");
+        }
+
+        _bookings.Remove(booking);
+        _domainEvents.Register(
+            new ParkingSpotBookingCancelled
+            {
+                BookingUserId = booking.BookingUserId,
+                BookingId = booking.Id,
+                OwnerId = OwnerId
+            });
+    }
+
+    public void MarkBookingComplete(Guid bookingId)
+    {
+        var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId);
+
+        if (booking is null)
+        {
+            throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+        }
+
+        _domainEvents.Register(
+            new ParkingSpotBookingCompleted
+            {
+                BookingId = booking.Id,
+                OwnerId = OwnerId
+            });
     }
 }
 
@@ -214,7 +259,6 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
                 availabilityBuilder.Property(x => x.Id);
                 availabilityBuilder.Property(x => x.From);
                 availabilityBuilder.Property(x => x.To);
-                availabilityBuilder.Property(x => x.Duration);
             });
 
         builder.OwnsMany(

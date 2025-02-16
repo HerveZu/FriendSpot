@@ -1,5 +1,7 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { IOSNativeProps } from '@react-native-community/datetimepicker';
 import * as React from 'react';
+
+import { getCurrentLocale } from '~/lib/locale';
 
 export function DatePicker({
   materialDateClassName: _materialDateClassName,
@@ -18,6 +20,6 @@ export function DatePicker({
   materialTimeClassName?: string;
   materialTimeLabel?: string;
   materialTimeLabelClassName?: string;
-}) {
-  return <DateTimePicker {...props} />;
+} & IOSNativeProps) {
+  return <DateTimePicker locale={getCurrentLocale().code} {...props} />;
 }
