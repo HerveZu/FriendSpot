@@ -17,10 +17,10 @@ export function DateRange(props: { from: Date | string; to: Date | string; durat
     end: fromUtc(props.to),
   });
 
-  const elapsedMinutes = inProgress && differenceInMinutes(now, props.from);
+  const elapsedMinutes = inProgress ? differenceInMinutes(now, props.from) : null;
   const duration = parseDuration(props.duration);
 
-  return elapsedMinutes ? (
+  return elapsedMinutes !== null ? (
     <View className="flex-col gap-2">
       <Text>Il reste {formatDistance(props.to, now)}</Text>
       <ProgressIndicator
