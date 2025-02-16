@@ -20,7 +20,7 @@ export function UserAvatar({ displayName, pictureUrl, ...props }: UserAvatarProp
 
   return (
     <Avatar alt="Profile" {...props}>
-      <AvatarImage src={pictureUrl ?? undefined} />
+      <AvatarImage source={{ uri: pictureUrl ?? undefined }} />
       <AvatarFallback>
         <Text>{userInitials.join('')}</Text>
       </AvatarFallback>

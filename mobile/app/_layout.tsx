@@ -5,6 +5,7 @@ import { setDefaultOptions } from 'date-fns';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { configureReanimatedLogger } from 'react-native-reanimated';
 
 import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
 import { getCurrentLocale } from '~/lib/locale';
@@ -14,6 +15,10 @@ import { NAV_THEME } from '~/theme';
 export { ErrorBoundary } from 'expo-router';
 
 setDefaultOptions({ locale: getCurrentLocale() });
+
+configureReanimatedLogger({
+  strict: false,
+});
 
 export default function RootLayout() {
   useInitialAndroidBarSync();

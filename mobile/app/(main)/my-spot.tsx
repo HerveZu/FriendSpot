@@ -37,7 +37,7 @@ import {
 } from '~/endpoints/get-availabilities';
 import { LendSpotResponse, useLendSpot } from '~/endpoints/lend-spot';
 import { BOOKING_FROZEN_FOR_HOURS } from '~/lib/const';
-import { useActualTime } from '~/lib/use-actual-time';
+import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
 import { capitalize } from '~/lib/utils';
@@ -276,8 +276,8 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               onPress={() => lendSpot(from, to)}>
               {actionPending && <ActivityIndicator color={COLORS.white} />}
               <Text>
-                {simulation
-                  ? `Prêter mon spot pour ${simulation?.earnedCredits} crédits`
+                {simulation && simulation.earnedCredits > 0
+                  ? `Prêter et gagner jusqu'à ${simulation?.earnedCredits} crédits`
                   : 'Prêter mon spot'}
               </Text>
             </Button>

@@ -46,7 +46,7 @@ import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-spots';
 import { cn } from '~/lib/cn';
 import { BOOKING_FROZEN_FOR_HOURS } from '~/lib/const';
-import { useActualTime } from '~/lib/use-actual-time';
+import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
