@@ -4,8 +4,8 @@ namespace Api.Bookings.Common;
 
 internal static class BookingJobsKeys
 {
-    public static JobKey ConfirmCredits(Guid availabilityId)
+    public static JobKey MarkComplete(Guid bookingId)
     {
-        return new JobKey(availabilityId.ToString(), nameof(ConfirmCredits));
+        return new JobKey(bookingId.ToString(), nameof(MarkComplete));
     }
 }

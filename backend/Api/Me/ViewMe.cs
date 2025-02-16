@@ -150,6 +150,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                             })
                         .FirstOrDefault(),
                     Wallet = dbContext.Set<Wallet>()
+                        .Where(wallet => wallet.UserId == currentUser.Identity)
                         .Select(
                             wallet => new MeResponse.WalletStatus
                             {

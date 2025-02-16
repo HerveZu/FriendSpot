@@ -4,23 +4,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain.ParkingSpots;
 
-public sealed record ParkingSpotAvailable : IDomainEvent
-{
-    public required Guid AvailabilityId { get; init; }
-    public required string OwnerId { get; init; }
-    public required Credits Credits { get; init; }
-    public required DateTimeOffset AvailableUntil { get; init; }
-}
-
-public sealed record ParkingSpotAvailabilityCancelled : IDomainEvent
-{
-    public required Guid AvailabilityId { get; init; }
-}
-
 public sealed record ParkingSpotBooked : IDomainEvent
 {
+    public required Guid SpotId { get; init; }
     public required Guid BookingId { get; init; }
     public required Credits Cost { get; init; }
+    public required DateTimeOffset BookedUntil { get; init; }
+    public required string OwnerId { get; init; }
+    public required string UserId { get; init; }
 }
 
 public sealed record ParkingSpotBookingRated : IDomainEvent
@@ -31,8 +22,15 @@ public sealed record ParkingSpotBookingRated : IDomainEvent
 
 public sealed record ParkingSpotBookingCancelled : IDomainEvent
 {
-    public required string BookingUserId { get; init; }
     public required Guid BookingId { get; init; }
+    public required string BookingUserId { get; init; }
+    public required string OwnerId { get; init; }
+}
+
+public sealed record ParkingSpotBookingCompleted : IDomainEvent
+{
+    public required Guid BookingId { get; init; }
+    public required string OwnerId { get; init; }
 }
 
 public sealed class ParkingSpot : IBroadcastEvents
@@ -128,8 +126,12 @@ public sealed class ParkingSpot : IBroadcastEvents
         _domainEvents.Register(
             new ParkingSpotBooked
             {
+                SpotId = Id,
                 BookingId = newBooking.Id,
-                Cost = cost
+                Cost = cost,
+                BookedUntil = newBooking.To,
+                UserId = newBooking.BookingUserId,
+                OwnerId = OwnerId
             });
 
         return (newBooking, cost);
@@ -155,23 +157,9 @@ public sealed class ParkingSpot : IBroadcastEvents
         foreach (var overlappingAvailability in overlappingAvailabilities)
         {
             _availabilities.Remove(overlappingAvailability);
-            _domainEvents.Register(
-                new ParkingSpotAvailabilityCancelled
-                {
-                    AvailabilityId = overlappingAvailability.Id
-                });
         }
 
         _availabilities.Add(mergedAvailability);
-
-        _domainEvents.Register(
-            new ParkingSpotAvailable
-            {
-                OwnerId = OwnerId,
-                AvailabilityId = mergedAvailability.Id,
-                AvailableUntil = mergedAvailability.To,
-                Credits = totalCredits
-            });
 
         return (earnedCredits, overlappingAvailabilities.Any());
     }
@@ -203,22 +191,17 @@ public sealed class ParkingSpot : IBroadcastEvents
 
     public void CancelBooking(string cancelingUserId, Guid bookingId)
     {
-        var allowedToCancel = _bookings
-            .Select(booking => booking.BookingUserId)
-            .Distinct()
-            .ToList();
-        allowedToCancel.Add(OwnerId);
-
-        if (!allowedToCancel.Contains(cancelingUserId))
-        {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel booking");
-        }
-
         var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId);
 
         if (booking is null)
         {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "Booking not found");
+            throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+        }
+
+        var allowedToCancel = new[] { OwnerId, booking.BookingUserId };
+        if (!allowedToCancel.Contains(cancelingUserId))
+        {
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel booking");
         }
 
         if (booking.To - DateTimeOffset.UtcNow < booking.FrozenFor)
@@ -234,6 +217,24 @@ public sealed class ParkingSpot : IBroadcastEvents
             {
                 BookingUserId = booking.BookingUserId,
                 BookingId = booking.Id,
+                OwnerId = OwnerId
+            });
+    }
+
+    public void MarkBookingComplete(Guid bookingId)
+    {
+        var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId);
+
+        if (booking is null)
+        {
+            throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+        }
+
+        _domainEvents.Register(
+            new ParkingSpotBookingCompleted
+            {
+                BookingId = booking.Id,
+                OwnerId = OwnerId
             });
     }
 }
