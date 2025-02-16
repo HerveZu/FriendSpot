@@ -79,7 +79,7 @@ internal sealed class GetSuggestedSpots(AppDbContext dbContext)
                 where parkingLot.ParkingId == parkingSpot.ParkingId
                 join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity
                 select parkingLot.Availabilities
-                    .Where(availability => req.From >= availability.From && availability.To >= req.To)
+                    .Where(availability => req.From <= availability.To && availability.To >= req.To)
                     .Select(
                         availability => new
                         {
@@ -111,7 +111,7 @@ internal sealed class GetSuggestedSpots(AppDbContext dbContext)
                             ParkingLotId = x.ParkingLotId
                         }))
             .Where(suggestion => suggestion.To >= req.From && suggestion.From <= req.To)
-            .Where(suggestion => suggestion.To - new []{req.From, suggestion.From}.Max() > TimeSpan.FromHours(1))
+            .Where(suggestion => suggestion.To - new[] { req.From, suggestion.From }.Max() > TimeSpan.FromHours(1))
             .OrderByDescending(suggestion => suggestion.Owner.Rating)
             .ToArray();
 
