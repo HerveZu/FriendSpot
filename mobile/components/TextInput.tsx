@@ -70,3 +70,5 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
     );
   }
 );
+
+TextInput.displayName = 'TextInput';

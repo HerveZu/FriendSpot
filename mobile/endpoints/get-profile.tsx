@@ -15,6 +15,7 @@ export type UserProfile = {
 };
 
 export type UserSpot = {
+  readonly id: string;
   readonly currentlyAvailable: boolean;
   readonly name: string;
   readonly nextAvailability: null | Date;
