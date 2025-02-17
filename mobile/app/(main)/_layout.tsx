@@ -39,7 +39,12 @@ export default function MainLayout() {
                   name="home"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon name="home" component={Entypo} focused={focused} size={26} />
+                      <TabIcon
+                        name="magnifying-glass"
+                        component={Entypo}
+                        focused={focused}
+                        size={26}
+                      />
                     ),
                   }}
                 />
