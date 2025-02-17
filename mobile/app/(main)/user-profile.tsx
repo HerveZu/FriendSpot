@@ -81,15 +81,15 @@ export default function UserProfileScreen() {
         keyboardVerticalOffset={65}>
         <Screen className="flex-col justify-between pb-6 pt-4">
           <View className="w-full flex-row items-center gap-6">
-            <Button className="" variant="plain" size={'none'} onPress={pickImageAsync}>
+            <Button variant="plain" size={'none'} onPress={pickImageAsync}>
               <View
-                className="absolute bottom-0 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
                 accessibilityLabel="Edit Avatar">
-                <ThemedIcon name={'pencil'} size={14} color={'white'} />
+                <ThemedIcon name={'pencil'} size={14} />
               </View>
               <MeAvatar className="relative h-32 w-32" />
             </Button>
-            <View className="w-full gap-6">
+            <View className="grow gap-6">
               <View className="gap-2">
                 <Text className="text-2xl font-bold">{currentDisplayName}</Text>
                 <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
@@ -97,6 +97,7 @@ export default function UserProfileScreen() {
               <UserWallet />
             </View>
           </View>
+
           <View className={'flex-col gap-2'}>
             <TextInput
               icon={{
@@ -111,10 +112,10 @@ export default function UserProfileScreen() {
             <TextInput value={firebaseUser.email ?? ''} readOnly />
           </View>
 
-          <Button
-            className="flex-col items-start gap-3 rounded-lg bg-card p-2"
+          <Pressable
+            className="flex-col items-start gap-3 rounded-lg bg-card p-3"
             onPress={() => setBottomSheet(true)}>
-            <View className="w-full flex-row items-center justify-between pt-0.5">
+            <View className="w-full flex-row items-center justify-between">
               <Text className="text-xl font-semibold text-foreground">
                 {userProfile.spot
                   ? userProfile.spot.parking.name
@@ -124,13 +125,13 @@ export default function UserProfileScreen() {
             </View>
             <View className="w-full max-w-full flex-row items-center gap-4 break-words">
               <ThemedIcon name={'location-dot'} component={FontAwesome6} size={24} />
-              <Text className="w-10/12 text-lg font-light">
+              <Text className="w-10/12 text-lg">
                 {userProfile.spot
                   ? userProfile.spot?.parking.address
                   : 'Aucune adresse parking définie'}
               </Text>
             </View>
-          </Button>
+          </Pressable>
 
           {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
 
@@ -202,7 +203,7 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   };
 
   return (
-    <View className="flex-row items-center justify-between gap-4 rounded-xl border-4 bg-card p-3">
+    <View className="flex-row items-center justify-between gap-4 rounded-xl bg-card p-3">
       <DisplayCar />
       <View className="h-full w-2 rounded-xl bg-border" />
       <SpotUsedBy />
