@@ -1,4 +1,4 @@
-import { User, updateProfile } from 'firebase/auth';
+import { updateProfile, User } from 'firebase/auth';
 import {
   createContext,
   PropsWithChildren,
@@ -18,7 +18,10 @@ type UserProfileContext = {
   readonly userProfile: UserProfile;
   refreshProfile: () => Promise<void>;
   refreshTrigger: unknown;
-  updateInternalProfile: (photoURL: string, displayName: string) => Promise<void>;
+  updateInternalProfile: (
+    photoURL: string | null | undefined,
+    displayName: string
+  ) => Promise<void>;
 };
 
 const _UserProfileContext = createContext<UserProfileContext>(null!);
@@ -37,7 +40,7 @@ export function UserProvider(props: PropsWithChildren) {
   const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
 
   const updateInternalProfile = useCallback(
-    async (photoURL: string, displayName: string) => {
+    async (photoURL: string | null | undefined, displayName: string) => {
       await updateProfile(firebaseUser, {
         displayName: displayName,
         photoURL: photoURL,
@@ -45,7 +48,7 @@ export function UserProvider(props: PropsWithChildren) {
         setInternalFirebaseUser((firebaseUser) => {
           return {
             ...firebaseUser,
-            photoURL,
+            photoUrl: photoURL ?? firebaseUser.photoURL,
             displayName,
           };
         });
@@ -73,7 +76,8 @@ export function UserProvider(props: PropsWithChildren) {
   }, [getProfile, setUserProfile]);
 
   return userProfile ? (
-    <_UserProfileContext.Provider value={{ refreshTrigger, userProfile, refreshProfile, updateInternalProfile }}>
+    <_UserProfileContext.Provider
+      value={{ refreshTrigger, userProfile, refreshProfile, updateInternalProfile }}>
       {props.children}
     </_UserProfileContext.Provider>
   ) : (

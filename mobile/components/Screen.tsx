@@ -1,22 +1,28 @@
-import {BlurView} from '@react-native-community/blur';
-import {LinearGradient} from 'expo-linear-gradient';
+import { BlurView } from '@react-native-community/blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, {
-    createContext,
-    Dispatch,
-    PropsWithChildren,
-    ReactNode,
-    SetStateAction,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  Dispatch,
+  PropsWithChildren,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
-import {Animated, SafeAreaView, ScrollView, useAnimatedValue, View, ViewProps,} from 'react-native';
+import {
+  Animated,
+  SafeAreaView,
+  ScrollView,
+  useAnimatedValue,
+  View,
+  ViewProps,
+} from 'react-native';
 
-import {useCurrentUser} from '~/authentication/UserProvider';
-import {LogoCard} from '~/components/Logo';
-import {Text} from '~/components/nativewindui/Text';
-import {cn} from '~/lib/cn';
-import {useColorScheme} from '~/lib/useColorScheme';
+import { Text } from '~/components/nativewindui/Text';
+import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { UserWallet } from '~/components/UserWallet';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -63,10 +69,10 @@ export function ScreenWithHeader(
         </Text>
       </Animated.View>
       <LinearGradient
-          colors={[colors.primary, colors.card]}
+        colors={[colors.primary, colors.card]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-          style={{height: '40%', width: '100%', position: 'absolute', opacity: 0.6}}
+        style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.6 }}
       />
       <LinearGradient
         colors={['transparent', colors.background]}
@@ -93,8 +99,6 @@ export function Screen({ className, ...props }: ViewProps) {
 
 export function ScreenTitle(props: { title: string }) {
   const { hideHeader, headerText, setHeaderText } = useContext(HeaderContext);
-  const { userProfile } = useCurrentUser();
-
   const fadeOpacity = useAnimatedValue(1);
 
   useEffect(() => {
@@ -118,16 +122,7 @@ export function ScreenTitle(props: { title: string }) {
       <Text variant="title1" className="text-3xl font-extrabold">
         {headerText}
       </Text>
-      <View className="flex-row items-center gap-8">
-        <View className="flex-row items-center gap-2">
-          <Text className="text-lg font-semibold">{userProfile.wallet.credits}</Text>
-          <LogoCard primary className="h-5 w-3 rounded" />
-        </View>
-        <View className="flex-row items-center gap-2">
-          <Text className="text-lg font-semibold">{userProfile.wallet.pendingCredits}</Text>
-          <LogoCard className="h-5 w-3 rounded" />
-        </View>
-      </View>
+      <UserWallet />
     </Animated.View>
   );
 }
