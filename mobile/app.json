@@ -22,6 +22,12 @@
             }
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The application accesses your photos so you can change your profile picture"
+        }
       ]
     ],
     "experiments": {
@@ -36,9 +42,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.friendspot"

@@ -1,3 +1,4 @@
+import React from 'react';
 import '../global.css';
 import 'expo-dev-client';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
