@@ -81,10 +81,16 @@ export function ScreenWithHeader(
   );
 }
 
-export function Screen({ className, ...props }: ViewProps) {
+export function Screen({
+  gradiant = true,
+  className,
+  ...props
+}: { gradiant?: boolean } & ViewProps) {
   const { colors } = useColorScheme();
 
-  return (
+  const inner = <View className={cn('mx-auto h-full w-full p-6 pt-0', className)} {...props} />;
+
+  return gradiant ? (
     <>
       <LinearGradient
         colors={[colors.primary, colors.card]}
@@ -97,10 +103,10 @@ export function Screen({ className, ...props }: ViewProps) {
         locations={[0, 0.45]}
         style={{ height: '100%', width: '100%', position: 'absolute' }}
       />
-      <SafeAreaView>
-        <View className={cn('mx-auto h-full w-full p-6 pt-0', className)} {...props} />
-      </SafeAreaView>
+      <SafeAreaView>{inner}</SafeAreaView>
     </>
+  ) : (
+    inner
   );
 }
 
