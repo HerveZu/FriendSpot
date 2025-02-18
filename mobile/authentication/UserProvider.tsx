@@ -41,7 +41,6 @@ export function UserProvider(props: PropsWithChildren) {
 
   const updateInternalProfile = useCallback(
     async (photoURL: string | null | undefined, displayName: string) => {
-      console.log(photoURL);
       await updateProfile(firebaseUser, {
         displayName: displayName,
         photoURL: photoURL,
