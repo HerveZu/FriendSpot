@@ -29,6 +29,7 @@ import { List } from '~/components/List';
 import { Card } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
+import { useSendReview } from '~/endpoints/send-review';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -86,14 +87,12 @@ export default function UserProfileScreen() {
             <MeAvatar className="h-28 w-28" />
           </Pressable>
           <View className="grow justify-between">
-            <Pressable
-              onPress={() => setModalOpen(true)}
-              className={'min-h-12 flex-row items-center justify-between gap-4'}>
+            <View className={'min-h-12 flex-row items-center justify-between gap-4'}>
               <Text className="max-w-32 text-2xl font-bold">{currentDisplayName}</Text>
-              <Button variant={'tonal'} className={'h-full'}>
+              <Button variant={'tonal'} className={'h-full'} onPress={() => setModalOpen(true)}>
                 <ThemedIcon name={'settings-sharp'} component={Ionicons} size={24} />
               </Button>
-            </Pressable>
+            </View>
             <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
           </View>
         </View>
@@ -340,11 +339,17 @@ function DefineSpotSheet(props: {
 function UserModal(props: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>> }) {
   const { colors } = useColorScheme();
   const { userProfile } = useCurrentUser();
+  const [review, setReview] = React.useState<string>();
+  const sendReview = useSendReview();
 
   const handleLogout = async () => {
     const auth = getAuth();
     await signOut(auth);
   };
+
+  useEffect(() => {
+    setReview(undefined);
+  }, [props.open]);
 
   return (
     <Modal
@@ -370,11 +375,19 @@ function UserModal(props: { open: boolean; onOpenChange: Dispatch<SetStateAction
           </View>
           <View className={'flex-col gap-4'}>
             <TextInput
+              value={review}
+              onChangeText={setReview}
               multiline
               className={'h-32 w-full'}
               placeholder={'Tu as une suggestion ? Écris-nous ici !'}
             />
-            <Button variant={'primary'}>
+            <Button
+              disabled={!review}
+              variant={'primary'}
+              onPress={() => {
+                review && sendReview(review);
+                setReview(undefined);
+              }}>
               <ThemedIcon name={'feedback'} component={MaterialIcons} size={24} />
               <Text>Faire un retour</Text>
             </Button>
