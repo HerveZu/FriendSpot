@@ -1,5 +1,6 @@
-import { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, View } from 'react-native';
+import Modal from 'react-native-modal';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { ContentSheetView } from '~/components/ContentView';
@@ -22,8 +23,7 @@ import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
 import { useFetch } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/define-spot';
 import { UserSpot } from '~/endpoints/get-profile';
-import { UserWallet } from '~/components/UserWallet';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { List } from '~/components/List';
 import { Card } from '~/components/Card';
@@ -36,13 +36,9 @@ export default function UserProfileScreen() {
   const { userProfile, updateInternalProfile } = useCurrentUser();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
-
-  const handleLogout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-  };
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -60,6 +56,7 @@ export default function UserProfileScreen() {
       method: 'PUT',
       body: imageBody,
     });
+
     await updateInternalProfile(`${readonlyUrl}#_n=${Math.random()}`, userProfile.displayName);
   };
 
@@ -74,31 +71,35 @@ export default function UserProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={65}>
-        <Screen className="flex-col justify-between pb-6 pt-4">
-          <View className="w-full flex-row items-center gap-6">
-            <Button variant="plain" size={'none'} onPress={pickImageAsync}>
-              <View
-                className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-                accessibilityLabel="Edit Avatar">
-                <ThemedIcon name={'pencil'} size={14} />
-              </View>
-              <MeAvatar className="relative h-32 w-32" />
-            </Button>
-            <View className="grow gap-6">
-              <View className="gap-2">
-                <Text className="text-2xl font-bold">{currentDisplayName}</Text>
-                <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
-              </View>
-              <UserWallet />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={65}>
+      <Screen className="flex-col gap-6">
+        <View className="my-6 h-fit flex-row gap-8 overflow-hidden">
+          <Pressable className={'relative h-28'} onPress={pickImageAsync}>
+            <View
+              className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+              accessibilityLabel="Edit Avatar">
+              <ThemedIcon name={'pencil'} size={14} />
             </View>
+            <MeAvatar className="h-28 w-28" />
+          </Pressable>
+          <View className="grow justify-between">
+            <Pressable
+              onPress={() => setModalOpen(true)}
+              className={'min-h-12 flex-row items-center justify-between gap-4'}>
+              <Text className="max-w-32 text-2xl font-bold">{currentDisplayName}</Text>
+              <Button variant={'tonal'} className={'h-full'}>
+                <ThemedIcon name={'settings-sharp'} component={Ionicons} size={24} />
+              </Button>
+            </Pressable>
+            <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
           </View>
+        </View>
 
-          <View className={'flex-col gap-2'}>
+        <View className={'grow flex-col justify-between'}>
+          <View className={'gap-4'}>
             <TextInput
               icon={{
                 position: 'right',
@@ -134,17 +135,11 @@ export default function UserProfileScreen() {
           </Pressable>
 
           {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
-
-          <Button
-            variant={'plain'}
-            className="border border-destructive"
-            onPress={() => handleLogout()}>
-            <Text className={'text-destructive'}>Se déconnecter</Text>
-          </Button>
-        </Screen>
-        <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </View>
+      </Screen>
+      <UserModal open={modalOpen} onOpenChange={setModalOpen} />
+      <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
+    </KeyboardAvoidingView>
   );
 }
 
@@ -205,7 +200,6 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   return (
     <View className="flex-row items-center justify-between gap-4 rounded-xl bg-card p-3">
       <DisplayCar />
-      <View className="h-full w-2 rounded-xl bg-border" />
       <SpotUsedBy />
     </View>
   );
@@ -340,5 +334,53 @@ function DefineSpotSheet(props: {
         </View>
       </ContentSheetView>
     </Sheet>
+  );
+}
+
+function UserModal(props: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>> }) {
+  const { colors } = useColorScheme();
+  const { userProfile } = useCurrentUser();
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+  };
+
+  return (
+    <Modal
+      isVisible={props.open}
+      onBackdropPress={() => props.onOpenChange(false)}
+      backdropOpacity={0.8}
+      className="my-auto">
+      <SafeAreaView>
+        <View className="flex-col gap-8 rounded-xl bg-card p-6">
+          <View className={'flex-row items-center justify-between'}>
+            <Text variant="title1">{userProfile.displayName}</Text>
+            <Button
+              variant={'plain'}
+              onPress={() => handleLogout()}
+              className={'bg-destructive/10 border border-destructive'}>
+              <ThemedIcon
+                name={'logout'}
+                component={MaterialIcons}
+                size={18}
+                color={colors.destructive}
+              />
+            </Button>
+          </View>
+          <View className={'flex-col gap-4'}>
+            <TextInput
+              multiline
+              className={'h-32 w-full'}
+              placeholder={'Tu as une suggestion ? Écris-nous ici !'}
+            />
+            <Button variant={'primary'}>
+              <ThemedIcon name={'feedback'} component={MaterialIcons} size={24} />
+              <Text>Faire un retour</Text>
+            </Button>
+          </View>
+        </View>
+      </SafeAreaView>
+    </Modal>
   );
 }

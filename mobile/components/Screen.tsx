@@ -37,7 +37,7 @@ export function ScreenWithHeader(
 ) {
   const [headerText, setHeaderText] = useState<string>();
   const [scroll, setScroll] = useState(0);
-  const { colors, isDarkColorScheme } = useColorScheme();
+  const { isDarkColorScheme } = useColorScheme();
 
   const hideHeader = scroll <= HIDE_HEADER_AFTER_SCROLL;
   const fadeOpacity = useAnimatedValue(0);
@@ -68,6 +68,24 @@ export function ScreenWithHeader(
           {headerText}
         </Text>
       </Animated.View>
+
+      <Screen className={cn('pt-safe-offset-0 gap-6')}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
+          <View className={props.className}>{props.children}</View>
+        </ScrollView>
+        {props.stickyBottom}
+      </Screen>
+    </HeaderContext.Provider>
+  );
+}
+
+export function Screen({ className, ...props }: ViewProps) {
+  const { colors } = useColorScheme();
+
+  return (
+    <>
       <LinearGradient
         colors={[colors.primary, colors.card]}
         start={{ x: 0, y: 0 }}
@@ -80,21 +98,10 @@ export function ScreenWithHeader(
         style={{ height: '100%', width: '100%', position: 'absolute' }}
       />
       <SafeAreaView>
-        <Screen className={cn('pt-safe-offset-0 gap-6')}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
-            <View className={props.className}>{props.children}</View>
-          </ScrollView>
-          {props.stickyBottom}
-        </Screen>
+        <View className={cn('mx-auto h-full w-full p-6 pt-0', className)} {...props} />
       </SafeAreaView>
-    </HeaderContext.Provider>
+    </>
   );
-}
-
-export function Screen({ className, ...props }: ViewProps) {
-  return <View className={cn('mx-auto h-full w-full p-6 pt-0', className)} {...props} />;
 }
 
 export function ScreenTitle(props: { title: string }) {

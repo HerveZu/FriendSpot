@@ -41,6 +41,7 @@ export function UserProvider(props: PropsWithChildren) {
 
   const updateInternalProfile = useCallback(
     async (photoURL: string | null | undefined, displayName: string) => {
+      console.log(photoURL);
       await updateProfile(firebaseUser, {
         displayName: displayName,
         photoURL: photoURL,
@@ -48,18 +49,17 @@ export function UserProvider(props: PropsWithChildren) {
         setInternalFirebaseUser((firebaseUser) => {
           return {
             ...firebaseUser,
-            photoUrl: photoURL ?? firebaseUser.photoURL,
+            photoURL: photoURL ?? null,
             displayName,
           };
         });
       });
     },
-    [updateProfile, setInternalFirebaseUser]
+    [firebaseUser, updateProfile, setInternalFirebaseUser]
   );
 
   useEffect(() => {
     const displayName = internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? '';
-
     registerUser({ displayName, pictureUrl: internalFirebaseUser.photoURL }).then(() =>
       getProfile().then(setUserProfile)
     );

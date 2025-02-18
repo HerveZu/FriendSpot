@@ -34,7 +34,7 @@ export function AskUserToRate(props: PropsWithChildren) {
         onBackdropPress={() =>
           userProfile.bookingToRate && rate(userProfile.bookingToRate, 'Neutral')
         }
-        backdropOpacity={0.5}
+        backdropOpacity={0.8}
         className="my-auto">
         <SafeAreaView>
           <View className="flex-col gap-16 rounded-xl bg-card p-6">
