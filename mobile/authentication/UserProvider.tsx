@@ -48,18 +48,17 @@ export function UserProvider(props: PropsWithChildren) {
         setInternalFirebaseUser((firebaseUser) => {
           return {
             ...firebaseUser,
-            photoUrl: photoURL ?? firebaseUser.photoURL,
+            photoURL: photoURL ?? null,
             displayName,
           };
         });
       });
     },
-    [updateProfile, setInternalFirebaseUser]
+    [firebaseUser, updateProfile, setInternalFirebaseUser]
   );
 
   useEffect(() => {
     const displayName = internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? '';
-
     registerUser({ displayName, pictureUrl: internalFirebaseUser.photoURL }).then(() =>
       getProfile().then(setUserProfile)
     );

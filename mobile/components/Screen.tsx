@@ -10,14 +10,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import {
-  Animated,
-  SafeAreaView,
-  ScrollView,
-  useAnimatedValue,
-  View,
-  ViewProps,
-} from 'react-native';
+import { Animated, ScrollView, TextProps, useAnimatedValue, View, ViewProps } from 'react-native';
 
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
@@ -68,36 +61,46 @@ export function ScreenWithHeader(
           {headerText}
         </Text>
       </Animated.View>
-      <LinearGradient
-        colors={[colors.primary, colors.card]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.6 }}
-      />
-      <LinearGradient
-        colors={['transparent', colors.background]}
-        locations={[0, 0.45]}
-        style={{ height: '100%', width: '100%', position: 'absolute' }}
-      />
-      <SafeAreaView>
-        <Screen className={cn('pt-safe-offset-0 gap-6')}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
-            <View className={props.className}>{props.children}</View>
-          </ScrollView>
-          {props.stickyBottom}
+
+      <>
+        <LinearGradient
+          colors={[colors.primary, colors.card]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.6 }}
+        />
+        <LinearGradient
+          colors={['transparent', colors.background]}
+          locations={[0, 0.45]}
+          style={{ height: '100%', width: '100%', position: 'absolute' }}
+        />
+      </>
+
+      <ScrollView
+        scrollIndicatorInsets={{ right: 3 }}
+        className={cn(props.stickyBottom ? 'mb-24' : 'mb-6')}
+        onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
+        <Screen className={cn('pt-safe-offset-10 gap-6')}>
+          <View className={props.className}>{props.children}</View>
         </Screen>
-      </SafeAreaView>
+      </ScrollView>
+      {props.stickyBottom && (
+        <View className={'absolute bottom-0 left-0 right-0 m-6'}>{props.stickyBottom}</View>
+      )}
     </HeaderContext.Provider>
   );
 }
 
 export function Screen({ className, ...props }: ViewProps) {
-  return <View className={cn('mx-auto h-full w-full p-6 pt-0', className)} {...props} />;
+  return <View className={cn('mx-auto h-full w-full p-6', className)} {...props} />;
 }
 
-export function ScreenTitle(props: { title: string }) {
+export function ScreenTitle({
+  title,
+  wallet = true,
+  className,
+  ...props
+}: { title: string; wallet?: boolean } & TextProps) {
   const { hideHeader, headerText, setHeaderText } = useContext(HeaderContext);
   const fadeOpacity = useAnimatedValue(1);
 
@@ -110,19 +113,19 @@ export function ScreenTitle(props: { title: string }) {
   }, [hideHeader]);
 
   useEffect(() => {
-    setHeaderText(props.title);
-  }, [props.title]);
+    setHeaderText(title);
+  }, [title]);
 
   return (
     <Animated.View
-      className="flex-col gap-4 "
+      className="flex-col gap-4"
       style={{
         opacity: fadeOpacity,
       }}>
-      <Text variant="title1" className="text-3xl font-extrabold">
+      <Text variant="title1" className={cn('text-3xl font-extrabold', className)} {...props}>
         {headerText}
       </Text>
-      <UserWallet />
+      {wallet && <UserWallet />}
     </Animated.View>
   );
 }

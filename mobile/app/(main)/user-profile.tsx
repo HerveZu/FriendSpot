@@ -1,5 +1,5 @@
-import { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, View } from 'react-native';
+import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { ContentSheetView } from '~/components/ContentView';
@@ -13,7 +13,7 @@ import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar, UserAvatar } from '~/components/UserAvatar';
 import car from '~/assets/car-user-profile.png';
-import { Screen } from '~/components/Screen';
+import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useActualTime } from '~/lib/useActualTime';
 import { formatDuration, formatRelative, intervalToDuration } from 'date-fns';
@@ -22,13 +22,14 @@ import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
 import { useFetch } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/define-spot';
 import { UserSpot } from '~/endpoints/get-profile';
-import { UserWallet } from '~/components/UserWallet';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { List } from '~/components/List';
 import { Card } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
+import { useSendReview } from '~/endpoints/send-review';
+import { Title } from '~/components/Title';
 import { useNotification } from '~/context/NotificationContext';
 import * as Notifications from 'expo-notifications';
 
@@ -38,6 +39,7 @@ export default function UserProfileScreen() {
   const { userProfile, updateInternalProfile } = useCurrentUser();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
+  const [review, setReview] = React.useState<string>();
 
   const { expoPushToken, notification, error } = useNotification();
 
@@ -47,6 +49,7 @@ export default function UserProfileScreen() {
   console.log(JSON.stringify(notification, null, 2));
 
   const uploadPicture = useUploadUserPicture();
+  const sendReview = useSendReview();
 
   const handleLogout = async () => {
     const auth = getAuth();
@@ -69,6 +72,7 @@ export default function UserProfileScreen() {
       method: 'PUT',
       body: imageBody,
     });
+
     await updateInternalProfile(`${readonlyUrl}#_n=${Math.random()}`, userProfile.displayName);
   };
 
@@ -83,44 +87,44 @@ export default function UserProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={65}>
-        <Screen className="flex-col justify-between pb-6 pt-4">
-          <View className="w-full flex-row items-center gap-6">
-            <Button variant="plain" size={'none'} onPress={pickImageAsync}>
-              <View
-                className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-                accessibilityLabel="Edit Avatar">
-                <ThemedIcon name={'pencil'} size={14} />
-              </View>
-              <MeAvatar className="relative h-32 w-32" />
-            </Button>
-            <View className="grow gap-6">
-              <View className="gap-2">
-                <Text className="text-2xl font-bold">{currentDisplayName}</Text>
-                <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
-              </View>
-              <UserWallet />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={65}>
+      <ScreenWithHeader className="flex-col gap-16">
+        <View className="flex-row justify-between gap-6">
+          <Pressable className={'relative h-28'} onPress={pickImageAsync}>
+            <View
+              className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+              accessibilityLabel="Edit Avatar">
+              <ThemedIcon name={'pencil'} size={14} />
+            </View>
+            <MeAvatar className="h-28 w-28" />
+          </Pressable>
+          <View className="w-3/5 shrink gap-4">
+            <ScreenTitle wallet={false} title={currentDisplayName} />
+            <View className={'flex-row items-center justify-between'}>
+              <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
             </View>
           </View>
+        </View>
 
-          <View className={'flex-col gap-2'}>
-            <TextInput
-              icon={{
-                position: 'right',
-                element: <ThemedIcon size={18} name={'pencil'} />,
-              }}
-              value={currentDisplayName}
-              editable={true}
-              onChangeText={(text) => setCurrentDisplayName(text)}
-              onEndEditing={updateDisplayName}
-            />
-            <TextInput value={firebaseUser.email ?? ''} readOnly />
-          </View>
+        <View className={'gap-4'}>
+          <TextInput
+            icon={{
+              position: 'right',
+              element: <ThemedIcon size={18} name={'pencil'} />,
+            }}
+            value={currentDisplayName}
+            editable={true}
+            onChangeText={(text) => setCurrentDisplayName(text)}
+            onEndEditing={updateDisplayName}
+          />
+          <TextInput value={firebaseUser.email ?? ''} readOnly />
+        </View>
 
+        <View className={'flex-col gap-6'}>
+          <Title>Mon spot</Title>
           <Pressable
             className="flex-col items-start gap-3 rounded-lg bg-card p-3"
             onPress={() => setBottomSheet(true)}>
@@ -143,17 +147,47 @@ export default function UserProfileScreen() {
           </Pressable>
 
           {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
+        </View>
 
+        <View className={'mb-4 flex-col gap-6'}>
+          <Title>Autres</Title>
+          <TextInput
+            value={review}
+            onChangeText={setReview}
+            multiline
+            className={'h-32 w-full'}
+            placeholder={'Tu as une suggestion ? Écris-nous ici !'}
+          />
           <Button
-            variant={'plain'}
-            className="border border-destructive"
-            onPress={() => handleLogout()}>
+            disabled={!review}
+            variant={'tonal'}
+            size={'lg'}
+            onPress={() => {
+              review && sendReview(review);
+              setReview(undefined);
+            }}>
+            <ThemedIcon
+              name={'feedback'}
+              component={MaterialIcons}
+              size={24}
+              color={colors.primary}
+            />
+            <Text>Faire un retour</Text>
+          </Button>
+
+          <Button variant={'plain'} onPress={() => handleLogout()}>
+            <ThemedIcon
+              name={'logout'}
+              component={MaterialIcons}
+              size={18}
+              color={colors.destructive}
+            />
             <Text className={'text-destructive'}>Se déconnecter</Text>
           </Button>
-        </Screen>
-        <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </View>
+      </ScreenWithHeader>
+      <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
+    </KeyboardAvoidingView>
   );
 }
 
@@ -214,7 +248,6 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   return (
     <View className="flex-row items-center justify-between gap-4 rounded-xl bg-card p-3">
       <DisplayCar />
-      <View className="h-full w-2 rounded-xl bg-border" />
       <SpotUsedBy />
     </View>
   );
