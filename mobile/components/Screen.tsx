@@ -64,14 +64,14 @@ export function ScreenWithHeader(
 
       <>
         <LinearGradient
-          colors={[colors.primary, colors.card]}
+          colors={[colors.primary, 'darkblue']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.6 }}
         />
         <LinearGradient
           colors={['transparent', colors.background]}
-          locations={[0, 0.45]}
+          locations={[0, 0.35]}
           style={{ height: '100%', width: '100%', position: 'absolute' }}
         />
       </>
