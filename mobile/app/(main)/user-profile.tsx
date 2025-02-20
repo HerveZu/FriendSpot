@@ -29,6 +29,8 @@ import { List } from '~/components/List';
 import { Card } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
+import { useNotification } from '~/context/NotificationContext';
+import * as Notifications from 'expo-notifications';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -36,6 +38,13 @@ export default function UserProfileScreen() {
   const { userProfile, updateInternalProfile } = useCurrentUser();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
+
+  const { expoPushToken, notification, error } = useNotification();
+
+  if (error) {
+    return <View>{error.message}</View>;
+  }
+  console.log(JSON.stringify(notification, null, 2));
 
   const uploadPicture = useUploadUserPicture();
 
@@ -271,6 +280,17 @@ function DefineSpotSheet(props: {
       .finally(() => setIsUpdating(false));
   }
 
+  const triggerNotification = async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Hello!',
+        body: 'This is a test notification.',
+        data: { data: 'goes here' },
+      },
+      trigger: null,
+    });
+  };
+
   return (
     <Sheet
       ref={bottomSheetModalRef}
@@ -333,7 +353,9 @@ function DefineSpotSheet(props: {
           <Button
             className={`w-full rounded-xl bg-primary  ${!selectedParking || currentSpotName?.trim() === '' ? 'opacity-30' : ''}`}
             disabled={!selectedParking || !currentSpotName || isUpdating}
-            onPress={() => updateParking()}
+            onPress={() => {
+              updateParking(), triggerNotification();
+            }}
             size={'lg'}>
             <Text className="text-white">Enregistrer</Text>
           </Button>
