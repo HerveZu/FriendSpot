@@ -11,7 +11,7 @@ import { Text } from '~/components/nativewindui/Text';
 export default function WelcomeScreen() {
   return (
     <SafeAreaView>
-      <Screen gradiant={false} className="items-center justify-around">
+      <Screen className="items-center justify-around">
         <View className="flex flex-col gap-2">
           <Text variant="largeTitle" className="text-center">
             Bienvenue sur

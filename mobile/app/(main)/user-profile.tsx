@@ -1,6 +1,5 @@
 import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, View } from 'react-native';
-import Modal from 'react-native-modal';
+import { Image, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { ContentSheetView } from '~/components/ContentView';
@@ -14,7 +13,7 @@ import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar, UserAvatar } from '~/components/UserAvatar';
 import car from '~/assets/car-user-profile.png';
-import { Screen } from '~/components/Screen';
+import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useActualTime } from '~/lib/useActualTime';
 import { formatDuration, formatRelative, intervalToDuration } from 'date-fns';
@@ -23,13 +22,14 @@ import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
 import { useFetch } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/define-spot';
 import { UserSpot } from '~/endpoints/get-profile';
-import { FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { List } from '~/components/List';
 import { Card } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
 import { useSendReview } from '~/endpoints/send-review';
+import { Title } from '~/components/Title';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -37,9 +37,15 @@ export default function UserProfileScreen() {
   const { userProfile, updateInternalProfile } = useCurrentUser();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [review, setReview] = React.useState<string>();
 
   const uploadPicture = useUploadUserPicture();
+  const sendReview = useSendReview();
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+  };
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -76,8 +82,8 @@ export default function UserProfileScreen() {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={65}>
-      <Screen className="flex-col gap-6">
-        <View className="my-6 h-fit flex-row gap-8 overflow-hidden">
+      <ScreenWithHeader className="flex-col gap-16">
+        <View className="flex-row justify-between gap-6">
           <Pressable className={'relative h-28'} onPress={pickImageAsync}>
             <View
               className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
@@ -86,32 +92,30 @@ export default function UserProfileScreen() {
             </View>
             <MeAvatar className="h-28 w-28" />
           </Pressable>
-          <View className="grow justify-between">
-            <View className={'min-h-12 flex-row items-center justify-between gap-4'}>
-              <Text className="max-w-32 text-2xl font-bold">{currentDisplayName}</Text>
-              <Button variant={'tonal'} className={'h-full'} onPress={() => setModalOpen(true)}>
-                <ThemedIcon name={'settings-sharp'} component={Ionicons} size={24} />
-              </Button>
+          <View className="w-3/5 shrink gap-4">
+            <ScreenTitle wallet={false} title={currentDisplayName} />
+            <View className={'flex-row items-center justify-between'}>
+              <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
             </View>
-            <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
           </View>
         </View>
 
-        <View className={'grow flex-col justify-between'}>
-          <View className={'gap-4'}>
-            <TextInput
-              icon={{
-                position: 'right',
-                element: <ThemedIcon size={18} name={'pencil'} />,
-              }}
-              value={currentDisplayName}
-              editable={true}
-              onChangeText={(text) => setCurrentDisplayName(text)}
-              onEndEditing={updateDisplayName}
-            />
-            <TextInput value={firebaseUser.email ?? ''} readOnly />
-          </View>
+        <View className={'gap-4'}>
+          <TextInput
+            icon={{
+              position: 'right',
+              element: <ThemedIcon size={18} name={'pencil'} />,
+            }}
+            value={currentDisplayName}
+            editable={true}
+            onChangeText={(text) => setCurrentDisplayName(text)}
+            onEndEditing={updateDisplayName}
+          />
+          <TextInput value={firebaseUser.email ?? ''} readOnly />
+        </View>
 
+        <View className={'flex-col gap-6'}>
+          <Title>Mon spot</Title>
           <Pressable
             className="flex-col items-start gap-3 rounded-lg bg-card p-3"
             onPress={() => setBottomSheet(true)}>
@@ -135,8 +139,44 @@ export default function UserProfileScreen() {
 
           {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
         </View>
-      </Screen>
-      <UserModal open={modalOpen} onOpenChange={setModalOpen} />
+
+        <View className={'mb-4 flex-col gap-6'}>
+          <Title>Autres</Title>
+          <TextInput
+            value={review}
+            onChangeText={setReview}
+            multiline
+            className={'h-32 w-full'}
+            placeholder={'Tu as une suggestion ? Écris-nous ici !'}
+          />
+          <Button
+            disabled={!review}
+            variant={'tonal'}
+            size={'lg'}
+            onPress={() => {
+              review && sendReview(review);
+              setReview(undefined);
+            }}>
+            <ThemedIcon
+              name={'feedback'}
+              component={MaterialIcons}
+              size={24}
+              color={colors.primary}
+            />
+            <Text>Faire un retour</Text>
+          </Button>
+
+          <Button variant={'plain'} onPress={() => handleLogout()}>
+            <ThemedIcon
+              name={'logout'}
+              component={MaterialIcons}
+              size={18}
+              color={colors.destructive}
+            />
+            <Text className={'text-destructive'}>Se déconnecter</Text>
+          </Button>
+        </View>
+      </ScreenWithHeader>
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
     </KeyboardAvoidingView>
   );
@@ -333,67 +373,5 @@ function DefineSpotSheet(props: {
         </View>
       </ContentSheetView>
     </Sheet>
-  );
-}
-
-function UserModal(props: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>> }) {
-  const { colors } = useColorScheme();
-  const { userProfile } = useCurrentUser();
-  const [review, setReview] = React.useState<string>();
-  const sendReview = useSendReview();
-
-  const handleLogout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-  };
-
-  useEffect(() => {
-    setReview(undefined);
-  }, [props.open]);
-
-  return (
-    <Modal
-      isVisible={props.open}
-      onBackdropPress={() => props.onOpenChange(false)}
-      backdropOpacity={0.8}
-      className="my-auto">
-      <SafeAreaView>
-        <View className="flex-col gap-8 rounded-xl bg-card p-6">
-          <View className={'flex-row items-center justify-between'}>
-            <Text variant="title1">{userProfile.displayName}</Text>
-            <Button
-              variant={'plain'}
-              onPress={() => handleLogout()}
-              className={'bg-destructive/10 border border-destructive'}>
-              <ThemedIcon
-                name={'logout'}
-                component={MaterialIcons}
-                size={18}
-                color={colors.destructive}
-              />
-            </Button>
-          </View>
-          <View className={'flex-col gap-4'}>
-            <TextInput
-              value={review}
-              onChangeText={setReview}
-              multiline
-              className={'h-32 w-full'}
-              placeholder={'Tu as une suggestion ? Écris-nous ici !'}
-            />
-            <Button
-              disabled={!review}
-              variant={'primary'}
-              onPress={() => {
-                review && sendReview(review);
-                setReview(undefined);
-              }}>
-              <ThemedIcon name={'feedback'} component={MaterialIcons} size={24} />
-              <Text>Faire un retour</Text>
-            </Button>
-          </View>
-        </View>
-      </SafeAreaView>
-    </Modal>
   );
 }

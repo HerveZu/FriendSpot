@@ -69,7 +69,7 @@ export function AuthForm(
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Screen gradiant={false} className="flex h-full flex-col justify-between pt-8">
+          <Screen className="flex h-full flex-col justify-between pt-8">
             <View className="relative w-full flex-row items-center justify-center">
               <BackButton className="absolute left-0" />
               <View className="self-center">{props.title}</View>
