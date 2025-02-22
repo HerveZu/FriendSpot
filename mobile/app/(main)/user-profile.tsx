@@ -1,8 +1,7 @@
 import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
-import { ContentSheetView } from '~/components/ContentView';
 import { Text } from '~/components/nativewindui/Text';
 import { Rating } from '~/components/Rating';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -30,6 +29,7 @@ import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/T
 import { cn } from '~/lib/cn';
 import { useSendReview } from '~/endpoints/send-review';
 import { Title } from '~/components/Title';
+import { ContentSheetView } from '~/components/ContentView';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -78,10 +78,7 @@ export default function UserProfileScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={65}>
+    <>
       <ScreenWithHeader className="flex-col gap-16">
         <View className="flex-row justify-between gap-6">
           <Pressable className={'relative h-28'} onPress={pickImageAsync}>
@@ -99,7 +96,6 @@ export default function UserProfileScreen() {
             </View>
           </View>
         </View>
-
         <View className={'gap-4'}>
           <TextInput
             icon={{
@@ -113,7 +109,6 @@ export default function UserProfileScreen() {
           />
           <TextInput value={firebaseUser.email ?? ''} readOnly />
         </View>
-
         <View className={'flex-col gap-6'}>
           <Title>Mon spot</Title>
           <Pressable
@@ -139,7 +134,6 @@ export default function UserProfileScreen() {
 
           {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
         </View>
-
         <View className={'mb-4 flex-col gap-6'}>
           <Title>Autres</Title>
           <TextInput
@@ -178,7 +172,7 @@ export default function UserProfileScreen() {
         </View>
       </ScreenWithHeader>
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
-    </KeyboardAvoidingView>
+    </>
   );
 }
 
@@ -309,7 +303,7 @@ function DefineSpotSheet(props: {
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={[550]}>
+      snapPoints={[900]}>
       <ContentSheetView className={'flex-col justify-between'}>
         <View className="gap-6">
           <TextInput
@@ -340,8 +334,7 @@ function DefineSpotSheet(props: {
                         <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
                       )}
                     </View>
-
-                    <Text className="w-2/3">{parking.address}</Text>
+                    <Text className="w-2/3 shrink">{parking.address}</Text>
                     <Text>{`${parking.spotsCount} ${parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
                   </Card>
                 </Pressable>
@@ -350,7 +343,7 @@ function DefineSpotSheet(props: {
         </View>
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
-            <Text className="text-xl font-bold">N° de place</Text>
+            <Text className="text-xl font-semibold">N° de place</Text>
             <TextInput
               ref={spotNameRef}
               className={'w-40'}
