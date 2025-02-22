@@ -5,6 +5,7 @@ import {
   addHours,
   addMinutes,
   differenceInHours,
+  differenceInSeconds,
   endOfDay,
   formatDistance,
   formatDuration,
@@ -475,13 +476,16 @@ function BookingSheet(props: {
 
 function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
   const { colors } = useColorScheme();
+  const now = useActualTime(30_000);
 
   return (
     <Card>
       <View className="flex-row items-center gap-2">
         <ThemedIcon name="star" color={colors.primary} size={18} />
         <Text variant="heading" className="font-bold">
-          {capitalize(formatRelative(props.suggestion.from, new Date()))}
+          {differenceInSeconds(props.suggestion.from, now) > 0
+            ? capitalize(formatRelative(props.suggestion.from, now))
+            : 'Maintenant'}
         </Text>
       </View>
       <Text>
