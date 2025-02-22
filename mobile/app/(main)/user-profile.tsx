@@ -1,5 +1,5 @@
 import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -21,7 +21,7 @@ import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
 import { useFetch } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/define-spot';
 import { UserSpot } from '~/endpoints/get-profile';
-import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { List } from '~/components/List';
 import { Card } from '~/components/Card';
@@ -136,40 +136,41 @@ export default function UserProfileScreen() {
         </View>
         <View className={'mb-4 flex-col gap-6'}>
           <Title>Autres</Title>
-          <TextInput
-            value={review}
-            onChangeText={setReview}
-            multiline
-            className={'h-32 w-full'}
-            placeholder={'Tu as une suggestion ? Écris-nous ici !'}
-          />
-          <Button
-            disabled={!review}
-            variant={'tonal'}
-            size={'lg'}
-            onPress={() => {
-              review && sendReview(review);
-              setReview(undefined);
-            }}>
-            <ThemedIcon
-              name={'feedback'}
-              component={MaterialIcons}
-              size={24}
-              color={colors.primary}
+          <View className={'flex-col gap-2'}>
+            <TextInput
+              value={review}
+              onChangeText={setReview}
+              multiline
+              className={'h-32 w-full'}
+              placeholder={'Tu as une suggestion ? Écris-nous ici !'}
             />
-            <Text>Faire un retour</Text>
-          </Button>
-
-          <Button variant={'plain'} onPress={() => handleLogout()}>
-            <ThemedIcon
-              name={'logout'}
-              component={MaterialIcons}
-              size={18}
-              color={colors.destructive}
-            />
-            <Text className={'text-destructive'}>Se déconnecter</Text>
-          </Button>
+            <Button
+              disabled={!review}
+              variant={'primary'}
+              onPress={() => {
+                review && sendReview(review);
+                setReview(undefined);
+              }}>
+              <ThemedIcon
+                name={'lightbulb-on-outline'}
+                component={MaterialCommunityIcons}
+                size={18}
+                color={colors.foreground}
+              />
+              <Text>Faire un retour</Text>
+            </Button>
+          </View>
         </View>
+
+        <Button variant={'plain'} onPress={() => handleLogout()}>
+          <ThemedIcon
+            name={'logout'}
+            component={MaterialIcons}
+            size={18}
+            color={colors.destructive}
+          />
+          <Text className={'text-destructive'}>Se déconnecter</Text>
+        </Button>
       </ScreenWithHeader>
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
     </>
@@ -273,11 +274,15 @@ function DefineSpotSheet(props: {
   }, [selectedParking]);
 
   useEffect(() => {
+    parking &&
+      setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
+  }, [parking]);
+
+  useEffect(() => {
     if (props.open) {
       bottomSheetModalRef.current?.present();
     } else {
       setSearch(undefined);
-      setSelectedParking(undefined);
       bottomSheetModalRef.current?.dismiss();
     }
   }, [bottomSheetModalRef.current, props.open]);
@@ -303,7 +308,7 @@ function DefineSpotSheet(props: {
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={[900]}>
+      snapPoints={[550]}>
       <ContentSheetView className={'flex-col justify-between'}>
         <View className="gap-6">
           <TextInput
@@ -311,6 +316,7 @@ function DefineSpotSheet(props: {
               position: 'left',
               element: <ThemedIcon size={18} name={'search'} />,
             }}
+            textContentType={'addressCityAndState'}
             editable={true}
             value={fullSearch}
             onChangeText={(text) => setSearch(text)}
@@ -353,14 +359,15 @@ function DefineSpotSheet(props: {
               }}
               value={currentSpotName}
               editable={true}
-              onChangeText={(text) => setCurrentSpotName(text)}
+              onChangeText={setCurrentSpotName}
             />
           </View>
           <Button
-            className={`w-full rounded-xl bg-primary  ${!selectedParking || currentSpotName?.trim() === '' ? 'opacity-30' : ''}`}
+            className={`w-full rounded-xl bg-primary`}
             disabled={!selectedParking || !currentSpotName || isUpdating}
             onPress={() => updateParking()}
             size={'lg'}>
+            {isUpdating && <ActivityIndicator color={colors.foreground} />}
             <Text className="text-white">Enregistrer</Text>
           </Button>
         </View>

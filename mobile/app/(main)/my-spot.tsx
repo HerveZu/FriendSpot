@@ -41,7 +41,6 @@ import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
 import { capitalize } from '~/lib/utils';
-import { COLORS } from '~/theme/colors';
 
 export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -274,7 +273,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               size="lg"
               disabled={simulation && simulation.earnedCredits <= 0}
               onPress={() => lendSpot(from, to)}>
-              {actionPending && <ActivityIndicator color={COLORS.white} />}
+              {actionPending && <ActivityIndicator color={colors.foreground} />}
               <Text>
                 {simulation && simulation.earnedCredits > 0
                   ? `Prêter et gagner jusqu'à ${simulation?.earnedCredits} crédits`

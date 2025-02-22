@@ -430,7 +430,7 @@ function BookingSheet(props: {
                 !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
               }
               onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
-              {actionPending && <ActivityIndicator color={COLORS.white} />}
+              {actionPending && <ActivityIndicator color={colors.foreground} />}
               <Text>
                 {bookingSimulation
                   ? `Réserver pour ${bookingSimulation.usedCredits} crédits`

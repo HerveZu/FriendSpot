@@ -90,14 +90,15 @@ export function ScreenWithHeader(
           viewIsInsideTabBar={true}
           extraHeight={100} // workaround to make the scroll to focused multiline input work
           scrollIndicatorInsets={{ right: 3 }}
-          className={cn(props.stickyBottom ? 'mb-24' : 'mb-6')}
           onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
           <Screen className={cn('pt-safe-offset-10 gap-6')}>
             <View className={props.className}>{props.children}</View>
           </Screen>
         </KeyboardAwareScrollView>
         {props.stickyBottom && (
-          <View className={'absolute bottom-0 left-0 right-0 m-6'}>{props.stickyBottom}</View>
+          <View className={'absolute bottom-0 left-0 right-0 bg-background p-6'}>
+            {props.stickyBottom}
+          </View>
         )}
       </KeyboardAvoidingView>
     </HeaderContext.Provider>
