@@ -61,6 +61,7 @@
     "react-native-uitextview": "^1.1.4",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.10",
+    "react-use-websocket": "^4.13.0",
     "tailwind-merge": "^2.2.1",
     "use-debounce": "^10.0.4",
     "validator": "^13.12.0"

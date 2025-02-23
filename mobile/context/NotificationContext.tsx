@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef, ReactNod
 import * as Notifications from 'expo-notifications';
 import { EventSubscription } from 'expo-modules-core';
 import { registerForPushNotificationsAsync } from '../utils/registerForPushNotificationsAsync';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 interface NotificationContextType {
   expoPushToken: string | null;
@@ -27,6 +28,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [websocketMessage, setWebsocketMessage] = useState<MessageEvent<any> | null>();
 
   const notificationListener = useRef<EventSubscription>();
   const responseListener = useRef<EventSubscription>();
@@ -48,7 +50,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         JSON.stringify(response, null, 2),
         JSON.stringify(response.notification.request.content.data, null, 2)
       );
-      // Handle the notification response here
     });
 
     return () => {
@@ -60,6 +61,29 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       }
     };
   }, []);
+
+  const displayNotification = async (title: string, body: string, data: object) => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: title,
+        body: body,
+        data: { data: data },
+      },
+      trigger: null,
+    });
+  };
+
+  const [socketUrl, setSocketUrl] = useState('ws://localhost:8080');
+
+  const { lastMessage, readyState } = useWebSocket(socketUrl);
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+      setWebsocketMessage(lastMessage);
+
+      // displayNotification()
+    }
+  }, [lastMessage]);
 
   return (
     <NotificationContext.Provider value={{ expoPushToken, notification, error }}>
