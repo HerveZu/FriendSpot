@@ -12,7 +12,7 @@ import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
 import { getCurrentLocale } from '~/lib/locale';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
-import { NotificationProvider } from '~/context/NotificationContext';
+import { NotificationProvider } from '~/notification/NotificationContext';
 import * as Notifications from 'expo-notifications';
 
 export { ErrorBoundary } from 'expo-router';
@@ -21,14 +21,6 @@ setDefaultOptions({ locale: getCurrentLocale() });
 
 configureReanimatedLogger({
   strict: false,
-});
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
 });
 
 export default function RootLayout() {
