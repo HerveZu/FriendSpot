@@ -84,7 +84,7 @@ export function ScreenWithHeader(
         />
       </>
 
-      <KeyboardAvoidingView behavior={'padding'}>
+      <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
         <KeyboardAwareScrollView
           enableOnAndroid={true}
           viewIsInsideTabBar={true}
