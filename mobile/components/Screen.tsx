@@ -1,4 +1,4 @@
-import { BlurView } from '@react-native-community/blur';
+// import { BlurView } from '@react-native-community/blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, {
   createContext,
@@ -52,11 +52,11 @@ export function ScreenWithHeader(
         style={{
           opacity: fadeOpacity,
         }}>
-        <BlurView
+        {/* <BlurView
           blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
           blurAmount={5}
           style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-        />
+        /> */}
         <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
           {headerText}
         </Text>
