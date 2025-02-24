@@ -13,6 +13,14 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
@@ -39,29 +47,24 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       (error) => setError(error)
     );
 
-    // Add a send POST with expoPushToken at backend
-
     // notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
     //   console.log('🔔 Notification Received: ', notification);
     //   setNotification(notification);
     // });
 
     // responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-    //   console.log(
-    //     '🔔 Notification Response: ',
-    //     JSON.stringify(response, null, 2),
-    //     JSON.stringify(response.notification.request.content.data, null, 2)
-    //   );
+    //   const url = response.notification.request.content.data.url;
+    //   Linking.openURL(url);
     // });
 
-    // return () => {
-    //   if (notificationListener.current) {
-    //     Notifications.removeNotificationSubscription(notificationListener.current);
-    //   }
-    //   if (responseListener.current) {
-    //     Notifications.removeNotificationSubscription(responseListener.current);
-    //   }
-    // };
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
   }, []);
 
   const displayNotification = async (title: string, body: string, data: object) => {
