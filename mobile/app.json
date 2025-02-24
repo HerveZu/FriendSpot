@@ -38,18 +38,24 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.friendspot"
+      "bundleIdentifier": "com.friendspot",
+      "icon": {
+        "dark": "./assets/ios-icon.png",
+        "light": "./assets/ios-icon.png",
+        "tinted": "./assets/ios-icon.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/android-icon.png",
+        "monochromeImage": "./assets/android-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.friendspot"
