@@ -12,6 +12,7 @@ public sealed record RegisterUserRequest
 {
     public required string DisplayName { get; init; }
     public required string? PictureUrl { get; init; }
+    public required string ExpoToken { get; init; }
 }
 
 [PublicAPI]
@@ -43,6 +44,7 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
         }
 
         user.UpdateInfo(req.DisplayName, req.PictureUrl);
+        user.RegisterDeviceIfNew(req.ExpoToken);
 
         if (newUser)
         {
