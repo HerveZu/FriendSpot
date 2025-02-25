@@ -2,6 +2,7 @@ using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.Users;
 using FastEndpoints;
+using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,18 @@ public sealed record RegisterUserRequest
 public sealed record RegisterUserResponse
 {
     public required string UserId { get; init; }
+}
+
+internal sealed class RegisterUserValidator : Validator<RegisterUserRequest>
+{
+    public RegisterUserValidator()
+    {
+        RuleFor(x => x.DisplayName)
+            .MinimumLength(UserDisplayName.MinLength)
+            .MaximumLength(UserDisplayName.MaxLength);
+
+        RuleFor(x => x.ExpoToken).NotEmpty();
+    }
 }
 
 internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUserRequest, RegisterUserResponse>
@@ -40,10 +53,10 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
         if (user is null)
         {
             newUser = true;
-            user = Domain.Users.User.Register(userIdentity, req.DisplayName);
+            user = Domain.Users.User.Register(userIdentity, new UserDisplayName(req.DisplayName));
         }
 
-        user.UpdateInfo(req.DisplayName, req.PictureUrl);
+        user.UpdateInfo(new UserDisplayName(req.DisplayName), req.PictureUrl);
         user.RegisterDeviceIfNew(req.ExpoToken);
 
         if (newUser)

@@ -7,7 +7,18 @@ Authorization: Bearer {{$auth.token("me")}}
 
 {
   "displayName": "Hervé le dev",
-  "pictureUrl": null
+  "pictureUrl": null,
+  "expoToken": "ExpoToken[123]"
+}
+
+###
+
+POST {{Api_HostAddress}}/@me/logout
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("me")}}
+
+{
+  "expoToken": "ExpoToken[123]"
 }
 
 ###
