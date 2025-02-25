@@ -22,14 +22,14 @@ internal sealed class LogoutValidator : Validator<LogoutRequest>
     }
 }
 
-internal sealed class Logout(AppDbContext dbContext) : Endpoint<RegisterUserRequest, RegisterUserResponse>
+internal sealed class Logout(AppDbContext dbContext) : Endpoint<LogoutRequest>
 {
     public override void Configure()
     {
         Post("/@me/logout");
     }
 
-    public override async Task HandleAsync(RegisterUserRequest req, CancellationToken ct)
+    public override async Task HandleAsync(LogoutRequest req, CancellationToken ct)
     {
         var userIdentity = HttpContext.ToCurrentUser().Identity;
         var user = await dbContext.Set<User>().FirstAsync(user => user.Identity == userIdentity, ct);
