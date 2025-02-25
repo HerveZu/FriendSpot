@@ -1,5 +1,13 @@
-import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
+import React, {
+  createRef,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+  PropsWithChildren,
+} from 'react';
+import { Image, KeyboardAvoidingView, Platform, Pressable, View, SafeAreaView } from 'react-native';
+import Modal from 'react-native-modal';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { ContentSheetView } from '~/components/ContentView';
@@ -30,6 +38,8 @@ import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/T
 import { cn } from '~/lib/cn';
 import { useSendReview } from '~/endpoints/send-review';
 import { Title } from '~/components/Title';
+import { useLogout } from '~/endpoints/logout';
+import { useNotification } from '~/notification/NotificationContext';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -38,14 +48,10 @@ export default function UserProfileScreen() {
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
   const [review, setReview] = React.useState<string>();
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
   const sendReview = useSendReview();
-
-  const handleLogout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-  };
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -82,103 +88,166 @@ export default function UserProfileScreen() {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={65}>
-      <ScreenWithHeader className="flex-col gap-16">
-        <View className="flex-row justify-between gap-6">
-          <Pressable className={'relative h-28'} onPress={pickImageAsync}>
-            <View
-              className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-              accessibilityLabel="Edit Avatar">
-              <ThemedIcon name={'pencil'} size={14} />
-            </View>
-            <MeAvatar className="h-28 w-28" />
-          </Pressable>
-          <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={currentDisplayName} />
-            <View className={'flex-row items-center justify-between'}>
-              <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
+      <ValidationModal isModalVisible={isModalVisible} setModalVisible={setModalVisible}>
+        <ScreenWithHeader className="flex-col gap-16">
+          <View className="flex-row justify-between gap-6">
+            <Pressable className={'relative h-28'} onPress={pickImageAsync}>
+              <View
+                className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                accessibilityLabel="Edit Avatar">
+                <ThemedIcon name={'pencil'} size={14} />
+              </View>
+              <MeAvatar className="h-28 w-28" />
+            </Pressable>
+            <View className="w-3/5 shrink gap-4">
+              <ScreenTitle wallet={false} title={currentDisplayName} />
+              <View className={'flex-row items-center justify-between'}>
+                <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
+              </View>
             </View>
           </View>
-        </View>
 
-        <View className={'gap-4'}>
-          <TextInput
-            icon={{
-              position: 'right',
-              element: <ThemedIcon size={18} name={'pencil'} />,
-            }}
-            value={currentDisplayName}
-            editable={true}
-            onChangeText={(text) => setCurrentDisplayName(text)}
-            onEndEditing={updateDisplayName}
-          />
-          <TextInput value={firebaseUser.email ?? ''} readOnly />
-        </View>
-
-        <View className={'flex-col gap-6'}>
-          <Title>Mon spot</Title>
-          <Pressable
-            className="flex-col items-start gap-3 rounded-lg bg-card p-3"
-            onPress={() => setBottomSheet(true)}>
-            <View className="w-full flex-row items-center justify-between">
-              <Text className="text-xl font-semibold text-foreground">
-                {userProfile.spot
-                  ? userProfile.spot.parking.name
-                  : 'Aucun nom de parking de défini'}
-              </Text>
-              <ThemedIcon name={'pencil'} size={18} />
-            </View>
-            <View className="w-full max-w-full flex-row items-center gap-4 break-words">
-              <ThemedIcon name={'location-dot'} component={FontAwesome6} size={24} />
-              <Text className="w-10/12 text-lg">
-                {userProfile.spot
-                  ? userProfile.spot?.parking.address
-                  : 'Aucune adresse parking définie'}
-              </Text>
-            </View>
-          </Pressable>
-
-          {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
-        </View>
-
-        <View className={'mb-4 flex-col gap-6'}>
-          <Title>Autres</Title>
-          <TextInput
-            value={review}
-            onChangeText={setReview}
-            multiline
-            className={'h-32 w-full'}
-            placeholder={'Tu as une suggestion ? Écris-nous ici !'}
-          />
-          <Button
-            disabled={!review}
-            variant={'tonal'}
-            size={'lg'}
-            onPress={() => {
-              review && sendReview(review);
-              setReview(undefined);
-            }}>
-            <ThemedIcon
-              name={'feedback'}
-              component={MaterialIcons}
-              size={24}
-              color={colors.primary}
+          <View className={'gap-4'}>
+            <TextInput
+              icon={{
+                position: 'right',
+                element: <ThemedIcon size={18} name={'pencil'} />,
+              }}
+              value={currentDisplayName}
+              editable={true}
+              onChangeText={(text) => setCurrentDisplayName(text)}
+              onEndEditing={updateDisplayName}
             />
-            <Text>Faire un retour</Text>
-          </Button>
+            <TextInput value={firebaseUser.email ?? ''} readOnly />
+          </View>
 
-          <Button variant={'plain'} onPress={() => handleLogout()}>
-            <ThemedIcon
-              name={'logout'}
-              component={MaterialIcons}
-              size={18}
-              color={colors.destructive}
+          <View className={'flex-col gap-6'}>
+            <Title>Mon spot</Title>
+            <Pressable
+              className="flex-col items-start gap-3 rounded-lg bg-card p-3"
+              onPress={() => setBottomSheet(true)}>
+              <View className="w-full flex-row items-center justify-between">
+                <Text className="text-xl font-semibold text-foreground">
+                  {userProfile.spot
+                    ? userProfile.spot.parking.name
+                    : 'Aucun nom de parking de défini'}
+                </Text>
+                <ThemedIcon name={'pencil'} size={18} />
+              </View>
+              <View className="w-full max-w-full flex-row items-center gap-4 break-words">
+                <ThemedIcon name={'location-dot'} component={FontAwesome6} size={24} />
+                <Text className="w-10/12 text-lg">
+                  {userProfile.spot
+                    ? userProfile.spot?.parking.address
+                    : 'Aucune adresse parking définie'}
+                </Text>
+              </View>
+            </Pressable>
+
+            {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
+          </View>
+
+          <View className={'mb-4 flex-col gap-6'}>
+            <Title>Autres</Title>
+            <TextInput
+              value={review}
+              onChangeText={setReview}
+              multiline
+              className={'h-32 w-full'}
+              placeholder={'Tu as une suggestion ? Écris-nous ici !'}
             />
-            <Text className={'text-destructive'}>Se déconnecter</Text>
-          </Button>
-        </View>
-      </ScreenWithHeader>
+            <Button
+              disabled={!review}
+              variant={'tonal'}
+              size={'lg'}
+              onPress={() => {
+                review && sendReview(review);
+                setReview(undefined);
+              }}>
+              <ThemedIcon
+                name={'feedback'}
+                component={MaterialIcons}
+                size={24}
+                color={colors.primary}
+              />
+              <Text>Faire un retour</Text>
+            </Button>
+
+            <Button
+              variant={'primary'}
+              className="h-14 border-2"
+              onPress={() => setModalVisible(true)}>
+              <ThemedIcon name={'logout'} component={MaterialIcons} size={20} />
+              <Text>Se déconnecter</Text>
+            </Button>
+          </View>
+        </ScreenWithHeader>
+      </ValidationModal>
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
     </KeyboardAvoidingView>
+  );
+}
+
+export function ValidationModal({
+  children,
+  isModalVisible,
+  setModalVisible,
+}: PropsWithChildren<{
+  isModalVisible: boolean;
+  setModalVisible: Dispatch<SetStateAction<boolean>>;
+}>) {
+  const logout = useLogout();
+  const { colors } = useColorScheme();
+  const { expoPushToken } = useNotification();
+  const auth = getAuth();
+
+  const handleLogout = () => {
+    if (!expoPushToken) {
+      return;
+    }
+    logout({
+      expoToken: expoPushToken,
+    }).then(() => {
+      signOut(auth).then(() => {
+        setModalVisible(false);
+      });
+    });
+  };
+
+  return (
+    <>
+      <Modal
+        isVisible={isModalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+        backdropOpacity={0.8}
+        className="my-auto">
+        <SafeAreaView>
+          <View className="flex-col items-center gap-8 rounded-xl bg-card p-2 pb-4">
+            <Text variant="title1">Se déconnecter</Text>
+            <Text variant="title3" className="text-center">
+              Es-tu sûr de vouloir te déconnecter ?
+            </Text>
+            <View className="w-full flex-row justify-between gap-4">
+              <Button
+                className="h-12 flex-1"
+                variant="secondary"
+                size={'icon'}
+                onPress={() => setModalVisible(false)}>
+                <Text className="text-lg">Retour</Text>
+              </Button>
+              <Button
+                className="h-12 flex-1"
+                variant="primary"
+                size={'icon'}
+                onPress={() => handleLogout()}>
+                <Text className={'text-lg text-foreground'}>Se déconnecter</Text>
+              </Button>
+            </View>
+          </View>
+        </SafeAreaView>
+      </Modal>
+      {children}
+    </>
   );
 }
 
