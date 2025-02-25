@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Api;
 using Api.Common;
 using Api.Common.Infrastructure;
+using Api.Common.Notifications;
 using Api.Common.Options;
 using DotNetEnv;
 using FastEndpoints;
@@ -28,6 +29,8 @@ builder.Services
     .ConfigureAndValidate<PostgresOptions>()
     .ConfigureAndValidate<S3Options>()
     .ConfigureAndValidate<CorsOptions>()
+    .AddHttpClient()
+    .AddScoped<INotificationPushService, ExpoPushNotificationService>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddMediatR(
         x => { x.RegisterServicesFromAssemblyContaining<Program>(); })

@@ -20,7 +20,9 @@ internal sealed class DefineMySpotValidator : Validator<DefineMySpotRequest>
 {
     public DefineMySpotValidator()
     {
-        RuleFor(x => x.LotName).MaximumLength(10);
+        RuleFor(x => x.LotName)
+            .NotEmpty()
+            .MaximumLength(SpotName.MaxLength);
     }
 }
 

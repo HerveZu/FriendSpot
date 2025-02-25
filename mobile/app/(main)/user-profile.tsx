@@ -6,11 +6,18 @@ import React, {
   useState,
   PropsWithChildren,
 } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, View, SafeAreaView } from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  View,
+  SafeAreaView,
+  ActivityIndicator,
+} from 'react-native';
 import Modal from 'react-native-modal';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
-import { ContentSheetView } from '~/components/ContentView';
 import { Text } from '~/components/nativewindui/Text';
 import { Rating } from '~/components/Rating';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -40,6 +47,7 @@ import { useSendReview } from '~/endpoints/send-review';
 import { Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/logout';
 import { useNotification } from '~/notification/NotificationContext';
+import { ContentSheetView } from '~/components/ContentView';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -158,8 +166,7 @@ export default function UserProfileScreen() {
             />
             <Button
               disabled={!review}
-              variant={'tonal'}
-              size={'lg'}
+              variant={'primary'}
               onPress={() => {
                 review && sendReview(review);
                 setReview(undefined);
@@ -288,16 +295,16 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   const SpotUsedBy = () => {
     return (
       <View className="w-full flex-1 flex-col items-center justify-center gap-6">
-        <Text className="text-center text-xl font-semibold">
+        <Text className="text-center text-lg font-semibold">
           {spot.currentlyUsedBy
-            ? `En cours d'utilisation par ${spot.currentlyUsedBy.displayName}`
+            ? `En cours d'utilisation`
             : `${spot.currentlyAvailable ? 'Ton spot est libre' : 'Tu occupes ta place'}`}
         </Text>
         {(spot.currentlyUsedBy || spot.nextUse) && (
           <Text className="text-center">
             {spot.currentlyUsedBy
               ? spot.currentlyUsedBy.usingUntil &&
-                `Pendant ${formatDuration(intervalToDuration({ start: now, end: spot.currentlyUsedBy.usingUntil }), { format: ['days', 'hours', 'minutes'] })}`
+                `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(intervalToDuration({ start: now, end: spot.currentlyUsedBy.usingUntil }), { format: ['days', 'hours', 'minutes'] })}`
               : spot.nextUse && `Jusqu'à ${formatRelative(spot.nextUse, now)}`}
           </Text>
         )}
@@ -306,10 +313,10 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   };
 
   return (
-    <View className="flex-row items-center justify-between gap-4 rounded-xl bg-card p-3">
+    <Card className="flex-row items-center justify-between">
       <DisplayCar />
       <SpotUsedBy />
-    </View>
+    </Card>
   );
 }
 
@@ -348,11 +355,15 @@ function DefineSpotSheet(props: {
   }, [selectedParking]);
 
   useEffect(() => {
+    parking &&
+      setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
+  }, [parking]);
+
+  useEffect(() => {
     if (props.open) {
       bottomSheetModalRef.current?.present();
     } else {
       setSearch(undefined);
-      setSelectedParking(undefined);
       bottomSheetModalRef.current?.dismiss();
     }
   }, [bottomSheetModalRef.current, props.open]);
@@ -386,6 +397,7 @@ function DefineSpotSheet(props: {
               position: 'left',
               element: <ThemedIcon size={18} name={'search'} />,
             }}
+            textContentType={'addressCityAndState'}
             editable={true}
             value={fullSearch}
             onChangeText={(text) => setSearch(text)}
@@ -409,8 +421,7 @@ function DefineSpotSheet(props: {
                         <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
                       )}
                     </View>
-
-                    <Text className="w-2/3">{parking.address}</Text>
+                    <Text className="w-2/3 shrink">{parking.address}</Text>
                     <Text>{`${parking.spotsCount} ${parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
                   </Card>
                 </Pressable>
@@ -419,7 +430,7 @@ function DefineSpotSheet(props: {
         </View>
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
-            <Text className="text-xl font-bold">N° de place</Text>
+            <Text className="text-xl font-semibold">N° de place</Text>
             <TextInput
               ref={spotNameRef}
               className={'w-40'}
@@ -429,14 +440,15 @@ function DefineSpotSheet(props: {
               }}
               value={currentSpotName}
               editable={true}
-              onChangeText={(text) => setCurrentSpotName(text)}
+              onChangeText={setCurrentSpotName}
             />
           </View>
           <Button
-            className={`w-full rounded-xl bg-primary  ${!selectedParking || currentSpotName?.trim() === '' ? 'opacity-30' : ''}`}
+            className={`w-full rounded-xl bg-primary`}
             disabled={!selectedParking || !currentSpotName || isUpdating}
             onPress={() => updateParking()}
             size={'lg'}>
+            {isUpdating && <ActivityIndicator color={colors.foreground} />}
             <Text className="text-white">Enregistrer</Text>
           </Button>
         </View>

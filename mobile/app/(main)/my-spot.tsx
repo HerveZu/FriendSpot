@@ -4,6 +4,7 @@ import {
   addHours,
   addMinutes,
   differenceInHours,
+  differenceInSeconds,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -41,7 +42,6 @@ import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
 import { capitalize } from '~/lib/utils';
-import { COLORS } from '~/theme/colors';
 
 export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -56,7 +56,6 @@ export default function MySpotScreen() {
     <Redirect href="/user-profile" />
   ) : (
     <ScreenWithHeader
-      className="flex-col gap-16"
       stickyBottom={
         <Button
           disabled={!userProfile.spot}
@@ -90,13 +89,18 @@ export default function MySpotScreen() {
 
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
+  const now = useActualTime(30_000);
 
   return (
     <Card>
       <View className="flex-row items-center gap-2">
         <ThemedIcon name="user-friends" color={colors.primary} size={18} component={FontAwesome5} />
-        <Text variant="heading" className="font-bold">
-          Prêté {formatRelative(props.availability.from, new Date())}
+        <Text variant="heading" className="break-words font-bold">
+          Je propose mon spot
+          {' ' +
+            (differenceInSeconds(props.availability.from, now) > 0
+              ? formatRelative(props.availability.from, now)
+              : 'maintenant')}
         </Text>
       </View>
       <DateRange
@@ -274,7 +278,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               size="lg"
               disabled={simulation && simulation.earnedCredits <= 0}
               onPress={() => lendSpot(from, to)}>
-              {actionPending && <ActivityIndicator color={COLORS.white} />}
+              {actionPending && <ActivityIndicator color={colors.foreground} />}
               <Text>
                 {simulation && simulation.earnedCredits > 0
                   ? `Prêter et gagner jusqu'à ${simulation?.earnedCredits} crédits`

@@ -32,7 +32,8 @@ export function Deletable({
 
   function RightAction() {
     return (
-      !deleted && (
+      !deleted &&
+      canDelete && (
         <View
           className={cn('w-full flex-row items-center justify-end bg-destructive pr-4', className)}
           {...props}>
