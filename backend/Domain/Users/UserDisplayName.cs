@@ -22,6 +22,11 @@ public sealed record UserDisplayName
 
     public string DisplayName { get; }
 
+    public override string ToString()
+    {
+        return DisplayName;
+    }
+
     public static implicit operator string(UserDisplayName userDisplayName)
     {
         return userDisplayName.DisplayName;

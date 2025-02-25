@@ -1,15 +1,20 @@
-using Api.Common;
+using Api.Bookings.Common;
 using Api.Common.Infrastructure;
 using Api.Common.Notifications;
 using Domain.ParkingSpots;
 using Domain.Users;
+using Quartz;
 
 namespace Api.Bookings.OnBooked;
 
-internal sealed class PushNotificationToOwner(AppDbContext dbContext, INotificationPushService notificationPushService)
-    : IDomainEventHandler<ParkingSpotBooked>
+internal sealed class PushNotificationToOwner(
+    ISchedulerFactory schedulerFactory,
+    AppDbContext dbContext,
+    INotificationPushService notificationPushService
+)
+    : IntegrationEventHandler<PushNotificationToOwner, ParkingSpotBooked>(schedulerFactory)
 {
-    public async Task Handle(ParkingSpotBooked @event, CancellationToken cancellationToken)
+    protected override async Task HandleOutbox(ParkingSpotBooked @event, CancellationToken cancellationToken)
     {
         var user = await dbContext.Set<User>().FindAsync([@event.UserId], cancellationToken);
         var owner = await dbContext.Set<User>().FindAsync([@event.OwnerId], cancellationToken);
