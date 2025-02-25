@@ -79,7 +79,7 @@ export default function UserProfileScreen() {
 
   return (
     <>
-      <ScreenWithHeader className="flex-col gap-16">
+      <ScreenWithHeader>
         <View className="flex-row justify-between gap-6">
           <Pressable className={'relative h-28'} onPress={pickImageAsync}>
             <View
@@ -90,7 +90,7 @@ export default function UserProfileScreen() {
             <MeAvatar className="h-28 w-28" />
           </Pressable>
           <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={currentDisplayName} />
+            <ScreenTitle wallet={false} title={currentDisplayName} className={'mb-0'} />
             <View className={'flex-row items-center justify-between'}>
               <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
             </View>
@@ -109,32 +109,33 @@ export default function UserProfileScreen() {
           />
           <TextInput value={firebaseUser.email ?? ''} readOnly />
         </View>
-        <View className={'flex-col gap-6'}>
+        <View className={'flex-col'}>
           <Title>Mon spot</Title>
-          <Pressable
-            className="flex-col items-start gap-3 rounded-lg bg-card p-3"
-            onPress={() => setBottomSheet(true)}>
-            <View className="w-full flex-row items-center justify-between">
-              <Text className="text-xl font-semibold text-foreground">
-                {userProfile.spot
-                  ? userProfile.spot.parking.name
-                  : 'Aucun nom de parking de défini'}
-              </Text>
-              <ThemedIcon name={'pencil'} size={18} />
-            </View>
-            <View className="w-full max-w-full flex-row items-center gap-4 break-words">
-              <ThemedIcon name={'location-dot'} component={FontAwesome6} size={24} />
-              <Text className="w-10/12 text-lg">
-                {userProfile.spot
-                  ? userProfile.spot?.parking.address
-                  : 'Aucune adresse parking définie'}
-              </Text>
-            </View>
-          </Pressable>
-
-          {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
+          <View className={'flex-col gap-4'}>
+            <Pressable onPress={() => setBottomSheet(true)}>
+              <Card className="flex-col items-start gap-3">
+                <View className="w-full flex-row items-center justify-between">
+                  <Text className="text-lg font-semibold text-foreground">
+                    {userProfile.spot
+                      ? userProfile.spot.parking.name
+                      : 'Aucun nom de parking de défini'}
+                  </Text>
+                  <ThemedIcon name={'pencil'} size={18} />
+                </View>
+                <View className="w-full max-w-full flex-row items-center gap-4 break-words">
+                  <ThemedIcon name={'location-dot'} component={FontAwesome6} size={24} />
+                  <Text className="text-md w-10/12">
+                    {userProfile.spot
+                      ? userProfile.spot?.parking.address
+                      : 'Aucune adresse parking définie'}
+                  </Text>
+                </View>
+              </Card>
+            </Pressable>
+            {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
+          </View>
         </View>
-        <View className={'mb-4 flex-col gap-6'}>
+        <View className={'mb-4 flex-col'}>
           <Title>Autres</Title>
           <View className={'flex-col gap-2'}>
             <TextInput
@@ -214,16 +215,16 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   const SpotUsedBy = () => {
     return (
       <View className="w-full flex-1 flex-col items-center justify-center gap-6">
-        <Text className="text-center text-xl font-semibold">
+        <Text className="text-center text-lg font-semibold">
           {spot.currentlyUsedBy
-            ? `En cours d'utilisation par ${spot.currentlyUsedBy.displayName}`
+            ? `En cours d'utilisation`
             : `${spot.currentlyAvailable ? 'Ton spot est libre' : 'Tu occupes ta place'}`}
         </Text>
         {(spot.currentlyUsedBy || spot.nextUse) && (
           <Text className="text-center">
             {spot.currentlyUsedBy
               ? spot.currentlyUsedBy.usingUntil &&
-                `Pendant ${formatDuration(intervalToDuration({ start: now, end: spot.currentlyUsedBy.usingUntil }), { format: ['days', 'hours', 'minutes'] })}`
+                `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(intervalToDuration({ start: now, end: spot.currentlyUsedBy.usingUntil }), { format: ['days', 'hours', 'minutes'] })}`
               : spot.nextUse && `Jusqu'à ${formatRelative(spot.nextUse, now)}`}
           </Text>
         )}
@@ -232,10 +233,10 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   };
 
   return (
-    <View className="flex-row items-center justify-between gap-4 rounded-xl bg-card p-3">
+    <Card className="flex-row items-center justify-between">
       <DisplayCar />
       <SpotUsedBy />
-    </View>
+    </Card>
   );
 }
 

@@ -11,14 +11,14 @@ export function UserWallet({ className, ...props }: ViewProps) {
   return (
     <View className={cn('flex-row items-center gap-8', className)} {...props}>
       <View className="flex-row items-center gap-2">
-        <Text className="text-lg font-semibold">{Math.round(userProfile.wallet.credits)}</Text>
         <LogoCard primary className="h-5 w-3 rounded" />
+        <Text className="text-lg font-semibold">{Math.round(userProfile.wallet.credits)}</Text>
       </View>
       <View className="flex-row items-center gap-2">
+        <LogoCard className="h-5 w-3 rounded" />
         <Text className="text-lg font-semibold">
           {Math.round(userProfile.wallet.pendingCredits)}
         </Text>
-        <LogoCard className="h-5 w-3 rounded" />
       </View>
     </View>
   );

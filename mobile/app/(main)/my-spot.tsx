@@ -4,6 +4,7 @@ import {
   addHours,
   addMinutes,
   differenceInHours,
+  differenceInSeconds,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -55,7 +56,6 @@ export default function MySpotScreen() {
     <Redirect href="/user-profile" />
   ) : (
     <ScreenWithHeader
-      className="flex-col gap-16"
       stickyBottom={
         <Button
           disabled={!userProfile.spot}
@@ -89,13 +89,18 @@ export default function MySpotScreen() {
 
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
+  const now = useActualTime(30_000);
 
   return (
     <Card>
       <View className="flex-row items-center gap-2">
         <ThemedIcon name="user-friends" color={colors.primary} size={18} component={FontAwesome5} />
-        <Text variant="heading" className="font-bold">
-          Prêté {formatRelative(props.availability.from, new Date())}
+        <Text variant="heading" className="break-words font-bold">
+          Je propose mon spot
+          {' ' +
+            (differenceInSeconds(props.availability.from, now) > 0
+              ? formatRelative(props.availability.from, now)
+              : 'maintenant')}
         </Text>
       </View>
       <DateRange

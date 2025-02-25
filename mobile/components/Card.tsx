@@ -7,7 +7,9 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 export function Card({ className, ...props }: ViewProps) {
-  return <View className={cn('bg-card/50 flex-col gap-6 rounded-xl p-4', className)} {...props} />;
+  return (
+    <View className={cn('bg-primary/10 flex-col gap-6 rounded-xl p-4', className)} {...props} />
+  );
 }
 
 export function InfoCard(props: { info: string }) {

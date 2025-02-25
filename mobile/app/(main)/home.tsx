@@ -4,6 +4,7 @@ import Slider from '@react-native-community/slider';
 import {
   addHours,
   addMinutes,
+  differenceInDays,
   differenceInHours,
   differenceInSeconds,
   endOfDay,
@@ -88,7 +89,6 @@ export default function HomeScreen() {
     <Redirect href="/user-profile" />
   ) : (
     <ScreenWithHeader
-      className="flex-col gap-16"
       stickyBottom={
         <Button
           disabled={!userProfile.spot}
@@ -105,11 +105,12 @@ export default function HomeScreen() {
       <View className="flex-row justify-between">
         <ScreenTitle title="Accueil" />
         <Button
+          className={'mb-4'}
           variant="tonal"
           disabled={booking?.bookings.length === 0}
           onPress={() => setBookingListSheetOpen(true)}>
           <ThemedIcon size={24} name="ticket" color={colors.primary} />
-          <Title>{booking?.bookings.length ?? 0}</Title>
+          <Title className={'mb-0'}>{booking?.bookings.length ?? 0}</Title>
         </Button>
       </View>
       {!booking ? (
@@ -127,7 +128,7 @@ export default function HomeScreen() {
       ) : (
         <InfoCard info="Réserve un spot maintenant !" />
       )}
-      <View className="flex-col gap-6">
+      <View className="flex-col">
         {!suggestedSpots ? (
           <ActivityIndicator />
         ) : (
@@ -164,7 +165,7 @@ export default function HomeScreen() {
           open={bookingListSheetOpen}
           onOpen={setBookingListSheetOpen}>
           {booking.bookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} />
+            <BookingCard key={booking.id} booking={booking} deletable={true} />
           ))}
         </ListSheet>
       )}
@@ -195,18 +196,23 @@ function DateStatus({
   return text && <Tag className={className} text={text} {...props} />;
 }
 
-function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean }) {
+function BookingCard(props: {
+  booking: BookingResponse;
+  countdownOnTap?: boolean;
+  deletable?: boolean;
+}) {
   const router = useRouter();
   const now = useActualTime(30_000);
   const { refreshProfile } = useCurrentUser();
   const cancelBooking = useCancelBooking();
 
-  const canDelete = differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS;
+  const canDelete =
+    !!props.deletable && differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS;
 
   return (
     <Deletable
       canDelete={canDelete}
-      className="rounded-xl"
+      className={cn(props.deletable && 'rounded-xl')}
       onDelete={() =>
         cancelBooking({
           bookingId: props.booking.id,
@@ -224,7 +230,7 @@ function BookingCard(props: { booking: BookingResponse; countdownOnTap?: boolean
             } as SpotCountDownScreenParams,
           })
         }>
-        <Card className="bg-background">
+        <Card className={cn(props.deletable && 'bg-background')}>
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-4">
               <DeletableStatus />
@@ -491,7 +497,12 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
       <Text>
         {`Disponible ${formatDuration(
           intervalToDuration({ start: props.suggestion.from, end: props.suggestion.to }),
-          { format: ['days', 'hours', 'minutes'] }
+          {
+            format:
+              differenceInDays(props.suggestion.to, props.suggestion.from) > 1
+                ? ['days']
+                : ['days', 'hours', 'minutes'],
+          }
         )}`}
       </Text>
       <View className="flex-row items-center justify-between">
