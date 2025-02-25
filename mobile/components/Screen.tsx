@@ -10,12 +10,13 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Animated, ScrollView, TextProps, useAnimatedValue, View, ViewProps } from 'react-native';
+import { Animated, KeyboardAvoidingView, useAnimatedValue, View, ViewProps } from 'react-native';
 
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { UserWallet } from '~/components/UserWallet';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -64,29 +65,36 @@ export function ScreenWithHeader(
 
       <>
         <LinearGradient
-          colors={[colors.primary, colors.card]}
+          colors={[colors.primary, 'darkblue']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.6 }}
+          style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.9 }}
         />
         <LinearGradient
           colors={['transparent', colors.background]}
-          locations={[0, 0.45]}
+          locations={[0, 0.35]}
           style={{ height: '100%', width: '100%', position: 'absolute' }}
         />
       </>
 
-      <ScrollView
-        scrollIndicatorInsets={{ right: 3 }}
-        className={cn(props.stickyBottom ? 'mb-24' : 'mb-6')}
-        onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
-        <Screen className={cn('pt-safe-offset-10 gap-6')}>
-          <View className={props.className}>{props.children}</View>
-        </Screen>
-      </ScrollView>
-      {props.stickyBottom && (
-        <View className={'absolute bottom-0 left-0 right-0 m-6'}>{props.stickyBottom}</View>
-      )}
+      <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
+        <KeyboardAwareScrollView
+          className={cn(props.stickyBottom && 'mb-4')}
+          enableOnAndroid={true}
+          viewIsInsideTabBar={true}
+          extraHeight={100} // workaround to make the scroll to focused multiline input work
+          scrollIndicatorInsets={{ right: 3 }}
+          onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
+          <Screen className={cn('pt-safe-offset-10')}>
+            <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
+          </Screen>
+        </KeyboardAwareScrollView>
+        {props.stickyBottom && (
+          <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
+            {props.stickyBottom}
+          </View>
+        )}
+      </KeyboardAvoidingView>
     </HeaderContext.Provider>
   );
 }
@@ -99,8 +107,9 @@ export function ScreenTitle({
   title,
   wallet = true,
   className,
+  style,
   ...props
-}: { title: string; wallet?: boolean } & TextProps) {
+}: { title: string; wallet?: boolean } & ViewProps) {
   const { hideHeader, headerText, setHeaderText } = useContext(HeaderContext);
   const fadeOpacity = useAnimatedValue(1);
 
@@ -118,11 +127,15 @@ export function ScreenTitle({
 
   return (
     <Animated.View
-      className="flex-col gap-4"
-      style={{
-        opacity: fadeOpacity,
-      }}>
-      <Text variant="title1" className={cn('text-3xl font-extrabold', className)} {...props}>
+      className={cn('mb-6 flex-col gap-4', className)}
+      style={[
+        {
+          opacity: fadeOpacity,
+        },
+        style,
+      ]}
+      {...props}>
+      <Text variant="title1" className="text-3xl font-extrabold">
         {headerText}
       </Text>
       {wallet && <UserWallet />}

@@ -2,6 +2,8 @@ namespace Domain.ParkingSpots;
 
 public sealed record SpotName
 {
+    public const int MaxLength = 10;
+
     public SpotName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -9,7 +11,7 @@ public sealed record SpotName
             throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
         }
 
-        if (name.Length > 10)
+        if (name.Length > MaxLength)
         {
             throw new ArgumentException($"'{nameof(name)}' cannot be longer than 10 characters.", nameof(name));
         }

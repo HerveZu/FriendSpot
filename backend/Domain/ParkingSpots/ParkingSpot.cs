@@ -245,7 +245,7 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
     {
         builder.HasKey(x => x.Id);
         builder.Property(x => x.SpotName)
-            .HasMaxLength(10)
+            .HasMaxLength(SpotName.MaxLength)
             .HasConversion(name => name.Name, name => new SpotName(name));
         builder.HasIndex(x => new { x.OwnerId, x.SpotName }).IsUnique();
 

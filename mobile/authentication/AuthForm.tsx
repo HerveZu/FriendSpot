@@ -23,7 +23,6 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { notEmpty } from '~/lib/utils';
-import { COLORS } from '~/theme/colors';
 
 type AuthFormContext = {
   error: (id: string, error: boolean) => void;
@@ -47,6 +46,7 @@ export function AuthForm(
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [pendingAction, setPendingAction] = useState(false);
   const [touchTrigger, setTouchTrigger] = useState({});
+  const { colors } = useColorScheme();
 
   const error = useCallback(
     (id: string, error: boolean) => {
@@ -89,7 +89,7 @@ export function AuthForm(
               }}
               variant="primary"
               className="w-full">
-              {pendingAction && <ActivityIndicator color={COLORS.white} />}
+              {pendingAction && <ActivityIndicator color={colors.foreground} />}
               <Text>{props.submitText}</Text>
             </Button>
           </Screen>
