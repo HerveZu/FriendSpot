@@ -1,11 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import * as Notifications from 'expo-notifications';
 import { EventSubscription } from 'expo-modules-core';
-import { registerForPushNotificationsAsync } from '../utils/registerForPushNotificationsAsync';
+import { registerForPushNotificationsAsync } from '~/notification/registerForPushNotificationsAsync';
 
 interface NotificationContextType {
   expoPushToken: string | null;
-  notification: Notifications.Notification | null;
   error: Error | null;
 }
 
@@ -33,11 +32,9 @@ interface NotificationProviderProps {
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
-  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const notificationListener = useRef<EventSubscription>();
-  const responseListener = useRef<EventSubscription>();
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(
@@ -45,18 +42,20 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       (error) => setError(error)
     );
 
+    const listenerRef = notificationListener.current;
+
     return () => {
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
+      if (listenerRef) {
+        Notifications.removeNotificationSubscription(listenerRef);
       }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
+      if (listenerRef) {
+        Notifications.removeNotificationSubscription(listenerRef);
       }
     };
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ expoPushToken, notification, error }}>
+    <NotificationContext.Provider value={{ expoPushToken, error }}>
       {children}
     </NotificationContext.Provider>
   );

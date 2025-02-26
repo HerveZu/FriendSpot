@@ -1,5 +1,5 @@
-import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, View } from 'react-native';
+import { createRef, Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
+import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -32,6 +32,8 @@ import { Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/logout';
 import { useNotification } from '~/notification/NotificationContext';
 import { ContentSheetView } from '~/components/ContentView';
+import Modal from 'react-native-modal';
+import { ModalTitle } from '~/components/Modal';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -39,8 +41,8 @@ export default function UserProfileScreen() {
   const { userProfile, updateInternalProfile } = useCurrentUser();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
-  const [review, setReview] = React.useState<string>();
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [review, setReview] = useState<string>();
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
   const sendReview = useSendReview();
@@ -161,7 +163,7 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
-        <Button variant={'plain'} onPress={() => setModalVisible(true)}>
+        <Button variant={'plain'} onPress={() => setConfirmLogout(true)} size={'lg'}>
           <ThemedIcon
             name={'logout'}
             component={MaterialIcons}
@@ -171,21 +173,21 @@ export default function UserProfileScreen() {
           <Text className={'text-destructive'}>Se déconnecter</Text>
         </Button>
       </ScreenWithHeader>
+      <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
     </>
   );
 }
 
-export function ValidationModal({
+export function LogoutConfirmationModal({
   children,
-  isModalVisible,
-  setModalVisible,
+  visible,
+  onVisibleChange,
 }: PropsWithChildren<{
-  isModalVisible: boolean;
-  setModalVisible: Dispatch<SetStateAction<boolean>>;
+  visible: boolean;
+  onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
   const logout = useLogout();
-  const { colors } = useColorScheme();
   const { expoPushToken } = useNotification();
   const auth = getAuth();
 
@@ -197,7 +199,7 @@ export function ValidationModal({
       expoToken: expoPushToken,
     }).then(() => {
       signOut(auth).then(() => {
-        setModalVisible(false);
+        onVisibleChange(false);
       });
     });
   };
@@ -205,30 +207,27 @@ export function ValidationModal({
   return (
     <>
       <Modal
-        isVisible={isModalVisible}
-        onBackdropPress={() => setModalVisible(false)}
+        isVisible={visible}
+        onBackdropPress={() => onVisibleChange(false)}
         backdropOpacity={0.8}
         className="my-auto">
         <SafeAreaView>
-          <View className="flex-col items-center gap-8 rounded-xl bg-card p-2 pb-4">
-            <Text variant="title1">Se déconnecter</Text>
-            <Text variant="title3" className="text-center">
-              Es-tu sûr de vouloir te déconnecter ?
-            </Text>
-            <View className="w-full flex-row justify-between gap-4">
+          <View className="flex-col items-center gap-10 rounded-xl bg-card p-6">
+            <ModalTitle>Es-tu sûr de vouloir de déconnecter ?</ModalTitle>
+            <View className="w-full flex-row gap-4">
               <Button
-                className="h-12 flex-1"
-                variant="secondary"
-                size={'icon'}
-                onPress={() => setModalVisible(false)}>
-                <Text className="text-lg">Retour</Text>
+                className={'grow'}
+                size={'lg'}
+                variant="plain"
+                onPress={() => onVisibleChange(false)}>
+                <Text className={'text-primary'}>Retour</Text>
               </Button>
               <Button
-                className="h-12 flex-1"
-                variant="primary"
-                size={'icon'}
+                className={'bg-destructive/10 grow'}
+                variant={'plain'}
+                size={'lg'}
                 onPress={() => handleLogout()}>
-                <Text className={'text-lg text-foreground'}>Se déconnecter</Text>
+                <Text className={'text-destructive'}>Se déconnecter</Text>
               </Button>
             </View>
           </View>
@@ -285,7 +284,13 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
           <Text className="text-center">
             {spot.currentlyUsedBy
               ? spot.currentlyUsedBy.usingUntil &&
-                `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(intervalToDuration({ start: now, end: spot.currentlyUsedBy.usingUntil }), { format: ['days', 'hours', 'minutes'] })}`
+                `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(
+                  intervalToDuration({
+                    start: now,
+                    end: spot.currentlyUsedBy.usingUntil,
+                  }),
+                  { format: ['days', 'hours', 'minutes'] }
+                )}`
               : spot.nextUse && `Jusqu'à ${formatRelative(spot.nextUse, now)}`}
           </Text>
         )}

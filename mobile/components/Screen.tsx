@@ -17,6 +17,7 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { BlurView } from '@react-native-community/blur';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -53,11 +54,11 @@ export function ScreenWithHeader(
         style={{
           opacity: fadeOpacity,
         }}>
-        {/* <BlurView
+        <BlurView
           blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
           blurAmount={5}
           style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-        /> */}
+        />
         <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
           {headerText}
         </Text>

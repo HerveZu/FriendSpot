@@ -6,9 +6,9 @@ import Modal from 'react-native-modal';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
 import { BookingToRate } from '~/endpoints/get-profile';
 import { useRateBooking, UserRating } from '~/endpoints/rate-booking';
+import { ModalTitle } from '~/components/Modal';
 
 export function AskUserToRate(props: PropsWithChildren) {
   const { userProfile } = useCurrentUser();
@@ -38,7 +38,7 @@ export function AskUserToRate(props: PropsWithChildren) {
         className="my-auto">
         <SafeAreaView>
           <View className="flex-col gap-16 rounded-xl bg-card p-6">
-            <Text variant="title1">Votre réservation s'est terminée, qu'en avez-vous pensé ?</Text>
+            <ModalTitle>Votre réservation s'est terminée, qu'en avez-vous pensé ?</ModalTitle>
             <View className="flex-row justify-between">
               <Button
                 variant="plain"
