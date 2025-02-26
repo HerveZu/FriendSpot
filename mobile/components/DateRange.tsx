@@ -9,7 +9,12 @@ import { Text } from '~/components/nativewindui/Text';
 import { useActualTime } from '~/lib/useActualTime';
 import { fromUtc, parseDuration } from '~/lib/utils';
 
-export function DateRange(props: { from: Date | string; to: Date | string; duration: string }) {
+export function DateRange(props: {
+  from: Date | string;
+  to: Date | string;
+  duration: string;
+  label?: string;
+}) {
   const now = useActualTime(5000);
 
   const inProgress = isWithinInterval(now, {
@@ -22,18 +27,28 @@ export function DateRange(props: { from: Date | string; to: Date | string; durat
 
   return elapsedMinutes !== null ? (
     <View className="flex-col gap-2">
-      <Text>Il reste {formatDistance(props.to, now)}</Text>
+      <Text>
+        {props.label ?? 'Il reste'} {formatDistance(props.to, now)}
+      </Text>
       <ProgressIndicator
         className="h-4"
         value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
       />
     </View>
   ) : (
+    <DateRangeOnly from={props.from} to={props.to} />
+  );
+}
+
+export function DateRangeOnly(props: { from: Date | string; to: Date | string; short?: boolean }) {
+  const dateFormat = props.short ? 'dd.MM HH:mm' : 'dd MMMM HH:mm';
+
+  return (
     <View className="flex-row items-center gap-2">
-      <ThemedIcon name="calendar" />
-      <Text variant="subhead">{format(props.from, 'dd MMMM HH:mm')}</Text>
+      {!props.short && <ThemedIcon name="calendar" />}
+      <Text variant="subhead">{format(props.from, dateFormat)}</Text>
       <ThemedIcon name="arrow-right" />
-      <Text variant="subhead">{format(props.to, 'dd MMMM HH:mm')}</Text>
+      <Text variant="subhead">{format(props.to, dateFormat)}</Text>
     </View>
   );
 }

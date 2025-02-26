@@ -10,6 +10,7 @@ import {
   intervalToDuration,
   max,
   min,
+  secondsToMilliseconds,
 } from 'date-fns';
 import { Redirect } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
@@ -19,8 +20,8 @@ import { useDebounce } from 'use-debounce';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
-import { DateRange } from '~/components/DateRange';
-import { Deletable, DeletableStatus } from '~/components/Deletable';
+import { DateRange, DateRangeOnly } from '~/components/DateRange';
+import { Deletable } from '~/components/Deletable';
 import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -41,7 +42,9 @@ import { BOOKING_FROZEN_FOR_HOURS } from '~/lib/const';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
-import { capitalize } from '~/lib/utils';
+import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import { toSeconds } from 'duration-fns';
 
 export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -125,6 +128,50 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     const now = useActualTime(30_000);
     const cancelBooking = useCancelBooking();
 
+    function Countdown() {
+      const { colors } = useColorScheme();
+      const initialRemainingSeconds = useMemo(
+        () => differenceInSeconds(props.booking.to, new Date()),
+        []
+      );
+      const durationSeconds = useMemo(() => toSeconds(parseDuration(props.booking.duration)), []);
+      const isActive = useMemo(
+        () => new Date(props.booking.from).getTime() <= now.getTime(),
+        [props.booking.from, now]
+      );
+      return (
+        <View style={{ opacity: isActive ? 1 : 0.4 }}>
+          <CountdownCircleTimer
+            strokeWidth={5}
+            trailColor={colors.card}
+            size={70}
+            isPlaying={isActive}
+            initialRemainingTime={isActive ? initialRemainingSeconds : durationSeconds}
+            duration={durationSeconds}
+            colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
+            colorsTime={[0.25 * durationSeconds, 0.75 * durationSeconds]}>
+            {({ remainingTime, color }) => {
+              const remaining = intervalToDuration({
+                start: 0,
+                end: new Date(secondsToMilliseconds(remainingTime)),
+              });
+
+              return (
+                <Text
+                  className={'text-sm font-bold'}
+                  style={{
+                    color,
+                  }}>
+                  {remaining.hours?.toString().padStart(2, '0') ?? '00'}h
+                  {remaining.minutes?.toString().padStart(2, '0') ?? '00'}
+                </Text>
+              );
+            }}
+          </CountdownCircleTimer>
+        </View>
+      );
+    }
+
     return (
       <Deletable
         className="rounded-xl"
@@ -137,17 +184,15 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         }>
         <Card className="bg-background">
           <View className="flex-row justify-between">
-            <User
-              displayName={props.booking.bookedBy.displayName}
-              pictureUrl={props.booking.bookedBy.pictureUrl}
-            />
-            <DeletableStatus />
+            <View className={'flex-col gap-3'}>
+              <User
+                displayName={props.booking.bookedBy.displayName}
+                pictureUrl={props.booking.bookedBy.pictureUrl}
+              />
+              <DateRangeOnly from={props.booking.from} to={props.booking.to} short />
+            </View>
+            <Countdown />
           </View>
-          <DateRange
-            from={props.booking.from}
-            to={props.booking.to}
-            duration={props.booking.duration}
-          />
         </Card>
       </Deletable>
     );
