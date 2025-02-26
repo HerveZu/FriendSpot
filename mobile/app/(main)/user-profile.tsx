@@ -213,7 +213,7 @@ export function LogoutConfirmationModal({
         className="my-auto">
         <SafeAreaView>
           <View className="flex-col items-center gap-10 rounded-xl bg-card p-6">
-            <ModalTitle>Es-tu sûr de vouloir de déconnecter ?</ModalTitle>
+            <ModalTitle>Es-tu sûr de vouloir te déconnecter ?</ModalTitle>
             <View className="w-full flex-row gap-4">
               <Button
                 className={'grow'}
