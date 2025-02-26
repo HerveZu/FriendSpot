@@ -1,9 +1,10 @@
-import { View, ViewProps } from 'react-native';
+import { Animated, View, ViewProps } from 'react-native';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
+import { useEffect, useRef, useState } from 'react';
 
 type UserAvatarProps = {
   displayName: string;
@@ -17,13 +18,45 @@ export function UserAvatar({ displayName, pictureUrl, ...props }: UserAvatarProp
     namesInitials.length > 1 ? namesInitials[namesInitials.length - 1] : undefined,
   ];
 
+  const [loading, setLoading] = useState(false);
+  const pulseAnim = useRef(new Animated.Value(1));
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim.current, {
+          toValue: 0.2,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim.current, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
   return (
-    <Avatar alt="Profile" {...props}>
-      <AvatarImage source={{ uri: pictureUrl ?? undefined }} />
-      <AvatarFallback>
-        <Text>{userInitials.join('')}</Text>
-      </AvatarFallback>
-    </Avatar>
+    <View className={'relative'}>
+      {loading && (
+        <Animated.View
+          style={{ opacity: pulseAnim.current }}
+          className={'bg-card/80 absolute bottom-0 left-0 right-0 top-0 rounded-full'}
+        />
+      )}
+      <Avatar alt="Profile" {...props}>
+        <AvatarImage
+          onLoadStart={() => setLoading(true)}
+          onLoadEnd={() => setLoading(false)}
+          source={{ uri: pictureUrl ?? undefined }}
+        />
+        <AvatarFallback>
+          <Text>{userInitials.join('')}</Text>
+        </AvatarFallback>
+      </Avatar>
+    </View>
   );
 }
 
