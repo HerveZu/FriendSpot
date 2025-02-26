@@ -7,7 +7,7 @@ import {
 
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { omitObj } from '~/lib/utils';
+import { omitUndefined } from '~/lib/utils';
 
 export type TextInputProps = {
   icon?: {
@@ -41,7 +41,7 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
           }}
           value={props.value}
           className={cn(
-            'relative rounded-lg border bg-background p-3 pb-4 text-xl',
+            'relative min-h-12 rounded-lg border bg-background p-2 text-lg',
             icon?.position === 'left' && 'pl-11',
             props.readOnly && 'opacity-65',
             className
@@ -49,10 +49,11 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
           placeholderTextColor={colors.grey}
           style={[
             {
+              lineHeight: 0,
               color: colors.foreground,
               borderColor: focus ? colors.primary : colors.card,
             },
-            omitObj(style),
+            omitUndefined(style),
           ]}
           {...props}
         />

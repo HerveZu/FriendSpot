@@ -1,7 +1,7 @@
 import { View, ViewProps } from 'react-native';
 
 import { cn } from '~/lib/cn';
-import { omitObj } from '~/lib/utils';
+import { omitUndefined } from '~/lib/utils';
 
 export function Logo({ className, ...props }: ViewProps) {
   return (
@@ -43,7 +43,7 @@ export function LogoCard({
         {
           borderRadius: '20%',
         },
-        omitObj(style),
+        omitUndefined(style),
       ]}
       {...props}
     />

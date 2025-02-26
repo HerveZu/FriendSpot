@@ -13,7 +13,7 @@ export function minLength(length: number): (value?: string) => boolean {
   return (value?: string) => !!value && value.length >= length;
 }
 
-export function omitObj<T>(obj: T): T {
+export function omitUndefined<T>(obj: T): T {
   if (!obj) {
     return obj;
   }
