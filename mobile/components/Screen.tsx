@@ -1,4 +1,4 @@
-import { BlurView } from '@react-native-community/blur';
+// import { BlurView } from '@react-native-community/blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, {
   createContext,
@@ -17,6 +17,7 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { BlurView } from '@react-native-community/blur';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;

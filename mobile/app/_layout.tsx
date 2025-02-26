@@ -12,6 +12,7 @@ import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
 import { getCurrentLocale } from '~/lib/locale';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
+import { NotificationProvider } from '~/notification/NotificationContext';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -31,19 +32,21 @@ export default function RootLayout() {
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
       />
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <NavThemeProvider value={NAV_THEME[colorScheme]}>
-          <AuthenticationGuard>
-            <Stack
-              initialRouteName="welcome"
-              screenOptions={{
-                headerShown: false,
-                animation: 'ios_from_right',
-              }}
-            />
-          </AuthenticationGuard>
-        </NavThemeProvider>
-      </GestureHandlerRootView>
+      <NotificationProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <NavThemeProvider value={NAV_THEME[colorScheme]}>
+            <AuthenticationGuard>
+              <Stack
+                initialRouteName="welcome"
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'ios_from_right',
+                }}
+              />
+            </AuthenticationGuard>
+          </NavThemeProvider>
+        </GestureHandlerRootView>
+      </NotificationProvider>
     </>
   );
 }

@@ -13,6 +13,7 @@ import { Loader } from '~/components/Loader';
 import { useGetProfile, UserProfile } from '~/endpoints/get-profile';
 import { useRegisterUser } from '~/endpoints/register-user';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
+import { useNotification } from '~/notification/NotificationContext';
 
 type UserProfileContext = {
   readonly userProfile: UserProfile;
@@ -39,6 +40,8 @@ export function UserProvider(props: PropsWithChildren) {
   const stateTrigger = useListenOnAppStateChange('background');
   const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
 
+  const { expoPushToken } = useNotification();
+
   const updateInternalProfile = useCallback(
     async (photoURL: string | null | undefined, displayName: string) => {
       await updateProfile(firebaseUser, {
@@ -58,11 +61,17 @@ export function UserProvider(props: PropsWithChildren) {
   );
 
   useEffect(() => {
+    if (!expoPushToken) {
+      return;
+    }
+
     const displayName = internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? '';
-    registerUser({ displayName, pictureUrl: internalFirebaseUser.photoURL }).then(() =>
-      getProfile().then(setUserProfile)
-    );
-  }, [internalFirebaseUser]);
+    registerUser({
+      displayName,
+      pictureUrl: internalFirebaseUser.photoURL,
+      expoToken: expoPushToken,
+    }).then(() => getProfile().then(setUserProfile));
+  }, [internalFirebaseUser, expoPushToken]);
 
   useEffect(() => {
     refreshProfile().then();

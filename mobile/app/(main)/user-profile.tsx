@@ -1,5 +1,5 @@
-import React, { createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, View } from 'react-native';
+import { createRef, Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
+import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -29,7 +29,11 @@ import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/T
 import { cn } from '~/lib/cn';
 import { useSendReview } from '~/endpoints/send-review';
 import { Title } from '~/components/Title';
+import { useLogout } from '~/endpoints/logout';
+import { useNotification } from '~/notification/NotificationContext';
 import { ContentSheetView } from '~/components/ContentView';
+import Modal from 'react-native-modal';
+import { ModalTitle } from '~/components/Modal';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -37,15 +41,11 @@ export default function UserProfileScreen() {
   const { userProfile, updateInternalProfile } = useCurrentUser();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
-  const [review, setReview] = React.useState<string>();
+  const [review, setReview] = useState<string>();
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
   const sendReview = useSendReview();
-
-  const handleLogout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-  };
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -163,7 +163,7 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
-        <Button variant={'plain'} onPress={() => handleLogout()}>
+        <Button variant={'plain'} onPress={() => setConfirmLogout(true)} size={'lg'}>
           <ThemedIcon
             name={'logout'}
             component={MaterialIcons}
@@ -173,7 +173,67 @@ export default function UserProfileScreen() {
           <Text className={'text-destructive'}>Se déconnecter</Text>
         </Button>
       </ScreenWithHeader>
+      <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
+    </>
+  );
+}
+
+export function LogoutConfirmationModal({
+  children,
+  visible,
+  onVisibleChange,
+}: PropsWithChildren<{
+  visible: boolean;
+  onVisibleChange: Dispatch<SetStateAction<boolean>>;
+}>) {
+  const logout = useLogout();
+  const { expoPushToken } = useNotification();
+  const auth = getAuth();
+
+  const handleLogout = () => {
+    if (!expoPushToken) {
+      return;
+    }
+    logout({
+      expoToken: expoPushToken,
+    }).then(() => {
+      signOut(auth).then(() => {
+        onVisibleChange(false);
+      });
+    });
+  };
+
+  return (
+    <>
+      <Modal
+        isVisible={visible}
+        onBackdropPress={() => onVisibleChange(false)}
+        backdropOpacity={0.8}
+        className="my-auto">
+        <SafeAreaView>
+          <View className="flex-col items-center gap-10 rounded-xl bg-card p-6">
+            <ModalTitle>Es-tu sûr de vouloir de déconnecter ?</ModalTitle>
+            <View className="w-full flex-row gap-4">
+              <Button
+                className={'grow'}
+                size={'lg'}
+                variant="plain"
+                onPress={() => onVisibleChange(false)}>
+                <Text className={'text-primary'}>Retour</Text>
+              </Button>
+              <Button
+                className={'bg-destructive/10 grow'}
+                variant={'plain'}
+                size={'lg'}
+                onPress={() => handleLogout()}>
+                <Text className={'text-destructive'}>Se déconnecter</Text>
+              </Button>
+            </View>
+          </View>
+        </SafeAreaView>
+      </Modal>
+      {children}
     </>
   );
 }
@@ -224,7 +284,13 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
           <Text className="text-center">
             {spot.currentlyUsedBy
               ? spot.currentlyUsedBy.usingUntil &&
-                `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(intervalToDuration({ start: now, end: spot.currentlyUsedBy.usingUntil }), { format: ['days', 'hours', 'minutes'] })}`
+                `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(
+                  intervalToDuration({
+                    start: now,
+                    end: spot.currentlyUsedBy.usingUntil,
+                  }),
+                  { format: ['days', 'hours', 'minutes'] }
+                )}`
               : spot.nextUse && `Jusqu'à ${formatRelative(spot.nextUse, now)}`}
           </Text>
         )}

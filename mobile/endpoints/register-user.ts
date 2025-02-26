@@ -5,6 +5,7 @@ import { useApiRequest } from '~/endpoints/use-api-request';
 type RegisterUserRequest = {
   readonly displayName: string;
   readonly pictureUrl: string | null;
+  readonly expoToken: string;
 };
 
 export function useRegisterUser() {
