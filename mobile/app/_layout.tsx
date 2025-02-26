@@ -13,7 +13,6 @@ import { getCurrentLocale } from '~/lib/locale';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 import { NotificationProvider } from '~/notification/NotificationContext';
-import * as Notifications from 'expo-notifications';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -29,11 +28,11 @@ export default function RootLayout() {
 
   return (
     <>
+      <StatusBar
+        key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
+        style={isDarkColorScheme ? 'light' : 'dark'}
+      />
       <NotificationProvider>
-        <StatusBar
-          key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
-          style={isDarkColorScheme ? 'light' : 'dark'}
-        />
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavThemeProvider value={NAV_THEME[colorScheme]}>
             <AuthenticationGuard>
