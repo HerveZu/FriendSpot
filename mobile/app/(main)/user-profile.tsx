@@ -102,6 +102,7 @@ export default function UserProfileScreen() {
               position: 'right',
               element: <ThemedIcon size={18} name={'pencil'} />,
             }}
+            maxLength={30}
             value={currentDisplayName}
             editable={true}
             onChangeText={(text) => setCurrentDisplayName(text)}
