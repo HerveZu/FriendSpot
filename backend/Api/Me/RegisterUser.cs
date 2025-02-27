@@ -13,7 +13,7 @@ public sealed record RegisterUserRequest
 {
     public required string DisplayName { get; init; }
     public required string? PictureUrl { get; init; }
-    public required string ExpoToken { get; init; }
+    public required string? ExpoToken { get; init; }
 }
 
 [PublicAPI]
@@ -29,8 +29,6 @@ internal sealed class RegisterUserValidator : Validator<RegisterUserRequest>
         RuleFor(x => x.DisplayName)
             .MinimumLength(UserDisplayName.MinLength)
             .MaximumLength(UserDisplayName.MaxLength);
-
-        RuleFor(x => x.ExpoToken).NotEmpty();
     }
 }
 
@@ -57,16 +55,16 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
         }
 
         user.UpdateInfo(new UserDisplayName(req.DisplayName), req.PictureUrl);
-        user.RegisterDeviceIfNew(req.ExpoToken);
+
+        if (req.ExpoToken is not null)
+        {
+            user.RegisterDeviceIfNew(req.ExpoToken);
+        }
 
         if (newUser)
-        {
             await dbContext.Set<User>().AddAsync(user, ct);
-        }
         else
-        {
             dbContext.Set<User>().Update(user);
-        }
 
         await dbContext.SaveChangesAsync(ct);
     }

@@ -10,7 +10,7 @@ namespace Api.Me;
 [PublicAPI]
 public sealed record LogoutRequest
 {
-    public string? ExpoToken { get; init; }
+    public required string? ExpoToken { get; init; }
 }
 
 internal sealed class Logout(AppDbContext dbContext) : Endpoint<LogoutRequest>
@@ -26,9 +26,7 @@ internal sealed class Logout(AppDbContext dbContext) : Endpoint<LogoutRequest>
         var user = await dbContext.Set<User>().FirstAsync(user => user.Identity == userIdentity, ct);
 
         if (req.ExpoToken is not null)
-        {
             user.RemoveDevice(req.ExpoToken);
-        }
 
         dbContext.Set<User>().Update(user);
 

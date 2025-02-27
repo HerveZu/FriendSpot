@@ -1,11 +1,11 @@
-import { useCallback } from 'react';
+import {useCallback} from 'react';
 
-import { useApiRequest } from '~/endpoints/use-api-request';
+import {useApiRequest} from '~/endpoints/use-api-request';
 
 type RegisterUserRequest = {
   readonly displayName: string;
   readonly pictureUrl: string | null;
-  readonly expoToken: string;
+  readonly expoToken: string | null;
 };
 
 export function useRegisterUser() {
