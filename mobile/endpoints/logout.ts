@@ -1,9 +1,9 @@
-import { useCallback } from 'react';
+import {useCallback} from 'react';
 
-import { useApiRequest } from './use-api-request';
+import {useApiRequest} from './use-api-request';
 
 type ExpoTokenRequest = {
-  readonly expoToken: string;
+    readonly expoToken: string | null;
 };
 
 export function useLogout() {

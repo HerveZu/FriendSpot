@@ -1,39 +1,39 @@
-import { createRef, Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
-import { useCurrentUser } from '~/authentication/UserProvider';
-import { getAuth, signOut } from 'firebase/auth';
-import { Text } from '~/components/nativewindui/Text';
-import { Rating } from '~/components/Rating';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { Button } from '~/components/nativewindui/Button';
-import { ThemedIcon } from '~/components/ThemedIcon';
-import { TextInput } from '~/components/TextInput';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
-import { useDebounce } from 'use-debounce';
-import { MeAvatar, UserAvatar } from '~/components/UserAvatar';
+import {createRef, Dispatch, PropsWithChildren, SetStateAction, useEffect, useState} from 'react';
+import {ActivityIndicator, Image, Pressable, SafeAreaView, View} from 'react-native';
+import {useCurrentUser} from '~/authentication/UserProvider';
+import {getAuth, signOut} from 'firebase/auth';
+import {Text} from '~/components/nativewindui/Text';
+import {Rating} from '~/components/Rating';
+import {useColorScheme} from '~/lib/useColorScheme';
+import {Button} from '~/components/nativewindui/Button';
+import {ThemedIcon} from '~/components/ThemedIcon';
+import {TextInput} from '~/components/TextInput';
+import {Sheet, useSheetRef} from '~/components/nativewindui/Sheet';
+import {useDebounce} from 'use-debounce';
+import {MeAvatar, UserAvatar} from '~/components/UserAvatar';
 import car from '~/assets/car-user-profile.png';
-import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
+import {ScreenTitle, ScreenWithHeader} from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
-import { useActualTime } from '~/lib/useActualTime';
-import { formatDuration, formatRelative, intervalToDuration } from 'date-fns';
-import { useUploadUserPicture } from '~/endpoints/upload-user-picture';
-import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
-import { useFetch } from '~/lib/useFetch';
-import { useDefineSpot } from '~/endpoints/define-spot';
-import { UserSpot } from '~/endpoints/get-profile';
-import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { useAuth } from '~/authentication/AuthProvider';
-import { List } from '~/components/List';
-import { Card } from '~/components/Card';
-import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
-import { cn } from '~/lib/cn';
-import { useSendReview } from '~/endpoints/send-review';
-import { Title } from '~/components/Title';
-import { useLogout } from '~/endpoints/logout';
-import { useNotification } from '~/notification/NotificationContext';
-import { ContentSheetView } from '~/components/ContentView';
+import {useActualTime} from '~/lib/useActualTime';
+import {formatDuration, formatRelative, intervalToDuration} from 'date-fns';
+import {useUploadUserPicture} from '~/endpoints/upload-user-picture';
+import {ParkingResponse, useSearchParking} from '~/endpoints/search-parking';
+import {useFetch} from '~/lib/useFetch';
+import {useDefineSpot} from '~/endpoints/define-spot';
+import {UserSpot} from '~/endpoints/get-profile';
+import {FontAwesome6, MaterialCommunityIcons, MaterialIcons} from '@expo/vector-icons';
+import {useAuth} from '~/authentication/AuthProvider';
+import {List} from '~/components/List';
+import {Card} from '~/components/Card';
+import {TextInput as ReactTextInput} from 'react-native/Libraries/Components/TextInput/TextInput';
+import {cn} from '~/lib/cn';
+import {useSendReview} from '~/endpoints/send-review';
+import {Title} from '~/components/Title';
+import {useLogout} from '~/endpoints/logout';
+import {useNotification} from '~/notification/NotificationContext';
+import {ContentSheetView} from '~/components/ContentView';
 import Modal from 'react-native-modal';
-import { ModalTitle } from '~/components/Modal';
+import {ModalTitle} from '~/components/Modal';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -194,12 +194,9 @@ export function LogoutConfirmationModal({
   const { colors } = useColorScheme();
 
   const handleLogout = async () => {
-    if (expoPushToken) {
-      await logout({
-        expoToken: expoPushToken,
-      });
-    }
-
+    await logout({
+      expoToken: expoPushToken,
+    });
     await signOut(auth);
     onVisibleChange(false);
   };
