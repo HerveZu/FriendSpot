@@ -123,7 +123,7 @@ export default function UserProfileScreen() {
                   <ThemedIcon name={'pencil'} size={18} />
                 </View>
                 <View className="w-full max-w-full flex-row items-center gap-4 break-words">
-                  <ThemedIcon name={'location-dot'} component={FontAwesome6} size={24} />
+                  <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
                   <Text className="text-md w-10/12">
                     {userProfile.spot
                       ? userProfile.spot?.parking.address
@@ -190,18 +190,17 @@ export function LogoutConfirmationModal({
   const logout = useLogout();
   const { expoPushToken } = useNotification();
   const auth = getAuth();
+  const { colors } = useColorScheme();
 
-  const handleLogout = () => {
-    if (!expoPushToken) {
-      return;
-    }
-    logout({
-      expoToken: expoPushToken,
-    }).then(() => {
-      signOut(auth).then(() => {
-        onVisibleChange(false);
+  const handleLogout = async () => {
+    if (expoPushToken) {
+      await logout({
+        expoToken: expoPushToken,
       });
-    });
+    }
+
+    await signOut(auth);
+    onVisibleChange(false);
   };
 
   return (
@@ -213,7 +212,10 @@ export function LogoutConfirmationModal({
         className="my-auto">
         <SafeAreaView>
           <View className="flex-col items-center gap-10 rounded-xl bg-card p-6">
-            <ModalTitle>Es-tu sûr de vouloir te déconnecter ?</ModalTitle>
+            <View className={'flex-row items-center gap-4'}>
+              <ThemedIcon name={'warning'} size={24} />
+              <ModalTitle>Es-tu sûr de vouloir te déconnecter ?</ModalTitle>
+            </View>
             <View className="w-full flex-row gap-4">
               <Button
                 className={'grow'}
@@ -227,6 +229,12 @@ export function LogoutConfirmationModal({
                 variant={'plain'}
                 size={'lg'}
                 onPress={() => handleLogout()}>
+                <ThemedIcon
+                  name={'logout'}
+                  component={MaterialIcons}
+                  size={18}
+                  color={colors.destructive}
+                />
                 <Text className={'text-destructive'}>Se déconnecter</Text>
               </Button>
             </View>
@@ -416,7 +424,7 @@ function DefineSpotSheet(props: {
         </View>
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
-            <Text className="text-xl font-semibold">N° de place</Text>
+            <Text className="text-lg">N° de place</Text>
             <TextInput
               ref={spotNameRef}
               className={'w-40'}
