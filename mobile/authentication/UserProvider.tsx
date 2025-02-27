@@ -1,12 +1,19 @@
-import {updateProfile, User} from 'firebase/auth';
-import {createContext, PropsWithChildren, useCallback, useContext, useEffect, useState,} from 'react';
+import { updateProfile, User } from 'firebase/auth';
+import {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
-import {useAuth} from '~/authentication/AuthProvider';
-import {Loader} from '~/components/Loader';
-import {useGetProfile, UserProfile} from '~/endpoints/get-profile';
-import {useRegisterUser} from '~/endpoints/register-user';
-import {useListenOnAppStateChange} from '~/lib/useListenOnAppStateChange';
-import {useNotification} from '~/notification/NotificationContext';
+import { useAuth } from '~/authentication/AuthProvider';
+import { Loader } from '~/components/Loader';
+import { useGetProfile, UserProfile } from '~/endpoints/get-profile';
+import { useRegisterUser } from '~/endpoints/register-user';
+import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
+import { useNotification } from '~/notification/NotificationContext';
 
 type UserProfileContext = {
   readonly userProfile: UserProfile;
