@@ -10,7 +10,15 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Animated, KeyboardAvoidingView, useAnimatedValue, View, ViewProps } from 'react-native';
+import {
+  Animated,
+  KeyboardAvoidingView,
+  RefreshControl,
+  SafeAreaView,
+  useAnimatedValue,
+  View,
+  ViewProps,
+} from 'react-native';
 
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
@@ -18,6 +26,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { BlurView } from '@react-native-community/blur';
+import { useCurrentUser } from '~/authentication/UserProvider';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -30,9 +39,11 @@ const HIDE_HEADER_AFTER_SCROLL = 20;
 export function ScreenWithHeader(
   props: { className?: string; stickyBottom?: ReactNode } & PropsWithChildren
 ) {
+  const [refreshing, setRefreshing] = useState(false);
   const [headerText, setHeaderText] = useState<string>();
   const [scroll, setScroll] = useState(0);
   const { colors, isDarkColorScheme } = useColorScheme();
+  const { refreshProfile } = useCurrentUser();
 
   const hideHeader = scroll <= HIDE_HEADER_AFTER_SCROLL;
   const fadeOpacity = useAnimatedValue(0);
@@ -44,6 +55,12 @@ export function ScreenWithHeader(
       useNativeDriver: true,
     }).start();
   }, [hideHeader]);
+
+  function refreshScreen() {
+    setRefreshing(true);
+
+    refreshProfile().finally(() => setRefreshing(false));
+  }
 
   return (
     <HeaderContext.Provider value={{ hideHeader, headerText, setHeaderText }}>
@@ -78,24 +95,27 @@ export function ScreenWithHeader(
         />
       </>
 
-      <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
-        <KeyboardAwareScrollView
-          className={cn(props.stickyBottom && 'mb-4')}
-          enableOnAndroid={true}
-          viewIsInsideTabBar={true}
-          extraHeight={100} // workaround to make the scroll to focused multiline input work
-          scrollIndicatorInsets={{ right: 3 }}
-          onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
-          <Screen className={cn('pt-safe-offset-10')}>
-            <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
-          </Screen>
-        </KeyboardAwareScrollView>
-        {props.stickyBottom && (
-          <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
-            {props.stickyBottom}
-          </View>
-        )}
-      </KeyboardAvoidingView>
+      <SafeAreaView>
+        <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
+          <KeyboardAwareScrollView
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshScreen} />}
+            className={cn(props.stickyBottom && 'mb-4')}
+            enableOnAndroid={true}
+            viewIsInsideTabBar={true}
+            extraHeight={100} // workaround to make the scroll to focused multiline input work
+            scrollIndicatorInsets={{ right: 3 }}
+            onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
+            <Screen className={'mt-4'}>
+              <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
+            </Screen>
+          </KeyboardAwareScrollView>
+          {props.stickyBottom && (
+            <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
+              {props.stickyBottom}
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </HeaderContext.Provider>
   );
 }
