@@ -37,7 +37,7 @@ export function AskUserToRate(props: PropsWithChildren) {
         backdropOpacity={0.8}
         className="my-auto">
         <SafeAreaView>
-          <View className="flex-col gap-16 rounded-xl bg-card p-6">
+          <View className="flex-col gap-10 rounded-xl bg-card p-6">
             <ModalTitle>Votre réservation s'est terminée, qu'en avez-vous pensé ?</ModalTitle>
             <View className="flex-row justify-between">
               <Button

@@ -90,7 +90,7 @@ export default function UserProfileScreen() {
             <MeAvatar className="h-28 w-28" />
           </Pressable>
           <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={currentDisplayName} className={'mb-0'} />
+            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'} />
             <View className={'flex-row items-center justify-between'}>
               <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
             </View>
