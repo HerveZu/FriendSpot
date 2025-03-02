@@ -273,7 +273,9 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
             />
           </>
         )}
-        <Text className="mx-auto my-2 text-xl font-bold">{spot.name}</Text>
+        <Text className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xl font-bold">
+          {spot.name}
+        </Text>
       </View>
     );
   };

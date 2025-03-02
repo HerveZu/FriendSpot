@@ -4,7 +4,6 @@ import Slider from '@react-native-community/slider';
 import {
   addHours,
   addMinutes,
-  differenceInDays,
   differenceInHours,
   differenceInSeconds,
   endOfDay,
@@ -494,30 +493,15 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
 
   return (
     <Card>
-      <View className="flex-row items-center gap-2">
-        <ThemedIcon name="star" color={colors.primary} size={18} />
-        <Text variant="heading" className="font-bold">
-          {differenceInSeconds(props.suggestion.from, now) > 0
-            ? capitalize(formatRelative(props.suggestion.from, now))
-            : 'Maintenant'}
-        </Text>
-      </View>
-      <Text>
-        {`Disponible ${formatDuration(
-          intervalToDuration({ start: props.suggestion.from, end: props.suggestion.to }),
-          {
-            format:
-              differenceInDays(props.suggestion.to, props.suggestion.from) > 1
-                ? ['days']
-                : ['days', 'hours', 'minutes'],
-          }
-        )}`}
-      </Text>
       <View className="flex-row items-center justify-between">
-        <User
-          displayName={props.suggestion.owner.displayName}
-          pictureUrl={props.suggestion.owner.pictureUrl}
-        />
+        <View className="flex-row items-center gap-2">
+          <ThemedIcon name="star" color={colors.primary} size={18} />
+          <Text variant="heading" className="font-bold">
+            {differenceInSeconds(props.suggestion.from, now) > 0
+              ? capitalize(formatRelative(props.suggestion.from, now))
+              : 'Maintenant'}
+          </Text>
+        </View>
         <Rating
           rating={props.suggestion.owner.rating}
           stars={3}
@@ -525,6 +509,10 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
           color={colors.primary}
         />
       </View>
+      <User
+        displayName={props.suggestion.owner.displayName}
+        pictureUrl={props.suggestion.owner.pictureUrl}
+      />
     </Card>
   );
 }

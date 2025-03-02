@@ -26,7 +26,7 @@ import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { SheetTitle, Title } from '~/components/Title';
-import { User } from '~/components/UserAvatar';
+import { User, Users } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
@@ -34,6 +34,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
 import {
   AvailabilityBooking,
+  AvailabilityBookingUser,
   SpotAvailability,
   useGetAvailabilities,
 } from '~/endpoints/get-availabilities';
@@ -104,30 +105,42 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     await cancelAvailability({ availabilityId: props.availability.id }).then(refreshProfile);
   }
 
+  const uniqueBookingUsers = [
+    ...props.availability.bookings
+      .reduce((users, booking) => {
+        users.set(booking.bookedBy.id, booking.bookedBy);
+        return users;
+      }, new Map<string, AvailabilityBookingUser>())
+      .values(),
+  ];
+
   return (
     <Deletable
       className={'rounded-xl'}
       canDelete={differenceInHours(props.availability.from, now) > BOOKING_FROZEN_FOR_HOURS}
       onDelete={cancel}>
       <Card>
-        <View className="flex-row items-center gap-2">
-          <DeletableStatus
-            fallback={
-              <ThemedIcon
-                name="user-friends"
-                color={colors.primary}
-                size={18}
-                component={FontAwesome5}
-              />
-            }
-          />
-          <Text variant="heading" className="break-words font-bold">
-            Libre
-            {' ' +
-              (differenceInSeconds(props.availability.from, now) > 0
-                ? formatRelative(props.availability.from, now)
-                : 'maintenant')}
-          </Text>
+        <View className="flex-row justify-between">
+          <View className={'flex-row items-center gap-2'}>
+            <DeletableStatus
+              fallback={
+                <ThemedIcon
+                  name="user-friends"
+                  color={colors.primary}
+                  size={18}
+                  component={FontAwesome5}
+                />
+              }
+            />
+            <Text variant="heading" className="break-words font-bold">
+              Libre
+              {' ' +
+                (differenceInSeconds(props.availability.from, now) > 0
+                  ? formatRelative(props.availability.from, now)
+                  : 'maintenant')}
+            </Text>
+          </View>
+          <Users users={uniqueBookingUsers} />
         </View>
         <DateRange
           from={props.availability.from}

@@ -4,12 +4,38 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-type UserAvatarProps = {
+type DisplayUser = {
   displayName: string;
   pictureUrl?: string | null;
-} & ViewProps;
+};
+
+const MAX_USERS = 3;
+export function Users(props: { users: DisplayUser[] }) {
+  return (
+    <View className={'flex-row'}>
+      {props.users.slice(0, MAX_USERS).map((user, i) => (
+        <UserAvatar
+          className={'-ml-4 h-8 w-8'}
+          style={{
+            zIndex: 50 + i,
+          }}
+          key={i}
+          displayName={user.displayName}
+          pictureUrl={user.pictureUrl}
+        />
+      ))}
+      {props.users.length > MAX_USERS && (
+        <View className={'ml-1 h-8 w-8 rounded-full border border-border bg-background'}>
+          <Text className={'m-auto text-sm'}>+{props.users.length - MAX_USERS}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+type UserAvatarProps = DisplayUser & ViewProps;
 
 export function UserAvatar({ displayName, pictureUrl, ...props }: UserAvatarProps) {
   const namesInitials = displayName.split(' ').map((name) => name[0]?.toUpperCase());
@@ -46,7 +72,7 @@ export function UserAvatar({ displayName, pictureUrl, ...props }: UserAvatarProp
           className={'bg-card/80 absolute bottom-0 left-0 right-0 top-0 rounded-full'}
         />
       )}
-      <Avatar alt="Profile" {...props}>
+      <Avatar alt={displayName} {...props}>
         <AvatarImage
           onLoadStart={() => setLoading(true)}
           onLoadEnd={() => setLoading(false)}
