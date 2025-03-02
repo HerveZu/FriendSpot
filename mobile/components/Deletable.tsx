@@ -56,7 +56,7 @@ export function Deletable({
         renderRightActions={RightAction}
         onSwipeableWillOpen={() => canDelete && onDelete().then(() => setDeleted(true))}>
         <DeletableContext.Provider value={{ canDelete }}>
-          {props.children}
+          <View className={cn(className, 'bg-background')}>{props.children}</View>
         </DeletableContext.Provider>
       </ReanimatedSwipeable>
     </GestureHandlerRootView>

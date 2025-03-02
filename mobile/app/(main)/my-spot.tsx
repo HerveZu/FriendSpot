@@ -76,7 +76,7 @@ export default function MySpotScreen() {
       ) : availabilities.availabilities.length > 0 ? (
         <View>
           <Title>Je propose mon spot</Title>
-          <Card className={'flex-col gap-4 p-2'}>
+          <View className={'flex-col gap-4'}>
             {availabilities.availabilities.map((availability) => (
               <MySpotAvailabilityCard
                 key={availability.id}
@@ -84,7 +84,7 @@ export default function MySpotScreen() {
                 availability={availability}
               />
             ))}
-          </Card>
+          </View>
         </View>
       ) : (
         <InfoCard info="Tu ne prêtes pas encore ta place" />
@@ -109,7 +109,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
       className={'rounded-xl'}
       canDelete={differenceInHours(props.availability.from, now) > BOOKING_FROZEN_FOR_HOURS}
       onDelete={cancel}>
-      <Card className={'bg-background'}>
+      <Card>
         <View className="flex-row items-center gap-2">
           <DeletableStatus
             fallback={
@@ -136,11 +136,11 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         />
         {props.availability.bookings.length > 0 && (
           <ScrollView>
-            <Card className="flex-col gap-1 p-1">
+            <View className="flex-col gap-1">
               {props.availability.bookings.map((booking) => (
                 <BookingCard key={booking.id} spotId={props.spotId} booking={booking} />
               ))}
-            </Card>
+            </View>
           </ScrollView>
         )}
       </Card>
@@ -164,11 +164,11 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         [props.booking.from, now]
       );
       return (
-        <View style={{ opacity: isActive ? 1 : 0.4 }}>
+        <View style={{ opacity: isActive ? 1 : 0.4 }} className={'flex-col justify-center'}>
           <CountdownCircleTimer
-            strokeWidth={5}
+            strokeWidth={2}
             trailColor={colors.card}
-            size={70}
+            size={55}
             isPlaying={isActive}
             initialRemainingTime={isActive ? initialRemainingSeconds : durationSeconds}
             duration={durationSeconds}
@@ -182,7 +182,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 
               return (
                 <Text
-                  className={'text-sm font-bold'}
+                  className={'text-xs font-bold'}
                   style={{
                     color,
                   }}>

@@ -232,7 +232,7 @@ function BookingCard(props: {
             } as SpotCountDownScreenParams,
           })
         }>
-        <Card className={cn(props.deletable && 'bg-background')}>
+        <Card>
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
               {props.deletable ? (
