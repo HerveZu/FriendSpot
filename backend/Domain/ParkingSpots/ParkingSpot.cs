@@ -220,6 +220,8 @@ public sealed class ParkingSpot : IBroadcastEvents
         {
             CancelBooking(cancelingUserId, overlappingBooking.Id);
         }
+
+        _availabilities.Remove(availability);
     }
 
     public void CancelBooking(string cancelingUserId, Guid bookingId)
