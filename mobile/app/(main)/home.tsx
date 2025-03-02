@@ -275,6 +275,7 @@ function BookingSheet(props: {
 
   const MIN_DURATION_HOURS = 0.5;
   const MAX_DURATION_HOURS = 12;
+  const STEP_HOURS = 0.25;
   const INITIAL_FROM_MARGIN_MINUTES = 15;
   const INITIAL_DURATION_HOURS = 2;
 
@@ -430,6 +431,7 @@ function BookingSheet(props: {
                 </Text>
               </View>
               <Slider
+                step={STEP_HOURS / MAX_DURATION_HOURS}
                 value={differenceInHours(to, from) / MAX_DURATION_HOURS}
                 onValueChange={(value) =>
                   setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
