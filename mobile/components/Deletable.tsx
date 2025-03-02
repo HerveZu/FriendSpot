@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Animated, View, ViewProps } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -12,11 +12,12 @@ const DeletableContext = createContext<{
 }>(null!);
 
 export function Deletable({
+  disabled,
   canDelete,
   onDelete,
   className,
   ...props
-}: { canDelete: boolean; onDelete: () => Promise<void> } & ViewProps) {
+}: { disabled?: boolean; canDelete: boolean; onDelete: () => Promise<void> } & ViewProps) {
   const shakeAnimation = new Animated.Value(0);
   const [deleted, setDeleted] = useState(false);
 
@@ -32,8 +33,8 @@ export function Deletable({
 
   function RightAction() {
     return (
-      !deleted &&
-      canDelete && (
+      !disabled &&
+      !deleted && (
         <View
           className={cn('w-full flex-row items-center justify-end bg-destructive pr-4', className)}
           {...props}>
@@ -51,7 +52,7 @@ export function Deletable({
         onSwipeableOpenStartDrag={() => !canDelete && startShake()}
         friction={2}
         enableTrackpadTwoFingerGesture
-        rightThreshold={canDelete ? 100 : 100000}
+        rightThreshold={canDelete ? 100 : 100_000}
         renderRightActions={RightAction}
         onSwipeableWillOpen={() => canDelete && onDelete().then(() => setDeleted(true))}>
         <DeletableContext.Provider value={{ canDelete }}>
@@ -62,18 +63,13 @@ export function Deletable({
   );
 }
 
-export function DeletableStatus() {
+export function DeletableStatus(props: { fallback: ReactNode }) {
   const { colors } = useColorScheme();
   const { canDelete } = useContext(DeletableContext);
 
-  return (
-    !canDelete && (
-      <ThemedIcon
-        size={18}
-        color={colors.primary}
-        className="absolute right-0 top-1/2"
-        name="lock"
-      />
-    )
+  return !canDelete ? (
+    <ThemedIcon size={18} color={colors.primary} className="absolute right-0 top-1/2" name="lock" />
+  ) : (
+    props.fallback
   );
 }

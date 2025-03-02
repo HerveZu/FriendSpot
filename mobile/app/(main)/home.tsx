@@ -202,15 +202,17 @@ function BookingCard(props: {
   deletable?: boolean;
 }) {
   const router = useRouter();
+  const { colors } = useColorScheme();
   const now = useActualTime(30_000);
   const { refreshProfile } = useCurrentUser();
   const cancelBooking = useCancelBooking();
 
   const canDelete =
-    !!props.deletable && differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS;
+    !!props.deletable && differenceInHours(props.booking.from, now) > BOOKING_FROZEN_FOR_HOURS;
 
   return (
     <Deletable
+      disabled={!props.deletable}
       canDelete={canDelete}
       className={cn(props.deletable && 'rounded-xl')}
       onDelete={() =>
@@ -232,8 +234,14 @@ function BookingCard(props: {
         }>
         <Card className={cn(props.deletable && 'bg-background')}>
           <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center gap-4">
-              <DeletableStatus />
+            <View className="flex-row items-center gap-2">
+              {props.deletable ? (
+                <DeletableStatus
+                  fallback={<ThemedIcon name={'ticket'} size={18} color={colors.primary} />}
+                />
+              ) : (
+                <ThemedIcon name={'ticket'} size={18} color={colors.primary} />
+              )}
               <Text variant="heading" className="font-bold">
                 {capitalize(formatRelative(props.booking.from, new Date()))}
               </Text>
