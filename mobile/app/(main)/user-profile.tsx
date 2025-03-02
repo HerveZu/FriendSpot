@@ -1,4 +1,11 @@
-import { createRef, Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
+import React, {
+  createRef,
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
@@ -34,6 +41,7 @@ import { useNotification } from '~/notification/NotificationContext';
 import { ContentSheetView } from '~/components/ContentView';
 import Modal from 'react-native-modal';
 import { ModalTitle } from '~/components/Modal';
+import { Credits } from '~/components/UserWallet';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -92,11 +100,12 @@ export default function UserProfileScreen() {
           <View className="w-3/5 shrink gap-4">
             <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'} />
             <View className={'flex-row items-center justify-between'}>
-              <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
+              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
             </View>
           </View>
         </View>
-        <View className={'gap-4'}>
+
+        <View className={'gap-2'}>
           <TextInput
             icon={{
               position: 'right',
@@ -110,6 +119,32 @@ export default function UserProfileScreen() {
           />
           <TextInput value={firebaseUser.email ?? ''} readOnly />
         </View>
+
+        <View className={'flex-col'}>
+          <Title>Mes crédits</Title>
+          <View className={'gap-4'}>
+            <View className={'w-full flex-row justify-between gap-8'}>
+              <Credits className={'ml-4'} pending={false} credits={userProfile.wallet.credits} />
+              <Card className={'flex-1'}>
+                <Text className={'flex-1'}>Utilise ces crédits pour réserver un spot.</Text>
+              </Card>
+            </View>
+            <View className={'w-full flex-row justify-between gap-8'}>
+              <Credits
+                className={'ml-4'}
+                pending={true}
+                credits={userProfile.wallet.pendingCredits}
+              />
+              <Card className={'flex-1'}>
+                <Text className={'flex-1'}>
+                  Ces crédits sont réservés et te seront accesible à la fin de la réservation
+                  associée.
+                </Text>
+              </Card>
+            </View>
+          </View>
+        </View>
+
         <View className={'flex-col'}>
           <Title>Mon spot</Title>
           <View className={'flex-col gap-4'}>
