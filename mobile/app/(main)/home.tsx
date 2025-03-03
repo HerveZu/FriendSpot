@@ -227,7 +227,16 @@ function BookingCard(props: {
             {props.booking.parkingLot.name ? (
               <Tag text={`n° ${props.booking.parkingLot.name}`} />
             ) : (
-              <DeleteTrigger fallback={<Tag text={formatDistance(props.booking.from, now)} />} />
+              <DeleteTrigger
+                fallback={
+                  <Tag
+                    text={formatDistance(
+                      props.booking.from,
+                      min([now, addMinutes(props.booking.from, -1)])
+                    )}
+                  />
+                }
+              />
             )}
           </View>
           <User
