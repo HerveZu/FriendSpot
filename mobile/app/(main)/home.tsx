@@ -7,6 +7,7 @@ import {
   differenceInHours,
   differenceInSeconds,
   formatDistance,
+  formatDistanceStrict,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -230,9 +231,10 @@ function BookingCard(props: {
               <DeleteTrigger
                 fallback={
                   <Tag
-                    text={formatDistance(
+                    text={formatDistanceStrict(
                       props.booking.from,
-                      min([now, addMinutes(props.booking.from, -1)])
+                      min([now, addMinutes(props.booking.from, -1)]),
+                      { addSuffix: false }
                     )}
                   />
                 }
