@@ -31,7 +31,7 @@ export function DateRange(props: {
         {props.label ?? 'Il reste'} {formatDistance(props.to, now)}
       </Text>
       <ProgressIndicator
-        className="h-2"
+        className="h-4"
         value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
       />
     </View>
@@ -46,9 +46,9 @@ export function DateRangeOnly(props: { from: Date | string; to: Date | string; s
   return (
     <View className="flex-row items-center gap-2">
       {!props.short && <ThemedIcon name="calendar" />}
-      <Text variant="subhead">{format(props.from, dateFormat)}</Text>
+      <Text variant="caption1">{format(props.from, dateFormat)}</Text>
       <ThemedIcon name="arrow-right" />
-      <Text variant="subhead">{format(props.to, dateFormat)}</Text>
+      <Text variant="caption1">{format(props.to, dateFormat)}</Text>
     </View>
   );
 }
