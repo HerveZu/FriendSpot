@@ -6,20 +6,17 @@ import {
   addMinutes,
   differenceInHours,
   differenceInSeconds,
-  endOfDay,
   formatDistance,
   formatDuration,
   formatRelative,
   intervalToDuration,
-  isTomorrow,
   isWithinInterval,
   max,
   min,
-  startOfDay,
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, View, ViewProps } from 'react-native';
+import { ActivityIndicator, Pressable, SafeAreaView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -27,7 +24,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
-import { Deletable, DeletableStatus } from '~/components/Deletable';
+import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
 import { ListSheet } from '~/components/ListSheet';
 import { Rating } from '~/components/Rating';
@@ -177,24 +174,6 @@ export default function HomeScreen() {
   );
 }
 
-function DateStatus({
-  from,
-  to,
-  className,
-  ...props
-}: { from: Date | string; to: Date | string } & ViewProps) {
-  const text = isWithinInterval(new Date(), {
-    start: startOfDay(from),
-    end: endOfDay(to),
-  })
-    ? "Aujourd'hui"
-    : isTomorrow(from)
-      ? 'Demain'
-      : undefined;
-
-  return text && <Tag className={className} text={text} {...props} />;
-}
-
 function BookingCard(props: {
   booking: BookingResponse;
   countdownOnTap?: boolean;
@@ -242,13 +221,13 @@ function BookingCard(props: {
                 <ThemedIcon name={'ticket'} size={18} color={colors.primary} />
               )}
               <Text variant="heading" className="font-bold">
-                {capitalize(formatRelative(props.booking.from, new Date()))}
+                {capitalize(formatRelative(props.booking.from, now))}
               </Text>
             </View>
             {props.booking.parkingLot.name ? (
               <Tag text={`n° ${props.booking.parkingLot.name}`} />
             ) : (
-              <DateStatus from={props.booking.from} to={props.booking.to} />
+              <DeleteTrigger fallback={<Tag text={formatDistance(props.booking.from, now)} />} />
             )}
           </View>
           <User

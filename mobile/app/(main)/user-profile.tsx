@@ -122,7 +122,7 @@ export default function UserProfileScreen() {
 
         <View className={'flex-col'}>
           <Title>Mes crédits</Title>
-          <View className={'gap-4'}>
+          <View className={'gap-2'}>
             <View className={'w-full flex-row justify-between gap-8'}>
               <Credits className={'ml-4'} pending={false} credits={userProfile.wallet.credits} />
               <Card className={'flex-1'}>
@@ -147,7 +147,7 @@ export default function UserProfileScreen() {
 
         <View className={'flex-col'}>
           <Title>Mon spot</Title>
-          <View className={'flex-col gap-4'}>
+          <View className={'flex-col gap-2'}>
             <Pressable onPress={() => setBottomSheet(true)}>
               <Card className="flex-col items-start gap-3">
                 <View className="w-full flex-row items-center justify-between">

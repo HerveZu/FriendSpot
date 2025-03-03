@@ -21,7 +21,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange, DateRangeOnly } from '~/components/DateRange';
-import { Deletable, DeletableStatus } from '~/components/Deletable';
+import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -141,6 +141,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             </Text>
           </View>
           <Users users={uniqueBookingUsers} />
+          <DeleteTrigger />
         </View>
         <DateRange
           from={props.availability.from}
