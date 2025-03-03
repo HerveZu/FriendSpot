@@ -1,6 +1,6 @@
-import {useCallback} from 'react';
+import { useCallback } from 'react';
 
-import {useApiRequest} from './use-api-request';
+import { useApiRequest } from './use-api-request';
 
 type ExpoTokenRequest = {
   readonly deviceId: string;
