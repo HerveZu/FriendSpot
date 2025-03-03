@@ -85,6 +85,21 @@ export default function UserProfileScreen() {
     firebaseUser.photoURL && updateInternalProfile(firebaseUser.photoURL, currentDisplayName);
   }
 
+  function CreditsExplanation(props: { pending: boolean; explanation: string }) {
+    return (
+      <View className={'w-full flex-row justify-between gap-8'}>
+        <Credits
+          className={'ml-2'}
+          pending={props.pending}
+          credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
+        />
+        <Card className={'flex-1'}>
+          <Text variant={'caption1'}>{props.explanation}</Text>
+        </Card>
+      </View>
+    );
+  }
+
   return (
     <>
       <ScreenWithHeader>
@@ -123,25 +138,16 @@ export default function UserProfileScreen() {
         <View className={'flex-col'}>
           <Title>Mes crédits</Title>
           <View className={'gap-2'}>
-            <View className={'w-full flex-row justify-between gap-8'}>
-              <Credits className={'ml-4'} pending={false} credits={userProfile.wallet.credits} />
-              <Card className={'flex-1'}>
-                <Text className={'flex-1'}>Utilise ces crédits pour réserver un spot.</Text>
-              </Card>
-            </View>
-            <View className={'w-full flex-row justify-between gap-8'}>
-              <Credits
-                className={'ml-4'}
-                pending={true}
-                credits={userProfile.wallet.pendingCredits}
-              />
-              <Card className={'flex-1'}>
-                <Text className={'flex-1'}>
-                  Ces crédits sont réservés et te seront accesible à la fin de la réservation
-                  associée.
-                </Text>
-              </Card>
-            </View>
+            <CreditsExplanation
+              pending={false}
+              explanation={'Utilise ces crédits pour réserver un spot.'}
+            />
+            <CreditsExplanation
+              pending={true}
+              explanation={
+                'Ces crédits sont réservés et te seront accesible à la fin de la réservation associée.'
+              }
+            />
           </View>
         </View>
 
@@ -328,7 +334,7 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
             : `${spot.currentlyAvailable ? 'Ton spot est libre' : 'Tu occupes ta place'}`}
         </Text>
         {(spot.currentlyUsedBy || spot.nextUse) && (
-          <Text className="text-center">
+          <Text className="text-center text-sm">
             {spot.currentlyUsedBy
               ? spot.currentlyUsedBy.usingUntil &&
                 `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(

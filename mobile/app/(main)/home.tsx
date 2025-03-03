@@ -192,7 +192,7 @@ function BookingCard(props: {
     <Deletable
       disabled={!props.deletable}
       canDelete={canDelete}
-      className={cn(props.deletable && 'rounded-xl')}
+      className={'rounded-xl'}
       onDelete={() =>
         cancelBooking({
           bookingId: props.booking.id,

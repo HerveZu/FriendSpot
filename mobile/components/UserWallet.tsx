@@ -23,7 +23,7 @@ export function Credits({
   ...props
 }: { pending: boolean; credits: number } & ViewProps) {
   return (
-    <View className={cn('flex-row items-center gap-2', className)} {...props}>
+    <View className={cn('w-12 flex-row items-center gap-2', className)} {...props}>
       <LogoCard primary={!pending} className="h-5 w-3 rounded" />
       <Text className="text-lg font-semibold">{Math.round(credits)}</Text>
     </View>
