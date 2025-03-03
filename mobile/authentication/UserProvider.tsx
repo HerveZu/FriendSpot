@@ -1,19 +1,13 @@
-import { updateProfile, User } from 'firebase/auth';
-import {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import {updateProfile, User} from 'firebase/auth';
+import {createContext, PropsWithChildren, useCallback, useContext, useEffect, useState,} from 'react';
 
-import { useAuth } from '~/authentication/AuthProvider';
-import { Loader } from '~/components/Loader';
-import { useGetProfile, UserProfile } from '~/endpoints/get-profile';
-import { useRegisterUser } from '~/endpoints/register-user';
-import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
-import { useNotification } from '~/notification/NotificationContext';
+import {useAuth} from '~/authentication/AuthProvider';
+import {Loader} from '~/components/Loader';
+import {useGetProfile, UserProfile} from '~/endpoints/get-profile';
+import {useRegisterUser} from '~/endpoints/register-user';
+import {useListenOnAppStateChange} from '~/lib/useListenOnAppStateChange';
+import {useNotification} from '~/notification/NotificationContext';
+import {useDeviceId} from '~/lib/use-device-id';
 
 type UserProfileContext = {
   readonly userProfile: UserProfile;
@@ -41,6 +35,7 @@ export function UserProvider(props: PropsWithChildren) {
   const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
 
   const { expoPushToken } = useNotification();
+    const deviceId = useDeviceId();
 
   const updateInternalProfile = useCallback(
     async (photoURL: string | null | undefined, displayName: string) => {
@@ -61,13 +56,20 @@ export function UserProvider(props: PropsWithChildren) {
   );
 
   useEffect(() => {
+      if (!deviceId) {
+          return;
+      }
+
     const displayName = internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? '';
     registerUser({
       displayName,
       pictureUrl: internalFirebaseUser.photoURL,
-      expoToken: expoPushToken,
+        device: {
+            id: deviceId,
+            expoPushToken: expoPushToken,
+        },
     }).then(() => getProfile().then(setUserProfile));
-  }, [internalFirebaseUser, expoPushToken]);
+  }, [deviceId, internalFirebaseUser, expoPushToken]);
 
   useEffect(() => {
     refreshProfile().then();

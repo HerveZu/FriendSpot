@@ -13,7 +13,14 @@ public sealed record RegisterUserRequest
 {
     public required string DisplayName { get; init; }
     public required string? PictureUrl { get; init; }
-    public required string? ExpoToken { get; init; }
+    public required UserDevice Device { get; init; }
+
+    [PublicAPI]
+    public sealed record UserDevice
+    {
+        public required string Id { get; init; }
+        public required string? ExpoPushToken { get; init; }
+    }
 }
 
 [PublicAPI]
@@ -55,11 +62,7 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
         }
 
         user.UpdateInfo(new UserDisplayName(req.DisplayName), req.PictureUrl);
-
-        if (req.ExpoToken is not null)
-        {
-            user.RegisterDeviceIfNew(req.ExpoToken);
-        }
+        user.AcknowledgeDevice(req.Device.Id, req.Device.ExpoPushToken);
 
         if (newUser)
             await dbContext.Set<User>().AddAsync(user, ct);

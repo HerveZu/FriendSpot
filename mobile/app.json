@@ -55,8 +55,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.friendspot",
-      "googleServicesFile": "./google-services.json"
+      "package": "com.friendspot"
     },
     "extra": {
       "router": {
