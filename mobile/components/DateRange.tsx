@@ -27,11 +27,11 @@ export function DateRange(props: {
 
   return elapsedMinutes !== null ? (
     <View className="flex-col gap-2">
-      <Text>
+      <Text variant={'caption1'}>
         {props.label ?? 'Il reste'} {formatDistance(props.to, now)}
       </Text>
       <ProgressIndicator
-        className="h-4"
+        className="h-2"
         value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
       />
     </View>
