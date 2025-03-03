@@ -140,8 +140,10 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
                   : 'maintenant')}
             </Text>
           </View>
-          <Users users={uniqueBookingUsers} />
-          <DeleteTrigger />
+          <View className={'flex-row gap-2'}>
+            <Users users={uniqueBookingUsers} />
+            <DeleteTrigger />
+          </View>
         </View>
         <DateRange
           from={props.availability.from}
