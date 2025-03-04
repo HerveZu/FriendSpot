@@ -42,7 +42,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.friendspot",
@@ -55,16 +57,19 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.friendspot"
+      "package": "com.friendspot",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "6aaa7492-a83e-4f5f-99f5-cb91385cb55a"
+        "projectId": "4ada5c0d-b384-4ee2-85a2-58e58a8955a3"
       }
     },
-    "owner": "friendspot"
+    "owner": "friendspot-team"
   }
 }
