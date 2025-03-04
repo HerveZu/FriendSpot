@@ -27,7 +27,7 @@ export function DateRange(props: {
 
   return elapsedMinutes !== null ? (
     <View className="flex-col gap-2">
-      <Text variant={'caption1'}>
+      <Text className={'text-md'}>
         {props.label ?? 'Il reste'} {formatDistance(props.to, now)}
       </Text>
       <ProgressIndicator
@@ -46,9 +46,9 @@ export function DateRangeOnly(props: { from: Date | string; to: Date | string; s
   return (
     <View className="flex-row items-center gap-2">
       {!props.short && <ThemedIcon name="calendar" />}
-      <Text variant="caption1">{format(props.from, dateFormat)}</Text>
+      <Text className={'text-xs'}>{format(props.from, dateFormat)}</Text>
       <ThemedIcon name="arrow-right" />
-      <Text variant="caption1">{format(props.to, dateFormat)}</Text>
+      <Text className={'text-xs'}>{format(props.to, dateFormat)}</Text>
     </View>
   );
 }

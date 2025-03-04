@@ -94,7 +94,7 @@ export default function UserProfileScreen() {
           credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
         />
         <Card className={'flex-1'}>
-          <Text variant={'caption1'}>{props.explanation}</Text>
+          <Text className={'text-md'}>{props.explanation}</Text>
         </Card>
       </View>
     );
