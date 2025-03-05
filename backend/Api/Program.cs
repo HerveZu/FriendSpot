@@ -29,6 +29,7 @@ builder.Services
     .ConfigureAndValidate<PostgresOptions>()
     .ConfigureAndValidate<S3Options>()
     .ConfigureAndValidate<CorsOptions>()
+    .ConfigureAndValidate<ExpoOptions>()
     .AddHttpClient()
     .AddScoped<INotificationPushService, ExpoPushNotificationService>()
     .AddScoped<IStartupService, MigrateDb>()
