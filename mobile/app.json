@@ -70,6 +70,12 @@
         "projectId": "4ada5c0d-b384-4ee2-85a2-58e58a8955a3"
       }
     },
-    "owner": "friendspot-team"
+    "owner": "friendspot-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4ada5c0d-b384-4ee2-85a2-58e58a8955a3"
+    }
   }
 }
