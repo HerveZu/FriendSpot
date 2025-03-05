@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -38,9 +38,7 @@ import { useSendReview } from '~/endpoints/send-review';
 import { Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/logout';
 import { ContentSheetView } from '~/components/ContentView';
-import Modal from 'react-native-modal';
-import { ModalTitle } from '~/components/Modal';
-import { Credits } from '~/components/UserWallet';
+import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeviceId } from '~/lib/use-device-id';
 
 export default function UserProfileScreen() {
@@ -85,21 +83,6 @@ export default function UserProfileScreen() {
     firebaseUser.photoURL && updateInternalProfile(firebaseUser.photoURL, currentDisplayName);
   }
 
-  function CreditsExplanation(props: { pending: boolean; explanation: string }) {
-    return (
-      <View className={'w-full flex-row justify-between gap-8'}>
-        <Credits
-          className={'ml-2'}
-          pending={props.pending}
-          credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
-        />
-        <Card className={'flex-1'}>
-          <Text className={'text-md'}>{props.explanation}</Text>
-        </Card>
-      </View>
-    );
-  }
-
   return (
     <>
       <ScreenWithHeader>
@@ -136,28 +119,12 @@ export default function UserProfileScreen() {
         </View>
 
         <View className={'flex-col'}>
-          <Title>Mes crédits</Title>
-          <View className={'gap-2'}>
-            <CreditsExplanation
-              pending={false}
-              explanation={'Utilise ces crédits pour réserver un spot.'}
-            />
-            <CreditsExplanation
-              pending={true}
-              explanation={
-                'Ces crédits sont réservés et te seront accesible à la fin de la réservation associée.'
-              }
-            />
-          </View>
-        </View>
-
-        <View className={'flex-col'}>
           <Title>Mon spot</Title>
           <View className={'flex-col gap-2'}>
             <Pressable onPress={() => setBottomSheet(true)}>
               <Card className="flex-col items-start gap-3">
                 <View className="w-full flex-row items-center justify-between">
-                  <Text className="text-lg font-semibold text-foreground">
+                  <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
                       ? userProfile.spot.parking.name
                       : 'Aucun nom de parking de défini'}
@@ -189,7 +156,7 @@ export default function UserProfileScreen() {
             />
             <Button
               disabled={!review}
-              variant={'primary'}
+              variant={'tonal'}
               onPress={() => {
                 review && sendReview(review);
                 setReview(undefined);
@@ -198,7 +165,7 @@ export default function UserProfileScreen() {
                 name={'lightbulb-on-outline'}
                 component={MaterialCommunityIcons}
                 size={18}
-                color={colors.foreground}
+                color={colors.primary}
               />
               <Text>Faire un retour</Text>
             </Button>
@@ -248,41 +215,26 @@ export function LogoutConfirmationModal({
 
   return (
     <>
-      <Modal
-        isVisible={visible}
-        onBackdropPress={() => onVisibleChange(false)}
-        backdropOpacity={0.8}
-        className="my-auto">
-        <SafeAreaView>
-          <View className="flex-col items-center gap-10 rounded-xl bg-card p-6">
-            <View className={'flex-row items-center gap-4'}>
-              <ThemedIcon name={'warning'} size={24} />
-              <ModalTitle>Es-tu sûr de vouloir te déconnecter ?</ModalTitle>
-            </View>
-            <View className="w-full flex-row gap-4">
-              <Button
-                className={'grow'}
-                size={'lg'}
-                variant="plain"
-                onPress={() => onVisibleChange(false)}>
-                <Text className={'text-primary'}>Retour</Text>
-              </Button>
-              <Button
-                className={'bg-destructive/10 grow'}
-                variant={'plain'}
-                size={'lg'}
-                onPress={() => handleLogout()}>
-                <ThemedIcon
-                  name={'logout'}
-                  component={MaterialIcons}
-                  size={18}
-                  color={colors.destructive}
-                />
-                <Text className={'text-destructive'}>Se déconnecter</Text>
-              </Button>
-            </View>
-          </View>
-        </SafeAreaView>
+      <Modal open={visible} onOpenChange={onVisibleChange}>
+        <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
+        <View className="w-full flex-row gap-4">
+          <Button
+            className={'grow'}
+            size={'lg'}
+            variant="tonal"
+            onPress={() => onVisibleChange(false)}>
+            <Text className={'text-primary'}>Retour</Text>
+          </Button>
+          <Button className={'grow'} variant={'plain'} size={'lg'} onPress={() => handleLogout()}>
+            <ThemedIcon
+              name={'logout'}
+              component={MaterialIcons}
+              size={18}
+              color={colors.destructive}
+            />
+            <Text className={'text-destructive'}>Se déconnecter</Text>
+          </Button>
+        </View>
       </Modal>
       {children}
     </>
@@ -396,7 +348,7 @@ function DefineSpotSheet(props: {
   useEffect(() => {
     parking &&
       setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
-  }, [parking]);
+  }, [props.open]);
 
   useEffect(() => {
     if (props.open) {
@@ -430,7 +382,7 @@ function DefineSpotSheet(props: {
       onDismiss={() => props.onOpenChange(false)}
       snapPoints={[550]}>
       <ContentSheetView className={'flex-col justify-between'}>
-        <View className="gap-6">
+        <View className="gap-4">
           <TextInput
             icon={{
               position: 'left',
@@ -452,16 +404,23 @@ function DefineSpotSheet(props: {
                     spotNameRef.current?.focus();
                     setSelectedParking(parking);
                   }}>
-                  <Card className="flex-row items-center justify-between bg-background">
-                    <View className={'w-4'}>
-                      {selectedParking?.id === parking.id ? (
-                        <ThemedIcon name={'check'} size={18} color={colors.primary} />
-                      ) : (
-                        <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
-                      )}
+                  <Card background>
+                    <View className={'flex-row items-center justify-between'}>
+                      <Text className={'text-lg font-bold'}>{parking.name}</Text>
+                      <Text
+                        className={
+                          'font-semibold'
+                        }>{`${parking.spotsCount} ${parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
                     </View>
-                    <Text className="w-2/3 shrink">{parking.address}</Text>
-                    <Text>{`${parking.spotsCount} ${parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
+                    <View className="flex-row items-center justify-between gap-4">
+                      <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
+                      <Text className="shrink text-sm">{parking.address}</Text>
+                      <View className={'w-8'}>
+                        {selectedParking?.id === parking.id && (
+                          <ThemedIcon name={'check'} size={18} color={colors.primary} />
+                        )}
+                      </View>
+                    </View>
                   </Card>
                 </Pressable>
               ))}

@@ -41,7 +41,7 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
           }}
           value={props.value}
           className={cn(
-            'relative min-h-12 rounded-lg border bg-background p-2 text-lg',
+            'relative min-h-12 rounded-xl border bg-background p-2 text-lg',
             icon?.position === 'left' && 'pl-11',
             props.readOnly && 'opacity-65',
             className
