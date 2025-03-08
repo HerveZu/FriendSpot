@@ -5,7 +5,10 @@ import { useApiRequest } from '~/endpoints/use-api-request';
 type RegisterUserRequest = {
   readonly displayName: string;
   readonly pictureUrl: string | null;
-  readonly expoToken: string;
+  readonly device: {
+    readonly id: string;
+    readonly expoPushToken: string | null;
+  };
 };
 
 export function useRegisterUser() {

@@ -20,11 +20,13 @@ export type AvailabilityBooking = {
   readonly from: string;
   readonly to: string;
   readonly duration: string;
-  readonly bookedBy: {
-    readonly id: string;
-    readonly displayName: string;
-    readonly pictureUrl: string | null;
-  };
+  readonly bookedBy: AvailabilityBookingUser;
+};
+
+export type AvailabilityBookingUser = {
+  readonly id: string;
+  readonly displayName: string;
+  readonly pictureUrl: string | null;
 };
 
 export function useGetAvailabilities() {

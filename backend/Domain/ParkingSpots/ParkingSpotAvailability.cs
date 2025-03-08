@@ -44,7 +44,7 @@ public sealed class ParkingSpotAvailability
 
     public static ParkingSpotAvailability Merge(ParkingSpotAvailability existing, ParkingSpotAvailability @new)
     {
-        if (!existing.Overlaps(@new))
+        if (!existing.Overlaps(@new.From, @new.To))
         {
             throw new BusinessException(
                 "ParkingSpot.InvalidAvailabilities",
@@ -57,9 +57,9 @@ public sealed class ParkingSpotAvailability
         return CreateValid(minFrom, maxTo);
     }
 
-    public bool Overlaps(ParkingSpotAvailability other)
+    public bool Overlaps(DateTimeOffset from, DateTimeOffset to)
     {
-        return From <= other.To && other.From <= To;
+        return From <= to && from <= To;
     }
 
     public ParkingSpotAvailability[] Split(ParkingSpotBooking[] bookings)

@@ -4,7 +4,7 @@ import { Tabs } from 'expo-router';
 
 import { SpotCountDownOnRender } from '~/app/spot-count-down';
 import { AuthProvider } from '~/authentication/AuthProvider';
-import { UserProvider } from '~/authentication/UserProvider';
+import { useCurrentUser, UserProvider } from '~/authentication/UserProvider';
 import { ThemedIcon, ThemedIconProps } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
@@ -15,7 +15,7 @@ export default function MainLayout() {
   return (
     <AuthProvider>
       <UserProvider>
-        {/*BottomSheetModalProvider needs to have access to currentUser*/}
+        {/*BottomSheetModalProvider children need to have access to currentUser*/}
         <BottomSheetModalProvider>
           <SpotCountDownOnRender>
             <AskUserToRate>
@@ -31,7 +31,7 @@ export default function MainLayout() {
                   name="my-spot"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon name="car" component={FontAwesome6} size={22} focused={focused} />
+                      <TabIcon name="car" component={FontAwesome6} size={24} focused={focused} />
                     ),
                   }}
                 />
@@ -39,12 +39,7 @@ export default function MainLayout() {
                   name="home"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon
-                        name="magnifying-glass"
-                        component={Entypo}
-                        focused={focused}
-                        size={26}
-                      />
+                      <TabIcon name="home" component={Entypo} focused={focused} size={28} />
                     ),
                   }}
                 />
@@ -72,6 +67,13 @@ function TabIcon<TGlyph extends string>({
   ...props
 }: { focused?: boolean } & ThemedIconProps<TGlyph>) {
   const { colors } = useColorScheme();
+  const { userProfile } = useCurrentUser();
 
-  return <ThemedIcon color={focused ? colors.foreground : colors.grey} size={24} {...props} />;
+  return (
+    <ThemedIcon
+      color={!userProfile.spot ? colors.grey6 : focused ? colors.foreground : colors.grey}
+      size={24}
+      {...props}
+    />
+  );
 }

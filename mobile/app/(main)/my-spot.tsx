@@ -21,12 +21,12 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange, DateRangeOnly } from '~/components/DateRange';
-import { Deletable } from '~/components/Deletable';
+import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
-import { SheetTitle } from '~/components/Title';
-import { User } from '~/components/UserAvatar';
+import { SheetTitle, Title } from '~/components/Title';
+import { User, Users } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
@@ -34,6 +34,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
 import {
   AvailabilityBooking,
+  AvailabilityBookingUser,
   SpotAvailability,
   useGetAvailabilities,
 } from '~/endpoints/get-availabilities';
@@ -45,6 +46,7 @@ import { useFetch } from '~/lib/useFetch';
 import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
+import { useCancelAvailability } from '~/endpoints/cancel-spot-availability';
 
 export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -73,14 +75,17 @@ export default function MySpotScreen() {
       {!availabilities ? (
         <ActivityIndicator />
       ) : availabilities.availabilities.length > 0 ? (
-        <View className="w-full grow flex-col justify-center gap-4">
-          {availabilities.availabilities.map((availability) => (
-            <MySpotAvailabilityCard
-              key={availability.id}
-              spotId={userProfile.spot!.id}
-              availability={availability}
-            />
-          ))}
+        <View>
+          <Title>Je propose mon spot</Title>
+          <View className={'flex-col gap-4'}>
+            {availabilities.availabilities.map((availability) => (
+              <MySpotAvailabilityCard
+                key={availability.id}
+                spotId={userProfile.spot!.id}
+                availability={availability}
+              />
+            ))}
+          </View>
         </View>
       ) : (
         <InfoCard info="Tu ne prêtes pas encore ta place" />
@@ -92,35 +97,70 @@ export default function MySpotScreen() {
 
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
+  const { refreshProfile } = useCurrentUser();
   const now = useActualTime(30_000);
+  const cancelAvailability = useCancelAvailability();
+
+  async function cancel() {
+    await cancelAvailability({ availabilityId: props.availability.id }).then(refreshProfile);
+  }
+
+  const uniqueBookingUsers = [
+    ...props.availability.bookings
+      .reduce((users, booking) => {
+        users.set(booking.bookedBy.id, booking.bookedBy);
+        return users;
+      }, new Map<string, AvailabilityBookingUser>())
+      .values(),
+  ];
 
   return (
-    <Card>
-      <View className="flex-row items-center gap-2">
-        <ThemedIcon name="user-friends" color={colors.primary} size={18} component={FontAwesome5} />
-        <Text variant="heading" className="break-words font-bold">
-          Je propose mon spot
-          {' ' +
-            (differenceInSeconds(props.availability.from, now) > 0
-              ? formatRelative(props.availability.from, now)
-              : 'maintenant')}
-        </Text>
-      </View>
-      <DateRange
-        from={props.availability.from}
-        to={props.availability.to}
-        duration={props.availability.duration}
-      />
-      {props.availability.bookings.length > 0 && (
-        <ScrollView>
-          <View className="flex-col gap-2">
-            {props.availability.bookings.map((booking) => (
-              <BookingCard key={booking.id} spotId={props.spotId} booking={booking} />
-            ))}
+    <Deletable
+      className={'rounded-xl'}
+      canDelete={differenceInHours(props.availability.from, now) > BOOKING_FROZEN_FOR_HOURS}
+      onDelete={cancel}>
+      <Card>
+        <View className="flex-row justify-between">
+          <View className={'flex-row items-center gap-2'}>
+            <DeletableStatus
+              fallback={
+                <ThemedIcon
+                  name="user-friends"
+                  color={colors.primary}
+                  size={18}
+                  component={FontAwesome5}
+                />
+              }
+            />
+            <Text variant="heading" className="break-words font-bold">
+              Libre
+              {' ' +
+                (differenceInSeconds(props.availability.from, now) > 0
+                  ? formatRelative(props.availability.from, now)
+                  : 'maintenant')}
+            </Text>
           </View>
-        </ScrollView>
-      )}
-    </Card>
+          <View className={'flex-row gap-2'}>
+            <Users users={uniqueBookingUsers} />
+            <DeleteTrigger />
+          </View>
+        </View>
+        <DateRange
+          from={props.availability.from}
+          to={props.availability.to}
+          duration={props.availability.duration}
+        />
+        {props.availability.bookings.length > 0 && (
+          <ScrollView>
+            <View className="flex-col gap-1">
+              {props.availability.bookings.map((booking) => (
+                <BookingCard key={booking.id} spotId={props.spotId} booking={booking} />
+              ))}
+            </View>
+          </ScrollView>
+        )}
+      </Card>
+    </Deletable>
   );
 
   function BookingCard(props: { spotId: string; booking: AvailabilityBooking }) {
@@ -140,11 +180,11 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         [props.booking.from, now]
       );
       return (
-        <View style={{ opacity: isActive ? 1 : 0.4 }}>
+        <View style={{ opacity: isActive ? 1 : 0.4 }} className={'flex-col justify-center'}>
           <CountdownCircleTimer
-            strokeWidth={5}
+            strokeWidth={2}
             trailColor={colors.card}
-            size={70}
+            size={55}
             isPlaying={isActive}
             initialRemainingTime={isActive ? initialRemainingSeconds : durationSeconds}
             duration={durationSeconds}
@@ -158,7 +198,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 
               return (
                 <Text
-                  className={'text-sm font-bold'}
+                  className={'text-xs font-bold'}
                   style={{
                     color,
                   }}>
@@ -175,7 +215,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     return (
       <Deletable
         className="rounded-xl"
-        canDelete={differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS}
+        canDelete={differenceInHours(props.booking.from, now) > BOOKING_FROZEN_FOR_HOURS}
         onDelete={() =>
           cancelBooking({
             bookingId: props.booking.id,

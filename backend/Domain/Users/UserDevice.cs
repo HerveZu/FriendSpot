@@ -1,6 +1,12 @@
 namespace Domain.Users;
 
-public sealed record UserDevice
+public sealed class UserDevice(string deviceId, string? expoPushToken)
 {
-    public required string ExpoPushToken { get; init; }
+    public string DeviceId { get; } = deviceId;
+    public string? ExpoPushToken { get; private set; } = expoPushToken;
+
+    public void UpdatePushToken(string? token)
+    {
+        ExpoPushToken = token;
+    }
 }

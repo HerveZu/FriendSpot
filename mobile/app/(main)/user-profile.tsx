@@ -1,5 +1,12 @@
-import { createRef, Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
+import React, {
+  createRef,
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
+import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -30,10 +37,9 @@ import { cn } from '~/lib/cn';
 import { useSendReview } from '~/endpoints/send-review';
 import { Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/logout';
-import { useNotification } from '~/notification/NotificationContext';
 import { ContentSheetView } from '~/components/ContentView';
-import Modal from 'react-native-modal';
-import { ModalTitle } from '~/components/Modal';
+import { Modal, ModalTitle } from '~/components/Modal';
+import { useDeviceId } from '~/lib/use-device-id';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -90,18 +96,20 @@ export default function UserProfileScreen() {
             <MeAvatar className="h-28 w-28" />
           </Pressable>
           <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={currentDisplayName} className={'mb-0'} />
+            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'} />
             <View className={'flex-row items-center justify-between'}>
-              <Rating rating={userProfile.rating} stars={3} color={colors.primary} />
+              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
             </View>
           </View>
         </View>
-        <View className={'gap-4'}>
+
+        <View className={'gap-2'}>
           <TextInput
             icon={{
               position: 'right',
               element: <ThemedIcon size={18} name={'pencil'} />,
             }}
+            maxLength={30}
             value={currentDisplayName}
             editable={true}
             onChangeText={(text) => setCurrentDisplayName(text)}
@@ -109,13 +117,14 @@ export default function UserProfileScreen() {
           />
           <TextInput value={firebaseUser.email ?? ''} readOnly />
         </View>
+
         <View className={'flex-col'}>
           <Title>Mon spot</Title>
-          <View className={'flex-col gap-4'}>
+          <View className={'flex-col gap-2'}>
             <Pressable onPress={() => setBottomSheet(true)}>
               <Card className="flex-col items-start gap-3">
                 <View className="w-full flex-row items-center justify-between">
-                  <Text className="text-lg font-semibold text-foreground">
+                  <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
                       ? userProfile.spot.parking.name
                       : 'Aucun nom de parking de défini'}
@@ -123,7 +132,7 @@ export default function UserProfileScreen() {
                   <ThemedIcon name={'pencil'} size={18} />
                 </View>
                 <View className="w-full max-w-full flex-row items-center gap-4 break-words">
-                  <ThemedIcon name={'location-dot'} component={FontAwesome6} size={24} />
+                  <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
                   <Text className="text-md w-10/12">
                     {userProfile.spot
                       ? userProfile.spot?.parking.address
@@ -147,7 +156,7 @@ export default function UserProfileScreen() {
             />
             <Button
               disabled={!review}
-              variant={'primary'}
+              variant={'tonal'}
               onPress={() => {
                 review && sendReview(review);
                 setReview(undefined);
@@ -156,7 +165,7 @@ export default function UserProfileScreen() {
                 name={'lightbulb-on-outline'}
                 component={MaterialCommunityIcons}
                 size={18}
-                color={colors.foreground}
+                color={colors.primary}
               />
               <Text>Faire un retour</Text>
             </Button>
@@ -188,50 +197,44 @@ export function LogoutConfirmationModal({
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
   const logout = useLogout();
-  const { expoPushToken } = useNotification();
+  const deviceId = useDeviceId();
   const auth = getAuth();
+  const { colors } = useColorScheme();
 
-  const handleLogout = () => {
-    if (!expoPushToken) {
+  const handleLogout = async () => {
+    if (!deviceId) {
       return;
     }
-    logout({
-      expoToken: expoPushToken,
-    }).then(() => {
-      signOut(auth).then(() => {
-        onVisibleChange(false);
-      });
+
+    await logout({
+      deviceId: deviceId,
     });
+    await signOut(auth);
+    onVisibleChange(false);
   };
 
   return (
     <>
-      <Modal
-        isVisible={visible}
-        onBackdropPress={() => onVisibleChange(false)}
-        backdropOpacity={0.8}
-        className="my-auto">
-        <SafeAreaView>
-          <View className="flex-col items-center gap-10 rounded-xl bg-card p-6">
-            <ModalTitle>Es-tu sûr de vouloir te déconnecter ?</ModalTitle>
-            <View className="w-full flex-row gap-4">
-              <Button
-                className={'grow'}
-                size={'lg'}
-                variant="plain"
-                onPress={() => onVisibleChange(false)}>
-                <Text className={'text-primary'}>Retour</Text>
-              </Button>
-              <Button
-                className={'bg-destructive/10 grow'}
-                variant={'plain'}
-                size={'lg'}
-                onPress={() => handleLogout()}>
-                <Text className={'text-destructive'}>Se déconnecter</Text>
-              </Button>
-            </View>
-          </View>
-        </SafeAreaView>
+      <Modal open={visible} onOpenChange={onVisibleChange}>
+        <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
+        <View className="w-full flex-row gap-4">
+          <Button
+            className={'grow'}
+            size={'lg'}
+            variant="tonal"
+            onPress={() => onVisibleChange(false)}>
+            <Text className={'text-primary'}>Retour</Text>
+          </Button>
+          <Button className={'grow'} variant={'plain'} size={'lg'} onPress={() => handleLogout()}>
+            <ThemedIcon
+              name={'logout'}
+              component={MaterialIcons}
+              size={18}
+              color={colors.destructive}
+            />
+            <Text className={'text-destructive'}>Se déconnecter</Text>
+          </Button>
+        </View>
       </Modal>
       {children}
     </>
@@ -267,7 +270,9 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
             />
           </>
         )}
-        <Text className="mx-auto my-2 text-xl font-bold">{spot.name}</Text>
+        <Text className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xl font-bold">
+          {spot.name}
+        </Text>
       </View>
     );
   };
@@ -281,7 +286,7 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
             : `${spot.currentlyAvailable ? 'Ton spot est libre' : 'Tu occupes ta place'}`}
         </Text>
         {(spot.currentlyUsedBy || spot.nextUse) && (
-          <Text className="text-center">
+          <Text className="text-center text-sm">
             {spot.currentlyUsedBy
               ? spot.currentlyUsedBy.usingUntil &&
                 `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(
@@ -343,7 +348,7 @@ function DefineSpotSheet(props: {
   useEffect(() => {
     parking &&
       setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
-  }, [parking]);
+  }, [props.open]);
 
   useEffect(() => {
     if (props.open) {
@@ -377,7 +382,7 @@ function DefineSpotSheet(props: {
       onDismiss={() => props.onOpenChange(false)}
       snapPoints={[550]}>
       <ContentSheetView className={'flex-col justify-between'}>
-        <View className="gap-6">
+        <View className="gap-4">
           <TextInput
             icon={{
               position: 'left',
@@ -399,16 +404,23 @@ function DefineSpotSheet(props: {
                     spotNameRef.current?.focus();
                     setSelectedParking(parking);
                   }}>
-                  <Card className="flex-row items-center justify-between bg-background">
-                    <View className={'w-4'}>
-                      {selectedParking?.id === parking.id ? (
-                        <ThemedIcon name={'check'} size={18} color={colors.primary} />
-                      ) : (
-                        <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
-                      )}
+                  <Card background>
+                    <View className={'flex-row items-center justify-between'}>
+                      <Text className={'text-lg font-bold'}>{parking.name}</Text>
+                      <Text
+                        className={
+                          'font-semibold'
+                        }>{`${parking.spotsCount} ${parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
                     </View>
-                    <Text className="w-2/3 shrink">{parking.address}</Text>
-                    <Text>{`${parking.spotsCount} ${parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
+                    <View className="flex-row items-center justify-between gap-4">
+                      <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
+                      <Text className="shrink text-sm">{parking.address}</Text>
+                      <View className={'w-8'}>
+                        {selectedParking?.id === parking.id && (
+                          <ThemedIcon name={'check'} size={18} color={colors.primary} />
+                        )}
+                      </View>
+                    </View>
                   </Card>
                 </Pressable>
               ))}
@@ -416,7 +428,7 @@ function DefineSpotSheet(props: {
         </View>
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
-            <Text className="text-xl font-semibold">N° de place</Text>
+            <Text className="text-lg">N° de place</Text>
             <TextInput
               ref={spotNameRef}
               className={'w-40'}

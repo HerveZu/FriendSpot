@@ -24,6 +24,7 @@ public sealed record ParkingSpotBookingCancelled : IDomainEvent
 {
     public required Guid BookingId { get; init; }
     public required string BookingUserId { get; init; }
+    public required string CancellingUserId { get; init; }
     public required string OwnerId { get; init; }
 }
 
@@ -141,7 +142,7 @@ public sealed class ParkingSpot : IBroadcastEvents
     {
         var newAvailability = ParkingSpotAvailability.New(from, to);
         var overlappingAvailabilities = Availabilities
-            .Where(other => newAvailability.Overlaps(other))
+            .Where(other => newAvailability.Overlaps(other.From, other.To))
             .ToArray();
 
         var mergedAvailability = overlappingAvailabilities
@@ -161,7 +162,7 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         _availabilities.Add(mergedAvailability);
 
-        return (earnedCredits, overlappingAvailabilities.Any());
+        return (earnedCredits, overlappingAvailabilities.Length is not 0);
     }
 
     public void RateBooking(string ratingUserId, Guid bookingId, BookRating rating)
@@ -189,6 +190,40 @@ public sealed class ParkingSpot : IBroadcastEvents
             });
     }
 
+    public void CancelAvailability(string cancelingUserId, Guid availabilityId)
+    {
+        var availability = _availabilities.FirstOrDefault(availability => availability.Id == availabilityId);
+
+        if (availability is null)
+        {
+            throw new BusinessException("ParkingSpot.AvailabilityNotFound", "Availability not found");
+        }
+
+        if (cancelingUserId != OwnerId)
+        {
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "A spot can only be cancelled by the owner");
+        }
+
+        var availabilityIsActiveIn = availability.From - DateTimeOffset.UtcNow;
+        if (availabilityIsActiveIn < ParkingSpotBooking.FrozenFor)
+        {
+            throw new BusinessException(
+                "ParkingSpot.InvalidCancelling",
+                $"A spot availability can only be cancelled at least {ParkingSpotBooking.FrozenFor} before it becomes active");
+        }
+
+        var overlappingBookings = _bookings
+            .Where(booking => availability.Overlaps(booking.From, booking.To))
+            .ToArray();
+
+        foreach (var overlappingBooking in overlappingBookings)
+        {
+            CancelBooking(cancelingUserId, overlappingBooking.Id);
+        }
+
+        _availabilities.Remove(availability);
+    }
+
     public void CancelBooking(string cancelingUserId, Guid bookingId)
     {
         var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId);
@@ -204,20 +239,23 @@ public sealed class ParkingSpot : IBroadcastEvents
             throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel booking");
         }
 
-        if (booking.To - DateTimeOffset.UtcNow < booking.FrozenFor)
+        var bookingIsActiveIn = booking.From - DateTimeOffset.UtcNow;
+
+        if (bookingIsActiveIn < ParkingSpotBooking.FrozenFor)
         {
             throw new BusinessException(
                 "ParkingSpot.InvalidCancelling",
-                $"Booking can only be cancelled at least {booking.FrozenFor} before it becomes active");
+                $"A booking can only be cancelled at least {ParkingSpotBooking.FrozenFor} before it becomes active");
         }
 
         _bookings.Remove(booking);
         _domainEvents.Register(
             new ParkingSpotBookingCancelled
             {
+                CancellingUserId = cancelingUserId,
                 BookingUserId = booking.BookingUserId,
+                OwnerId = OwnerId,
                 BookingId = booking.Id,
-                OwnerId = OwnerId
             });
     }
 

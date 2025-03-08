@@ -57,6 +57,7 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
                 select parkingSpot.Bookings
                     .Where(booking => booking.To >= now)
                     .Where(booking => booking.BookingUserId == currentUser.Identity)
+                    .OrderBy(booking => booking.From)
                     .Select(
                         booking => new GetBookingResponse.BookingStatus
                         {

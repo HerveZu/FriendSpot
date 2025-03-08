@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useApiRequest } from './use-api-request';
 
 type ExpoTokenRequest = {
-  readonly expoToken: string;
+  readonly deviceId: string;
 };
 
 export function useLogout() {

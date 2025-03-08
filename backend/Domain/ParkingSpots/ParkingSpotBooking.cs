@@ -2,6 +2,8 @@ namespace Domain.ParkingSpots;
 
 public sealed class ParkingSpotBooking
 {
+    public static readonly TimeSpan FrozenFor = TimeSpan.FromHours(1);
+
     private ParkingSpotBooking(
         Guid id,
         string bookingUserId,
@@ -23,7 +25,6 @@ public sealed class ParkingSpotBooking
     public TimeSpan Duration => To - From;
     public BookRating? Rating { get; private set; }
     public Credits Cost => new((decimal)Duration.TotalHours);
-    public TimeSpan FrozenFor { get; } = TimeSpan.FromHours(1);
 
     public static ParkingSpotBooking New(string bookingUserId, DateTimeOffset from, TimeSpan duration)
     {

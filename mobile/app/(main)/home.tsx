@@ -4,23 +4,20 @@ import Slider from '@react-native-community/slider';
 import {
   addHours,
   addMinutes,
-  differenceInDays,
   differenceInHours,
   differenceInSeconds,
-  endOfDay,
   formatDistance,
+  formatDistanceStrict,
   formatDuration,
   formatRelative,
   intervalToDuration,
-  isTomorrow,
   isWithinInterval,
   max,
   min,
-  startOfDay,
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, View, ViewProps } from 'react-native';
+import { ActivityIndicator, Pressable, SafeAreaView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -28,7 +25,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Card, InfoCard } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
-import { Deletable, DeletableStatus } from '~/components/Deletable';
+import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
 import { ListSheet } from '~/components/ListSheet';
 import { Rating } from '~/components/Rating';
@@ -178,41 +175,25 @@ export default function HomeScreen() {
   );
 }
 
-function DateStatus({
-  from,
-  to,
-  className,
-  ...props
-}: { from: Date | string; to: Date | string } & ViewProps) {
-  const text = isWithinInterval(new Date(), {
-    start: startOfDay(from),
-    end: endOfDay(to),
-  })
-    ? "Aujourd'hui"
-    : isTomorrow(from)
-      ? 'Demain'
-      : undefined;
-
-  return text && <Tag className={className} text={text} {...props} />;
-}
-
 function BookingCard(props: {
   booking: BookingResponse;
   countdownOnTap?: boolean;
   deletable?: boolean;
 }) {
   const router = useRouter();
+  const { colors } = useColorScheme();
   const now = useActualTime(30_000);
   const { refreshProfile } = useCurrentUser();
   const cancelBooking = useCancelBooking();
 
   const canDelete =
-    !!props.deletable && differenceInHours(props.booking.to, now) >= BOOKING_FROZEN_FOR_HOURS;
+    !!props.deletable && differenceInHours(props.booking.from, now) > BOOKING_FROZEN_FOR_HOURS;
 
   return (
     <Deletable
+      disabled={!props.deletable}
       canDelete={canDelete}
-      className={cn(props.deletable && 'rounded-xl')}
+      className={'rounded-xl'}
       onDelete={() =>
         cancelBooking({
           bookingId: props.booking.id,
@@ -230,18 +211,34 @@ function BookingCard(props: {
             } as SpotCountDownScreenParams,
           })
         }>
-        <Card className={cn(props.deletable && 'bg-background')}>
+        <Card>
           <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center gap-4">
-              <DeletableStatus />
+            <View className="flex-row items-center gap-2">
+              {props.deletable ? (
+                <DeletableStatus
+                  fallback={<ThemedIcon name={'ticket'} size={18} color={colors.primary} />}
+                />
+              ) : (
+                <ThemedIcon name={'ticket'} size={18} color={colors.primary} />
+              )}
               <Text variant="heading" className="font-bold">
-                {capitalize(formatRelative(props.booking.from, new Date()))}
+                {capitalize(formatRelative(props.booking.from, now))}
               </Text>
             </View>
             {props.booking.parkingLot.name ? (
               <Tag text={`n° ${props.booking.parkingLot.name}`} />
             ) : (
-              <DateStatus from={props.booking.from} to={props.booking.to} />
+              <DeleteTrigger
+                fallback={
+                  <Tag
+                    text={formatDistanceStrict(
+                      props.booking.from,
+                      min([now, addMinutes(props.booking.from, -1)]),
+                      { addSuffix: false }
+                    )}
+                  />
+                }
+              />
             )}
           </View>
           <User
@@ -268,6 +265,7 @@ function BookingSheet(props: {
 
   const MIN_DURATION_HOURS = 0.5;
   const MAX_DURATION_HOURS = 12;
+  const STEP_HOURS = 0.25;
   const INITIAL_FROM_MARGIN_MINUTES = 15;
   const INITIAL_DURATION_HOURS = 2;
 
@@ -423,6 +421,7 @@ function BookingSheet(props: {
                 </Text>
               </View>
               <Slider
+                step={STEP_HOURS / MAX_DURATION_HOURS}
                 value={differenceInHours(to, from) / MAX_DURATION_HOURS}
                 onValueChange={(value) =>
                   setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
@@ -486,30 +485,15 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
 
   return (
     <Card>
-      <View className="flex-row items-center gap-2">
-        <ThemedIcon name="star" color={colors.primary} size={18} />
-        <Text variant="heading" className="font-bold">
-          {differenceInSeconds(props.suggestion.from, now) > 0
-            ? capitalize(formatRelative(props.suggestion.from, now))
-            : 'Maintenant'}
-        </Text>
-      </View>
-      <Text>
-        {`Disponible ${formatDuration(
-          intervalToDuration({ start: props.suggestion.from, end: props.suggestion.to }),
-          {
-            format:
-              differenceInDays(props.suggestion.to, props.suggestion.from) > 1
-                ? ['days']
-                : ['days', 'hours', 'minutes'],
-          }
-        )}`}
-      </Text>
       <View className="flex-row items-center justify-between">
-        <User
-          displayName={props.suggestion.owner.displayName}
-          pictureUrl={props.suggestion.owner.pictureUrl}
-        />
+        <View className="flex-row items-center gap-2">
+          <ThemedIcon name="star" color={colors.primary} size={18} />
+          <Text variant="heading" className="font-bold">
+            {differenceInSeconds(props.suggestion.from, now) > 0
+              ? capitalize(formatRelative(props.suggestion.from, now))
+              : 'Maintenant'}
+          </Text>
+        </View>
         <Rating
           rating={props.suggestion.owner.rating}
           stars={3}
@@ -517,6 +501,10 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
           color={colors.primary}
         />
       </View>
+      <User
+        displayName={props.suggestion.owner.displayName}
+        pictureUrl={props.suggestion.owner.pictureUrl}
+      />
     </Card>
   );
 }
