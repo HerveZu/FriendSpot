@@ -46,21 +46,11 @@ public sealed class User : IBroadcastEvents
 
         if (device is null)
         {
-            _userDevices.Add(
-                new UserDevice
-                {
-                    DeviceId = id,
-                    ExpoPushToken = expoToken
-                });
+            _userDevices.Add(new UserDevice(id, expoToken));
             return;
         }
 
-        _userDevices.Remove(device);
-        _userDevices.Add(
-            device with
-            {
-                ExpoPushToken = expoToken
-            });
+        device.UpdatePushToken(expoToken);
     }
 
     public void RemoveDevice(string deviceId)

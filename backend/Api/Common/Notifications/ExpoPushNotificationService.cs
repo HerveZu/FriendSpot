@@ -10,10 +10,15 @@ internal sealed class ExpoPushNotificationService
 {
     private readonly Uri _expoPushUri = new("https://exp.host/--/api/v2/push/send");
     private readonly HttpClient _httpClient;
+    private readonly ILogger<ExpoPushNotificationService> _logger;
 
-    public ExpoPushNotificationService(HttpClient httpClient, IOptions<ExpoOptions> expoOptions)
+    public ExpoPushNotificationService(
+        HttpClient httpClient,
+        IOptions<ExpoOptions> expoOptions,
+        ILogger<ExpoPushNotificationService> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
@@ -27,17 +32,24 @@ internal sealed class ExpoPushNotificationService
 
     private async Task PushToDevice(UserDevice device, Notification notification, CancellationToken cancellationToken)
     {
-        await _httpClient.PostAsJsonAsync(
-            _expoPushUri,
-            // ReSharper disable RedundantAnonymousTypePropertyName
-            new
-            {
-                To = device.ExpoPushToken,
-                Sound = "default",
-                Title = notification.Title,
-                Body = notification.Body
-            },
-            // ReSharper enable RedundantAnonymousTypePropertyName
-            cancellationToken);
+        try
+        {
+            await _httpClient.PostAsJsonAsync(
+                _expoPushUri,
+                // ReSharper disable RedundantAnonymousTypePropertyName
+                new
+                {
+                    To = device.ExpoPushToken,
+                    Sound = "default",
+                    Title = notification.Title,
+                    Body = notification.Body
+                },
+                // ReSharper enable RedundantAnonymousTypePropertyName
+                cancellationToken);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to push expo notification to device {DeviceId}", device.DeviceId);
+        }
     }
 }
