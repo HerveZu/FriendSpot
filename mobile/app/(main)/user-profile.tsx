@@ -18,7 +18,6 @@ import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar, UserAvatar } from '~/components/UserAvatar';
-import car from '~/assets/car-user-profile.png';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useActualTime } from '~/lib/useActualTime';
@@ -264,15 +263,14 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
             )}
             <Image
               className="my-auto mt-2 h-28 w-full"
-              source={car}
-              alt="car"
+              source={require('~/assets/car-top-view.png')}
               style={{ transform: [{ rotate: '90deg' }], resizeMode: 'contain' }}
             />
           </>
         )}
-        <Text className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xl font-bold">
-          {spot.name}
-        </Text>
+        <View className="absolute bottom-2 w-full flex-row justify-center">
+          <Text className={'text-xl font-bold'}>{spot.name}</Text>
+        </View>
       </View>
     );
   };

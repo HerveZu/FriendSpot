@@ -3,7 +3,7 @@ import React from 'react';
 import { Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Logo } from '~/components/Logo';
+import Logo from '~/assets/logo.svg';
 import { Screen } from '~/components/Screen';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
@@ -20,7 +20,7 @@ export default function WelcomeScreen() {
             FriendSpot
           </Text>
         </View>
-        <Logo className="mx-auto h-28 w-20" />
+        <Logo height={250} />
         <View className="flex-grow-2 w-full items-center gap-6">
           <View className="flex w-full flex-col items-center gap-4 p-4">
             <Link href="/signIn/login" asChild>
