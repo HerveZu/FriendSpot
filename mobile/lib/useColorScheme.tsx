@@ -1,6 +1,7 @@
 import * as NavigationBar from 'expo-navigation-bar';
 import { useColorScheme as useNativewindColorScheme } from 'nativewind';
 import * as React from 'react';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
 import { COLORS } from '~/theme/colors';
@@ -21,6 +22,11 @@ function useColorScheme() {
   function toggleColorScheme() {
     return setColorScheme(colorScheme === 'light' ? 'dark' : 'light');
   }
+
+  // forces the dark color scheme. Light is not supported yet
+  useEffect(() => {
+    setColorScheme('dark').then();
+  }, [setColorScheme]);
 
   return {
     colorScheme: colorScheme ?? 'light',
