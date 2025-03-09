@@ -40,6 +40,7 @@ public sealed record MeResponse
         public required Guid Id { get; init; }
         public required bool CurrentlyAvailable { get; init; }
         public required DateTimeOffset? NextAvailability { get; init; }
+        public required DateTimeOffset? LastUse { get; init; }
         public required DateTimeOffset? NextUse { get; init; }
         public required string Name { get; init; }
         public required SpotParking Parking { get; init; }
@@ -59,6 +60,7 @@ public sealed record MeResponse
             public required string Id { get; init; }
             public required string? PictureUrl { get; init; }
             public required string DisplayName { get; init; }
+            public required DateTimeOffset UsingSince { get; init; }
             public required DateTimeOffset UsingUntil { get; init; }
         }
     }
@@ -121,6 +123,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                                             Id = x.User.Identity,
                                             DisplayName = x.User.DisplayName,
                                             PictureUrl = x.User.PictureUrl,
+                                            UsingSince = x.Booking.From,
                                             UsingUntil = x.Booking.To
                                         })
                                     .FirstOrDefault(),
@@ -130,6 +133,11 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                                     .Where(availability => availability.From > now)
                                     .Select(availability => availability.From)
                                     .Order()
+                                    .First(),
+                                LastUse = spot.Bookings
+                                    .Where(booking => booking.To < now)
+                                    .Select(booking => booking.To)
+                                    .OrderDescending()
                                     .First(),
                                 NextUse = spot.Bookings
                                     .Where(booking => booking.From > now)
