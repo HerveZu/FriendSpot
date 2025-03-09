@@ -20,6 +20,7 @@ export type UserSpot = {
   readonly name: string;
   readonly nextAvailability: null | Date;
   readonly nextUse: null | Date;
+  readonly lastUse: null | Date;
   readonly parking: {
     readonly id: string;
     readonly name: string;
@@ -29,7 +30,8 @@ export type UserSpot = {
     readonly id: string;
     readonly displayName: string;
     readonly pictureUrl: string;
-    readonly usingUntil: null | Date;
+    readonly usingSince: Date;
+    readonly usingUntil: Date;
   };
 };
 
