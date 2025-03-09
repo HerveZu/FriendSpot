@@ -16,11 +16,6 @@ export default function LoginScreen() {
   const router = useRouter();
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <SafeAreaView style={{ flex: 1 }}>
             <AuthForm
               title={<AuthFormTitle title="Se connecter" />}
@@ -34,7 +29,7 @@ export default function LoginScreen() {
               }
               submitText="Se connecter"
             >
-              <View className='items-center relative top-[-50px]'>
+              <View className='items-center'>
                 <Image1 width={300} height={300} />
               </View>
                 <AuthFormInput
@@ -67,7 +62,5 @@ export default function LoginScreen() {
                 />
             </AuthForm>
           </SafeAreaView>
-        </ScrollView>
-    </KeyboardAvoidingView>
   );
 }

@@ -14,6 +14,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   View,
+  ScrollView
 } from 'react-native';
 
 import { BackButton } from '~/components/BackButton';
@@ -67,32 +68,39 @@ export function AuthForm(
 
   return (
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Screen className="flex h-full flex-col justify-between pt-8">
-            <View className="relative w-full flex-row items-center justify-center">
-              <BackButton className="absolute left-0" />
-              <View className="self-center">{props.title}</View>
-            </View>
-            <View className="w-full flex-col gap-4">
-              <Text className="text-center text-destructive">{props.error}</Text>
-              {props.children}
-            </View>
-            <Button
-              size={Platform.select({ ios: 'lg', default: 'md' })}
-              disabled={!isTouched || inputErrors.length > 0}
-              onPress={() => {
-                setPendingAction(true);
-                setIsSubmitted(true);
-
-                props.onSubmit().finally(() => setPendingAction(false));
-              }}
-              variant="primary"
-              className="w-full">
-              {pendingAction && <ActivityIndicator color={colors.foreground} />}
-              <Text>{props.submitText}</Text>
-            </Button>
-          </Screen>
+          <ScrollView>
+            <Screen className="flex h-full flex-col justify-between pt-8 ">
+              <View className="relative w-full flex-row items-center justify-center">
+                <BackButton className="absolute left-0" />
+                <View className="self-center">{props.title}</View>
+              </View>
+              <View className="w-full flex-col gap-4">
+                <Text className="text-center text-destructive">{props.error}</Text>
+                {props.children}
+              </View>
+              <Button
+                size={Platform.select({ ios: 'lg', default: 'md' })}
+                disabled={!isTouched || inputErrors.length > 0}
+                onPress={() => {
+                  setPendingAction(true);
+                  setIsSubmitted(true);
+  
+                  props.onSubmit().finally(() => setPendingAction(false));
+                }}
+                variant="primary"
+                className="w-full"
+              >
+                {pendingAction && <ActivityIndicator color={colors.foreground} />}
+                <Text>{props.submitText}</Text>
+              </Button>
+            </Screen>
+          </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </_AuthFormContext.Provider>
