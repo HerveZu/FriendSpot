@@ -25,7 +25,7 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
 
     useEffect(() => {
       focus && refToUse?.current?.focus();
-    }, [focus, refToUse.current]);
+    }, [focus]);
 
     return (
       <View>
