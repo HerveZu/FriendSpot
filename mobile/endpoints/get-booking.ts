@@ -12,6 +12,7 @@ export type BookingResponse = {
   readonly to: string;
   readonly duration: string;
   readonly owner: BookingOwner;
+  readonly canCancel: boolean;
   readonly parkingLot: {
     readonly id: string;
     readonly name?: string;

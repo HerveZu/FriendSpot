@@ -3,7 +3,6 @@ import { BottomSheetView } from '@gorhom/bottom-sheet';
 import {
   addHours,
   addMinutes,
-  differenceInHours,
   differenceInSeconds,
   formatDuration,
   formatRelative,
@@ -39,7 +38,6 @@ import {
   useGetAvailabilities,
 } from '~/endpoints/get-availabilities';
 import { LendSpotResponse, useLendSpot } from '~/endpoints/lend-spot';
-import { BOOKING_FROZEN_FOR_HOURS } from '~/lib/const';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
@@ -115,10 +113,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
   ];
 
   return (
-    <Deletable
-      className={'rounded-xl'}
-      canDelete={differenceInHours(props.availability.from, now) > BOOKING_FROZEN_FOR_HOURS}
-      onDelete={cancel}>
+    <Deletable className={'rounded-xl'} canDelete={props.availability.canCancel} onDelete={cancel}>
       <Card>
         <View className="flex-row justify-between">
           <View className={'flex-row items-center gap-2'}>
@@ -215,7 +210,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     return (
       <Deletable
         className="rounded-xl"
-        canDelete={differenceInHours(props.booking.from, now) > BOOKING_FROZEN_FOR_HOURS}
+        canDelete={props.booking.canCancel}
         onDelete={() =>
           cancelBooking({
             bookingId: props.booking.id,

@@ -44,7 +44,6 @@ import { AvailableSpot, useGetAvailableSpots } from '~/endpoints/get-available-s
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-spots';
 import { cn } from '~/lib/cn';
-import { BOOKING_FROZEN_FOR_HOURS } from '~/lib/const';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch } from '~/lib/useFetch';
@@ -186,8 +185,7 @@ function BookingCard(props: {
   const { refreshProfile } = useCurrentUser();
   const cancelBooking = useCancelBooking();
 
-  const canDelete =
-    !!props.deletable && differenceInHours(props.booking.from, now) > BOOKING_FROZEN_FOR_HOURS;
+  const canDelete = !!props.deletable && props.booking.canCancel;
 
   return (
     <Deletable

@@ -13,6 +13,7 @@ export type SpotAvailability = {
   readonly to: string;
   readonly duration: string;
   readonly bookings: AvailabilityBooking[];
+  readonly canCancel: boolean;
 };
 
 export type AvailabilityBooking = {
@@ -21,6 +22,7 @@ export type AvailabilityBooking = {
   readonly to: string;
   readonly duration: string;
   readonly bookedBy: AvailabilityBookingUser;
+  readonly canCancel: boolean;
 };
 
 export type AvailabilityBookingUser = {

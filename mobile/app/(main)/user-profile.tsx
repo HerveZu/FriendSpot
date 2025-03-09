@@ -285,7 +285,7 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
           text={
             spot.currentlyUsedBy
               ? `Spot utilisé`
-              : `${spot.currentlyAvailable ? 'Spot libre' : 'Occupé'}`
+              : `${spot.currentlyAvailable ? 'Spot libre' : 'Spot occupé'}`
           }
         />
         {(spot.currentlyUsedBy || spot.nextUse) && (

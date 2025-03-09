@@ -1,1 +1,0 @@
-export const BOOKING_FROZEN_FOR_HOURS = 1;
