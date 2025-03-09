@@ -62,6 +62,12 @@ export function UserProvider(props: PropsWithChildren) {
     [firebaseUser, updateProfile, setInternalFirebaseUser]
   );
 
+  // force app refresh every 30s
+  useEffect(() => {
+    const handler = setInterval(refreshProfile, 30_000);
+    return () => clearTimeout(handler);
+  }, []);
+
   useEffect(() => {
     if (!deviceId) {
       return;
