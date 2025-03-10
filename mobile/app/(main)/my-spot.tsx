@@ -318,10 +318,10 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               </View>
             </List>
             {simulation?.overlaps && (
-              <View className="mx-auto flex-row items-center gap-4">
+              <View className="mx-auto w-full flex-row items-center justify-center gap-8 p-4">
                 <ThemedIcon name="info" size={26} color={colors.primary} />
                 <Text variant="title3" className="text-primary">
-                  Tu prêtes déjà ta place
+                  Tu prêtes déjà ta place. La disponibilité sera étendue.
                 </Text>
               </View>
             )}
@@ -361,7 +361,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               {actionPending && <ActivityIndicator color={colors.foreground} />}
               <Text>
                 {simulation && simulation.earnedCredits > 0
-                  ? `Prêter et gagner jusqu'à ${simulation?.earnedCredits} crédits`
+                  ? `Prêter et gagner jusqu'à ${Math.round(simulation?.earnedCredits)} crédits`
                   : 'Prêter mon spot'}
               </Text>
             </Button>

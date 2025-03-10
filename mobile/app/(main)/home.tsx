@@ -372,6 +372,8 @@ function BookingSheet(props: {
                 <View className="grow flex-col gap-2">
                   {spots
                     .sort((spot) => spot.owner.rating)
+                    .reverse()
+                    .slice(0, 3)
                     .map((spot, i) => (
                       <AvailableSpotCard
                         key={i}
