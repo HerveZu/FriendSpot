@@ -1,4 +1,3 @@
-// import { BlurView } from '@react-native-community/blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, {
   createContext,
@@ -25,8 +24,8 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { BlurView } from '@react-native-community/blur';
 import { useCurrentUser } from '~/authentication/UserProvider';
+import { BlurView } from '@react-native-community/blur';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -121,7 +120,23 @@ export function ScreenWithHeader(
 }
 
 export function Screen({ className, ...props }: ViewProps) {
-  return <View className={cn('mx-auto h-full w-full p-6', className)} {...props} />;
+  const screenOpacity = useAnimatedValue(0);
+
+  useEffect(() => {
+    Animated.timing(screenOpacity, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={{ opacity: screenOpacity }}
+      className={cn('mx-auto h-full w-full p-6', className)}
+      {...props}
+    />
+  );
 }
 
 export function ScreenTitle({
