@@ -2,7 +2,7 @@
   "expo": {
     "name": "friendspot",
     "slug": "friendspot",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "scheme": "friendspot",
     "newArchEnabled": true,
     "web": {
