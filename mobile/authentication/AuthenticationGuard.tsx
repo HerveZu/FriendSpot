@@ -13,8 +13,8 @@ export function AuthenticationGuard(props: PropsWithChildren) {
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    !isAuthenticated && SplashScreen.hide();
-  }, [isAuthenticated]);
+    !isLoading && !isAuthenticated && SplashScreen.hide();
+  }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
     if (!rootNavigationState?.key) {
