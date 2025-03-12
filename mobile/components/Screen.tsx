@@ -11,9 +11,11 @@ import React, {
 } from 'react';
 import {
   Animated,
+  Keyboard,
   KeyboardAvoidingView,
   RefreshControl,
   SafeAreaView,
+  TouchableWithoutFeedback,
   useAnimatedValue,
   View,
   ViewProps,
@@ -120,7 +122,11 @@ export function ScreenWithHeader(
 }
 
 export function Screen({ className, ...props }: ViewProps) {
-  return <View className={cn('mx-auto h-full w-full p-6', className)} {...props} />;
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View className={cn('mx-auto h-full w-full p-6', className)} {...props} />
+    </TouchableWithoutFeedback>
+  );
 }
 
 export function ScreenTitle({

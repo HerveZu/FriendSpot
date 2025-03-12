@@ -1,4 +1,5 @@
-import React, {
+import {
+  Component,
   createContext,
   PropsWithChildren,
   ReactNode,
@@ -9,12 +10,11 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
-  Keyboard,
+  Animated,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
+  useAnimatedValue,
   View,
-  ScrollView
 } from 'react-native';
 
 import { BackButton } from '~/components/BackButton';
@@ -24,6 +24,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { notEmpty } from '~/lib/utils';
+import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 
 type AuthFormContext = {
   error: (id: string, error: boolean) => void;
@@ -34,14 +35,25 @@ type AuthFormContext = {
 
 const _AuthFormContext = createContext<AuthFormContext>(null!);
 
-export function AuthForm(
-  props: {
-    title: ReactNode;
-    error?: string;
-    onSubmit: () => Promise<void>;
-    submitText: string;
-  } & PropsWithChildren
-) {
+type IllustrationProps = {
+  width: number;
+  height: number;
+};
+
+interface Illustration {
+  new (props: IllustrationProps): Component<IllustrationProps>;
+}
+
+export function AuthForm({
+  Illustration,
+  ...props
+}: {
+  title: ReactNode;
+  error?: string;
+  onSubmit: () => Promise<void>;
+  submitText: string;
+  Illustration?: Illustration;
+} & PropsWithChildren) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
   const [isTouched, setIsTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -66,42 +78,59 @@ export function AuthForm(
     setTouchTrigger({});
   }, [setIsTouched, setTouchTrigger]);
 
+  const { keyboardVisible } = useKeyboardVisible();
+
+  const illustrationProgress = useAnimatedValue(0);
+
+  useEffect(() => {
+    Animated.timing(illustrationProgress, {
+      toValue: keyboardVisible ? 0 : 1,
+      duration: 100,
+      useNativeDriver: false,
+    }).start();
+  }, [keyboardVisible]);
+
   return (
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView>
-            <Screen className="flex h-full flex-col justify-between pt-8 ">
-              <View className="relative w-full flex-row items-center justify-center">
-                <BackButton className="absolute left-0" />
-                <View className="self-center">{props.title}</View>
-              </View>
-              <View className="w-full flex-col gap-4">
-                <Text className="text-center text-destructive">{props.error}</Text>
-                {props.children}
-              </View>
-              <Button
-                size={Platform.select({ ios: 'lg', default: 'md' })}
-                disabled={!isTouched || inputErrors.length > 0}
-                onPress={() => {
-                  setPendingAction(true);
-                  setIsSubmitted(true);
-  
-                  props.onSubmit().finally(() => setPendingAction(false));
-                }}
-                variant="primary"
-                className="w-full"
-              >
-                {pendingAction && <ActivityIndicator color={colors.foreground} />}
-                <Text>{props.submitText}</Text>
-              </Button>
-            </Screen>
-          </ScrollView>
-        </TouchableWithoutFeedback>
+      <KeyboardAvoidingView behavior={'height'}>
+        <Screen className="flex h-full flex-col justify-between">
+          <View className="relative w-full flex-row items-center justify-center">
+            <BackButton className="absolute left-0" />
+            <View className="self-center">{props.title}</View>
+          </View>
+          <Animated.View
+            className="mx-auto"
+            style={{
+              opacity: illustrationProgress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+              }),
+              height: illustrationProgress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 300],
+              }),
+            }}>
+            {Illustration && <Illustration width={300} height={300} />}
+          </Animated.View>
+          <View className={'w-full flex-col gap-4'}>
+            <Text className="text-center text-destructive">{props.error}</Text>
+            <View className={'gap-4'}>{props.children}</View>
+          </View>
+          <Button
+            size={Platform.select({ ios: 'lg', default: 'md' })}
+            disabled={!isTouched || inputErrors.length > 0}
+            onPress={() => {
+              setPendingAction(true);
+              setIsSubmitted(true);
+
+              props.onSubmit().finally(() => setPendingAction(false));
+            }}
+            variant="primary"
+            className="w-full">
+            {pendingAction && <ActivityIndicator color={colors.foreground} />}
+            <Text>{props.submitText}</Text>
+          </Button>
+        </Screen>
       </KeyboardAvoidingView>
     </_AuthFormContext.Provider>
   );
