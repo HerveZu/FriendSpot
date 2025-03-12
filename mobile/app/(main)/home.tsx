@@ -44,10 +44,9 @@ import { AvailableSpot, useGetAvailableSpots } from '~/endpoints/get-available-s
 import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
 import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-spots';
 import { cn } from '~/lib/cn';
-import { BOOKING_FROZEN_FOR_HOURS } from '~/lib/const';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch } from '~/lib/useFetch';
+import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 
@@ -186,8 +185,7 @@ function BookingCard(props: {
   const { refreshProfile } = useCurrentUser();
   const cancelBooking = useCancelBooking();
 
-  const canDelete =
-    !!props.deletable && differenceInHours(props.booking.from, now) > BOOKING_FROZEN_FOR_HOURS;
+  const canDelete = !!props.deletable && props.booking.canCancel;
 
   return (
     <Deletable
@@ -273,11 +271,13 @@ function BookingSheet(props: {
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
-  const [actionPending, setActionPending] = useState(false);
 
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
-  const book = useBookSpot();
+  const [book, actionPending] = useLoading(
+    useBookSpot(),
+    (_, simulation?: boolean) => !!simulation
+  );
   const getAvailableSpots = useGetAvailableSpots();
   const { refreshProfile } = useCurrentUser();
   const [toDebounce] = useDebounce(to, 200);
@@ -333,16 +333,13 @@ function BookingSheet(props: {
   }
 
   function bookSpot(from: Date, to: Date, parkingLotId: string) {
-    setActionPending(true);
-
     book({
       from,
       to,
       parkingLotId,
     })
       .then(refreshProfile)
-      .then(() => props.onOpen(false))
-      .finally(() => setActionPending(false));
+      .then(() => props.onOpen(false));
   }
 
   const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
@@ -374,6 +371,8 @@ function BookingSheet(props: {
                 <View className="grow flex-col gap-2">
                   {spots
                     .sort((spot) => spot.owner.rating)
+                    .reverse()
+                    .slice(0, 3)
                     .map((spot, i) => (
                       <AvailableSpotCard
                         key={i}

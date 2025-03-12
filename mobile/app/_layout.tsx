@@ -3,7 +3,7 @@ import '../global.css';
 import 'expo-dev-client';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { setDefaultOptions } from 'date-fns';
-import { Stack } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { configureReanimatedLogger } from 'react-native-reanimated';
@@ -21,6 +21,8 @@ setDefaultOptions({ locale: getCurrentLocale() });
 configureReanimatedLogger({
   strict: false,
 });
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useInitialAndroidBarSync();

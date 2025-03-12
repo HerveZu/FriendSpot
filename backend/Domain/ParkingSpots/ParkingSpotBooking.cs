@@ -2,8 +2,6 @@ namespace Domain.ParkingSpots;
 
 public sealed class ParkingSpotBooking
 {
-    public static readonly TimeSpan FrozenFor = TimeSpan.FromHours(1);
-
     private ParkingSpotBooking(
         Guid id,
         string bookingUserId,
@@ -40,6 +38,17 @@ public sealed class ParkingSpotBooking
     {
         From = new[] { From, newFrom }.Min();
         To = new[] { To, newTo }.Max();
+    }
+
+    public bool CanCancel(string userId)
+    {
+        var frozenFor = userId == BookingUserId
+            ? TimeSpan.Zero
+            : TimeSpan.FromHours(2);
+
+        var bookingIsActiveIn = From - DateTimeOffset.UtcNow;
+
+        return bookingIsActiveIn > frozenFor;
     }
 
     internal void Rate(BookRating rating)

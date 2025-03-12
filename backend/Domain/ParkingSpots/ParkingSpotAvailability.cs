@@ -62,6 +62,13 @@ public sealed class ParkingSpotAvailability
         return From <= to && from <= To;
     }
 
+    public bool CanCancel(string userId, IEnumerable<ParkingSpotBooking> withBookings)
+    {
+        return withBookings
+            .Where(booking => Overlaps(booking.From, booking.To))
+            .All(booking => booking.CanCancel(userId));
+    }
+
     public ParkingSpotAvailability[] Split(ParkingSpotBooking[] bookings)
     {
         if (bookings.Length is 0)

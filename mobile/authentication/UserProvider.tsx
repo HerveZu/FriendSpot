@@ -15,6 +15,7 @@ import { useRegisterUser } from '~/endpoints/register-user';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { useNotification } from '~/notification/NotificationContext';
 import { useDeviceId } from '~/lib/use-device-id';
+import { SplashScreen } from 'expo-router';
 
 type UserProfileContext = {
   readonly userProfile: UserProfile;
@@ -62,6 +63,12 @@ export function UserProvider(props: PropsWithChildren) {
     [firebaseUser, updateProfile, setInternalFirebaseUser]
   );
 
+  // force app refresh every 30s
+  useEffect(() => {
+    const handler = setInterval(refreshProfile, 30_000);
+    return () => clearTimeout(handler);
+  }, []);
+
   useEffect(() => {
     if (!deviceId) {
       return;
@@ -81,6 +88,12 @@ export function UserProvider(props: PropsWithChildren) {
   useEffect(() => {
     refreshProfile().then();
   }, [stateTrigger]);
+
+  useEffect(() => {
+    if (userProfile) {
+      SplashScreen.hide();
+    }
+  }, [userProfile]);
 
   const refreshProfile = useCallback(async () => {
     await getProfile()

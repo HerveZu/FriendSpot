@@ -27,3 +27,27 @@ export function useFetch<TResponse>(
 
   return [data, setData, loading];
 }
+
+export function useLoading<TArgs extends unknown[], TResponse>(
+  apiRequest: (...args: TArgs) => Promise<TResponse>,
+  skiLoadingWhen?: (...request: TArgs) => boolean
+): [(...req: TArgs) => Promise<TResponse>, boolean] {
+  const [loading, setLoading] = useState(false);
+
+  const callback = useCallback(
+    async (...req: TArgs) => {
+      if (!skiLoadingWhen || !skiLoadingWhen(...req)) {
+        setLoading(true);
+      }
+
+      try {
+        return await apiRequest(...req);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiRequest, setLoading]
+  );
+
+  return [callback, loading];
+}

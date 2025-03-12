@@ -22,6 +22,7 @@ public sealed record GetBookingResponse
         public required TimeSpan Duration { get; init; }
         public required SpotOwner Owner { get; init; }
         public required ParkingLotStatus ParkingLot { get; init; }
+        public required bool CanCancel { get; init; }
 
         [PublicAPI]
         public sealed record ParkingLotStatus
@@ -59,12 +60,9 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
                     .Where(booking => booking.BookingUserId == currentUser.Identity)
                     .OrderBy(booking => booking.From)
                     .Select(
-                        booking => new GetBookingResponse.BookingStatus
+                        booking => new
                         {
-                            Id = booking.Id,
-                            From = booking.From,
-                            To = booking.To,
-                            Duration = booking.Duration,
+                            Booking = booking,
                             Owner = dbContext.Set<User>()
                                 .Where(user => user.Identity == parkingSpot.OwnerId)
                                 .Select(
@@ -89,12 +87,22 @@ internal sealed class GetBooking(AppDbContext dbContext) : EndpointWithoutReques
 
         var bookings = bookingsPerSpot
             .SelectMany(bookings => bookings)
-            .ToArray();
+            .Select(
+                x => new GetBookingResponse.BookingStatus
+                {
+                    Id = x.Booking.Id,
+                    From = x.Booking.From,
+                    To = x.Booking.To,
+                    Duration = x.Booking.Duration,
+                    Owner = x.Owner,
+                    ParkingLot = x.ParkingLot,
+                    CanCancel = x.Booking.CanCancel(currentUser.Identity)
+                });
 
         await SendOkAsync(
             new GetBookingResponse
             {
-                Bookings = bookings
+                Bookings = bookings.ToArray()
             },
             ct);
     }

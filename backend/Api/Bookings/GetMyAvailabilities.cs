@@ -30,6 +30,7 @@ public sealed record GetMyAvailabilitiesResponse
         public required DateTimeOffset To { get; init; }
         public required TimeSpan Duration { get; init; }
         public required Booking[] Bookings { get; init; }
+        public required bool CanCancel { get; init; }
 
         [PublicAPI]
         public sealed record Booking
@@ -39,6 +40,7 @@ public sealed record GetMyAvailabilitiesResponse
             public required DateTimeOffset To { get; init; }
             public required TimeSpan Duration { get; init; }
             public required BookingUser BookedBy { get; init; }
+            public required bool CanCancel { get; init; }
 
             [PublicAPI]
             public sealed record BookingUser
@@ -63,28 +65,23 @@ internal sealed class GetMyAvailabilities(AppDbContext dbContext)
     {
         var currentUser = HttpContext.ToCurrentUser();
 
-        var availabilities = await (from parkingSpot in dbContext.Set<ParkingSpot>()
+        var availabilities = await (
+                from parkingSpot in dbContext.Set<ParkingSpot>()
                 where parkingSpot.OwnerId == currentUser.Identity
                 select parkingSpot.Availabilities
                     .Where(availability => availability.To >= req.From)
                     .OrderBy(availability => availability.From)
                     .Select(
-                        availability => new GetMyAvailabilitiesResponse.Availability
+                        availability => new
                         {
-                            Id = availability.Id,
-                            From = availability.From,
-                            To = availability.To,
-                            Duration = availability.Duration,
+                            Availability = availability,
                             Bookings = parkingSpot.Bookings
                                 .Where(booking => booking.From >= availability.From && booking.To <= availability.To)
                                 .Where(booking => booking.To >= req.From)
                                 .Select(
-                                    booking => new GetMyAvailabilitiesResponse.Availability.Booking
+                                    booking => new
                                     {
-                                        Id = booking.Id,
-                                        From = booking.From,
-                                        To = booking.To,
-                                        Duration = booking.Duration,
+                                        Booking = booking,
                                         BookedBy = dbContext.Set<User>()
                                             .Where(user => user.Identity == booking.BookingUserId)
                                             .Select(
@@ -102,13 +99,37 @@ internal sealed class GetMyAvailabilities(AppDbContext dbContext)
             .AsNoTracking()
             .FirstOrDefaultAsync(ct) ?? [];
 
-        var totalDuration = new TimeSpan(availabilities.Sum(availability => availability.Duration.Ticks));
+        var totalDuration = new TimeSpan(availabilities.Sum(x => x.Availability.Duration.Ticks));
 
         await SendOkAsync(
             new GetMyAvailabilitiesResponse
             {
                 TotalDuration = totalDuration,
                 Availabilities = availabilities
+                    .Select(
+                        x => new GetMyAvailabilitiesResponse.Availability
+                        {
+                            Id = x.Availability.Id,
+                            From = x.Availability.From,
+                            To = x.Availability.To,
+                            Duration = x.Availability.Duration,
+                            Bookings = x.Bookings
+                                .Select(
+                                    y => new GetMyAvailabilitiesResponse.Availability.Booking
+                                    {
+                                        Id = y.Booking.Id,
+                                        From = y.Booking.From,
+                                        To = y.Booking.To,
+                                        Duration = y.Booking.Duration,
+                                        BookedBy = y.BookedBy,
+                                        CanCancel = y.Booking.CanCancel(currentUser.Identity)
+                                    })
+                                .ToArray(),
+                            CanCancel = x.Availability.CanCancel(
+                                currentUser.Identity,
+                                x.Bookings.Select(y => y.Booking))
+                        })
+                    .ToArray()
             },
             ct);
     }

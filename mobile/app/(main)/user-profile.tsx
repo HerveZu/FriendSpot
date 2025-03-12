@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { ActivityIndicator, Image, Pressable, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -18,14 +18,12 @@ import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar, UserAvatar } from '~/components/UserAvatar';
-import car from '~/assets/car-user-profile.png';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useActualTime } from '~/lib/useActualTime';
-import { formatDuration, formatRelative, intervalToDuration } from 'date-fns';
 import { useUploadUserPicture } from '~/endpoints/upload-user-picture';
 import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
-import { useFetch } from '~/lib/useFetch';
+import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/define-spot';
 import { UserSpot } from '~/endpoints/get-profile';
 import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -40,6 +38,9 @@ import { useLogout } from '~/endpoints/logout';
 import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeviceId } from '~/lib/use-device-id';
+import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
+import { Tag } from '~/components/Tag';
+import { DateRange } from '~/components/DateRange';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -150,12 +151,12 @@ export default function UserProfileScreen() {
             <TextInput
               value={review}
               onChangeText={setReview}
-              multiline
-              className={'h-32 w-full'}
+              className={'w-full'}
               placeholder={'Tu as une suggestion ? Écris-nous ici !'}
             />
             <Button
               disabled={!review}
+              size={'lg'}
               variant={'tonal'}
               onPress={() => {
                 review && sendReview(review);
@@ -196,7 +197,7 @@ export function LogoutConfirmationModal({
   visible: boolean;
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
-  const logout = useLogout();
+  const [logout, loggingOut] = useLoading(useLogout());
   const deviceId = useDeviceId();
   const auth = getAuth();
   const { colors } = useColorScheme();
@@ -226,12 +227,16 @@ export function LogoutConfirmationModal({
             <Text className={'text-primary'}>Retour</Text>
           </Button>
           <Button className={'grow'} variant={'plain'} size={'lg'} onPress={() => handleLogout()}>
-            <ThemedIcon
-              name={'logout'}
-              component={MaterialIcons}
-              size={18}
-              color={colors.destructive}
-            />
+            {loggingOut ? (
+              <ActivityIndicator color={colors.destructive} />
+            ) : (
+              <ThemedIcon
+                name={'logout'}
+                component={MaterialIcons}
+                size={18}
+                color={colors.destructive}
+              />
+            )}
             <Text className={'text-destructive'}>Se déconnecter</Text>
           </Button>
         </View>
@@ -245,7 +250,7 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
   const now = useActualTime(30_000);
 
   const DisplayCar = () => {
-    const busy = !spot.currentlyAvailable || spot.currentlyUsedBy;
+    const busy = !spot.currentlyAvailable || !!spot.currentlyUsedBy;
 
     return (
       <View
@@ -264,40 +269,43 @@ function UserSpotInfo({ spot }: { spot: UserSpot }) {
             )}
             <Image
               className="my-auto mt-2 h-28 w-full"
-              source={car}
-              alt="car"
+              source={require('~/assets/car-top-view.png')}
               style={{ transform: [{ rotate: '90deg' }], resizeMode: 'contain' }}
             />
           </>
         )}
-        <Text className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xl font-bold">
-          {spot.name}
-        </Text>
+        <View className="absolute bottom-2 w-full flex-row justify-center">
+          <Text className={'text-xl font-bold'}>{spot.name}</Text>
+        </View>
       </View>
     );
   };
 
   const SpotUsedBy = () => {
     return (
-      <View className="w-full flex-1 flex-col items-center justify-center gap-6">
-        <Text className="text-center text-lg font-semibold">
-          {spot.currentlyUsedBy
-            ? `En cours d'utilisation`
-            : `${spot.currentlyAvailable ? 'Ton spot est libre' : 'Tu occupes ta place'}`}
-        </Text>
+      <View className="relative h-full flex-1">
+        <Tag
+          className={'absolute right-0 top-0'}
+          text={
+            spot.currentlyUsedBy
+              ? `Spot utilisé`
+              : `${spot.currentlyAvailable ? 'Spot libre' : 'Spot occupé'}`
+          }
+        />
         {(spot.currentlyUsedBy || spot.nextUse) && (
-          <Text className="text-center text-sm">
-            {spot.currentlyUsedBy
-              ? spot.currentlyUsedBy.usingUntil &&
-                `Par ${spot.currentlyUsedBy.displayName} pendant ${formatDuration(
-                  intervalToDuration({
-                    start: now,
-                    end: spot.currentlyUsedBy.usingUntil,
-                  }),
-                  { format: ['days', 'hours', 'minutes'] }
-                )}`
-              : spot.nextUse && `Jusqu'à ${formatRelative(spot.nextUse, now)}`}
-          </Text>
+          <View className="absolute bottom-0 left-0 right-0">
+            {spot.currentlyUsedBy ? (
+              <DateRange
+                label={'Pendant'}
+                from={spot.currentlyUsedBy.usingSince}
+                to={spot.currentlyUsedBy.usingUntil}
+              />
+            ) : (
+              spot.nextUse && (
+                <DateRange label={'Encore'} from={spot.lastUse ?? now} to={spot.nextUse} />
+              )
+            )}
+          </View>
         )}
       </View>
     );
@@ -332,32 +340,24 @@ function DefineSpotSheet(props: {
   const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
 
   const spotNameRef = createRef<ReactTextInput>();
+  const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
 
+  // force open when no spot defined
   useEffect(() => {
     !userProfile.spot && props.onOpenChange(true);
   }, [userProfile.spot]);
 
   useEffect(() => {
-    if (!selectedParking) {
-      return;
-    }
-
-    setSearch(selectedParking.address);
-  }, [selectedParking]);
-
-  useEffect(() => {
-    parking &&
-      setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
-  }, [props.open]);
-
-  useEffect(() => {
     if (props.open) {
+      parking &&
+        setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
       bottomSheetModalRef.current?.present();
     } else {
-      setSearch(undefined);
       bottomSheetModalRef.current?.dismiss();
+      setSearch(undefined);
+      setCurrentSpotName(userProfile.spot?.name);
     }
-  }, [bottomSheetModalRef.current, props.open]);
+  }, [props.open]);
 
   async function updateParking() {
     if (!selectedParking || !currentSpotName) {
@@ -375,14 +375,52 @@ function DefineSpotSheet(props: {
       .finally(() => setIsUpdating(false));
   }
 
+  function selectParking(parking: ParkingResponse) {
+    spotNameRef.current?.focus();
+    setSearch(parking.address);
+    setSelectedParking(parking);
+    setCurrentSpotName('');
+  }
+
+  function ParkingCard(props: { parking: ParkingResponse }) {
+    const isSelected = selectedParking?.id === props.parking.id;
+
+    return (
+      <Pressable onPress={() => selectParking(props.parking)}>
+        <Card background>
+          <View className={'flex-row items-center justify-between'}>
+            <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
+            <Text
+              className={
+                'font-semibold'
+              }>{`${props.parking.spotsCount} ${props.parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
+          </View>
+          <View className="flex-row items-center justify-between gap-4">
+            <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
+            <Text className="shrink text-sm">{props.parking.address}</Text>
+            <View className={'w-8'}>
+              {isSelected && <ThemedIcon name={'check'} size={18} color={colors.primary} />}
+            </View>
+          </View>
+        </Card>
+      </Pressable>
+    );
+  }
+
   return (
     <Sheet
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={[550]}>
-      <ContentSheetView className={'flex-col justify-between'}>
-        <View className="gap-4">
+      snapPoints={keyboardVisible ? [800] : [550]}>
+      <ContentSheetView
+        className={'flex-col justify-between gap-6'}
+        style={
+          keyboardVisible && {
+            paddingBottom: keyboardHeight + 24,
+          }
+        }>
+        <View className="grow flex-col gap-4">
           <TextInput
             icon={{
               position: 'left',
@@ -392,39 +430,21 @@ function DefineSpotSheet(props: {
             editable={true}
             value={fullSearch}
             onChangeText={(text) => setSearch(text)}
+            onPress={() => setSearch('')}
             placeholder="Rechercher un parking"
           />
-          <List>
-            {parking &&
-              parking.map((parking) => (
-                <Pressable
-                  key={parking.id}
-                  onPress={() => {
-                    setCurrentSpotName('');
-                    spotNameRef.current?.focus();
-                    setSelectedParking(parking);
-                  }}>
-                  <Card background>
-                    <View className={'flex-row items-center justify-between'}>
-                      <Text className={'text-lg font-bold'}>{parking.name}</Text>
-                      <Text
-                        className={
-                          'font-semibold'
-                        }>{`${parking.spotsCount} ${parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
-                    </View>
-                    <View className="flex-row items-center justify-between gap-4">
-                      <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
-                      <Text className="shrink text-sm">{parking.address}</Text>
-                      <View className={'w-8'}>
-                        {selectedParking?.id === parking.id && (
-                          <ThemedIcon name={'check'} size={18} color={colors.primary} />
-                        )}
-                      </View>
-                    </View>
-                  </Card>
-                </Pressable>
-              ))}
-          </List>
+
+          <ScrollView className={cn('rounded-xl bg-card p-2', keyboardVisible && 'max-h-48')}>
+            <List>
+              {parking && parking.length > 0 ? (
+                parking.map((parking) => <ParkingCard key={parking.id} parking={parking} />)
+              ) : (
+                <Text className={'top-1/2 mx-auto text-center'}>
+                  Aucun parking ne correspond à la recherche.
+                </Text>
+              )}
+            </List>
+          </ScrollView>
         </View>
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">

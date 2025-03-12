@@ -1,4 +1,10 @@
-import { differenceInMinutes, format, formatDistance, isWithinInterval } from 'date-fns';
+import {
+  differenceInMinutes,
+  format,
+  formatDistance,
+  intervalToDuration,
+  isWithinInterval,
+} from 'date-fns';
 import { toMinutes } from 'duration-fns';
 import React from 'react';
 import { View } from 'react-native';
@@ -12,7 +18,7 @@ import { fromUtc, parseDuration } from '~/lib/utils';
 export function DateRange(props: {
   from: Date | string;
   to: Date | string;
-  duration: string;
+  duration?: string;
   label?: string;
 }) {
   const now = useActualTime(5000);
@@ -23,7 +29,9 @@ export function DateRange(props: {
   });
 
   const elapsedMinutes = inProgress ? differenceInMinutes(now, props.from) : null;
-  const duration = parseDuration(props.duration);
+  const duration = props.duration
+    ? parseDuration(props.duration)
+    : intervalToDuration({ start: props.from, end: props.to });
 
   return elapsedMinutes !== null ? (
     <View className="flex-col gap-2">

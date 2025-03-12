@@ -204,21 +204,18 @@ public sealed class ParkingSpot : IBroadcastEvents
             throw new BusinessException("ParkingSpot.InvalidCancelling", "A spot can only be cancelled by the owner");
         }
 
-        var availabilityIsActiveIn = availability.From - DateTimeOffset.UtcNow;
-        if (availabilityIsActiveIn < ParkingSpotBooking.FrozenFor)
-        {
-            throw new BusinessException(
-                "ParkingSpot.InvalidCancelling",
-                $"A spot availability can only be cancelled at least {ParkingSpotBooking.FrozenFor} before it becomes active");
-        }
-
         var overlappingBookings = _bookings
             .Where(booking => availability.Overlaps(booking.From, booking.To))
             .ToArray();
 
-        foreach (var overlappingBooking in overlappingBookings)
+        if (!availability.CanCancel(cancelingUserId, overlappingBookings))
         {
-            CancelBooking(cancelingUserId, overlappingBooking.Id);
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel availability");
+        }
+
+        foreach (var booking in overlappingBookings)
+        {
+            CancelBooking(cancelingUserId, booking.Id);
         }
 
         _availabilities.Remove(availability);
@@ -236,16 +233,12 @@ public sealed class ParkingSpot : IBroadcastEvents
         var allowedToCancel = new[] { OwnerId, booking.BookingUserId };
         if (!allowedToCancel.Contains(cancelingUserId))
         {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel booking");
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Not allowed to cancel booking");
         }
 
-        var bookingIsActiveIn = booking.From - DateTimeOffset.UtcNow;
-
-        if (bookingIsActiveIn < ParkingSpotBooking.FrozenFor)
+        if (!booking.CanCancel(cancelingUserId))
         {
-            throw new BusinessException(
-                "ParkingSpot.InvalidCancelling",
-                $"A booking can only be cancelled at least {ParkingSpotBooking.FrozenFor} before it becomes active");
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "The booking cannot be cancelled");
         }
 
         _bookings.Remove(booking);
