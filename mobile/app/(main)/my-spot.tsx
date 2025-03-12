@@ -40,7 +40,7 @@ import {
 import { LendSpotResponse, useLendSpot } from '~/endpoints/lend-spot';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch } from '~/lib/useFetch';
+import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
@@ -236,7 +236,10 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 
 function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {
   const ref = useSheetRef();
-  const lend = useLendSpot();
+  const [lend, actionPending] = useLoading(
+    useLendSpot(),
+    (_, simulation?: boolean) => !!simulation
+  );
 
   const MIN_DURATION_HOURS = 0.5;
   const INITIAL_FROM_MARGIN_MINUTES = 15;
@@ -247,7 +250,6 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   const { colors } = useColorScheme();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
-  const [actionPending, setActionPending] = useState(false);
   const [simulation, setSimulation] = useState<LendSpotResponse>();
 
   const [toDebounce] = useDebounce(to, 200);
@@ -283,15 +285,12 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   }
 
   function lendSpot(from: Date, to: Date) {
-    setActionPending(true);
-
     lend({
       from,
       to,
     })
       .then(refreshProfile)
-      .then(() => props.onOpen(false))
-      .finally(() => setActionPending(false));
+      .then(() => props.onOpen(false));
   }
 
   const justAfterNow = addMinutes(now, 5);

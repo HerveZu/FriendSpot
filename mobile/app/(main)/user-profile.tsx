@@ -23,7 +23,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useActualTime } from '~/lib/useActualTime';
 import { useUploadUserPicture } from '~/endpoints/upload-user-picture';
 import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
-import { useFetch } from '~/lib/useFetch';
+import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/define-spot';
 import { UserSpot } from '~/endpoints/get-profile';
 import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -197,7 +197,7 @@ export function LogoutConfirmationModal({
   visible: boolean;
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
-  const logout = useLogout();
+  const [logout, loggingOut] = useLoading(useLogout());
   const deviceId = useDeviceId();
   const auth = getAuth();
   const { colors } = useColorScheme();
@@ -227,12 +227,16 @@ export function LogoutConfirmationModal({
             <Text className={'text-primary'}>Retour</Text>
           </Button>
           <Button className={'grow'} variant={'plain'} size={'lg'} onPress={() => handleLogout()}>
-            <ThemedIcon
-              name={'logout'}
-              component={MaterialIcons}
-              size={18}
-              color={colors.destructive}
-            />
+            {loggingOut ? (
+              <ActivityIndicator color={colors.destructive} />
+            ) : (
+              <ThemedIcon
+                name={'logout'}
+                component={MaterialIcons}
+                size={18}
+                color={colors.destructive}
+              />
+            )}
             <Text className={'text-destructive'}>Se déconnecter</Text>
           </Button>
         </View>

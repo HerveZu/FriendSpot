@@ -46,7 +46,7 @@ import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-
 import { cn } from '~/lib/cn';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch } from '~/lib/useFetch';
+import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 
@@ -271,11 +271,13 @@ function BookingSheet(props: {
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
-  const [actionPending, setActionPending] = useState(false);
 
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
-  const book = useBookSpot();
+  const [book, actionPending] = useLoading(
+    useBookSpot(),
+    (_, simulation?: boolean) => !!simulation
+  );
   const getAvailableSpots = useGetAvailableSpots();
   const { refreshProfile } = useCurrentUser();
   const [toDebounce] = useDebounce(to, 200);
@@ -331,16 +333,13 @@ function BookingSheet(props: {
   }
 
   function bookSpot(from: Date, to: Date, parkingLotId: string) {
-    setActionPending(true);
-
     book({
       from,
       to,
       parkingLotId,
     })
       .then(refreshProfile)
-      .then(() => props.onOpen(false))
-      .finally(() => setActionPending(false));
+      .then(() => props.onOpen(false));
   }
 
   const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
