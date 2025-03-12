@@ -11,8 +11,10 @@ import {
 import {
   ActivityIndicator,
   Animated,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
   useAnimatedValue,
   View,
 } from 'react-native';
@@ -79,8 +81,7 @@ export function AuthForm({
   }, [setIsTouched, setTouchTrigger]);
 
   const { keyboardVisible } = useKeyboardVisible();
-
-  const illustrationProgress = useAnimatedValue(0);
+  const illustrationProgress = useAnimatedValue(1);
 
   useEffect(() => {
     Animated.timing(illustrationProgress, {
@@ -93,44 +94,47 @@ export function AuthForm({
   return (
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={'height'}>
-        <Screen className="flex h-full flex-col justify-between">
-          <View className="relative w-full flex-row items-center justify-center">
-            <BackButton className="absolute left-0" />
-            <View className="self-center">{props.title}</View>
-          </View>
-          <Animated.View
-            className="mx-auto"
-            style={{
-              opacity: illustrationProgress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 1],
-              }),
-              height: illustrationProgress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 300],
-              }),
-            }}>
-            {Illustration && <Illustration width={300} height={300} />}
-          </Animated.View>
-          <View className={'w-full flex-col gap-4'}>
-            <Text className="text-center text-destructive">{props.error}</Text>
-            <View className={'gap-4'}>{props.children}</View>
-          </View>
-          <Button
-            size={Platform.select({ ios: 'lg', default: 'md' })}
-            disabled={!isTouched || inputErrors.length > 0}
-            onPress={() => {
-              setPendingAction(true);
-              setIsSubmitted(true);
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <Screen className="relative flex h-full flex-col justify-start gap-12">
+            <View className="relative w-full flex-row items-center justify-center">
+              <BackButton className="absolute left-0" />
+              <View className="self-center">{props.title}</View>
+            </View>
 
-              props.onSubmit().finally(() => setPendingAction(false));
-            }}
-            variant="primary"
-            className="w-full">
-            {pendingAction && <ActivityIndicator color={colors.foreground} />}
-            <Text>{props.submitText}</Text>
-          </Button>
-        </Screen>
+            <Animated.View
+              className="mx-auto"
+              style={{
+                opacity: illustrationProgress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 1],
+                }),
+                height: illustrationProgress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 300],
+                }),
+              }}>
+              {Illustration && <Illustration width={300} height={300} />}
+            </Animated.View>
+            <View className={'w-full flex-col gap-4'}>
+              <Text className="text-center text-destructive">{props.error}</Text>
+              {props.children}
+            </View>
+            <Button
+              size={Platform.select({ ios: 'lg', default: 'md' })}
+              disabled={!isTouched || inputErrors.length > 0}
+              onPress={() => {
+                setPendingAction(true);
+                setIsSubmitted(true);
+
+                props.onSubmit().finally(() => setPendingAction(false));
+              }}
+              variant="primary"
+              className="w-full">
+              {pendingAction && <ActivityIndicator color={colors.foreground} />}
+              <Text>{props.submitText}</Text>
+            </Button>
+          </Screen>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </_AuthFormContext.Provider>
   );
