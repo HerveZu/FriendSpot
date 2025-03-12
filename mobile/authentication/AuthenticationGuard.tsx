@@ -1,4 +1,4 @@
-import { useRootNavigationState, useRouter } from 'expo-router';
+import { SplashScreen, useRootNavigationState, useRouter } from 'expo-router';
 import { PropsWithChildren, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -11,6 +11,10 @@ export function AuthenticationGuard(props: PropsWithChildren) {
   const rootNavigationState = useRootNavigationState();
 
   const isAuthenticated = !!user;
+
+  useEffect(() => {
+    !isLoading && !isAuthenticated && SplashScreen.hide();
+  }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
     if (!rootNavigationState?.key) {
