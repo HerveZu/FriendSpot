@@ -1,6 +1,7 @@
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
+import QuestionIllustration from 'assets/question.svg';
 import {
   addHours,
   addMinutes,
@@ -361,11 +362,11 @@ function BookingSheet(props: {
               </View>
 
               {spots.length === 0 ? (
-                <View className="my-auto flex-col items-center gap-8">
-                  <ThemedIcon name="question" size={36} color={colors.destructive} />
-                  <Text variant="title3" className="text-center text-destructive">
-                    Aucun spot trouvé durant la période sélectionée
-                  </Text>
+                <View className="my-auto flex-col items-center gap-4">
+                  <QuestionIllustration width={150} height={150}/>
+                    <Text variant="body" className="text-center text-destructive">
+                    Aucun spot n’est disponible {'\n'} sur cette période.
+                    </Text>
                 </View>
               ) : (
                 <View className="grow flex-col gap-2">
