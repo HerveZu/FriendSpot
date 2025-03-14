@@ -19,7 +19,7 @@ export function Modal({
       backdropTransitionOutTiming={1}>
       <SafeAreaView>
         <View className={'bg-background'} {...props}>
-          <View className={cn('bg-primary/15 w-full flex-col gap-8 rounded-xl p-4', className)}>
+          <View className={cn('bg-primary/15 w-full flex-col gap-4 rounded-xl p-4', className)}>
             {children}
           </View>
         </View>

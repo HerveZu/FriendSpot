@@ -27,7 +27,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)}>
-        <View className={cn('flex-row items-center gap-8', className)} {...props}>
+        <View className={cn('flex-row items-center gap-6', className)} {...props}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
           <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
         </View>
