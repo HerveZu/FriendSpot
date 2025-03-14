@@ -5,7 +5,7 @@ import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { isEmail } from 'validator';
 import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { notEmpty } from '~/lib/utils';
-import LoginIllustration from '~/assets/login-illustration.svg';
+import LoginIllustration from '~/assets/login.svg';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>();
