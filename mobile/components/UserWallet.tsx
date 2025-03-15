@@ -27,23 +27,23 @@ export function UserWallet({ className, ...props }: ViewProps) {
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)}>
-        <View className={cn('flex-row items-center gap-8', className)} {...props}>
+        <View className={cn('flex-row items-center gap-6', className)} {...props}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
           <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
         </View>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
         <ModalTitle text={'Mes crédits'} />
-        <View className={'gap-6'}>
+        <View className='items-center'>
+        </View>
+        <View className='gap-6'>
           <CreditsExplanation
             pending={false}
-            explanation={'Utilise ces crédits pour réserver un spot.'}
+            explanation='Utilise ces crédits pour réserver un spot.'
           />
           <CreditsExplanation
             pending={true}
-            explanation={
-              'Ces crédits sont réservés et te seront accesible à la fin de la réservation associée.'
-            }
+            explanation='Crédits qui seront ajoutés à ton nombre de crédits actuel après avoir prêté ton spot.'
           />
         </View>
       </Modal>

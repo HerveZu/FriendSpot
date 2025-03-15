@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import { isEmail } from 'validator';
+import stepOneIllustration from '~/assets/profil.svg';
 
 import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { minLength, notEmpty } from '~/lib/utils';
@@ -21,6 +22,7 @@ export default function StepOneScreen() {
   return (
     <SafeAreaView>
       <AuthForm
+      Illustration={stepOneIllustration}
         title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={async () => goToStep2(email!)}
         submitText="Suivant">

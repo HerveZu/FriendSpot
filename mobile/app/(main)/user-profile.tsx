@@ -218,7 +218,7 @@ export function LogoutConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
         <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
-        <View className="w-full flex-row gap-4">
+        <View className="w-full flex-row gap-4 mt-4">
           <Button
             className={'grow'}
             size={'lg'}

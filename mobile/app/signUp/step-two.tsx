@@ -2,6 +2,7 @@ import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
+import stepTwoIllustration from '~/assets/security.svg';
 
 import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { firebaseAuth } from '~/authentication/firebase';
@@ -36,6 +37,7 @@ export default function StepTwoScreen() {
   return (
     <SafeAreaView>
       <AuthForm
+      Illustration={stepTwoIllustration}
         error={error}
         title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={createAccount}
