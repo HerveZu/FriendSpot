@@ -26,7 +26,7 @@ export default function StepTwoScreen() {
       updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
     } catch (e) {
       console.error(e);
-      setError('Cette addresse e-mail est déjà utilisé');
+      setError('Cette adresse e-mail est déjà utilisée.');
     }
   }
 
@@ -50,7 +50,7 @@ export default function StepTwoScreen() {
           validators={[
             {
               validate: strongPassword,
-              message: 'Le mot de passe doit faire 6 charactères de long',
+              message: "Le mot de passe doit contenir au moins 6 caractères.",
             },
           ]}
         />
@@ -62,7 +62,7 @@ export default function StepTwoScreen() {
           validators={[
             {
               validate: (confirm?: string) => !confirm || confirm === password,
-              message: 'Les mots de passes ne sont pas identiques',
+              message: 'Les mots de passes ne sont pas identiques.',
             },
             {
               validate: notEmpty,
