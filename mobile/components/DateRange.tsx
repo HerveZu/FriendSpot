@@ -34,9 +34,9 @@ export function DateRange(props: {
     : intervalToDuration({ start: props.from, end: props.to });
 
   return elapsedMinutes !== null ? (
-    <View className="flex-col gap-2">
+    <View className="flex-col gap-4">
       <Text className={'text-md'}>
-        {props.label ?? 'Il reste'} {formatDistance(props.to, now)}
+        {props.label ?? 'Pendant'} {formatDistance(props.to, now)}
       </Text>
       <ProgressIndicator
         className="h-4"

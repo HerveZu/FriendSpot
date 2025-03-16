@@ -1,5 +1,6 @@
 import { FontAwesome5, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
+import TreeIllustration from 'assets/tree.svg';
 import {
   addHours,
   addMinutes,
@@ -75,7 +76,7 @@ export default function MySpotScreen() {
         <ActivityIndicator />
       ) : availabilities.availabilities.length > 0 ? (
         <View>
-          <Title>Spot prêté</Title>
+          <Title>Ton spot est en accès libre</Title>
           <View className={'flex-col gap-4'}>
             {availabilities.availabilities.map((availability) => (
               <MySpotAvailabilityCard
@@ -87,7 +88,11 @@ export default function MySpotScreen() {
           </View>
         </View>
       ) : (
-        <MessageInfo info="Tu ne prêtes pas encore ta place" />
+        <View className='flex-col items-center justify-center gap-10'>
+          <MessageInfo info="Tu ne partages pas encore ton spot" />
+          <TreeIllustration width={280} height={280}/>
+        </View>
+
       )}
       <LendSpotSheet open={lendSheetOpen} onOpen={setLendSheetOpen} />
     </ScreenWithHeader>
@@ -117,34 +122,16 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     <Deletable className={'rounded-xl'} canDelete={props.availability.canCancel} onDelete={cancel}>
       <Card>
         <View className="flex-row justify-between">
-          <View className={'flex-row items-center gap-2'}>
-            <DeletableStatus
-              fallback={
-                <ThemedIcon
-                  name="user-friends"
-                  color={colors.primary}
-                  size={18}
-                  component={FontAwesome5}
-                />
-              }
+            <DateRange
+              from={props.availability.from}
+              to={props.availability.to}
+              duration={props.availability.duration}
             />
-            <Text variant="heading" className="break-words font-bold">
-              {' ' +
-                (differenceInSeconds(props.availability.from, now) > 0
-                  ? formatRelative(props.availability.from, now)
-                  : 'Actuellement')}
-            </Text>
-          </View>
-          <View className={'flex-row gap-2'}>
-            <Users users={uniqueBookingUsers} />
-            <DeleteTrigger />
-          </View>
+            <View className="flex-row items-center gap-2">
+              <Users users={uniqueBookingUsers} />
+              <DeleteTrigger />
+            </View>
         </View>
-        <DateRange
-          from={props.availability.from}
-          to={props.availability.to}
-          duration={props.availability.duration}
-        />
         {props.availability.bookings.length > 0 && (
           <ScrollView>
             <View className="flex-col gap-1">
@@ -318,9 +305,8 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
             </List>
             {simulation?.overlaps && (
               <View className="mx-auto w-full flex-row items-center justify-center gap-8 p-4">
-                <ThemedIcon name="info" size={26} color={colors.primary} />
-                <Text variant="title3" className="text-primary">
-                  Tu prêtes déjà ta place. La disponibilité sera étendue.
+                <Text variant="title3" className="text-primary text-center">
+                  Ta place est déjà partagée, {"\n"} sa disponibilité s'étend si tu ajoutes des créneaux.
                 </Text>
               </View>
             )}
