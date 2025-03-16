@@ -153,7 +153,7 @@ export default function HomeScreen() {
         <ListSheet
           title={`${nextReservedSpot ? 'Prochaine réservation' : 'Réservations'}`}
           setNextReservedSpot={setNextReservedSpot}
-          action={
+          action={!nextReservedSpot &&
             <Button
               size="lg"
               variant="primary"
