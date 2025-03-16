@@ -13,6 +13,7 @@ export function ListSheet(
     action: ReactNode;
     open: boolean;
     onOpen: Dispatch<SetStateAction<boolean>>;
+    setNextReservedSpot: Dispatch<SetStateAction<boolean>>;
   } & PropsWithChildren
 ) {
   const ref = useSheetRef();
@@ -26,7 +27,7 @@ export function ListSheet(
   }, [ref.current, props.open]);
 
   return (
-    <Sheet ref={ref} onDismiss={() => props.onOpen(false)} topInset={150}>
+    <Sheet ref={ref} onDismiss={() => { props.onOpen(false), props.setNextReservedSpot(false)}} topInset={150}>
       <BottomSheetView>
         <ContentSheetView className="flex-col justify-between gap-8">
           <SheetTitle>{props.title}</SheetTitle>
