@@ -60,6 +60,7 @@ export default function HomeScreen() {
   const getSuggestedSpots = useGetSuggestedSpots();
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
+  const [nextReservedSpot, setNextReservedSpot] = useState<boolean>(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState<SpotSuggestion>();
 
   const now = useActualTime(5000);
@@ -67,9 +68,11 @@ export default function HomeScreen() {
   const [suggestedSpots] = useFetch(() => getSuggestedSpots(now, addHours(now, 12)), []);
 
   const activeBookings =
-    booking?.bookings.filter((booking) =>
+  booking?.bookings
+    .filter((booking) =>
       isWithinInterval(now, { start: booking.from, end: booking.to })
-    ) ?? [];
+    )
+    .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime()) ?? [];
 
   useEffect(() => {
     (!booking || booking.bookings.length === 0) && setBookingListSheetOpen(false);
@@ -122,6 +125,7 @@ export default function HomeScreen() {
       ) : booking.bookings.length > 0 ? (
         <MessageInfo
           info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
+          action={() => {setBookingListSheetOpen(true), setNextReservedSpot(true)}}
         />
       ) : (
         <MessageInfo info="Réserve un spot dès maintenant !" />
@@ -147,7 +151,8 @@ export default function HomeScreen() {
 
       {booking && (
         <ListSheet
-          title="Mes réservations"
+          title={`${nextReservedSpot ? 'Prochaine réservation' : 'Réservations'}`}
+          setNextReservedSpot={setNextReservedSpot}
           action={
             <Button
               size="lg"
@@ -162,9 +167,16 @@ export default function HomeScreen() {
           }
           open={bookingListSheetOpen}
           onOpen={setBookingListSheetOpen}>
-          {booking.bookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} deletable={true} />
-          ))}
+            {nextReservedSpot && booking.bookings.length > 0 ? (
+              <BookingCard booking={booking.bookings[0]} deletable={true}/>
+            ) : (
+              booking.bookings
+              .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
+              .map((booking) => (
+              <BookingCard key={booking.id} booking={booking} deletable={true} />
+          ))
+            )}
+          
         </ListSheet>
       )}
       <BookingSheet
@@ -366,7 +378,7 @@ function BookingSheet(props: {
                 <View className="my-auto flex-col items-center gap-4">
                   <QuestionIllustration width={150} height={150}/>
                     <Text variant="body" className="text-center text-destructive">
-                    Aucun spot n’est disponible {'\n'} sur cette période.
+                      Aucun spot n’est disponible {'\n'} sur cette période.
                     </Text>
                 </View>
               ) : (
