@@ -35,8 +35,8 @@ export function LogoCard({
     <View
       className={cn(
         'h-24 w-14 shadow-sm shadow-primary',
-        primary ? 'bg-primary' : 'bg-background',
-        !primary && 'border-2 border-primary',
+        primary ? 'bg-primary' : 'bg-card',
+        !primary && 'border border-primary',
         className
       )}
       style={[

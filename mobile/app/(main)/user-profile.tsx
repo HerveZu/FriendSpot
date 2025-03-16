@@ -146,7 +146,7 @@ export default function UserProfileScreen() {
           </View>
         </View>
         <View className={'mb-4 flex-col'}>
-          <Title>Autres</Title>
+          <Title>Autre</Title>
           <View className={'flex-col gap-2'}>
             <TextInput
               value={review}

@@ -5,10 +5,18 @@ import React from 'react';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { cn } from '~/lib/cn';
 import { Modal, ModalTitle } from '~/components/Modal';
+import { usePathname } from 'expo-router';
+
+import { Button } from './nativewindui/Button';
+
 
 export function UserWallet({ className, ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
+
+  const pathname = usePathname();
+
+  const mySpot = pathname === '/my-spot';
 
   function CreditsExplanation(props: { pending: boolean; explanation: string }) {
     return (
@@ -26,12 +34,10 @@ export function UserWallet({ className, ...props }: ViewProps) {
 
   return (
     <>
-      <Pressable onPress={() => setInfoModalOpen(true)}>
-        <View className={cn('flex-row items-center gap-6', className)} {...props}>
+      <Button className={`gap-6 ${mySpot ? "w-6/12" : "w-10/12"}`} variant='tonal' onPress={() => setInfoModalOpen(true)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
           <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
-        </View>
-      </Pressable>
+      </Button>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
         <ModalTitle text={'Mes crédits'} />
         <View className='items-center'>
@@ -58,8 +64,8 @@ export function Credits({
   ...props
 }: { pending: boolean; credits: number } & ViewProps) {
   return (
-    <View className={cn('w-12 flex-row items-center gap-2', className)} {...props}>
-      <LogoCard primary={!pending} className="h-5 w-3 rounded" />
+    <View className={cn('flex-row items-center gap-2', className)} {...props}>
+      <LogoCard primary={!pending} className="h-5 w-3.5 rounded" />
       <Text className="text-lg font-semibold">{Math.round(credits)}</Text>
     </View>
   );

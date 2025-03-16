@@ -23,7 +23,8 @@ import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
-import { Card, InfoCard } from '~/components/Card';
+import { MessageInfo } from '~/components/MessageInfo';
+import { Card } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
@@ -96,11 +97,11 @@ export default function HomeScreen() {
             setBookSheetOpen(true);
           }}>
           <ThemedIcon name="search" size={18} color={COLORS.white} />
-          <Text>Trouver un spot</Text>
+          <Text>Réserve un spot</Text>
         </Button>
       }>
       <View className="flex-row justify-between">
-        <ScreenTitle title="Accueil" />
+        <ScreenTitle title="Réserve un spot" />
         <Button
           className={'mb-4'}
           variant="tonal"
@@ -119,11 +120,11 @@ export default function HomeScreen() {
           ))}
         </View>
       ) : booking.bookings.length > 0 ? (
-        <InfoCard
+        <MessageInfo
           info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
         />
       ) : (
-        <InfoCard info="Réserve un spot maintenant !" />
+        <MessageInfo info="Réserve un spot dès maintenant !" />
       )}
       <View className="flex-col">
         {!suggestedSpots ? (
@@ -131,7 +132,7 @@ export default function HomeScreen() {
         ) : (
           suggestedSpots.suggestions.length > 0 && (
             <>
-              <Title>Recommandé</Title>
+              <Title>Spots Suggérés</Title>
               <List>
                 {suggestedSpots.suggestions.map((suggestion, i) => (
                   <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
@@ -487,7 +488,7 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
     <Card>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <ThemedIcon name="star" color={colors.primary} size={18} />
+          <ThemedIcon component={FontAwesome6} name="clock" color={colors.primary} size={18} />
           <Text variant="heading" className="font-bold">
             {differenceInSeconds(props.suggestion.from, now) > 0
               ? capitalize(formatRelative(props.suggestion.from, now))

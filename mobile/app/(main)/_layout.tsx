@@ -1,4 +1,4 @@
-import { Entypo, FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Tabs } from 'expo-router';
 
@@ -12,6 +12,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { AskUserToRate } from '~/rating/AskUserToRate';
 
 export default function MainLayout() {
+
   return (
     <AuthProvider>
       <UserProvider>
@@ -20,7 +21,7 @@ export default function MainLayout() {
           <SpotCountDownOnRender>
             <AskUserToRate>
               <Tabs
-                initialRouteName="home"
+                initialRouteName="my-spot"
                 screenOptions={{
                   headerShown: false,
                   tabBarShowLabel: false,
@@ -31,15 +32,15 @@ export default function MainLayout() {
                   name="my-spot"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon name="car" component={FontAwesome6} size={24} focused={focused} />
+                      <TabIcon name="house" component={FontAwesome6} size={focused ? 24 : 22} focused={focused} />
                     ),
                   }}
                 />
                 <Tabs.Screen
-                  name="home"
+                  name="search-spot"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon name="home" component={Entypo} focused={focused} size={28} />
+                      <TabIcon name="magnifying-glass" component={FontAwesome6} size={focused ? 25 : 22}  focused={focused} />
                     ),
                   }}
                 />
@@ -48,7 +49,7 @@ export default function MainLayout() {
                   options={{
                     tabBarIcon: ({ focused }) => (
                       <MeAvatar
-                        className={cn('aspect-square h-full', focused && 'border-2 border-primary')}
+                        className={cn('aspect-square h-full', focused && 'border-2 border-primary h-9')}
                       />
                     ),
                   }}
@@ -71,7 +72,7 @@ function TabIcon<TGlyph extends string>({
 
   return (
     <ThemedIcon
-      color={!userProfile.spot ? colors.grey6 : focused ? colors.foreground : colors.grey}
+      color={!userProfile.spot ? colors.grey6 : focused ? colors.primary : colors.grey}
       size={24}
       {...props}
     />

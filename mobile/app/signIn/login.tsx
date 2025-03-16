@@ -22,7 +22,7 @@ export default function LoginScreen() {
         error={error}
         onSubmit={() =>
           signInWithEmailAndPassword(auth, email!, password!)
-            .then(() => router.navigate('/home'))
+            .then(() => router.navigate('/my-spot'))
             .catch(() => {
               setError('Email ou mot de passe incorrect');
             })

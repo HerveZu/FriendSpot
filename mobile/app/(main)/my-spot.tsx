@@ -17,7 +17,8 @@ import { ActivityIndicator, SafeAreaView, ScrollView, View } from 'react-native'
 import { useDebounce } from 'use-debounce';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
-import { Card, InfoCard } from '~/components/Card';
+import { MessageInfo } from '~/components/MessageInfo'
+import { Card } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange, DateRangeOnly } from '~/components/DateRange';
 import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
@@ -74,7 +75,7 @@ export default function MySpotScreen() {
         <ActivityIndicator />
       ) : availabilities.availabilities.length > 0 ? (
         <View>
-          <Title>Je propose mon spot</Title>
+          <Title>Spot prêté</Title>
           <View className={'flex-col gap-4'}>
             {availabilities.availabilities.map((availability) => (
               <MySpotAvailabilityCard
@@ -86,7 +87,7 @@ export default function MySpotScreen() {
           </View>
         </View>
       ) : (
-        <InfoCard info="Tu ne prêtes pas encore ta place" />
+        <MessageInfo info="Tu ne prêtes pas encore ta place" />
       )}
       <LendSpotSheet open={lendSheetOpen} onOpen={setLendSheetOpen} />
     </ScreenWithHeader>
@@ -128,11 +129,10 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
               }
             />
             <Text variant="heading" className="break-words font-bold">
-              Libre
               {' ' +
                 (differenceInSeconds(props.availability.from, now) > 0
                   ? formatRelative(props.availability.from, now)
-                  : 'maintenant')}
+                  : 'Actuellement')}
             </Text>
           </View>
           <View className={'flex-row gap-2'}>
