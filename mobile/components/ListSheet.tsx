@@ -10,7 +10,7 @@ import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 export function ListSheet(
   props: {
     title: string;
-    action: ReactNode;
+    action?: ReactNode;
     open: boolean;
     onOpen: Dispatch<SetStateAction<boolean>>;
     setNextReservedSpot: Dispatch<SetStateAction<boolean>>;
