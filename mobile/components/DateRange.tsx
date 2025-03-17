@@ -1,7 +1,7 @@
+import { FontAwesome6 } from '@expo/vector-icons';
 import {
   differenceInMinutes,
   format,
-  formatDistance,
   intervalToDuration,
   isWithinInterval,
 } from 'date-fns';
@@ -20,6 +20,7 @@ export function DateRange(props: {
   to: Date | string;
   duration?: string;
   label?: string;
+  iconLive?: boolean;
 }) {
   const now = useActualTime(5000);
 
@@ -35,9 +36,14 @@ export function DateRange(props: {
 
   return elapsedMinutes !== null ? (
     <View className="flex-col gap-4">
-      <Text className={'text-md'}>
-        {props.label ?? 'Pendant'} {formatDistance(props.to, now)}
-      </Text>
+      <View className='flex-row items-center gap-2'>
+      {props.iconLive && 
+        <View className="w-2.5 h-2.5 rounded-full bg-destructive" />
+      }
+        <Text className='text-md font-semibold'>
+          Du {format(props.from, 'dd MMMM HH:mm')} au {format(props.to, 'dd MMMM HH:mm')}
+        </Text>
+      </View>
       <ProgressIndicator
         className="h-4"
         value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
@@ -53,7 +59,7 @@ export function DateRangeOnly(props: { from: Date | string; to: Date | string; s
 
   return (
     <View className="flex-row items-center gap-2">
-      {!props.short && <ThemedIcon name="calendar" />}
+      {!props.short && <ThemedIcon component={FontAwesome6} name="clock" />}
       <Text className={'text-xs'}>{format(props.from, dateFormat)}</Text>
       <ThemedIcon name="arrow-right" />
       <Text className={'text-xs'}>{format(props.to, dateFormat)}</Text>

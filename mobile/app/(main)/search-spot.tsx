@@ -51,6 +51,8 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
+import { Modal, ModalTitle } from '~/components/Modal';
+import SuccesIllustration from 'assets/succes.svg';
 
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
@@ -62,6 +64,7 @@ export default function HomeScreen() {
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
   const [nextReservedSpot, setNextReservedSpot] = useState<boolean>(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState<SpotSuggestion>();
+  const [infoModalOpen, setInfoModalOpen] = React.useState(false);
 
   const now = useActualTime(5000);
   const [booking] = useFetch(() => getBooking(), []);
@@ -73,6 +76,15 @@ export default function HomeScreen() {
       isWithinInterval(now, { start: booking.from, end: booking.to })
     )
     .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime()) ?? [];
+
+  const activeBookingsCount = activeBookings.length;
+
+  function CheckIfPlurial(array: any) {
+    if (array > 1) {
+      return 's';
+    }
+    return '';
+  }
 
   useEffect(() => {
     (!booking || booking.bookings.length === 0) && setBookingListSheetOpen(false);
@@ -88,7 +100,7 @@ export default function HomeScreen() {
 
   return !userProfile.spot ? (
     <Redirect href="/user-profile" />
-  ) : (
+  ) : (    
     <ScreenWithHeader
       stickyBottom={
         <Button
@@ -114,14 +126,25 @@ export default function HomeScreen() {
           <Title className={'mb-0'}>{booking?.bookings.length ?? 0}</Title>
         </Button>
       </View>
+      {infoModalOpen && (
+        <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
+          <ModalTitle className='justify-center' text={'Nouvelle réservation !'} />
+          <View className='items-center'>
+            <SuccesIllustration width={250} height={250}/>
+          </View>
+        </Modal>
+      )}
       {!booking ? (
         <ActivityIndicator />
       ) : activeBookings.length > 0 ? (
-        <View className="flex-col gap-2">
-          {activeBookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} countdownOnTap />
-          ))}
-        </View>
+        <>
+          <View className="flex-col gap-2">
+            <Title>{`Tu utilises actuellement ce${CheckIfPlurial(activeBookingsCount)} spot${CheckIfPlurial(activeBookingsCount)}`}</Title>
+            {activeBookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} countdownOnTap />
+            ))}
+          </View>
+        </>
       ) : booking.bookings.length > 0 ? (
         <MessageInfo
           info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
@@ -162,7 +185,7 @@ export default function HomeScreen() {
                 setBookSheetOpen(true);
               }}>
               <ThemedIcon name="search" size={18} color={COLORS.white} />
-              <Text>Trouver un spot</Text>
+              <Text>Réserve un spot</Text>
             </Button>
           }
           open={bookingListSheetOpen}
@@ -183,6 +206,8 @@ export default function HomeScreen() {
         selectedSuggestion={selectedSuggestion}
         open={bookSheetOpen}
         onOpen={setBookSheetOpen}
+        infoModalOpen={infoModalOpen}
+        setInfoModalOpen={setInfoModalOpen}
       />
     </ScreenWithHeader>
   );
@@ -261,6 +286,7 @@ function BookingCard(props: {
             from={props.booking.from}
             to={props.booking.to}
             duration={props.booking.duration}
+            iconLive
           />
         </Card>
       </Pressable>
@@ -272,6 +298,8 @@ function BookingSheet(props: {
   selectedSuggestion: SpotSuggestion | undefined;
   open: boolean;
   onOpen: Dispatch<SetStateAction<boolean>>;
+  infoModalOpen?: boolean;
+  setInfoModalOpen?: Dispatch<SetStateAction<boolean>>;
 }) {
   const ref = useSheetRef();
 
@@ -285,6 +313,7 @@ function BookingSheet(props: {
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
+  
 
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
@@ -346,6 +375,14 @@ function BookingSheet(props: {
     return addHours(from, MIN_DURATION_HOURS);
   }
 
+  const triggerModal = useMemo(() => {
+    return () => {
+      setTimeout(() => {
+        props.setInfoModalOpen && props.setInfoModalOpen(true);
+      }, 1500);
+    };
+  }, [props.setInfoModalOpen]);
+
   function bookSpot(from: Date, to: Date, parkingLotId: string) {
     book({
       from,
@@ -353,7 +390,10 @@ function BookingSheet(props: {
       parkingLotId,
     })
       .then(refreshProfile)
-      .then(() => props.onOpen(false));
+      .then(() => props.onOpen(false))
+      .then(() => {
+        triggerModal();
+      })
   }
 
   const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
@@ -500,7 +540,7 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
     <Card>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <ThemedIcon component={FontAwesome6} name="clock" color={colors.primary} size={18} />
+          <ThemedIcon component={FontAwesome6} name="calendar" color={colors.primary} size={18} />
           <Text variant="heading" className="font-bold">
             {differenceInSeconds(props.suggestion.from, now) > 0
               ? capitalize(formatRelative(props.suggestion.from, now))

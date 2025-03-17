@@ -8,6 +8,7 @@ import {
   formatDuration,
   formatRelative,
   intervalToDuration,
+  isWithinInterval,
   max,
   min,
   secondsToMilliseconds,
@@ -89,7 +90,7 @@ export default function MySpotScreen() {
         </View>
       ) : (
         <View className='flex-col items-center justify-center gap-10'>
-          <MessageInfo info="Tu ne partages pas encore ton spot" />
+          <MessageInfo info="Tu ne prêtes pas encore ton spot" />
           <TreeIllustration width={280} height={280}/>
         </View>
 
@@ -150,6 +151,13 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     const now = useActualTime(30_000);
     const cancelBooking = useCancelBooking();
 
+    const isCurrently = useMemo(() => { 
+      return isWithinInterval(now, {
+        start: new Date(props.booking.from),
+        end: new Date(props.booking.to),
+      })
+    }, [props.booking.from, props.booking.to, now]);
+
     function Countdown() {
       const { colors } = useColorScheme();
       const initialRemainingSeconds = useMemo(
@@ -204,16 +212,26 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             parkingLotId: props.spotId,
           }).then(refreshProfile)
         }>
-        <Card className="bg-background">
-          <View className="flex-row justify-between">
+        <Card className='bg-background'>
+          <View className={`flex-row justify-between ${!isCurrently ? 'opacity-40' : ''}`}>
             <View className={'flex-col gap-3'}>
               <User
                 displayName={props.booking.bookedBy.displayName}
                 pictureUrl={props.booking.bookedBy.pictureUrl}
-              />
-              <DateRangeOnly from={props.booking.from} to={props.booking.to} short />
+                />
+                {isCurrently && (
+                  <View>
+                    <View className="flex-row items-center gap-2">
+                    <View className="w-2.5 h-2.5 rounded-full bg-destructive opacity-80" />
+                    <Text className="text-xs">Utilise actuellement ton spot</Text>
+                    </View>
+                  </View>
+                  )}
+              <DateRangeOnly from={props.booking.from} to={props.booking.to} />
             </View>
-            <Countdown />
+            {isCurrently && (
+              <Countdown />
+            )}
           </View>
         </Card>
       </Deletable>

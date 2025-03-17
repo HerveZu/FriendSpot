@@ -28,11 +28,11 @@ export function Modal({
   );
 }
 
-export function ModalTitle(props: { text: string; icon?: ReactNode }) {
+export function ModalTitle(props: { text: string; icon?: ReactNode; className?: string }) {
   return (
-    <View className={'flex-row items-baseline gap-4'}>
+    <View className={cn('flex-row', props.className)}>
       {props.icon}
-      <Text variant="title2" className={'font-semibold'}>
+      <Text variant="title1" className={cn('font-semibold', props.className)}>
         {props.text}
       </Text>
     </View>
