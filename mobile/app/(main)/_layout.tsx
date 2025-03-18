@@ -10,6 +10,7 @@ import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { AskUserToRate } from '~/rating/AskUserToRate';
+import { opacity } from '~/lib/utils';
 
 export default function MainLayout() {
 
@@ -40,7 +41,7 @@ export default function MainLayout() {
                   name="search-spot"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon name="magnifying-glass" component={FontAwesome6} size={focused ? 25 : 22}  focused={focused} />
+                      <TabIcon name="magnifying-glass" component={FontAwesome6} size={focused ? 27 : 25} focused={focused} />
                     ),
                   }}
                 />
