@@ -122,7 +122,8 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
   return (
     <Deletable className={'rounded-xl'} canDelete={props.availability.canCancel} onDelete={cancel}>
       <Card>
-        <View className="flex-row justify-between">
+        <View className="flex-col justify-between">
+          <View className='flex-row justify-between items-center gap-4'>
             <DateRange
               from={props.availability.from}
               to={props.availability.to}
@@ -132,6 +133,12 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
               <Users users={uniqueBookingUsers} />
               <DeleteTrigger />
             </View>
+          </View>
+          {props.availability.bookings.length === 0 && (
+            <Text className='text-xs mt-2'>
+              Personne n'a réservé ton spot pour le moment.
+            </Text>
+          )}
         </View>
         {props.availability.bookings.length > 0 && (
           <ScrollView>

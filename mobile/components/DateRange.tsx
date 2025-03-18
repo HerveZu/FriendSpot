@@ -40,9 +40,11 @@ export function DateRange(props: {
       {props.iconLive && 
         <View className="w-2.5 h-2.5 rounded-full bg-destructive" />
       }
-        <Text className='text-md font-semibold'>
-          Du {format(props.from, 'dd MMMM HH:mm')} au {format(props.to, 'dd MMMM HH:mm')}
-        </Text>
+        <View className='flex-row items-center gap-2'>
+          <Text className='text-md font-semibold'>{format(props.from, 'dd MMMM HH:mm')}</Text>
+          <ThemedIcon name="arrow-right" />
+          <Text className='text-md font-semibold'>{format(props.to, 'dd MMMM HH:mm')}</Text>
+        </View>
       </View>
       <ProgressIndicator
         className="h-4"

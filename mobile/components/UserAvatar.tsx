@@ -102,7 +102,9 @@ export function User({ className, ...props }: UserAvatarProps) {
   return (
     <View className="flex-row items-center gap-4">
       <UserAvatar className={cn('h-9 w-9', className)} {...props} />
-      <Text className="font-medium">{props.displayName}</Text>
+      <Text className="font-medium ">
+        {props.displayName}
+      </Text>
     </View>
   );
 }

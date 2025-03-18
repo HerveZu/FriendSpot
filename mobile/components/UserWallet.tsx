@@ -13,7 +13,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
 
   function CreditsExplanation(props: { pending: boolean; explanation: string }) {
     return (
-      <View className={'w-full flex-row justify-between items-center gap-6 p-4'}>
+      <View className={'w-full flex-row justify-between items-center gap-6 p-2.5'}>
         <Credits
           pending={props.pending}
           credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
@@ -34,7 +34,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
       </Button>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
         <ModalTitle text={'Comment ça marche ?'} />
-        <View className='gap-2 w-full'>
+        <View className='w-full'>
             <CreditsExplanation
               pending={false}
               explanation='Utilise ces crédits pour réserver un spot disponible.'
@@ -44,7 +44,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
               explanation='Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.'
             />
         </View>
-        <ModalFooter text={'Info : Prêter ou réserver 1h = 1 crédit.'} />
+        <ModalFooter text={'Info : Prêter ou réserver 1h = 1 crédit.'} className='border border-primary rounded-md'/>
       </Modal>
     </>
   );
