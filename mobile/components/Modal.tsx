@@ -19,7 +19,7 @@ export function Modal({
       backdropTransitionOutTiming={1}>
       <SafeAreaView>
         <View className={'bg-background'} {...props}>
-          <View className={cn('bg-primary/15 w-full flex-col gap-4 rounded-xl p-4', className)}>
+          <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
             {children}
           </View>
         </View>
@@ -30,10 +30,20 @@ export function Modal({
 
 export function ModalTitle(props: { text: string; icon?: ReactNode; className?: string }) {
   return (
-    <View className={cn('flex-row', props.className)}>
+    <View className={cn('flex-row items-center gap-4', props.className)}>
       {props.icon}
       <Text variant="title1" className={cn('font-semibold', props.className)}>
         {props.text}
+      </Text>
+    </View>
+  );
+}
+
+export function ModalFooter(props: { text: string}) {
+  return (
+    <View className={cn('flex-row justify-center items-center')}>
+      <Text variant="footnote" className={cn('italic text-center w-full')}>
+      {props.text}
       </Text>
     </View>
   );

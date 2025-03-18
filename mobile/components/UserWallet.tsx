@@ -4,7 +4,7 @@ import { LogoCard } from '~/components/Logo';
 import React from 'react';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { cn } from '~/lib/cn';
-import { Modal, ModalTitle } from '~/components/Modal';
+import { Modal, ModalFooter, ModalTitle } from '~/components/Modal';
 import { Button } from './nativewindui/Button';
 
 export function UserWallet({ className, ...props }: ViewProps) {
@@ -33,9 +33,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
           <Credits pending={true} credits={userProfile.wallet.pendingCredits}/>
       </Button>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-        <ModalTitle text={'Mes crédits'} />
-        <View className='items-center'>
-        </View>
+        <ModalTitle text={'Comment ça marche ?'} />
         <View className='gap-2 w-full'>
             <CreditsExplanation
               pending={false}
@@ -46,6 +44,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
               explanation='Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.'
             />
         </View>
+        <ModalFooter text={'Info : Prêter ou réserver 1h = 1 crédit.'} />
       </Modal>
     </>
   );
