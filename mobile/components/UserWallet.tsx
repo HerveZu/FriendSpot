@@ -1,32 +1,26 @@
-import { Pressable, View, ViewProps } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { LogoCard } from '~/components/Logo';
 import React from 'react';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { cn } from '~/lib/cn';
 import { Modal, ModalTitle } from '~/components/Modal';
-import { usePathname } from 'expo-router';
-
 import { Button } from './nativewindui/Button';
-
 
 export function UserWallet({ className, ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
 
-  const pathname = usePathname();
-
-  const mySpot = pathname === '/my-spot';
-
   function CreditsExplanation(props: { pending: boolean; explanation: string }) {
     return (
-      <View className={'ml-1 w-full flex-row justify-between gap-12'}>
+      <View className={'w-full flex-row justify-between items-center gap-6 p-4'}>
         <Credits
           pending={props.pending}
           credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
+          displayCredit={false}
         />
-        <View className={'flex-1'}>
-          <Text className={'text-start'}>{props.explanation}</Text>
+        <View className={'max-w-60'}>
+          <Text className={'text-start min-w-60'}>{props.explanation}</Text>
         </View>
       </View>
     );
@@ -34,23 +28,23 @@ export function UserWallet({ className, ...props }: ViewProps) {
 
   return (
     <>
-      <Button className={`gap-6 ${mySpot ? "w-6/12" : "w-10/12"}`} variant='tonal' onPress={() => setInfoModalOpen(true)}>
+      <Button className={`gap-6 max-w-44`} variant='tonal' onPress={() => setInfoModalOpen(true)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
-          <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
+          <Credits pending={true} credits={userProfile.wallet.pendingCredits}/>
       </Button>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
         <ModalTitle text={'Mes crédits'} />
         <View className='items-center'>
         </View>
-        <View className='gap-6'>
-          <CreditsExplanation
-            pending={false}
-            explanation='Utilise ces crédits pour réserver un spot.'
-          />
-          <CreditsExplanation
-            pending={true}
-            explanation='Crédits qui seront ajoutés à ton nombre de crédits actuel après avoir prêté ton spot.'
-          />
+        <View className='gap-2 w-full'>
+            <CreditsExplanation
+              pending={false}
+              explanation='Utilise ces crédits pour réserver un spot disponible.'
+            />
+            <CreditsExplanation
+              pending={true}
+              explanation='Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.'
+            />
         </View>
       </Modal>
     </>
@@ -61,12 +55,13 @@ export function Credits({
   pending,
   credits,
   className,
+  displayCredit=true,
   ...props
-}: { pending: boolean; credits: number } & ViewProps) {
+}: { pending: boolean; credits: number, displayCredit?: boolean } & ViewProps) {
   return (
     <View className={cn('flex-row items-center gap-2', className)} {...props}>
-      <LogoCard primary={!pending} className="h-5 w-3.5 rounded" />
-      <Text className="text-lg font-semibold">{Math.round(credits)}</Text>
+        <LogoCard primary={!pending} className="h-5 w-3.5 rounded" />
+        {displayCredit && <Text className="text-lg font-semibold">{Math.round(credits)}</Text>}
     </View>
   );
 }
