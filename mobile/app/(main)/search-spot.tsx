@@ -128,10 +128,13 @@ export default function HomeScreen() {
       </View>
       {infoModalOpen && (
         <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-          <ModalTitle className='justify-center' text={'Nouvelle réservation !'} />
+          <ModalTitle className=' justify-center text-center' text={`Tu as réservé ${'\n'} un nouveau spot !`} />
           <View className='items-center'>
             <SuccesIllustration width={250} height={250}/>
           </View>
+          <Button variant='primary' size='lg' onPress={() => {setInfoModalOpen(false) ,setBookingListSheetOpen(true)}}>
+            <Text>Voir mes réservations</Text>
+          </Button>
         </Modal>
       )}
       {!booking ? (
@@ -262,26 +265,19 @@ function BookingCard(props: {
                 {capitalize(formatRelative(props.booking.from, now))}
               </Text>
             </View>
-            {props.booking.parkingLot.name ? (
-              <Tag text={`n° ${props.booking.parkingLot.name}`} />
-            ) : (
               <DeleteTrigger
-                fallback={
-                  <Tag
-                    text={formatDistanceStrict(
-                      props.booking.from,
-                      min([now, addMinutes(props.booking.from, -1)]),
-                      { addSuffix: false }
-                    )}
-                  />
-                }
               />
-            )}
           </View>
-          <User
-            displayName={props.booking.owner.displayName}
-            pictureUrl={props.booking.owner.pictureUrl}
-          />
+          <View className='flex-col gap-4'>
+            <User
+              displayName={props.booking.owner.displayName}
+              pictureUrl={props.booking.owner.pictureUrl}
+            />
+            {props.booking.parkingLot.name ? (
+              <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />) 
+              : (
+              <Tag text={`Spot n° `} iconLock={true} />)}
+          </View>
           <DateRange
             from={props.booking.from}
             to={props.booking.to}
@@ -379,7 +375,7 @@ function BookingSheet(props: {
     return () => {
       setTimeout(() => {
         props.setInfoModalOpen && props.setInfoModalOpen(true);
-      }, 1500);
+      }, 500);
     };
   }, [props.setInfoModalOpen]);
 
