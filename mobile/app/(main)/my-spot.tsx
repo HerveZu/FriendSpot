@@ -1,6 +1,7 @@
-import { FontAwesome5, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import TreeIllustration from 'assets/tree.svg';
+import BlinkingDot from '../../components/BlinkingDot';
 import {
   addHours,
   addMinutes,
@@ -23,7 +24,7 @@ import { MessageInfo } from '~/components/MessageInfo'
 import { Card } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange, DateRangeOnly } from '~/components/DateRange';
-import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
+import { Deletable, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -136,7 +137,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
           </View>
           {props.availability.bookings.length === 0 && (
             <Text className='text-xs mt-3'>
-              Aucune réservation n’a encore été faite pour votre spot.
+              Aucune réservation n’a encore été faite pour ton spot.
             </Text>
           )}
         </View>
@@ -176,6 +177,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         () => new Date(props.booking.from).getTime() <= now.getTime(),
         [props.booking.from, now]
       );
+
       return (
         <View style={{ opacity: isActive ? 1 : 0.4 }} className={'flex-col justify-center'}>
           <CountdownCircleTimer
@@ -229,7 +231,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
                 {isCurrently && (
                   <View>
                     <View className="flex-row items-center gap-2">
-                    <View className="w-2.5 h-2.5 rounded-full bg-destructive opacity-80" />
+                    <BlinkingDot color={colors.destructive}/>
                     <Text className="text-xs">Utilise actuellement ton spot</Text>
                     </View>
                   </View>
