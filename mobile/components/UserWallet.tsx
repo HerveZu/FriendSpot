@@ -44,7 +44,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
               explanation='Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.'
             />
         </View>
-        <ModalFooter text={'Info : Prêter ou réserver 1h = 1 crédit.'} className='border border-primary rounded-md'/>
+        <ModalFooter text={'Info : Prêter ou réserver 1h = 1 crédit.'} className='py-2 border border-primary rounded-lg'/>
       </Modal>
     </>
   );

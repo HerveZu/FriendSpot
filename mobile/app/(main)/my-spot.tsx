@@ -137,7 +137,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
           </View>
           {props.availability.bookings.length === 0 && (
             <Text className='text-xs mt-3'>
-              Aucune réservation n’a encore été faite pour ton spot.
+                En attente de réservation.
             </Text>
           )}
         </View>
