@@ -20,7 +20,6 @@ export function DateRange(props: {
   to: Date | string;
   duration?: string;
   label?: string;
-  iconLive?: boolean;
 }) {
   const now = useActualTime(5000);
 
@@ -37,13 +36,10 @@ export function DateRange(props: {
   return elapsedMinutes !== null ? (
     <View className="flex-col gap-4">
       <View className='flex-row items-center gap-2'>
-      {props.iconLive && 
-        <View className="w-2.5 h-2.5 rounded-full bg-destructive" />
-      }
         <View className='flex-row items-center gap-2'>
-          <Text className='text-md font-semibold'>{format(props.from, 'dd MMMM HH:mm')}</Text>
+          <Text className='text-sm font-semibold'>{format(props.from, 'dd MMMM HH:mm')}</Text>
           <ThemedIcon name="arrow-right" />
-          <Text className='text-md font-semibold'>{format(props.to, 'dd MMMM HH:mm')}</Text>
+          <Text className='text-sm font-semibold'>{format(props.to, 'dd MMMM HH:mm')}</Text>
         </View>
       </View>
       <ProgressIndicator
@@ -61,9 +57,9 @@ export function DateRangeOnly(props: { from: Date | string; to: Date | string; s
 
   return (
     <View className="flex-row items-center gap-2">
-      {!props.short && <ThemedIcon component={FontAwesome6} name="clock" />}
+      {!props.short && <ThemedIcon component={FontAwesome6} name="clock" size={12}/>}
       <Text className={'text-xs'}>{format(props.from, dateFormat)}</Text>
-      <ThemedIcon name="arrow-right" />
+      <ThemedIcon name="arrow-right" size={12}/>
       <Text className={'text-xs'}>{format(props.to, dateFormat)}</Text>
     </View>
   );

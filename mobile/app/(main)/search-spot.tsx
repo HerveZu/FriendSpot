@@ -8,7 +8,6 @@ import {
   differenceInHours,
   differenceInSeconds,
   formatDistance,
-  formatDistanceStrict,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -53,6 +52,7 @@ import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
 import SuccesIllustration from 'assets/succes.svg';
+import BlinkingDot from '~/components/BlinkingDot';
 
 export default function HomeScreen() {
   const { userProfile } = useCurrentUser();
@@ -142,7 +142,10 @@ export default function HomeScreen() {
       ) : activeBookings.length > 0 ? (
         <>
           <View className="flex-col gap-2">
-            <Title>{`Tu utilises actuellement ce${CheckIfPlurial(activeBookingsCount)} spot${CheckIfPlurial(activeBookingsCount)}`}</Title>
+            <View className='flex-row items-center gap-2'>
+              <BlinkingDot className='relative top-[-5]' color={colors.destructive}/>
+              <Title>{`Tu utilises actuellement ce${CheckIfPlurial(activeBookingsCount)} spot${CheckIfPlurial(activeBookingsCount)}`}</Title>
+            </View>
             {activeBookings.map((booking) => (
               <BookingCard key={booking.id} booking={booking} countdownOnTap />
             ))}
@@ -282,7 +285,6 @@ function BookingCard(props: {
             from={props.booking.from}
             to={props.booking.to}
             duration={props.booking.duration}
-            iconLive
           />
         </Card>
       </Pressable>
