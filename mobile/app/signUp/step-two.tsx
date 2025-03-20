@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import stepTwoIllustration from '~/assets/security.svg';
 
+
 import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { firebaseAuth } from '~/authentication/firebase';
 import { notEmpty } from '~/lib/utils';
@@ -23,7 +24,7 @@ export default function StepTwoScreen() {
   async function createAccount() {
     try {
       const result = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
-      updateProfile(result.user, { displayName }).then(() => router.navigate('/my-spot'));
+      await updateProfile(result.user, { displayName }).then(() => router.navigate('/user-profile'));
     } catch (e) {
       console.error(e);
       setError('Cette adresse e-mail est déjà utilisée.');
@@ -73,3 +74,4 @@ export default function StepTwoScreen() {
     </SafeAreaView>
   );
 }
+
