@@ -118,17 +118,17 @@ export default function HomeScreen() {
       <View className="flex-row justify-between">
         <ScreenTitle title="Réserve un spot" />
         <Button
-          className={'h-14 relative top-5'}
+          className={'h-16 relative top-10'}
           variant="primary"
           disabled={booking?.bookings.length === 0}
           onPress={() => setBookingListSheetOpen(true)}>
-          <ThemedIcon size={24} name="bell" color={colors.foreground} />
-          <Text className={`mb-0 ${colors.destructive}`}>{booking?.bookings.length ?? 0}</Text>
+          <ThemedIcon size={18} name="car" color={colors.foreground} />
+          <Text className={`mb-0`}>{booking?.bookings.length ?? 0}</Text>
         </Button>
       </View>
       {infoModalOpen && (
         <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-          <ModalTitle className=' justify-center text-center' text={`Nouveau spot !`} />
+          <ModalTitle className=' justify-center text-center' text={`Nouveau spot réservé !`} />
           <View className='items-center'>
             <SuccesIllustration width={250} height={250}/>
           </View>
