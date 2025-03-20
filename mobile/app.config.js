@@ -1,7 +1,7 @@
 const APP_VARIANT = process.env.APP_VARIANT;
 
 const getUniqueIdentifier = () => {
-  const id = 'friendspot';
+  const id = 'com.friendspot';
 
   if (APP_VARIANT) {
     return `${id}.${APP_VARIANT.toLowerCase()}`;
