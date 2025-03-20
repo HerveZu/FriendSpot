@@ -22,7 +22,7 @@ export default function StepOneScreen() {
   return (
     <SafeAreaView>
       <AuthForm
-      Illustration={stepOneIllustration}
+        Illustration={stepOneIllustration}
         title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={async () => goToStep2(email!)}
         submitText="Suivant">

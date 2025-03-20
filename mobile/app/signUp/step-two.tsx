@@ -23,7 +23,7 @@ export default function StepTwoScreen() {
   async function createAccount() {
     try {
       const result = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
-      updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
+      await updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
     } catch (e) {
       console.error(e);
       setError('Cette addresse e-mail est déjà utilisé');
@@ -37,7 +37,7 @@ export default function StepTwoScreen() {
   return (
     <SafeAreaView>
       <AuthForm
-      Illustration={stepTwoIllustration}
+        Illustration={stepTwoIllustration}
         error={error}
         title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={createAccount}
