@@ -74,7 +74,7 @@ export function UserProvider(props: PropsWithChildren) {
       return;
     }
 
-    const displayName = internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? '';
+    const displayName = internalFirebaseUser.displayName ?? '';
     registerUser({
       displayName,
       pictureUrl: internalFirebaseUser.photoURL,
