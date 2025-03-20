@@ -10,7 +10,6 @@ import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { AskUserToRate } from '~/rating/AskUserToRate';
-import { opacity } from '~/lib/utils';
 
 export default function MainLayout() {
 
@@ -50,7 +49,7 @@ export default function MainLayout() {
                   options={{
                     tabBarIcon: ({ focused }) => (
                       <MeAvatar
-                        className={cn('aspect-square h-full', focused && 'border-2 border-primary h-9')}
+                      className={cn('aspect-square h-full', focused && 'border-2 border-primary h-9')}
                       />
                     ),
                   }}
