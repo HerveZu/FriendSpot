@@ -33,6 +33,9 @@ export function useCurrentUser() {
   return useContext(_UserProfileContext);
 }
 
+// shared global value to avoid other attempts during re-renders
+let REGISTER_ATTEMPT_COUNT = 0;
+
 export function UserProvider(props: PropsWithChildren) {
   const { firebaseUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>();
@@ -41,6 +44,7 @@ export function UserProvider(props: PropsWithChildren) {
   const getProfile = useGetProfile();
   const stateTrigger = useListenOnAppStateChange('background');
   const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
+  const [registerTrigger, setRegisterTrigger] = useState({});
 
   const { expoPushToken } = useNotification();
   const deviceId = useDeviceId();
@@ -70,20 +74,35 @@ export function UserProvider(props: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
-    if (!deviceId) {
+    if (REGISTER_ATTEMPT_COUNT > 5) {
+      console.error('Max register attempt count reach');
       return;
     }
 
-    const displayName = internalFirebaseUser.displayName ?? '';
+    if (!userProfile && !internalFirebaseUser.displayName) {
+      console.error(`Register failed on attempt ${REGISTER_ATTEMPT_COUNT}, retrying in 200ms`);
+      REGISTER_ATTEMPT_COUNT++;
+
+      // dirty fix to handle concurrency issue when the user is not registered yet
+      const handler = setTimeout(() => setRegisterTrigger({}), 200);
+      return () => clearTimeout(handler);
+    }
+
+    if (!deviceId || !internalFirebaseUser.displayName) {
+      return;
+    }
+
     registerUser({
-      displayName,
+      displayName: internalFirebaseUser.displayName,
       pictureUrl: internalFirebaseUser.photoURL,
       device: {
         id: deviceId,
         expoPushToken: expoPushToken,
       },
-    }).then(() => getProfile().then(setUserProfile));
-  }, [deviceId, internalFirebaseUser, expoPushToken]);
+    })
+      .then(() => getProfile().then(setUserProfile))
+      .then(() => (REGISTER_ATTEMPT_COUNT = 0));
+  }, [registerTrigger, deviceId, internalFirebaseUser, expoPushToken]);
 
   useEffect(() => {
     refreshProfile().then();
