@@ -38,7 +38,7 @@ export default function StepTwoScreen() {
   return (
     <SafeAreaView>
       <AuthForm
-      Illustration={stepTwoIllustration}
+        Illustration={stepTwoIllustration}
         error={error}
         title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={createAccount}
