@@ -103,6 +103,6 @@ export function DeleteTrigger(props: { fallback?: ReactNode }) {
       <ThemedIcon name={'trash'} size={18} color={colors.destructive} />
     </Button>
   ) : (
-    props.fallback
+    <></>
   );
 }

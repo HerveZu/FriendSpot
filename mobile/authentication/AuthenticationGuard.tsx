@@ -21,7 +21,7 @@ export function AuthenticationGuard(props: PropsWithChildren) {
       return;
     }
 
-    router.navigate(isAuthenticated ? '/home' : '/welcome');
+    router.navigate(isAuthenticated ? '/my-spot' : '/welcome');
   }, [isAuthenticated, rootNavigationState?.key]);
 
   return isLoading ? <Loader /> : props.children;
