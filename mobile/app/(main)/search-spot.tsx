@@ -51,8 +51,9 @@ import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
-import SuccesIllustration from 'assets/succes.svg';
+import SuccessIllustration from 'assets/succes.svg';
 import BlinkingDot from '~/components/BlinkingDot';
+import { pluralize } from '~/lib/locale';
 
 export default function SearchSpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -76,13 +77,6 @@ export default function SearchSpotScreen() {
       .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime()) ?? [];
 
   const activeBookingsCount = activeBookings.length;
-
-  function CheckIfPlurial(array: any) {
-    if (array > 1) {
-      return 's';
-    }
-    return '';
-  }
 
   useEffect(() => {
     (!booking || booking.bookings.length === 0) && setBookingListSheetOpen(false);
@@ -128,13 +122,14 @@ export default function SearchSpotScreen() {
         <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
           <ModalTitle className=" justify-center text-center" text={`Nouveau spot réservé !`} />
           <View className="items-center">
-            <SuccesIllustration width={250} height={250} />
+            <SuccessIllustration width={250} height={250} />
           </View>
           <Button
             variant="primary"
             size="lg"
             onPress={() => {
-              setInfoModalOpen(false), setBookingListSheetOpen(true);
+              setInfoModalOpen(false);
+              setBookingListSheetOpen(true);
             }}>
             <Text>Voir mes réservations</Text>
           </Button>
@@ -147,7 +142,7 @@ export default function SearchSpotScreen() {
           <View className="flex-col gap-2">
             <View className="flex-row items-center gap-2">
               <BlinkingDot className="relative top-[-5]" color={colors.destructive} />
-              <Title>{`Tu utilises actuellement ce${CheckIfPlurial(activeBookingsCount)} spot${CheckIfPlurial(activeBookingsCount)}`}</Title>
+              <Title>{`Tu utilises actuellement ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
             </View>
             {activeBookings.map((booking) => (
               <BookingCard key={booking.id} booking={booking} countdownOnTap />
@@ -158,7 +153,8 @@ export default function SearchSpotScreen() {
         <MessageInfo
           info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
           action={() => {
-            setBookingListSheetOpen(true), setNextReservedSpot(true);
+            setBookingListSheetOpen(true);
+            setNextReservedSpot(true);
           }}
         />
       ) : (
