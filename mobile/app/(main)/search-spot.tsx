@@ -138,17 +138,15 @@ export default function SearchSpotScreen() {
       {!booking ? (
         <ActivityIndicator />
       ) : activeBookings.length > 0 ? (
-        <>
-          <View className="flex-col gap-2">
-            <View className="flex-row items-center gap-2">
-              <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
-              <Title>{`Tu utilises actuellement ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
-            </View>
-            {activeBookings.map((booking) => (
-              <BookingCard key={booking.id} booking={booking} countdownOnTap />
-            ))}
+        <View className="flex-col gap-4">
+          <View className="flex-row items-center gap-2">
+            <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
+            <Title>{`Tu occupes ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
           </View>
-        </>
+          {activeBookings.map((booking) => (
+            <BookingCard key={booking.id} booking={booking} countdownOnTap />
+          ))}
+        </View>
       ) : booking.bookings.length > 0 ? (
         <MessageInfo
           info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
