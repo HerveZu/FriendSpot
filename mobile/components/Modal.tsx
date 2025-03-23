@@ -39,11 +39,11 @@ export function ModalTitle(props: { text: string; icon?: ReactNode; className?: 
   );
 }
 
-export function ModalFooter(props: { text: string, className?: string}) {
+export function ModalFooter(props: { text: string; className?: string }) {
   return (
-    <View className={cn('flex-row justify-center items-center', props.className)}>
-      <Text variant="footnote" className={cn('italic text-center w-full')}>
-      {props.text}
+    <View className={cn('flex-row items-center justify-center', props.className)}>
+      <Text variant="footnote" className={cn('w-full text-center italic')}>
+        {props.text}
       </Text>
     </View>
   );

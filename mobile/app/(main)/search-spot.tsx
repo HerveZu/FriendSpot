@@ -110,12 +110,12 @@ export default function SearchSpotScreen() {
       <View className="flex-row justify-between">
         <ScreenTitle title="Réserve un spot" />
         <Button
-          className={'relative top-10 h-16'}
-          variant="primary"
+          className={'h-16'}
+          variant={'primary'}
           disabled={booking?.bookings.length === 0}
           onPress={() => setBookingListSheetOpen(true)}>
           <ThemedIcon size={18} name="car" color={colors.foreground} />
-          <Text className={`mb-0`}>{booking?.bookings.length ?? 0}</Text>
+          <Text>{booking?.bookings.length ?? 0}</Text>
         </Button>
       </View>
       {infoModalOpen && (
@@ -141,7 +141,7 @@ export default function SearchSpotScreen() {
         <>
           <View className="flex-col gap-2">
             <View className="flex-row items-center gap-2">
-              <BlinkingDot className="relative top-[-5]" color={colors.destructive} />
+              <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
               <Title>{`Tu utilises actuellement ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
             </View>
             {activeBookings.map((booking) => (
@@ -231,64 +231,75 @@ function BookingCard(props: {
   const cancelBooking = useCancelBooking();
 
   const canDelete = !!props.deletable && props.booking.canCancel;
+  const [lockInfo, setLockInfo] = useState(false);
 
   return (
-    <Deletable
-      disabled={!props.deletable}
-      canDelete={canDelete}
-      className={'rounded-xl'}
-      onDelete={() =>
-        cancelBooking({
-          bookingId: props.booking.id,
-          parkingLotId: props.booking.parkingLot.id,
-        }).then(refreshProfile)
-      }>
-      <Pressable
-        onPress={() =>
-          props.countdownOnTap &&
-          props.booking.parkingLot.name &&
-          router.navigate({
-            pathname: '/spot-count-down',
-            params: {
-              activeBookingsJson: JSON.stringify([props.booking]),
-            } as SpotCountDownScreenParams,
-          })
+    <>
+      <Deletable
+        disabled={!props.deletable}
+        canDelete={canDelete}
+        className={'rounded-xl'}
+        onDelete={() =>
+          cancelBooking({
+            bookingId: props.booking.id,
+            parkingLotId: props.booking.parkingLot.id,
+          }).then(refreshProfile)
         }>
-        <Card>
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center gap-2">
-              {props.deletable ? (
-                <DeletableStatus
-                  fallback={<ThemedIcon name={'ticket'} size={18} color={colors.primary} />}
-                />
-              ) : (
-                <ThemedIcon name={'ticket'} size={18} color={colors.primary} />
-              )}
-              <Text variant="heading" className="font-bold">
-                {capitalize(formatRelative(props.booking.from, now))}
-              </Text>
+        <Pressable
+          onPress={() =>
+            props.countdownOnTap &&
+            props.booking.parkingLot.name &&
+            router.navigate({
+              pathname: '/spot-count-down',
+              params: {
+                activeBookingsJson: JSON.stringify([props.booking]),
+              } as SpotCountDownScreenParams,
+            })
+          }>
+          <Card>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                {props.deletable ? (
+                  <DeletableStatus
+                    fallback={<ThemedIcon name={'ticket'} size={18} color={colors.primary} />}
+                  />
+                ) : (
+                  <ThemedIcon name={'ticket'} size={18} color={colors.primary} />
+                )}
+                <Text variant="heading" className="font-bold">
+                  {capitalize(formatRelative(props.booking.from, now))}
+                </Text>
+              </View>
+              <DeleteTrigger />
             </View>
-            <DeleteTrigger />
-          </View>
-          <View className="flex-col gap-4">
-            <User
-              displayName={props.booking.owner.displayName}
-              pictureUrl={props.booking.owner.pictureUrl}
+            <View className="flex-row items-center justify-between gap-4">
+              <User
+                displayName={props.booking.owner.displayName}
+                pictureUrl={props.booking.owner.pictureUrl}
+              />
+              <View>
+                {props.booking.parkingLot.name ? (
+                  <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
+                ) : (
+                  <Tag onPress={() => setLockInfo(!lockInfo)} text={'Spot n°'} icon={'lock'} />
+                )}
+              </View>
+            </View>
+            <DateRange
+              from={props.booking.from}
+              to={props.booking.to}
+              duration={props.booking.duration}
             />
-            {props.booking.parkingLot.name ? (
-              <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
-            ) : (
-              <Tag text={`Spot n° `} iconLock={true} />
-            )}
-          </View>
-          <DateRange
-            from={props.booking.from}
-            to={props.booking.to}
-            duration={props.booking.duration}
-          />
-        </Card>
-      </Pressable>
-    </Deletable>
+          </Card>
+        </Pressable>
+      </Deletable>
+      <Modal open={lockInfo} onOpenChange={() => setLockInfo(false)}>
+        <ModalTitle text={'Comment ça marche ?'} />
+        <View className="w-full">
+          <Text>Le numéro du spot sera révélé au début de la réservation.</Text>
+        </View>
+      </Modal>
+    </>
   );
 }
 

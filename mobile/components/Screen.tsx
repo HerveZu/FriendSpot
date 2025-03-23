@@ -147,7 +147,7 @@ export function ScreenTitle({
 
   return (
     <Animated.View
-      className={cn('mb-6 flex-col gap-4', className)}
+      className={cn('relative mb-6 flex-col gap-4', className)}
       style={[
         {
           opacity: fadeOpacity,

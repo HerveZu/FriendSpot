@@ -140,7 +140,7 @@ export default function UserProfileScreen() {
             </Pressable>
           </View>
         </View>
-        <View className={'mb-4 flex-col'}>
+        <View className={'flex-col'}>
           <Title>Autre</Title>
           <View className={'flex-col gap-2'}>
             <TextInput

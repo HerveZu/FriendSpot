@@ -103,7 +103,6 @@ export default function MySpotScreen() {
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
   const { refreshProfile } = useCurrentUser();
-  const now = useActualTime(30_000);
   const cancelAvailability = useCancelAvailability();
 
   async function cancel() {

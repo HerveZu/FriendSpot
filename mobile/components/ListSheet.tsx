@@ -27,7 +27,13 @@ export function ListSheet(
   }, [ref.current, props.open]);
 
   return (
-    <Sheet ref={ref} onDismiss={() => { props.onOpen(false), props.setNextReservedSpot(false)}} topInset={150}>
+    <Sheet
+      ref={ref}
+      onDismiss={() => {
+        props.onOpen(false);
+        props.setNextReservedSpot(false);
+      }}
+      topInset={150}>
       <BottomSheetView>
         <ContentSheetView className="flex-col justify-between gap-8">
           <SheetTitle>{props.title}</SheetTitle>
