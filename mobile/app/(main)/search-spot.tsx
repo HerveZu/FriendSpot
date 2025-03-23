@@ -379,6 +379,12 @@ function BookingSheet(props: {
     setTo(props.selectedSuggestion ? fromUtc(props.selectedSuggestion.to) : safeTo);
   }, [props.open, props.selectedSuggestion]);
 
+  useEffect(() => {
+    if (!props.selectedSuggestion) return;
+
+    setSelectedSpot(props.selectedSuggestion);
+  }, [props.selectedSuggestion]);
+
   function minTo(from: Date): Date {
     return addHours(from, MIN_DURATION_HOURS);
   }
@@ -404,7 +410,11 @@ function BookingSheet(props: {
       });
   }
 
-  const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
+  const spots: AvailableSpot[] =
+    availableSpots?.availableSpots.filter(
+      (spot) =>
+        !props.selectedSuggestion || spot.parkingLotId === props.selectedSuggestion.parkingLotId
+    ) ?? [];
   const justAfterNow = addMinutes(now, 5);
 
   return (
@@ -425,7 +435,7 @@ function BookingSheet(props: {
               {spots.length === 0 ? (
                 <View className="my-auto flex-col items-center gap-4">
                   <QuestionIllustration width={150} height={150} />
-                  <Text variant="body" className="text-center text-destructive">
+                  <Text variant="body" className="text-center text-primary">
                     Aucun spot n’est disponible {'\n'} sur cette période.
                   </Text>
                 </View>
