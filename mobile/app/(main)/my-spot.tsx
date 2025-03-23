@@ -20,7 +20,7 @@ import { ActivityIndicator, SafeAreaView, ScrollView, View } from 'react-native'
 import { useDebounce } from 'use-debounce';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
-import { MessageInfo } from '~/components/MessageInfo'
+import { MessageInfo } from '~/components/MessageInfo';
 import { Card } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange, DateRangeOnly } from '~/components/DateRange';
@@ -90,11 +90,10 @@ export default function MySpotScreen() {
           </View>
         </View>
       ) : (
-        <View className='flex-col items-center justify-center gap-10'>
+        <View className="flex-col items-center justify-center gap-10">
           <MessageInfo info="Tu ne prêtes pas encore ton spot" />
-          <TreeIllustration width={280} height={280}/>
+          <TreeIllustration width={280} height={280} />
         </View>
-
       )}
       <LendSpotSheet open={lendSheetOpen} onOpen={setLendSheetOpen} />
     </ScreenWithHeader>
@@ -124,7 +123,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     <Deletable className={'rounded-xl'} canDelete={props.availability.canCancel} onDelete={cancel}>
       <Card>
         <View className="flex-col justify-between">
-          <View className='flex-row justify-between items-center gap-4'>
+          <View className="flex-row items-center justify-between gap-4">
             <DateRange
               from={props.availability.from}
               to={props.availability.to}
@@ -136,11 +135,9 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             </View>
           </View>
           {props.availability.bookings.length === 0 && (
-            <View className='flex-row items-center mt-3 gap-2'>
+            <View className="mt-3 flex-row items-center gap-2">
               <BlinkingDot color={colors.primary} />
-              <Text className='text-xs '>
-                  En attente de réservation
-              </Text>
+              <Text className="text-xs ">En attente de réservation</Text>
             </View>
           )}
         </View>
@@ -162,11 +159,11 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
     const now = useActualTime(30_000);
     const cancelBooking = useCancelBooking();
 
-    const isCurrently = useMemo(() => { 
+    const isCurrently = useMemo(() => {
       return isWithinInterval(now, {
         start: new Date(props.booking.from),
         end: new Date(props.booking.to),
-      })
+      });
     }, [props.booking.from, props.booking.to, now]);
 
     function Countdown() {
@@ -224,26 +221,24 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             parkingLotId: props.spotId,
           }).then(refreshProfile)
         }>
-        <Card className='bg-background'>
+        <Card className="bg-background">
           <View className={`flex-row justify-between ${!isCurrently ? 'opacity-40' : ''}`}>
             <View className={'flex-col gap-3'}>
               <User
                 displayName={props.booking.bookedBy.displayName}
                 pictureUrl={props.booking.bookedBy.pictureUrl}
-                />
-                {isCurrently && (
-                  <View>
-                    <View className="flex-row items-center gap-2">
-                    <BlinkingDot color={colors.destructive}/>
+              />
+              {isCurrently && (
+                <View>
+                  <View className="flex-row items-center gap-2">
+                    <BlinkingDot color={colors.destructive} />
                     <Text className="text-xs">Utilise actuellement ton spot</Text>
-                    </View>
                   </View>
-                  )}
+                </View>
+              )}
               <DateRangeOnly from={props.booking.from} to={props.booking.to} />
             </View>
-            {isCurrently && (
-              <Countdown />
-            )}
+            {isCurrently && <Countdown />}
           </View>
         </Card>
       </Deletable>
@@ -335,8 +330,9 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
             </List>
             {simulation?.overlaps && (
               <View className="mx-auto w-full flex-row items-center justify-center gap-8 p-4">
-                <Text variant="title3" className="text-primary text-center">
-                  Ta place est déjà partagée, {"\n"} sa disponibilité s'étend si tu ajoutes des créneaux.
+                <Text variant="title3" className="text-center text-primary">
+                  Ta place est déjà partagée, {'\n'} sa disponibilité s'étend si tu ajoutes des
+                  créneaux.
                 </Text>
               </View>
             )}

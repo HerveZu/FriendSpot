@@ -54,7 +54,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import SuccesIllustration from 'assets/succes.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 
-export default function HomeScreen() {
+export default function SearchSpotScreen() {
   const { userProfile } = useCurrentUser();
 
   const { colors } = useColorScheme();
@@ -71,11 +71,9 @@ export default function HomeScreen() {
   const [suggestedSpots] = useFetch(() => getSuggestedSpots(now, addHours(now, 12)), []);
 
   const activeBookings =
-  booking?.bookings
-    .filter((booking) =>
-      isWithinInterval(now, { start: booking.from, end: booking.to })
-    )
-    .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime()) ?? [];
+    booking?.bookings
+      .filter((booking) => isWithinInterval(now, { start: booking.from, end: booking.to }))
+      .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime()) ?? [];
 
   const activeBookingsCount = activeBookings.length;
 
@@ -100,7 +98,7 @@ export default function HomeScreen() {
 
   return !userProfile.spot ? (
     <Redirect href="/user-profile" />
-  ) : (    
+  ) : (
     <ScreenWithHeader
       stickyBottom={
         <Button
@@ -118,7 +116,7 @@ export default function HomeScreen() {
       <View className="flex-row justify-between">
         <ScreenTitle title="Réserve un spot" />
         <Button
-          className={'h-16 relative top-10'}
+          className={'relative top-10 h-16'}
           variant="primary"
           disabled={booking?.bookings.length === 0}
           onPress={() => setBookingListSheetOpen(true)}>
@@ -128,11 +126,16 @@ export default function HomeScreen() {
       </View>
       {infoModalOpen && (
         <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-          <ModalTitle className=' justify-center text-center' text={`Nouveau spot réservé !`} />
-          <View className='items-center'>
-            <SuccesIllustration width={250} height={250}/>
+          <ModalTitle className=" justify-center text-center" text={`Nouveau spot réservé !`} />
+          <View className="items-center">
+            <SuccesIllustration width={250} height={250} />
           </View>
-          <Button variant='primary' size='lg' onPress={() => {setInfoModalOpen(false) ,setBookingListSheetOpen(true)}}>
+          <Button
+            variant="primary"
+            size="lg"
+            onPress={() => {
+              setInfoModalOpen(false), setBookingListSheetOpen(true);
+            }}>
             <Text>Voir mes réservations</Text>
           </Button>
         </Modal>
@@ -142,8 +145,8 @@ export default function HomeScreen() {
       ) : activeBookings.length > 0 ? (
         <>
           <View className="flex-col gap-2">
-            <View className='flex-row items-center gap-2'>
-              <BlinkingDot className='relative top-[-5]' color={colors.destructive}/>
+            <View className="flex-row items-center gap-2">
+              <BlinkingDot className="relative top-[-5]" color={colors.destructive} />
               <Title>{`Tu utilises actuellement ce${CheckIfPlurial(activeBookingsCount)} spot${CheckIfPlurial(activeBookingsCount)}`}</Title>
             </View>
             {activeBookings.map((booking) => (
@@ -154,7 +157,9 @@ export default function HomeScreen() {
       ) : booking.bookings.length > 0 ? (
         <MessageInfo
           info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
-          action={() => {setBookingListSheetOpen(true), setNextReservedSpot(true)}}
+          action={() => {
+            setBookingListSheetOpen(true), setNextReservedSpot(true);
+          }}
         />
       ) : (
         <MessageInfo info="Réserve un spot dès maintenant !" />
@@ -182,30 +187,29 @@ export default function HomeScreen() {
         <ListSheet
           title={`${nextReservedSpot ? 'Prochaine réservation' : 'Réservations'}`}
           setNextReservedSpot={setNextReservedSpot}
-          action={!nextReservedSpot &&
-            <Button
-              size="lg"
-              variant="primary"
-              onPress={() => {
-                setBookingListSheetOpen(false);
-                setBookSheetOpen(true);
-              }}>
-              <ThemedIcon name="search" size={18} color={COLORS.white} />
-              <Text>Réserve un spot</Text>
-            </Button>
+          action={
+            !nextReservedSpot && (
+              <Button
+                size="lg"
+                variant="primary"
+                onPress={() => {
+                  setBookingListSheetOpen(false);
+                  setBookSheetOpen(true);
+                }}>
+                <ThemedIcon name="search" size={18} color={COLORS.white} />
+                <Text>Réserve un spot</Text>
+              </Button>
+            )
           }
           open={bookingListSheetOpen}
           onOpen={setBookingListSheetOpen}>
-            {nextReservedSpot && booking.bookings.length > 0 ? (
-              <BookingCard booking={booking.bookings[0]} deletable={true}/>
-            ) : (
-              booking.bookings
+          {nextReservedSpot && booking.bookings.length > 0 ? (
+            <BookingCard booking={booking.bookings[0]} deletable={true} />
+          ) : (
+            booking.bookings
               .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
-              .map((booking) => (
-              <BookingCard key={booking.id} booking={booking} deletable={true} />
-          ))
-            )}
-          
+              .map((booking) => <BookingCard key={booking.id} booking={booking} deletable={true} />)
+          )}
         </ListSheet>
       )}
       <BookingSheet
@@ -268,18 +272,18 @@ function BookingCard(props: {
                 {capitalize(formatRelative(props.booking.from, now))}
               </Text>
             </View>
-              <DeleteTrigger
-              />
+            <DeleteTrigger />
           </View>
-          <View className='flex-col gap-4'>
+          <View className="flex-col gap-4">
             <User
               displayName={props.booking.owner.displayName}
               pictureUrl={props.booking.owner.pictureUrl}
             />
             {props.booking.parkingLot.name ? (
-              <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />) 
-              : (
-              <Tag text={`Spot n° `} iconLock={true} />)}
+              <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
+            ) : (
+              <Tag text={`Spot n° `} iconLock={true} />
+            )}
           </View>
           <DateRange
             from={props.booking.from}
@@ -311,7 +315,6 @@ function BookingSheet(props: {
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
-  
 
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
@@ -391,7 +394,7 @@ function BookingSheet(props: {
       .then(() => props.onOpen(false))
       .then(() => {
         triggerModal();
-      })
+      });
   }
 
   const spots: AvailableSpot[] = availableSpots?.availableSpots.slice(0, 3) ?? [];
@@ -414,10 +417,10 @@ function BookingSheet(props: {
 
               {spots.length === 0 ? (
                 <View className="my-auto flex-col items-center gap-4">
-                  <QuestionIllustration width={150} height={150}/>
-                    <Text variant="body" className="text-center text-destructive">
-                      Aucun spot n’est disponible {'\n'} sur cette période.
-                    </Text>
+                  <QuestionIllustration width={150} height={150} />
+                  <Text variant="body" className="text-center text-destructive">
+                    Aucun spot n’est disponible {'\n'} sur cette période.
+                  </Text>
                 </View>
               ) : (
                 <View className="grow flex-col gap-2">

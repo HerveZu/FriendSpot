@@ -103,7 +103,7 @@ export default function UserProfileScreen() {
         <View className={'gap-2'}>
           <TextInput
             icon={{
-              position:'right',
+              position: 'right',
               element: <ThemedIcon size={18} name={'pencil'} />,
             }}
             maxLength={30}
@@ -213,7 +213,7 @@ export function LogoutConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
         <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
-        <View className="w-full flex-row gap-4 mt-4">
+        <View className="mt-4 w-full flex-row gap-4">
           <Button
             className={'grow'}
             size={'lg'}

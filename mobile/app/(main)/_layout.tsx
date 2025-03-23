@@ -12,7 +12,6 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { AskUserToRate } from '~/rating/AskUserToRate';
 
 export default function MainLayout() {
-
   return (
     <AuthProvider>
       <UserProvider>
@@ -32,7 +31,12 @@ export default function MainLayout() {
                   name="my-spot"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon name="house" component={FontAwesome6} size={focused ? 24 : 22} focused={focused} />
+                      <TabIcon
+                        name="house"
+                        component={FontAwesome6}
+                        size={focused ? 24 : 22}
+                        focused={focused}
+                      />
                     ),
                   }}
                 />
@@ -40,7 +44,12 @@ export default function MainLayout() {
                   name="search-spot"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon name="magnifying-glass" component={FontAwesome6} size={focused ? 27 : 25} focused={focused} />
+                      <TabIcon
+                        name="magnifying-glass"
+                        component={FontAwesome6}
+                        size={focused ? 27 : 25}
+                        focused={focused}
+                      />
                     ),
                   }}
                 />
@@ -49,7 +58,10 @@ export default function MainLayout() {
                   options={{
                     tabBarIcon: ({ focused }) => (
                       <MeAvatar
-                      className={cn('aspect-square h-full', focused && 'border-2 border-primary h-9')}
+                        className={cn(
+                          'aspect-square h-full',
+                          focused && 'h-9 border-2 border-primary'
+                        )}
                       />
                     ),
                   }}
