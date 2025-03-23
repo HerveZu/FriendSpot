@@ -35,6 +35,7 @@ public sealed record SearchSpotsResponse
         public sealed record SpotOwner
         {
             public required string DisplayName { get; init; }
+            public required string PictureUrl { get; init; }
             public required decimal Rating { get; init; }
         }
     }
@@ -85,6 +86,7 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
                             Owner = new SearchSpotsResponse.AvailableSpot.SpotOwner
                             {
                                 DisplayName = owner.DisplayName,
+                                PictureUrl = owner.PictureUrl,
                                 Rating = owner.Rating.Rating
                             },
                             ParkingLotId = parkingLot.Id
