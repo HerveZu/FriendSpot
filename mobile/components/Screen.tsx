@@ -128,6 +128,7 @@ export function ScreenTitle({
   wallet = true,
   className,
   style,
+  children,
   ...props
 }: { title: string; wallet?: boolean } & ViewProps) {
   const { hideHeader, headerText, setHeaderText } = useContext(HeaderContext);
@@ -158,7 +159,10 @@ export function ScreenTitle({
       <Text variant="title1" className="text-3xl font-extrabold">
         {headerText}
       </Text>
-      {wallet && <UserWallet />}
+      <View className={'w-full flex-row items-center justify-between'}>
+        {wallet && <UserWallet />}
+        {children}
+      </View>
     </Animated.View>
   );
 }

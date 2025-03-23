@@ -5,6 +5,7 @@ import React from 'react';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { cn } from '~/lib/cn';
 import { Modal, ModalFooter, ModalTitle } from '~/components/Modal';
+import { Card } from '~/components/Card';
 
 export function UserWallet({ className, ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
@@ -27,15 +28,11 @@ export function UserWallet({ className, ...props }: ViewProps) {
 
   return (
     <>
-      <Pressable
-        className={cn(
-          `bg-primary/20 w-40 flex-row justify-between gap-4 rounded-lg px-4 py-2`,
-          className
-        )}
-        onPress={() => setInfoModalOpen(true)}
-        {...props}>
-        <Credits pending={false} credits={userProfile.wallet.credits} />
-        <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
+      <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
+        <Card className={cn(`w-40 flex-row justify-between gap-4`, className)}>
+          <Credits pending={false} credits={userProfile.wallet.credits} />
+          <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
+        </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
         <ModalTitle text={'Comment ça marche ?'} />

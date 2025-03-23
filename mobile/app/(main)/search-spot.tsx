@@ -108,15 +108,16 @@ export default function SearchSpotScreen() {
         </Button>
       }>
       <View className="flex-row justify-between">
-        <ScreenTitle title="Réserve un spot" />
-        <Button
-          className={'h-16'}
-          variant={'primary'}
-          disabled={booking?.bookings.length === 0}
-          onPress={() => setBookingListSheetOpen(true)}>
-          <ThemedIcon size={18} name="car" color={colors.foreground} />
-          <Text>{booking?.bookings.length ?? 0}</Text>
-        </Button>
+        <ScreenTitle title="Réserve un spot">
+          <Button
+            className={'h-full'}
+            variant={'primary'}
+            disabled={booking?.bookings.length === 0}
+            onPress={() => setBookingListSheetOpen(true)}>
+            <ThemedIcon size={18} name="car" color={colors.foreground} />
+            <Text>{booking?.bookings.length ?? 0}</Text>
+          </Button>
+        </ScreenTitle>
       </View>
       {infoModalOpen && (
         <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
@@ -126,7 +127,6 @@ export default function SearchSpotScreen() {
           </View>
           <Button
             variant="primary"
-            size="lg"
             onPress={() => {
               setInfoModalOpen(false);
               setBookingListSheetOpen(true);
