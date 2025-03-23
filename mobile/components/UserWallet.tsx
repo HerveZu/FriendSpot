@@ -4,7 +4,8 @@ import { LogoCard } from '~/components/Logo';
 import React from 'react';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { cn } from '~/lib/cn';
-import { Modal, ModalTitle } from '~/components/Modal';
+import { Modal, ModalFooter, ModalTitle } from '~/components/Modal';
+import { Card } from '~/components/Card';
 
 export function UserWallet({ className, ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
@@ -12,13 +13,14 @@ export function UserWallet({ className, ...props }: ViewProps) {
 
   function CreditsExplanation(props: { pending: boolean; explanation: string }) {
     return (
-      <View className={'ml-1 w-full flex-row justify-between gap-12'}>
+      <View className={'w-full flex-row items-center justify-between gap-6 p-2.5'}>
         <Credits
           pending={props.pending}
           credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
+          displayCredit={false}
         />
-        <View className={'flex-1'}>
-          <Text className={'text-start'}>{props.explanation}</Text>
+        <View className={'max-w-60'}>
+          <Text className={'min-w-60 text-start'}>{props.explanation}</Text>
         </View>
       </View>
     );
@@ -26,26 +28,28 @@ export function UserWallet({ className, ...props }: ViewProps) {
 
   return (
     <>
-      <Pressable onPress={() => setInfoModalOpen(true)}>
-        <View className={cn('flex-row items-center gap-8', className)} {...props}>
+      <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
+        <Card className={cn(`w-40 flex-row justify-between gap-4`, className)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
           <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
-        </View>
+        </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-        <ModalTitle text={'Mes crédits'} />
-        <View className={'gap-6'}>
+        <ModalTitle text={'Comment ça marche ?'} />
+        <View className="w-full">
           <CreditsExplanation
             pending={false}
-            explanation={'Utilise ces crédits pour réserver un spot.'}
+            explanation="Utilise ces crédits pour réserver un spot disponible."
           />
           <CreditsExplanation
             pending={true}
-            explanation={
-              'Ces crédits sont réservés et te seront accesible à la fin de la réservation associée.'
-            }
+            explanation="Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé."
           />
         </View>
+        <ModalFooter
+          text={'Info : Prêter ou réserver 1h = 1 crédit.'}
+          className="rounded-lg border border-primary py-2"
+        />
       </Modal>
     </>
   );
@@ -55,12 +59,13 @@ export function Credits({
   pending,
   credits,
   className,
+  displayCredit = true,
   ...props
-}: { pending: boolean; credits: number } & ViewProps) {
+}: { pending: boolean; credits: number; displayCredit?: boolean } & ViewProps) {
   return (
-    <View className={cn('w-12 flex-row items-center gap-2', className)} {...props}>
-      <LogoCard primary={!pending} className="h-5 w-3 rounded" />
-      <Text className="text-lg font-semibold">{Math.round(credits)}</Text>
+    <View className={cn('flex-row items-center gap-2', className)} {...props}>
+      <LogoCard primary={!pending} className="h-5 w-3.5 rounded" />
+      {displayCredit && <Text className="text-lg font-semibold">{Math.round(credits)}</Text>}
     </View>
   );
 }

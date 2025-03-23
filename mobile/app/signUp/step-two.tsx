@@ -2,6 +2,7 @@ import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
+import stepTwoIllustration from '~/assets/security.svg';
 
 import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { firebaseAuth } from '~/authentication/firebase';
@@ -22,10 +23,12 @@ export default function StepTwoScreen() {
   async function createAccount() {
     try {
       const result = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
-      updateProfile(result.user, { displayName }).then(() => router.navigate('/home'));
+      await updateProfile(result.user, { displayName }).then(() =>
+        router.navigate('/user-profile')
+      );
     } catch (e) {
       console.error(e);
-      setError('Cette addresse e-mail est déjà utilisé');
+      setError('Cette adresse e-mail est déjà utilisée.');
     }
   }
 
@@ -36,6 +39,7 @@ export default function StepTwoScreen() {
   return (
     <SafeAreaView>
       <AuthForm
+        Illustration={stepTwoIllustration}
         error={error}
         title={<AuthFormTitle title="Créer un compte" />}
         onSubmit={createAccount}
@@ -48,7 +52,7 @@ export default function StepTwoScreen() {
           validators={[
             {
               validate: strongPassword,
-              message: 'Le mot de passe doit faire 6 charactères de long',
+              message: 'Le mot de passe doit contenir au moins 6 caractères.',
             },
           ]}
         />
@@ -60,7 +64,7 @@ export default function StepTwoScreen() {
           validators={[
             {
               validate: (confirm?: string) => !confirm || confirm === password,
-              message: 'Les mots de passes ne sont pas identiques',
+              message: 'Les mots de passes ne sont pas identiques.',
             },
             {
               validate: notEmpty,

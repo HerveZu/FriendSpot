@@ -1,11 +1,11 @@
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { useState } from 'react';
-import { SafeAreaView } from 'react-native';
 import { isEmail } from 'validator';
-
 import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { notEmpty } from '~/lib/utils';
+import LoginIllustration from '~/assets/login.svg';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>();
@@ -15,13 +15,14 @@ export default function LoginScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <AuthForm
+        Illustration={LoginIllustration}
         title={<AuthFormTitle title="Se connecter" />}
         error={error}
         onSubmit={() =>
           signInWithEmailAndPassword(auth, email!, password!)
-            .then(() => router.navigate('/home'))
+            .then(() => router.navigate('/my-spot'))
             .catch(() => {
               setError('Email ou mot de passe incorrect');
             })

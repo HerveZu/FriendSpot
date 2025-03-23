@@ -1,4 +1,5 @@
-import React, {
+import {
+  Component,
   createContext,
   PropsWithChildren,
   ReactNode,
@@ -9,10 +10,12 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
+  useAnimatedValue,
   View,
 } from 'react-native';
 
@@ -23,6 +26,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { notEmpty } from '~/lib/utils';
+import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 
 type AuthFormContext = {
   error: (id: string, error: boolean) => void;
@@ -33,14 +37,25 @@ type AuthFormContext = {
 
 const _AuthFormContext = createContext<AuthFormContext>(null!);
 
-export function AuthForm(
-  props: {
-    title: ReactNode;
-    error?: string;
-    onSubmit: () => Promise<void>;
-    submitText: string;
-  } & PropsWithChildren
-) {
+type IllustrationProps = {
+  width: number;
+  height: number;
+};
+
+interface Illustration {
+  new (props: IllustrationProps): Component<IllustrationProps>;
+}
+
+export function AuthForm({
+  Illustration,
+  ...props
+}: {
+  title: ReactNode;
+  error?: string;
+  onSubmit: () => Promise<void>;
+  submitText: string;
+  Illustration?: Illustration;
+} & PropsWithChildren) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
   const [isTouched, setIsTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -65,16 +80,42 @@ export function AuthForm(
     setTouchTrigger({});
   }, [setIsTouched, setTouchTrigger]);
 
+  const { keyboardVisible } = useKeyboardVisible();
+  const illustrationProgress = useAnimatedValue(1);
+
+  useEffect(() => {
+    Animated.timing(illustrationProgress, {
+      toValue: keyboardVisible ? 0 : 1,
+      duration: 100,
+      useNativeDriver: false,
+    }).start();
+  }, [keyboardVisible]);
+
   return (
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView behavior={'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Screen className="flex h-full flex-col justify-between pt-8">
+          <Screen className="relative flex h-full flex-col justify-between gap-12">
             <View className="relative w-full flex-row items-center justify-center">
               <BackButton className="absolute left-0" />
               <View className="self-center">{props.title}</View>
             </View>
-            <View className="w-full flex-col gap-4">
+
+            <Animated.View
+              className="mx-auto"
+              style={{
+                opacity: illustrationProgress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 1],
+                }),
+                height: illustrationProgress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 300],
+                }),
+              }}>
+              {Illustration && <Illustration width={300} height={300} />}
+            </Animated.View>
+            <View className={'w-full flex-col gap-4'}>
               <Text className="text-center text-destructive">{props.error}</Text>
               {props.children}
             </View>

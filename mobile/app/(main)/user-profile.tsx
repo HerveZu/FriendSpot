@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -17,15 +17,13 @@ import { ThemedIcon } from '~/components/ThemedIcon';
 import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
-import { MeAvatar, UserAvatar } from '~/components/UserAvatar';
+import { MeAvatar } from '~/components/UserAvatar';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
-import { useActualTime } from '~/lib/useActualTime';
 import { useUploadUserPicture } from '~/endpoints/upload-user-picture';
 import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/define-spot';
-import { UserSpot } from '~/endpoints/get-profile';
 import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { List } from '~/components/List';
@@ -39,8 +37,6 @@ import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
-import { Tag } from '~/components/Tag';
-import { DateRange } from '~/components/DateRange';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -97,10 +93,9 @@ export default function UserProfileScreen() {
             <MeAvatar className="h-28 w-28" />
           </Pressable>
           <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'} />
-            <View className={'flex-row items-center justify-between'}>
+            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
               <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
-            </View>
+            </ScreenTitle>
           </View>
         </View>
 
@@ -142,11 +137,10 @@ export default function UserProfileScreen() {
                 </View>
               </Card>
             </Pressable>
-            {userProfile.spot && <UserSpotInfo spot={userProfile.spot} />}
           </View>
         </View>
-        <View className={'mb-4 flex-col'}>
-          <Title>Autres</Title>
+        <View className={'flex-col'}>
+          <Title>Autre</Title>
           <View className={'flex-col gap-2'}>
             <TextInput
               value={review}
@@ -218,7 +212,7 @@ export function LogoutConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
         <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
-        <View className="w-full flex-row gap-4">
+        <View className="mt-4 w-full flex-row gap-4">
           <Button
             className={'grow'}
             size={'lg'}
@@ -243,79 +237,6 @@ export function LogoutConfirmationModal({
       </Modal>
       {children}
     </>
-  );
-}
-
-function UserSpotInfo({ spot }: { spot: UserSpot }) {
-  const now = useActualTime(30_000);
-
-  const DisplayCar = () => {
-    const busy = !spot.currentlyAvailable || !!spot.currentlyUsedBy;
-
-    return (
-      <View
-        className={cn(
-          'relative h-44 w-28 flex-col justify-end gap-4 rounded-lg bg-background',
-          !busy && 'border-2 border-dashed border-primary'
-        )}>
-        {busy && (
-          <>
-            {!!spot.currentlyUsedBy && (
-              <UserAvatar
-                displayName={spot.currentlyUsedBy.displayName}
-                pictureUrl={spot.currentlyUsedBy.pictureUrl}
-                className="absolute left-[-5] top-[-5] z-10 h-8 w-8"
-              />
-            )}
-            <Image
-              className="my-auto mt-2 h-28 w-full"
-              source={require('~/assets/car-top-view.png')}
-              style={{ transform: [{ rotate: '90deg' }], resizeMode: 'contain' }}
-            />
-          </>
-        )}
-        <View className="absolute bottom-2 w-full flex-row justify-center">
-          <Text className={'text-xl font-bold'}>{spot.name}</Text>
-        </View>
-      </View>
-    );
-  };
-
-  const SpotUsedBy = () => {
-    return (
-      <View className="relative h-full flex-1">
-        <Tag
-          className={'absolute right-0 top-0'}
-          text={
-            spot.currentlyUsedBy
-              ? `Spot utilisé`
-              : `${spot.currentlyAvailable ? 'Spot libre' : 'Spot occupé'}`
-          }
-        />
-        {(spot.currentlyUsedBy || spot.nextUse) && (
-          <View className="absolute bottom-0 left-0 right-0">
-            {spot.currentlyUsedBy ? (
-              <DateRange
-                label={'Pendant'}
-                from={spot.currentlyUsedBy.usingSince}
-                to={spot.currentlyUsedBy.usingUntil}
-              />
-            ) : (
-              spot.nextUse && (
-                <DateRange label={'Encore'} from={spot.lastUse ?? now} to={spot.nextUse} />
-              )
-            )}
-          </View>
-        )}
-      </View>
-    );
-  };
-
-  return (
-    <Card className="flex-row items-center justify-between">
-      <DisplayCar />
-      <SpotUsedBy />
-    </Card>
   );
 }
 
