@@ -31,12 +31,7 @@ export default function MainLayout() {
                   name="my-spot"
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <TabIcon
-                        name="house"
-                        component={FontAwesome6}
-                        size={focused ? 24 : 22}
-                        focused={focused}
-                      />
+                      <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} />
                     ),
                   }}
                 />
@@ -47,7 +42,7 @@ export default function MainLayout() {
                       <TabIcon
                         name="magnifying-glass"
                         component={FontAwesome6}
-                        size={focused ? 27 : 25}
+                        size={24}
                         focused={focused}
                       />
                     ),
@@ -84,7 +79,7 @@ function TabIcon<TGlyph extends string>({
 
   return (
     <ThemedIcon
-      color={!userProfile.spot ? colors.grey6 : focused ? colors.primary : colors.grey}
+      color={!userProfile.spot ? colors.grey6 : focused ? colors.foreground : colors.grey}
       size={24}
       {...props}
     />
