@@ -17,7 +17,7 @@ import {
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, View } from 'react-native';
+import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -138,7 +138,7 @@ export default function SearchSpotScreen() {
       {!booking ? (
         <ActivityIndicator />
       ) : activeBookings.length > 0 ? (
-        <View className="flex-col gap-4">
+        <View>
           <View className="flex-row items-center gap-2">
             <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
             <Title>{`Tu occupes ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
@@ -270,18 +270,16 @@ function BookingCard(props: {
               </View>
               <DeleteTrigger />
             </View>
-            <View className="flex-row items-center justify-between gap-4">
-              <User
-                displayName={props.booking.owner.displayName}
-                pictureUrl={props.booking.owner.pictureUrl}
-              />
-              <View>
-                {props.booking.parkingLot.name ? (
-                  <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
-                ) : (
-                  <Tag onPress={() => setLockInfo(!lockInfo)} text={'Spot n°'} icon={'lock'} />
-                )}
-              </View>
+            <User
+              displayName={props.booking.owner.displayName}
+              pictureUrl={props.booking.owner.pictureUrl}
+            />
+            <View>
+              {props.booking.parkingLot.name ? (
+                <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
+              ) : (
+                <Tag onPress={() => setLockInfo(!lockInfo)} text={'Spot n°'} icon={'lock'} />
+              )}
             </View>
             <DateRange
               from={props.booking.from}
@@ -292,7 +290,7 @@ function BookingCard(props: {
         </Pressable>
       </Deletable>
       <Modal open={lockInfo} onOpenChange={() => setLockInfo(false)}>
-        <ModalTitle text={'Comment ça marche ?'} />
+        <ModalTitle text={'Spot verouillé'} icon={<ThemedIcon size={24} name={'lock'} />} />
         <View className="w-full">
           <Text>Le numéro du spot sera révélé au début de la réservation.</Text>
         </View>
@@ -438,20 +436,21 @@ function BookingSheet(props: {
                   </Text>
                 </View>
               ) : (
-                <View className="grow flex-col gap-2">
-                  {spots
-                    .sort((spot) => spot.owner.rating)
-                    .reverse()
-                    .slice(0, 3)
-                    .map((spot, i) => (
-                      <AvailableSpotCard
-                        key={i}
-                        spot={spot}
-                        selectedSpot={selectedSpot}
-                        onSelect={() => setSelectedSpot(spot)}
-                      />
-                    ))}
-                </View>
+                <ScrollView className={'h-24 p-1'}>
+                  <View className="grow flex-col gap-2">
+                    {spots
+                      .sort((a, b) => a.owner.rating - b.owner.rating)
+                      .reverse()
+                      .map((spot, i) => (
+                        <AvailableSpotCard
+                          key={i}
+                          spot={spot}
+                          selectedSpot={selectedSpot}
+                          onSelect={() => setSelectedSpot(spot)}
+                        />
+                      ))}
+                  </View>
+                </ScrollView>
               )}
             </View>
             <View className="flex-col items-center justify-between gap-2">

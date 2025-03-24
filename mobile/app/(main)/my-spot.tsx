@@ -121,9 +121,10 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
   return (
     <Deletable className={'rounded-xl'} canDelete={props.availability.canCancel} onDelete={cancel}>
       <Card>
-        <View className="flex-col justify-between gap-6">
+        <View className="flex-col justify-between gap-2">
           <View className="flex-row items-start justify-between gap-4">
             <DateRange
+              className={'mb-4'}
               from={props.availability.from}
               to={props.availability.to}
               duration={props.availability.duration}
