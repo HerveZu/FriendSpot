@@ -439,7 +439,8 @@ function BookingSheet(props: {
                 <ScrollView className={'h-24 p-1'}>
                   <View className="grow flex-col gap-2">
                     {spots
-                      .sort((spot) => spot.owner.rating)
+                      .sort((a, b) => a.owner.rating - b.owner.rating)
+                      .reverse()
                       .map((spot, i) => (
                         <AvailableSpotCard
                           key={i}
