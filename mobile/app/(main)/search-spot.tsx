@@ -138,7 +138,7 @@ export default function SearchSpotScreen() {
       {!booking ? (
         <ActivityIndicator />
       ) : activeBookings.length > 0 ? (
-        <View className="flex-col gap-4">
+        <View>
           <View className="flex-row items-center gap-2">
             <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
             <Title>{`Tu occupes ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
