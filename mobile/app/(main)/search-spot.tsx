@@ -438,7 +438,7 @@ function BookingSheet(props: {
                   </Text>
                 </View>
               ) : (
-                <ScrollView className={'h-24'}>
+                <ScrollView className={'h-24 p-1'}>
                   <View className="grow flex-col gap-2">
                     {spots
                       .sort((spot) => spot.owner.rating)
