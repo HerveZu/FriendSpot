@@ -1,8 +1,6 @@
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Tabs } from 'expo-router';
-
-import { SpotCountDownOnRender } from '~/app/spot-count-down';
 import { AuthProvider } from '~/authentication/AuthProvider';
 import { useCurrentUser, UserProvider } from '~/authentication/UserProvider';
 import { ThemedIcon, ThemedIconProps } from '~/components/ThemedIcon';
@@ -17,53 +15,51 @@ export default function MainLayout() {
       <UserProvider>
         {/*BottomSheetModalProvider children need to have access to currentUser*/}
         <BottomSheetModalProvider>
-          <SpotCountDownOnRender>
-            <AskUserToRate>
-              <Tabs
-                initialRouteName="my-spot"
-                screenOptions={{
-                  headerShown: false,
-                  tabBarShowLabel: false,
-                  sceneStyle: { backgroundColor: 'transparent' },
-                  tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
-                }}>
-                <Tabs.Screen
-                  name="my-spot"
-                  options={{
-                    tabBarIcon: ({ focused }) => (
-                      <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} />
-                    ),
-                  }}
-                />
-                <Tabs.Screen
-                  name="search-spot"
-                  options={{
-                    tabBarIcon: ({ focused }) => (
-                      <TabIcon
-                        name="magnifying-glass"
-                        component={FontAwesome6}
-                        size={24}
-                        focused={focused}
-                      />
-                    ),
-                  }}
-                />
-                <Tabs.Screen
-                  name="user-profile"
-                  options={{
-                    tabBarIcon: ({ focused }) => (
-                      <MeAvatar
-                        className={cn(
-                          'aspect-square h-full',
-                          focused && 'h-9 border-2 border-primary'
-                        )}
-                      />
-                    ),
-                  }}
-                />
-              </Tabs>
-            </AskUserToRate>
-          </SpotCountDownOnRender>
+          <AskUserToRate>
+            <Tabs
+              initialRouteName="my-spot"
+              screenOptions={{
+                headerShown: false,
+                tabBarShowLabel: false,
+                sceneStyle: { backgroundColor: 'transparent' },
+                tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
+              }}>
+              <Tabs.Screen
+                name="my-spot"
+                options={{
+                  tabBarIcon: ({ focused }) => (
+                    <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} />
+                  ),
+                }}
+              />
+              <Tabs.Screen
+                name="search-spot"
+                options={{
+                  tabBarIcon: ({ focused }) => (
+                    <TabIcon
+                      name="magnifying-glass"
+                      component={FontAwesome6}
+                      size={24}
+                      focused={focused}
+                    />
+                  ),
+                }}
+              />
+              <Tabs.Screen
+                name="user-profile"
+                options={{
+                  tabBarIcon: ({ focused }) => (
+                    <MeAvatar
+                      className={cn(
+                        'aspect-square h-full',
+                        focused && 'h-9 border-2 border-primary'
+                      )}
+                    />
+                  ),
+                }}
+              />
+            </Tabs>
+          </AskUserToRate>
         </BottomSheetModalProvider>
       </UserProvider>
     </AuthProvider>
