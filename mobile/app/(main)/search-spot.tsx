@@ -290,7 +290,7 @@ function BookingCard(props: {
         </Pressable>
       </Deletable>
       <Modal open={lockInfo} onOpenChange={() => setLockInfo(false)}>
-        <ModalTitle text={'Comment ça marche ?'} />
+        <ModalTitle text={'Spot verouillé'} icon={<ThemedIcon size={24} name={'lock'} />} />
         <View className="w-full">
           <Text>Le numéro du spot sera révélé au début de la réservation.</Text>
         </View>

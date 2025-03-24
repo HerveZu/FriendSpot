@@ -2,48 +2,56 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { differenceInMinutes, format, intervalToDuration, isWithinInterval } from 'date-fns';
 import { toMinutes } from 'duration-fns';
 import React from 'react';
-import { View } from 'react-native';
+import { View, ViewProps } from 'react-native';
 
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { ProgressIndicator } from '~/components/nativewindui/ProgressIndicator';
 import { Text } from '~/components/nativewindui/Text';
 import { useActualTime } from '~/lib/useActualTime';
 import { fromUtc, parseDuration } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
-export function DateRange(props: {
+export function DateRange({
+  from,
+  to,
+  duration,
+  label,
+  className,
+  ...props
+}: {
   from: Date | string;
   to: Date | string;
   duration?: string;
   label?: string;
-}) {
+} & ViewProps) {
   const now = useActualTime(5000);
 
   const inProgress = isWithinInterval(now, {
-    start: fromUtc(props.from),
-    end: fromUtc(props.to),
+    start: fromUtc(from),
+    end: fromUtc(to),
   });
 
-  const elapsedMinutes = inProgress ? differenceInMinutes(now, props.from) : null;
-  const duration = props.duration
-    ? parseDuration(props.duration)
-    : intervalToDuration({ start: props.from, end: props.to });
+  const elapsedMinutes = inProgress ? differenceInMinutes(now, from) : null;
+  const realDuration = duration
+    ? parseDuration(duration)
+    : intervalToDuration({ start: from, end: to });
 
   return elapsedMinutes !== null ? (
-    <View className="flex-col gap-4">
+    <View className={cn('flex-col gap-4', className)} {...props}>
       <View className="flex-row items-center gap-2">
         <View className="flex-row items-center gap-2">
-          <Text className="text-sm font-semibold">{format(props.from, 'dd MMMM HH:mm')}</Text>
+          <Text className="text-sm font-semibold">{format(from, 'dd MMMM HH:mm')}</Text>
           <ThemedIcon name="arrow-right" />
-          <Text className="text-sm font-semibold">{format(props.to, 'dd MMMM HH:mm')}</Text>
+          <Text className="text-sm font-semibold">{format(to, 'dd MMMM HH:mm')}</Text>
         </View>
       </View>
       <ProgressIndicator
         className="h-4"
-        value={Math.round((100 * elapsedMinutes) / toMinutes(duration))}
+        value={Math.round((100 * elapsedMinutes) / toMinutes(realDuration))}
       />
     </View>
   ) : (
-    <DateRangeOnly from={props.from} to={props.to} />
+    <DateRangeOnly from={from} to={to} />
   );
 }
 

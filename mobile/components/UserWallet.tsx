@@ -48,7 +48,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
         </View>
         <ModalFooter
           text={'Info : Prêter ou réserver 1h = 1 crédit.'}
-          className="rounded-lg border border-primary py-2"
+          className="bg-primary/20 rounded-lg py-2"
         />
       </Modal>
     </>
