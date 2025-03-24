@@ -270,19 +270,19 @@ function BookingCard(props: {
               </View>
               <DeleteTrigger />
             </View>
-            <View className="flex-row items-center justify-between gap-4">
-              <User
-                displayName={props.booking.owner.displayName}
-                pictureUrl={props.booking.owner.pictureUrl}
-              />
-              <View>
-                {props.booking.parkingLot.name ? (
-                  <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
-                ) : (
-                  <Tag onPress={() => setLockInfo(!lockInfo)} text={'Spot n°'} icon={'lock'} />
-                )}
-              </View>
+            {/*<View className="flex-col gap-4">*/}
+            <User
+              displayName={props.booking.owner.displayName}
+              pictureUrl={props.booking.owner.pictureUrl}
+            />
+            <View>
+              {props.booking.parkingLot.name ? (
+                <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
+              ) : (
+                <Tag onPress={() => setLockInfo(!lockInfo)} text={'Spot n°'} icon={'lock'} />
+              )}
             </View>
+            {/*</View>*/}
             <DateRange
               from={props.booking.from}
               to={props.booking.to}
