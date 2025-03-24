@@ -17,7 +17,7 @@ import {
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, View } from 'react-native';
+import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -438,20 +438,20 @@ function BookingSheet(props: {
                   </Text>
                 </View>
               ) : (
-                <View className="grow flex-col gap-2">
-                  {spots
-                    .sort((spot) => spot.owner.rating)
-                    .reverse()
-                    .slice(0, 3)
-                    .map((spot, i) => (
-                      <AvailableSpotCard
-                        key={i}
-                        spot={spot}
-                        selectedSpot={selectedSpot}
-                        onSelect={() => setSelectedSpot(spot)}
-                      />
-                    ))}
-                </View>
+                <ScrollView className={'h-24'}>
+                  <View className="grow flex-col gap-2">
+                    {spots
+                      .sort((spot) => spot.owner.rating)
+                      .map((spot, i) => (
+                        <AvailableSpotCard
+                          key={i}
+                          spot={spot}
+                          selectedSpot={selectedSpot}
+                          onSelect={() => setSelectedSpot(spot)}
+                        />
+                      ))}
+                  </View>
+                </ScrollView>
               )}
             </View>
             <View className="flex-col items-center justify-between gap-2">
