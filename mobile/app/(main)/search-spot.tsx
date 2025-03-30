@@ -1,6 +1,6 @@
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import Slider from '@react-native-community/slider';
+import { Slider } from '~/components/nativewindui/Slider';
 import QuestionIllustration from 'assets/question.svg';
 import {
   addHours,
@@ -17,7 +17,14 @@ import {
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  View,
+} from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -51,7 +58,7 @@ import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
-import SuccessIllustration from 'assets/succes.svg';
+import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 import { pluralize } from '~/lib/locale';
 
@@ -110,7 +117,7 @@ export default function SearchSpotScreen() {
       <View className="flex-row justify-between">
         <ScreenTitle title="Réserve un spot">
           <Button
-            className={'h-full'}
+            className={'h-16'}
             variant={'primary'}
             disabled={booking?.bookings.length === 0}
             onPress={() => setBookingListSheetOpen(true)}>
@@ -460,6 +467,8 @@ function BookingSheet(props: {
                   minimumDate={justAfterNow}
                   value={from}
                   mode="datetime"
+                  materialTimeClassName={'w-24'}
+                  materialDateClassName={'w-32'}
                   onChange={(ev) => {
                     const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
                     setFrom(from);
@@ -473,6 +482,8 @@ function BookingSheet(props: {
                   minimumDate={minTo(from)}
                   value={to}
                   mode="datetime"
+                  materialTimeClassName={'w-24'}
+                  materialDateClassName={'w-32'}
                   onChange={(ev) => {
                     const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
                     setTo(to);
@@ -481,10 +492,18 @@ function BookingSheet(props: {
                 />
               </View>
             </View>
-            <View className="flex-col justify-between">
+            <View className="flex-col justify-between gap-2">
               <View className="flex-row items-center gap-2">
-                <ThemedIcon component={FontAwesome6} name="clock" size={18} />
-                <Text variant="heading">
+                <ThemedIcon
+                  component={FontAwesome6}
+                  name="clock"
+                  size={Platform.select({ ios: 18, android: 14 })}
+                />
+                <Text
+                  className={cn(
+                    'font-semibold',
+                    Platform.select({ ios: 'text-lg', android: 'text-md' })
+                  )}>
                   {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
                 </Text>
               </View>

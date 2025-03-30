@@ -12,19 +12,22 @@ export function Modal({
   ...props
 }: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>> } & ViewProps) {
   return (
-    <ReactModal
-      isVisible={open}
-      onBackdropPress={() => onOpenChange(false)}
-      // this removes the flickering on exit
-      backdropTransitionOutTiming={1}>
-      <SafeAreaView>
-        <View className={'bg-background'} {...props}>
-          <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
-            {children}
+    // this extra View makes it display properly on Android devices
+    <View>
+      <ReactModal
+        isVisible={open}
+        onBackdropPress={() => onOpenChange(false)}
+        // this removes the flickering on exit
+        backdropTransitionOutTiming={1}>
+        <SafeAreaView>
+          <View className={'bg-background'} {...props}>
+            <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
+              {children}
+            </View>
           </View>
-        </View>
-      </SafeAreaView>
-    </ReactModal>
+        </SafeAreaView>
+      </ReactModal>
+    </View>
   );
 }
 

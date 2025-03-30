@@ -12,6 +12,7 @@ import React, {
 import {
   Animated,
   KeyboardAvoidingView,
+  Platform,
   RefreshControl,
   SafeAreaView,
   useAnimatedValue,
@@ -24,8 +25,8 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { BlurView } from '@react-native-community/blur';
 import { useCurrentUser } from '~/authentication/UserProvider';
+import { BlurView } from '@react-native-community/blur';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -70,11 +71,13 @@ export function ScreenWithHeader(
         style={{
           opacity: fadeOpacity,
         }}>
-        <BlurView
-          blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
-          blurAmount={5}
-          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-        />
+        {Platform.OS === 'ios' && (
+          <BlurView
+            blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
+            blurAmount={5}
+            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+          />
+        )}
         <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
           {headerText}
         </Text>
@@ -104,7 +107,7 @@ export function ScreenWithHeader(
             extraHeight={100} // workaround to make the scroll to focused multiline input work
             scrollIndicatorInsets={{ right: 3 }}
             onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
-            <Screen className={'mt-4'}>
+            <Screen className={cn(Platform.OS === 'android' ? 'mt-8' : 'mt-4')}>
               <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
             </Screen>
           </KeyboardAwareScrollView>

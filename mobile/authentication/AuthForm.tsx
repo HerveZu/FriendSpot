@@ -13,7 +13,6 @@ import {
   Animated,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
   TouchableWithoutFeedback,
   useAnimatedValue,
   View,
@@ -120,7 +119,7 @@ export function AuthForm({
               {props.children}
             </View>
             <Button
-              size={Platform.select({ ios: 'lg', default: 'md' })}
+              size={'lg'}
               disabled={!isTouched || inputErrors.length > 0}
               onPress={() => {
                 setPendingAction(true);

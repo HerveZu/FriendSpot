@@ -16,7 +16,7 @@ import {
 } from 'date-fns';
 import { Redirect } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Platform, SafeAreaView, ScrollView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
@@ -49,6 +49,7 @@ import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
 import { useCancelAvailability } from '~/endpoints/cancel-spot-availability';
+import { cn } from '~/lib/cn';
 
 export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -222,7 +223,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
           }).then(refreshProfile)
         }>
         <Card className="bg-background">
-          <View className={`flex-row justify-between ${!isCurrently ? 'opacity-40' : ''}`}>
+          <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
             <View className={'flex-col gap-3'}>
               <User
                 displayName={props.booking.bookedBy.displayName}
@@ -312,7 +313,11 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
       ref={ref}
       onDismiss={() => props.onOpen(false)}
       enableDynamicSizing={false}
-      snapPoints={[450]}>
+      snapPoints={[
+        simulation?.overlaps
+          ? Platform.select({ android: 550, default: 500 })
+          : Platform.select({ android: 400, default: 350 }),
+      ]}>
       <BottomSheetView>
         <SafeAreaView>
           <ContentSheetView className="h-full flex-col justify-between">
@@ -328,6 +333,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
                 </Text>
               </View>
             </List>
+
             {simulation?.overlaps && (
               <View className="mx-auto w-full flex-row items-center justify-center gap-8 p-4">
                 <Text variant="title3" className="text-center text-primary">
@@ -336,46 +342,54 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
                 </Text>
               </View>
             )}
-            <View className="flex-col items-center justify-between gap-2">
-              <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">Prêter du</Text>
-                <DatePicker
-                  minimumDate={justAfterNow}
-                  value={from}
-                  mode="datetime"
-                  onChange={(ev) => {
-                    const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
-                    setFrom(from);
-                    setTo(max([minTo(from), to]));
-                  }}
-                />
+
+            <View className={'flex-col gap-8'}>
+              <View className="flex-col items-center justify-between gap-2">
+                <View className="w-full flex-row items-center justify-between">
+                  <Text className="w-24">Prêter du</Text>
+                  <DatePicker
+                    minimumDate={justAfterNow}
+                    value={from}
+                    mode="datetime"
+                    materialTimeClassName={'w-24'}
+                    materialDateClassName={'w-32'}
+                    onChange={(ev) => {
+                      const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
+                      setFrom(from);
+                      setTo(max([minTo(from), to]));
+                    }}
+                  />
+                </View>
+                <View className="w-full flex-row items-center justify-between">
+                  <Text className="w-24">Jusqu'au</Text>
+                  <DatePicker
+                    minimumDate={minTo(from)}
+                    value={to}
+                    mode="datetime"
+                    materialTimeClassName={'w-24'}
+                    materialDateClassName={'w-32'}
+                    onChange={(ev) => {
+                      const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
+                      setTo(to);
+                      setFrom(min([from, to]));
+                    }}
+                  />
+                </View>
               </View>
-              <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">Jusqu'au</Text>
-                <DatePicker
-                  minimumDate={minTo(from)}
-                  value={to}
-                  mode="datetime"
-                  onChange={(ev) => {
-                    const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
-                    setTo(to);
-                    setFrom(min([from, to]));
-                  }}
-                />
-              </View>
+
+              <Button
+                variant="primary"
+                size="lg"
+                disabled={simulation && simulation.earnedCredits <= 0}
+                onPress={() => lendSpot(from, to)}>
+                {actionPending && <ActivityIndicator color={colors.foreground} />}
+                <Text>
+                  {simulation && simulation.earnedCredits > 0
+                    ? `Prêter et gagner jusqu'à ${Math.round(simulation?.earnedCredits)} crédits`
+                    : 'Prêter mon spot'}
+                </Text>
+              </Button>
             </View>
-            <Button
-              variant="primary"
-              size="lg"
-              disabled={simulation && simulation.earnedCredits <= 0}
-              onPress={() => lendSpot(from, to)}>
-              {actionPending && <ActivityIndicator color={colors.foreground} />}
-              <Text>
-                {simulation && simulation.earnedCredits > 0
-                  ? `Prêter et gagner jusqu'à ${Math.round(simulation?.earnedCredits)} crédits`
-                  : 'Prêter mon spot'}
-              </Text>
-            </Button>
           </ContentSheetView>
         </SafeAreaView>
       </BottomSheetView>

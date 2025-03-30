@@ -90,7 +90,7 @@ export default function UserProfileScreen() {
               accessibilityLabel="Edit Avatar">
               <ThemedIcon name={'pencil'} size={14} />
             </View>
-            <MeAvatar className="h-28 w-28" />
+            <MeAvatar className="h-28 w-28" fontSize={32} />
           </Pressable>
           <View className="w-3/5 shrink gap-4">
             <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
@@ -150,7 +150,6 @@ export default function UserProfileScreen() {
             />
             <Button
               disabled={!review}
-              size={'lg'}
               variant={'tonal'}
               onPress={() => {
                 review && sendReview(review);
