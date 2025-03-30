@@ -20,26 +20,26 @@ export default function StepTwoScreen() {
   const [passwordConfirm, setPasswordConfirm] = useState<string>();
   const [error, setError] = useState<string>();
   const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
 
-  async function checkUserEmail(result: { user: User }) {
-    setModalVisible(true);
-    if (firebaseAuth.currentUser) {
-      sendEmailVerification(firebaseAuth.currentUser)
-      await updateProfile(result.user, { displayName });
+  async function sendEmail(result: { user: User }) {
+    setIsModalVisible(true);
+    if (result.user) {
+      sendEmailVerification(result.user)
     } else {
       console.error("No authenticated user found.");
     }
   }
-
+  
   async function createAccount() {
     try {
       const result = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
+      await updateProfile(result.user, { displayName });
       if(error) {
         return
       } else {
-        checkUserEmail(result);
+        sendEmail(result);
       }
     } catch (e) {
       console.error(e);
@@ -52,7 +52,7 @@ export default function StepTwoScreen() {
   }
 
   function redirect() {
-    setModalVisible(false)
+    setIsModalVisible(false)
     router.push('/signIn/login')
   }
 
@@ -61,7 +61,7 @@ export default function StepTwoScreen() {
       {isModalVisible && (
           <Modal
             open={isModalVisible}
-            onOpenChange={setModalVisible}
+            onOpenChange={setIsModalVisible}
           >
           <ModalTitle text={"Vérification de votre email"} />
             <View className='gap-4'>
