@@ -53,10 +53,7 @@ export default function MainLayout() {
                 options={{
                   tabBarIcon: ({ focused }) => (
                     <MeAvatar
-                      className={cn(
-                        'aspect-square h-full',
-                        focused && 'h-9 border-2 border-primary'
-                      )}
+                      className={cn('aspect-square h-7', focused && 'h-8 border-2 border-primary')}
                     />
                   ),
                   tabBarButton: NoRipple,
