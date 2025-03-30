@@ -71,10 +71,15 @@ export function ScreenWithHeader(
         style={{
           opacity: fadeOpacity,
         }}>
-        {Platform.OS === 'ios' && (
+        {Platform.OS === 'ios' ? (
           <BlurView
             blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
             blurAmount={5}
+            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+          />
+        ) : (
+          <View
+            className={'bg-primary/10'}
             style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
           />
         )}
