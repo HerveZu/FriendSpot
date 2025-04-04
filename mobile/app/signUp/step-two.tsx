@@ -1,6 +1,6 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile, User } from 'firebase/auth';
-import React, { useState } from 'react';
+import { createUserWithEmailAndPassword, updateProfile, User, onAuthStateChanged } from 'firebase/auth';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
 import stepTwoIllustration from '~/assets/security.svg';
 import { Modal, ModalTitle } from '~/components/Modal';
@@ -9,7 +9,6 @@ import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthFor
 import { firebaseAuth } from '~/authentication/firebase';
 import { notEmpty } from '~/lib/utils';
 import { Button } from '~/components/nativewindui/Button';
-
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;
@@ -35,12 +34,13 @@ export default function StepTwoScreen() {
   async function createAccount() {
     try {
       const result = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
-      await updateProfile(result.user, { displayName });
-      if(error) {
-        return
-      } else {
+      await updateProfile(result.user, { displayName }).then(() => {
         sendEmail(result);
       }
+      ).catch((error) => {
+        console.error('Error updating profile:', error);
+      }
+      );
     } catch (e) {
       console.error(e);
       setError('Cette adresse e-mail est déjà utilisée.');
@@ -53,7 +53,10 @@ export default function StepTwoScreen() {
 
   function redirect() {
     setIsModalVisible(false)
-    router.push('/signIn/login')
+    router.push({
+      pathname: '/signIn/login',
+      params: { email, password},
+    });
   }
 
   return (
@@ -63,9 +66,9 @@ export default function StepTwoScreen() {
             open={isModalVisible}
             onOpenChange={setIsModalVisible}
           >
-          <ModalTitle text={"Vérification de votre email"} />
+          <ModalTitle text={"Presque terminé !"} />
             <View className='gap-4'>
-              <Text className='text-foreground text-base'>{`Un e-mail a été envoyé à ${email} pour validation.`}</Text>
+              <Text className='text-foreground text-base'>{`Vérifie ta boîte mail et clique sur le lien de confirmation pour activer ton compte.`}</Text>
               <Button size={'lg'} onPress={() => redirect()}>
                 <Text className='text-foreground'>
                   C'est fait !
