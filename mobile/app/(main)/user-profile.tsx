@@ -185,8 +185,8 @@ export default function UserProfileScreen() {
 
 export function LogoutConfirmationModal({
   children,
-  visible,
   onVisibleChange,
+  visible,
 }: PropsWithChildren<{
   visible: boolean;
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
@@ -200,12 +200,11 @@ export function LogoutConfirmationModal({
     if (!deviceId) {
       return;
     }
-
+    onVisibleChange(false);
     await logout({
       deviceId: deviceId,
     });
     await signOut(auth);
-    onVisibleChange(false);
   };
 
   return (

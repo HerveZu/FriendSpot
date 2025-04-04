@@ -14,10 +14,13 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   TouchableWithoutFeedback,
   useAnimatedValue,
   View,
 } from 'react-native';
+import { Modal } from '~/components/Modal';
+import { ModalTitle } from '~/components/Modal';
 
 import { BackButton } from '~/components/BackButton';
 import { Screen } from '~/components/Screen';
@@ -26,13 +29,17 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { notEmpty } from '~/lib/utils';
+import { isEmail } from 'validator';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 type AuthFormContext = {
   error: (id: string, error: boolean) => void;
   touch: () => void;
   isSubmitted: boolean;
   touchTrigger: object;
+  preFilled: boolean;
+  displayForgotPassword?: boolean;
 };
 
 const _AuthFormContext = createContext<AuthFormContext>(null!);
@@ -48,6 +55,8 @@ interface Illustration {
 
 export function AuthForm({
   Illustration,
+  preFilled = false,
+  displayForgotPassword = false,
   ...props
 }: {
   title: ReactNode;
@@ -55,13 +64,28 @@ export function AuthForm({
   onSubmit: () => Promise<void>;
   submitText: string;
   Illustration?: Illustration;
+  preFilled?: boolean;
+  displayForgotPassword?: boolean;
 } & PropsWithChildren) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
   const [isTouched, setIsTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [pendingAction, setPendingAction] = useState(false);
   const [touchTrigger, setTouchTrigger] = useState({});
+  const [isOpen, setIsOpen] = useState(false)
+  const [email, setEmail] = useState<string>('')
+  const auth = getAuth();
   const { colors } = useColorScheme();
+
+  async function handleSubmit() {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setIsOpen(false)
+      setEmail('')
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const error = useCallback(
     (id: string, error: boolean) => {
@@ -92,7 +116,7 @@ export function AuthForm({
   }, [keyboardVisible]);
 
   return (
-    <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
+    <_AuthFormContext.Provider value={{ touchTrigger, preFilled, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <Screen className="relative flex h-full flex-col justify-between gap-12">
@@ -100,6 +124,43 @@ export function AuthForm({
               <BackButton className="absolute left-0" />
               <View className="self-center">{props.title}</View>
             </View>
+
+            {isOpen && (
+              <>
+                <Modal open={isOpen} onOpenChange={setIsOpen} className='gap-4'>
+                  <ModalTitle text='Entre ton adresse e-mail'/>
+                  <View className='flex-row items-center '>
+                      <Text className='text-foreground text-sm'>On t’enverra un lien pour réinitialiser ton mot de passe. Assure-toi que l’adresse est valide.</Text>
+                  </View>
+                  <AuthFormInput
+                    value={email}
+                    onValueChange={(value) => setEmail(value || '')}
+                    placeholder="Adresse email"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    keyboardType="email-address"                      
+                    validators={[
+                      {
+                        validate: (email) => !email || isEmail(email),
+                        message: "L'adresse e-mail n'est pas valide",
+                      },
+                      {
+                        validate: notEmpty,
+                      },
+                    ]}
+                  />
+                  <Button
+                    size={Platform.select({ default: 'md' })}
+                    disabled={!isTouched && (!preFilled || inputErrors.length > 0)}
+                    onPress={() => handleSubmit()}
+                    variant="primary"
+                    className="w-full">
+                    {pendingAction && <ActivityIndicator color={colors.foreground} />}
+                    <Text>{"Envoyer"}</Text>
+                  </Button>
+                </Modal>
+                </>
+            )}
 
             <Animated.View
               className="mx-auto"
@@ -121,11 +182,11 @@ export function AuthForm({
             </View>
             <Button
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              disabled={!isTouched || inputErrors.length > 0}
+              disabled={!isTouched && (!preFilled || inputErrors.length > 0)}
               onPress={() => {
                 setPendingAction(true);
                 setIsSubmitted(true);
-
+                
                 props.onSubmit().finally(() => setPendingAction(false));
               }}
               variant="primary"
@@ -133,6 +194,13 @@ export function AuthForm({
               {pendingAction && <ActivityIndicator color={colors.foreground} />}
               <Text>{props.submitText}</Text>
             </Button>
+              {displayForgotPassword && (
+                <Pressable className="flex-row justify-center" onPress={() => setIsOpen(true)}>
+                  <Text variant="footnote" className="text-foreground">
+                    Mot de passe oublié ?
+                  </Text>
+                </Pressable>
+              )}
           </Screen>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
