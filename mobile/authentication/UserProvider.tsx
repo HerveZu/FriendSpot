@@ -1,4 +1,4 @@
-import { updateProfile, User } from 'firebase/auth';
+import { getAuth, signOut, updateProfile, User } from 'firebase/auth';
 import {
   createContext,
   PropsWithChildren,
@@ -76,6 +76,7 @@ export function UserProvider(props: PropsWithChildren) {
   useEffect(() => {
     if (REGISTER_ATTEMPT_COUNT > 5) {
       console.error('Max register attempt count reach');
+      signOut(getAuth()).then();
       return;
     }
 
@@ -105,10 +106,6 @@ export function UserProvider(props: PropsWithChildren) {
   }, [registerTrigger, deviceId, internalFirebaseUser, expoPushToken]);
 
   useEffect(() => {
-    refreshProfile().then();
-  }, [stateTrigger]);
-
-  useEffect(() => {
     if (userProfile) {
       SplashScreen.hide();
     }
@@ -119,6 +116,10 @@ export function UserProvider(props: PropsWithChildren) {
       .then(setUserProfile)
       .then(() => setRefreshTrigger({}));
   }, [getProfile, setUserProfile]);
+
+  useEffect(() => {
+    refreshProfile().then();
+  }, [refreshProfile, stateTrigger]);
 
   return userProfile ? (
     <_UserProfileContext.Provider

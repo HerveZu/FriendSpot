@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { useAuth } from '~/authentication/AuthProvider';
 
-type httpMethod = 'GET' | 'POST' | 'PUT';
+type httpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 const apiConfig = {
   backendUrl: process.env.EXPO_PUBLIC_BACKEND_API_URL,

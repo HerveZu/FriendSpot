@@ -53,7 +53,9 @@ export function AuthForm({
   error?: string;
   onSubmit: () => Promise<void>;
   submitText: string;
+  disabled?: boolean;
   Illustration?: Illustration;
+  submitCaption?: ReactNode;
 } & PropsWithChildren) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
   const [isTouched, setIsTouched] = useState(false);
@@ -118,9 +120,10 @@ export function AuthForm({
               <Text className="text-center text-destructive">{props.error}</Text>
               {props.children}
             </View>
+            {props.submitCaption}
             <Button
               size={'lg'}
-              disabled={!isTouched || inputErrors.length > 0}
+              disabled={props.disabled || !isTouched || inputErrors.length > 0}
               onPress={() => {
                 setPendingAction(true);
                 setIsSubmitted(true);
