@@ -9,7 +9,7 @@ import { firebaseAuth } from '~/authentication/firebase';
 import { notEmpty } from '~/lib/utils';
 import { Text } from '~/components/nativewindui/Text';
 import { ExternalLink } from '~/components/ExternalLink';
-import { Checkbox } from 'expo-checkbox';
+import { Checkbox } from '~/components/Checkbox';
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;

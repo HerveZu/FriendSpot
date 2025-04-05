@@ -38,7 +38,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { useDeleteAccount } from '~/endpoints/delete-account';
-import { Checkbox } from 'expo-checkbox';
+import { Checkbox } from '~/components/Checkbox';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -240,7 +240,14 @@ export function AccountDeletionConfirmationModal({
           </Text>
 
           <View className={'flex-row items-center gap-4'}>
-            <Checkbox value={userHasConfirmed} onValueChange={setUserHasConfirmed} />
+            <Checkbox
+              value={userHasConfirmed}
+              onValueChange={setUserHasConfirmed}
+              style={{
+                borderColor: colors.foreground,
+                borderRadius: 6,
+              }}
+            />
             <Text variant={'caption1'}>
               Je confirme vouloir supprimer mon compte et je comprends que cette action est
               irreversible.
