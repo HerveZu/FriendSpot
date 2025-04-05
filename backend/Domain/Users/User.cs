@@ -7,6 +7,11 @@ public sealed record UserRegistered : IDomainEvent
     public required string UserId { get; init; }
 }
 
+public sealed record UserMarkedDeleted : IDomainEvent
+{
+    public required string UserId { get; init; }
+}
+
 public sealed class User : IBroadcastEvents
 {
     private readonly DomainEvents _domainEvents = new();
@@ -22,6 +27,7 @@ public sealed class User : IBroadcastEvents
     public UserDisplayName DisplayName { get; private set; }
     public string? PictureUrl { get; private set; }
     public UserRating Rating { get; init; } = null!;
+    public bool IsDeleted { get; private set; }
     public IReadOnlyList<UserDevice> UserDevices => _userDevices.AsReadOnly();
 
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
@@ -58,6 +64,21 @@ public sealed class User : IBroadcastEvents
         _userDevices.RemoveAll(device => device.DeviceId == deviceId);
     }
 
+    public void RemoveAllDevices()
+    {
+        _userDevices.Clear();
+    }
+
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        _domainEvents.Register(
+            new UserMarkedDeleted
+            {
+                UserId = Identity
+            });
+    }
+
     public static User Register(string identity, UserDisplayName displayName)
     {
         if (string.IsNullOrWhiteSpace(identity))
@@ -89,6 +110,7 @@ internal sealed class UserConfig : IEntityConfiguration<User>
             .HasMaxLength(UserDisplayName.MaxLength)
             .HasConversion(x => x.DisplayName, x => new UserDisplayName(x));
         builder.Property(x => x.PictureUrl);
+        builder.Property(x => x.IsDeleted);
         builder.OwnsMany(
             x => x.UserDevices,
             deviceBuilder =>
@@ -100,5 +122,7 @@ internal sealed class UserConfig : IEntityConfiguration<User>
         builder.OwnsOne(
             x => x.Rating,
             ratingBuilder => { ratingBuilder.Property(x => x.Rating); });
+
+        // we don't filter deleted users as other users might need to see the user's profile
     }
 }

@@ -14,12 +14,19 @@ Authorization: Bearer {{$auth.token("me")}}
 ###
 
 POST {{Api_HostAddress}}/@me/logout
+Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{$auth.token("me")}}
 
 {
   "expoToken": "ExpoToken[123]"
 }
+
+###
+
+DELETE {{Api_HostAddress}}/@me
+Accept: application/json
+Authorization: Bearer {{$auth.token("me")}}
 
 ###
 

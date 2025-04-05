@@ -42,19 +42,11 @@ public sealed class ParkingSpotBooking
 
     public bool CanCancel(string userId)
     {
-        var now = DateTimeOffset.UtcNow;
-
-        if (To < now)
-        {
-            // we don't mind cancelling a booking from the past
-            return true;
-        }
-
         var frozenFor = userId == BookingUserId
             ? TimeSpan.Zero
             : TimeSpan.FromHours(2);
 
-        var bookingIsActiveIn = From - now;
+        var bookingIsActiveIn = From - DateTimeOffset.UtcNow;
 
         return bookingIsActiveIn > frozenFor;
     }
