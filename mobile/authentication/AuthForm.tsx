@@ -94,7 +94,7 @@ export function AuthForm({
 
   return (
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
-      <KeyboardAvoidingView behavior={'height'}>
+      <KeyboardAvoidingView behavior={'padding'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <Screen className="relative flex h-full flex-col justify-between gap-12">
             <View className="relative w-full flex-row items-center justify-center">
