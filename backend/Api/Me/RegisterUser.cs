@@ -61,6 +61,12 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
             user = Domain.Users.User.Register(userIdentity, new UserDisplayName(req.DisplayName));
         }
 
+        if (user.IsDeleted)
+        {
+            ThrowError("User is pending deletion", StatusCodes.Status409Conflict);
+            return;
+        }
+
         user.UpdateInfo(new UserDisplayName(req.DisplayName), req.PictureUrl);
         user.AcknowledgeDevice(req.Device.Id, req.Device.ExpoPushToken);
 

@@ -13,7 +13,6 @@ import {
   Animated,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
   TouchableWithoutFeedback,
   useAnimatedValue,
   View,
@@ -54,7 +53,9 @@ export function AuthForm({
   error?: string;
   onSubmit: () => Promise<void>;
   submitText: string;
+  disabled?: boolean;
   Illustration?: Illustration;
+  submitCaption?: ReactNode;
 } & PropsWithChildren) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
   const [isTouched, setIsTouched] = useState(false);
@@ -93,7 +94,7 @@ export function AuthForm({
 
   return (
     <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
-      <KeyboardAvoidingView behavior={'height'}>
+      <KeyboardAvoidingView behavior={'padding'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <Screen className="relative flex h-full flex-col justify-between gap-12">
             <View className="relative w-full flex-row items-center justify-center">
@@ -119,9 +120,10 @@ export function AuthForm({
               <Text className="text-center text-destructive">{props.error}</Text>
               {props.children}
             </View>
+            {props.submitCaption}
             <Button
-              size={Platform.select({ ios: 'lg', default: 'md' })}
-              disabled={!isTouched || inputErrors.length > 0}
+              size={'lg'}
+              disabled={props.disabled || !isTouched || inputErrors.length > 0}
               onPress={() => {
                 setPendingAction(true);
                 setIsSubmitted(true);

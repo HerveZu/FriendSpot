@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 type DisplayUser = {
   displayName: string;
   pictureUrl?: string | null;
+  fontSize?: number;
 };
 
 const MAX_USERS = 3;
@@ -79,22 +80,26 @@ export function UserAvatar({ displayName, pictureUrl, ...props }: UserAvatarProp
           onLoadEnd={() => setLoading(false)}
           source={{ uri: pictureUrl ?? undefined }}
         />
-        <AvatarFallback>
-          <Text>{userInitials.join('')}</Text>
+        <AvatarFallback className={'bg-card'}>
+          <Text
+            className={cn(!props.fontSize ? 'text-sm' : 'text-4xl')}
+            style={{ fontSize: props.fontSize }}>
+            {userInitials.join('')}
+          </Text>
         </AvatarFallback>
       </Avatar>
     </View>
   );
 }
 
-export function MeAvatar(props: ViewProps) {
+export function MeAvatar(props: Omit<UserAvatarProps, 'displayName'>) {
   const { userProfile } = useCurrentUser();
 
   return (
     <UserAvatar
+      {...props}
       displayName={userProfile.displayName}
       pictureUrl={userProfile.pictureUrl}
-      {...props}
     />
   );
 }

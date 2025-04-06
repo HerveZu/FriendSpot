@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
-import { getAuth, signOut } from 'firebase/auth';
+import { deleteUser, getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
 import { Rating } from '~/components/Rating';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -37,6 +37,8 @@ import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
+import { useDeleteAccount } from '~/endpoints/delete-account';
+import { Checkbox } from '~/components/Checkbox';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -46,6 +48,7 @@ export default function UserProfileScreen() {
   const [bottomSheet, setBottomSheet] = useState(false);
   const [review, setReview] = useState<string>();
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
   const sendReview = useSendReview();
@@ -90,7 +93,7 @@ export default function UserProfileScreen() {
               accessibilityLabel="Edit Avatar">
               <ThemedIcon name={'pencil'} size={14} />
             </View>
-            <MeAvatar className="h-28 w-28" />
+            <MeAvatar className="h-28 w-28" fontSize={32} />
           </Pressable>
           <View className="w-3/5 shrink gap-4">
             <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
@@ -150,7 +153,6 @@ export default function UserProfileScreen() {
             />
             <Button
               disabled={!review}
-              size={'lg'}
               variant={'tonal'}
               onPress={() => {
                 review && sendReview(review);
@@ -167,7 +169,11 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
-        <Button variant={'plain'} onPress={() => setConfirmLogout(true)} size={'lg'}>
+        <Button
+          variant={'plain'}
+          onPress={() => setConfirmLogout(true)}
+          size={'lg'}
+          className={'bg-destructive/15 mt-20'}>
           <ThemedIcon
             name={'logout'}
             component={MaterialIcons}
@@ -176,9 +182,108 @@ export default function UserProfileScreen() {
           />
           <Text className={'text-destructive'}>Se déconnecter</Text>
         </Button>
+
+        <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
+          <ThemedIcon
+            name={'no-accounts'}
+            component={MaterialIcons}
+            size={18}
+            color={colors.destructive}
+          />
+          <Text className={'text-destructive'}>Supprimer mon compte</Text>
+        </Button>
       </ScreenWithHeader>
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
+      <AccountDeletionConfirmationModal
+        visible={confirmAccountDeletion}
+        onVisibleChange={setConfirmAccountDeletion}
+      />
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
+    </>
+  );
+}
+
+export function AccountDeletionConfirmationModal({
+  children,
+  visible,
+  onVisibleChange,
+}: PropsWithChildren<{
+  visible: boolean;
+  onVisibleChange: Dispatch<SetStateAction<boolean>>;
+}>) {
+  const [deleteAccount, deletingAccount] = useLoading(useDeleteAccount());
+  const { colors } = useColorScheme();
+  const [userHasConfirmed, setUserHasConfirmed] = useState(false);
+  const { firebaseUser } = useAuth();
+  const auth = getAuth();
+
+  function deleteAccountBackendAndFirebase() {
+    deleteAccount().then(() => deleteUser(firebaseUser).then(() => signOut(auth)));
+  }
+
+  useEffect(() => {
+    !visible && setUserHasConfirmed(false);
+  }, [visible]);
+
+  return (
+    <>
+      <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20'}>
+        <ModalTitle
+          text={'Supprimer mon compte'}
+          icon={<ThemedIcon name={'warning'} size={18} />}
+        />
+
+        <View className={'mt-4 flex-col gap-8'}>
+          <Text className={'text-destructive'} variant={'callout'}>
+            Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes
+            les réservations de ton spot en cours seront terminées.
+          </Text>
+
+          <View className={'flex-row items-center gap-4'}>
+            <Checkbox
+              value={userHasConfirmed}
+              onValueChange={setUserHasConfirmed}
+              style={{
+                borderColor: colors.foreground,
+                borderRadius: 6,
+              }}
+            />
+            <Text variant={'caption1'}>
+              Je confirme vouloir supprimer mon compte et je comprends que cette action est
+              irreversible.
+            </Text>
+          </View>
+        </View>
+
+        <View className="mt-4 w-full flex-row gap-4">
+          <Button
+            className={'grow'}
+            size={'lg'}
+            variant="tonal"
+            onPress={() => onVisibleChange(false)}>
+            <Text className={'text-primary'}>Annuler</Text>
+          </Button>
+          <Button
+            disabled={!userHasConfirmed}
+            className={'grow'}
+            variant={'plain'}
+            size={'lg'}
+            onPress={deleteAccountBackendAndFirebase}>
+            {deletingAccount ? (
+              <ActivityIndicator color={colors.destructive} />
+            ) : (
+              <ThemedIcon
+                name={'no-accounts'}
+                component={MaterialIcons}
+                size={18}
+                color={colors.destructive}
+              />
+            )}
+            <Text className={'text-destructive'}>Supprimer</Text>
+          </Button>
+        </View>
+      </Modal>
+      {children}
     </>
   );
 }

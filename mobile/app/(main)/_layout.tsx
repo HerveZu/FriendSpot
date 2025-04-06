@@ -8,6 +8,7 @@ import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { AskUserToRate } from '~/rating/AskUserToRate';
+import { Pressable, PressableProps } from 'react-native';
 
 export default function MainLayout() {
   return (
@@ -30,6 +31,7 @@ export default function MainLayout() {
                   tabBarIcon: ({ focused }) => (
                     <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} />
                   ),
+                  tabBarButton: NoRipple,
                 }}
               />
               <Tabs.Screen
@@ -43,6 +45,7 @@ export default function MainLayout() {
                       focused={focused}
                     />
                   ),
+                  tabBarButton: NoRipple,
                 }}
               />
               <Tabs.Screen
@@ -50,12 +53,10 @@ export default function MainLayout() {
                 options={{
                   tabBarIcon: ({ focused }) => (
                     <MeAvatar
-                      className={cn(
-                        'aspect-square h-full',
-                        focused && 'h-9 border-2 border-primary'
-                      )}
+                      className={cn('aspect-square h-7', focused && 'h-8 border-2 border-primary')}
                     />
                   ),
+                  tabBarButton: NoRipple,
                 }}
               />
             </Tabs>
@@ -80,4 +81,8 @@ function TabIcon<TGlyph extends string>({
       {...props}
     />
   );
+}
+
+function NoRipple(props: PressableProps) {
+  return <Pressable android_ripple={null} {...props} />;
 }
