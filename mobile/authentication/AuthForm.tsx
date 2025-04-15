@@ -80,8 +80,12 @@ export function AuthForm({
   async function handleSubmit() {
     try {
       await sendPasswordResetEmail(auth, email);
-      setIsOpen(false)
-      setEmail('')
+      setPendingAction(true)
+      setTimeout(() => {
+        setIsOpen(false);
+        setEmail('')
+        setPendingAction(false)
+      }, 500);
     } catch (error) {
       console.error(error);
     }
