@@ -297,7 +297,7 @@ export function LogoutConfirmationModal({
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
   const [logout, loggingOut] = useLoading(useLogout());
-  const deviceId = useDeviceId();
+  const { deviceId } = useDeviceId();
   const auth = getAuth();
   const { colors } = useColorScheme();
 
