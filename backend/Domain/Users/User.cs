@@ -46,17 +46,27 @@ public sealed class User : IBroadcastEvents
         PictureUrl = pictureUrl;
     }
 
-    public void AcknowledgeDevice(string id, string? expoToken)
+    public void AcknowledgeDevice(string id, string? expoToken, bool uniquenessNotGuaranteed)
     {
         var device = _userDevices.FirstOrDefault(device => device.DeviceId == id);
 
-        if (device is null)
+        if (device is not null)
         {
-            _userDevices.Add(new UserDevice(id, expoToken));
+            device.UpdatePushToken(expoToken);
             return;
         }
 
-        device.UpdatePushToken(expoToken);
+        // as the device id is not guaranteed to be unique,
+        // there's a risk that an existing device whose id is neither
+        // guaranteed to be unique and represents the same physical device
+
+        // To prevent duplicate devices, we need to remove all potential duplicated devices
+        if (uniquenessNotGuaranteed)
+        {
+            _userDevices.RemoveAll(exitingDevice => exitingDevice.UniquenessNotGuaranteed);
+        }
+
+        _userDevices.Add(new UserDevice(id, expoToken, uniquenessNotGuaranteed));
     }
 
     public void RemoveDevice(string deviceId)
@@ -117,6 +127,7 @@ internal sealed class UserConfig : IEntityConfiguration<User>
             {
                 // device id should not be unique as the same device could be used on multiple accounts
                 deviceBuilder.Property(x => x.DeviceId);
+                deviceBuilder.Property(x => x.UniquenessNotGuaranteed);
                 deviceBuilder.Property(x => x.ExpoPushToken);
             });
         builder.OwnsOne(
