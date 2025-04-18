@@ -52,6 +52,7 @@ public sealed class ParkingSpot : IBroadcastEvents
     public Guid ParkingId { get; private set; }
     public SpotName SpotName { get; private set; }
     public string OwnerId { get; }
+    public bool Disabled { get; private set; }
     public IReadOnlyList<ParkingSpotAvailability> Availabilities => _availabilities.AsReadOnly();
     public IReadOnlyList<ParkingSpotBooking> Bookings => _bookings.AsReadOnly();
 
@@ -76,6 +77,11 @@ public sealed class ParkingSpot : IBroadcastEvents
         DateTimeOffset from,
         TimeSpan duration)
     {
+        if (Disabled)
+        {
+            throw new BusinessException("ParkingSpot.Disabled", "Cannot book a parking spot because it is disabled.");
+        }
+
         if (bookingUserId == OwnerId)
         {
             throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book your own spot.");
@@ -140,6 +146,13 @@ public sealed class ParkingSpot : IBroadcastEvents
 
     public (Credits credits, bool overlaps) MakeAvailable(DateTimeOffset from, DateTimeOffset to)
     {
+        if (Disabled)
+        {
+            throw new BusinessException(
+                "ParkingSpot.Disabled",
+                "Cannot make parking spot available because it is disabled.");
+        }
+
         var newAvailability = ParkingSpotAvailability.New(from, to);
         var overlappingAvailabilities = Availabilities
             .Where(other => newAvailability.Overlaps(other.From, other.To))
@@ -168,16 +181,16 @@ public sealed class ParkingSpot : IBroadcastEvents
     public void RateBooking(string ratingUserId, Guid bookingId, BookRating rating)
     {
         var booking = _bookings.FirstOrDefault(booking => booking.Id == bookingId)
-                      ?? throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+                      ?? throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found.");
 
         if (ratingUserId != booking.BookingUserId)
         {
-            throw new BusinessException("ParkingSpot.InvalidRating", "Cannot rate another person's booking");
+            throw new BusinessException("ParkingSpot.InvalidRating", "Cannot rate another person's booking.");
         }
 
         if (booking.Rating is not null)
         {
-            throw new BusinessException("ParkingSpot.InvalidRating", "This booking has already been rated");
+            throw new BusinessException("ParkingSpot.InvalidRating", "This booking has already been rated.");
         }
 
         booking.Rate(rating);
@@ -196,12 +209,12 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         if (availability is null)
         {
-            throw new BusinessException("ParkingSpot.AvailabilityNotFound", "Availability not found");
+            throw new BusinessException("ParkingSpot.AvailabilityNotFound", "Availability not found.");
         }
 
         if (cancelingUserId != OwnerId)
         {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "A spot can only be cancelled by the owner");
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "A spot can only be cancelled by the owner.");
         }
 
         var overlappingBookings = _bookings
@@ -210,7 +223,7 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         if (!availability.CanCancel(cancelingUserId, overlappingBookings))
         {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel availability");
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel availability.");
         }
 
         foreach (var booking in overlappingBookings)
@@ -227,18 +240,18 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         if (booking is null)
         {
-            throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
+            throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found.");
         }
 
         var allowedToCancel = new[] { OwnerId, booking.BookingUserId };
         if (!allowedToCancel.Contains(cancelingUserId))
         {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "Not allowed to cancel booking");
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "Not allowed to cancel booking.");
         }
 
         if (!booking.CanCancel(cancelingUserId))
         {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "The booking cannot be cancelled");
+            throw new BusinessException("ParkingSpot.InvalidCancelling", "The booking cannot be cancelled.");
         }
 
         _bookings.Remove(booking);
@@ -268,6 +281,11 @@ public sealed class ParkingSpot : IBroadcastEvents
                 OwnerId = OwnerId
             });
     }
+
+    public void Disable()
+    {
+        Disabled = true;
+    }
 }
 
 internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
@@ -279,6 +297,7 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
             .HasMaxLength(SpotName.MaxLength)
             .HasConversion(name => name.Name, name => new SpotName(name));
         builder.HasIndex(x => new { x.OwnerId, x.SpotName }).IsUnique();
+        builder.Property(x => x.Disabled);
 
         builder.HasOne<Parking>().WithMany().HasForeignKey(x => x.ParkingId);
         builder.HasOne<User>().WithOne().HasForeignKey<ParkingSpot>(x => x.OwnerId);

@@ -76,6 +76,7 @@ internal sealed class GetSuggestedSpots(AppDbContext dbContext)
 
         var availabilities = await (
                 from parkingLot in dbContext.Set<ParkingSpot>()
+                where !parkingLot.Disabled
                 where parkingLot.OwnerId != currentUser.Identity
                 where parkingLot.ParkingId == parkingSpot.ParkingId
                 join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity
