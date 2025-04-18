@@ -115,7 +115,7 @@ internal sealed class UserConfig : IEntityConfiguration<User>
             x => x.UserDevices,
             deviceBuilder =>
             {
-                deviceBuilder.HasIndex(x => x.DeviceId).IsUnique();
+                // device id should not be unique as the same device could be used on multiple accounts
                 deviceBuilder.Property(x => x.DeviceId);
                 deviceBuilder.Property(x => x.ExpoPushToken);
             });
