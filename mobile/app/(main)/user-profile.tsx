@@ -255,7 +255,7 @@ export function AccountDeletionConfirmationModal({
           </View>
         </View>
 
-        <View className="mt-4 w-full flex-row gap-4">
+        <View className="mt-4 w-full flex-row justify-between gap-4">
           <Button
             className={'grow'}
             size={'lg'}
@@ -317,7 +317,7 @@ export function LogoutConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
         <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
-        <View className="mt-4 w-full flex-row gap-4">
+        <View className="mt-4 w-full flex-row justify-between gap-4">
           <Button
             className={'grow'}
             size={'lg'}

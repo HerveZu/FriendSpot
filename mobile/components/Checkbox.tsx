@@ -3,7 +3,7 @@ import React from 'react';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { omitUndefined } from '~/lib/utils';
 
-export function Checkbox({ style, ...props }: CheckboxProps) {
+export function Checkbox({ style, color, ...props }: CheckboxProps) {
   const { colors } = useColorScheme();
 
   return (
@@ -15,6 +15,7 @@ export function Checkbox({ style, ...props }: CheckboxProps) {
         },
         omitUndefined(style),
       ]}
+      color={color ?? colors.primary}
       {...props}
     />
   );
