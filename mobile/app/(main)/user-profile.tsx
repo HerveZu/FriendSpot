@@ -2,6 +2,7 @@ import React, {
   createRef,
   Dispatch,
   PropsWithChildren,
+  ReactNode,
   SetStateAction,
   useEffect,
   useState,
@@ -40,6 +41,7 @@ import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { useDeleteAccount } from '~/endpoints/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import { ScrollView } from 'react-native-gesture-handler';
+import Constants from 'expo-constants';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -170,11 +172,13 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
+        <BigSeparator />
+
         <Button
           variant={'plain'}
           onPress={() => setConfirmLogout(true)}
           size={'lg'}
-          className={'bg-destructive/15 mt-20'}>
+          className={'bg-destructive/15'}>
           <ThemedIcon
             name={'logout'}
             component={MaterialIcons}
@@ -193,6 +197,10 @@ export default function UserProfileScreen() {
           />
           <Text className={'text-destructive'}>Supprimer mon compte</Text>
         </Button>
+
+        <BigSeparator />
+
+        <AppVersionInfo />
       </ScreenWithHeader>
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
       <AccountDeletionConfirmationModal
@@ -201,6 +209,31 @@ export default function UserProfileScreen() {
       />
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
     </>
+  );
+}
+
+const BigSeparator = () => <View className={'mt-10'} />;
+
+function AppVersionInfo() {
+  const appVersion = Constants.expoConfig?.version || 'Unknown';
+  const updateId = Constants.updateId || 'No OTA Update Applied';
+  const updateChannel = Constants.updateChannel || 'default';
+
+  function InfoRow(props: { label: string; value: ReactNode }) {
+    return (
+      <View className={'flex-row justify-between'}>
+        <Text variant={'footnote'}>{props.label}</Text>
+        <Text variant={'caption2'}>{props.value}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View className={'flex-col gap-1'}>
+      <InfoRow label={'App Version'} value={appVersion} />
+      <InfoRow label={'Update ID'} value={updateId} />
+      <InfoRow label={'Update Channel'} value={updateChannel} />
+    </View>
   );
 }
 
