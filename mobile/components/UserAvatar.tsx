@@ -15,13 +15,15 @@ type DisplayUser = {
 const MAX_USERS = 3;
 
 export function Users(props: { users: DisplayUser[] }) {
+  const displayedUsers = props.users.slice(0, MAX_USERS);
+
   return (
     <View className={'flex-row'}>
-      {props.users.slice(0, MAX_USERS).map((user, i) => (
+      {displayedUsers.map((user, i) => (
         <UserAvatar
           className={'-ml-4 h-8 w-8'}
           style={{
-            zIndex: 50 + i,
+            zIndex: 50 + displayedUsers.length - i,
           }}
           key={i}
           displayName={user.displayName}

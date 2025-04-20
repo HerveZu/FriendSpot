@@ -224,7 +224,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         }>
         <Card className="bg-background">
           <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
-            <View className={'flex-col gap-3'}>
+            <View className={'flex-col gap-4'}>
               <User
                 displayName={props.booking.bookedBy.displayName}
                 pictureUrl={props.booking.bookedBy.pictureUrl}
