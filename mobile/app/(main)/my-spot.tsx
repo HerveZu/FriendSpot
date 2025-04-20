@@ -16,7 +16,7 @@ import {
 } from 'date-fns';
 import { Redirect } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, SafeAreaView, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Platform, SafeAreaView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
@@ -50,6 +50,7 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
 import { useCancelAvailability } from '~/endpoints/cancel-spot-availability';
 import { cn } from '~/lib/cn';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();

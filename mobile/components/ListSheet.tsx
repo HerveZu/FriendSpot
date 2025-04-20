@@ -1,11 +1,12 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useEffect } from 'react';
-import { Pressable, ScrollView } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { ContentSheetView } from '~/components/ContentView';
 import { List } from '~/components/List';
 import { SheetTitle } from '~/components/Title';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export function ListSheet(
   props: {

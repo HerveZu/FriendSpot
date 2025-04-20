@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { deleteUser, getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -39,6 +39,7 @@ import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { useDeleteAccount } from '~/endpoints/delete-account';
 import { Checkbox } from '~/components/Checkbox';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
