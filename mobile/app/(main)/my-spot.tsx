@@ -126,7 +126,6 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         <View className="flex-col justify-between gap-2">
           <View className="flex-row items-start justify-between gap-4">
             <DateRange
-              className={'mb-4'}
               from={props.availability.from}
               to={props.availability.to}
               duration={props.availability.duration}
@@ -137,9 +136,9 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             </View>
           </View>
           {props.availability.bookings.length === 0 && (
-            <View className="flex-row items-center gap-2">
+            <View className="mt-2 flex-row items-center gap-2">
               <BlinkingDot color={colors.primary} />
-              <Text className="text-xs ">En attente de réservation</Text>
+              <Text className="text-xs">En attente de réservation</Text>
             </View>
           )}
         </View>
