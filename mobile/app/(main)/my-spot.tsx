@@ -16,7 +16,7 @@ import {
 } from 'date-fns';
 import { Redirect } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, SafeAreaView, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Platform, SafeAreaView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
@@ -50,6 +50,7 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
 import { useCancelAvailability } from '~/endpoints/cancel-spot-availability';
 import { cn } from '~/lib/cn';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function MySpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -125,7 +126,6 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         <View className="flex-col justify-between gap-2">
           <View className="flex-row items-start justify-between gap-4">
             <DateRange
-              className={'mb-4'}
               from={props.availability.from}
               to={props.availability.to}
               duration={props.availability.duration}
@@ -136,9 +136,9 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             </View>
           </View>
           {props.availability.bookings.length === 0 && (
-            <View className="flex-row items-center gap-2">
+            <View className="mt-2 flex-row items-center gap-2">
               <BlinkingDot color={colors.primary} />
-              <Text className="text-xs ">En attente de réservation</Text>
+              <Text className="text-xs">En attente de réservation</Text>
             </View>
           )}
         </View>
@@ -224,7 +224,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         }>
         <Card className="bg-background">
           <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
-            <View className={'flex-col gap-3'}>
+            <View className={'flex-col gap-4'}>
               <User
                 displayName={props.booking.bookedBy.displayName}
                 pictureUrl={props.booking.bookedBy.pictureUrl}

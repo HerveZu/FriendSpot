@@ -27,11 +27,18 @@ internal sealed class ExpoPushNotificationService
 
     public async Task PushToUser(User user, Notification notification, CancellationToken cancellationToken)
     {
+        _logger.LogInformation(
+            "Pushing notification to user {UserId} to {DeviceCount} devices",
+            user,
+            user.UserDevices.Count);
+
         await Task.WhenAll(user.UserDevices.Select(device => PushToDevice(device, notification, cancellationToken)));
     }
 
     private async Task PushToDevice(UserDevice device, Notification notification, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Pushing notification to device {Device}", device.DeviceId);
+
         try
         {
             await _httpClient.PostAsJsonAsync(

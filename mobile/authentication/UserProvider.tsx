@@ -47,7 +47,7 @@ export function UserProvider(props: PropsWithChildren) {
   const [registerTrigger, setRegisterTrigger] = useState({});
 
   const { expoPushToken } = useNotification();
-  const deviceId = useDeviceId();
+  const { deviceId, uniquenessNotGuaranteed } = useDeviceId();
 
   const updateInternalProfile = useCallback(
     async (photoURL: string | null | undefined, displayName: string) => {
@@ -99,6 +99,7 @@ export function UserProvider(props: PropsWithChildren) {
       device: {
         id: deviceId,
         expoPushToken: expoPushToken,
+        uniquenessNotGuaranteed: uniquenessNotGuaranteed,
       },
     })
       .then(() => getProfile().then(setUserProfile))

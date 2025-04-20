@@ -3,6 +3,7 @@ using System;
 using Api.Common.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250418113204_MakeUserDeviceIdNotUnique")]
+    partial class MakeUserDeviceIdNotUnique
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -471,9 +474,6 @@ namespace Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("Disabled")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("OwnerId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -713,9 +713,6 @@ namespace Api.Migrations
 
                             b1.Property<string>("ExpoPushToken")
                                 .HasColumnType("text");
-
-                            b1.Property<bool>("UniquenessNotGuaranteed")
-                                .HasColumnType("boolean");
 
                             b1.HasKey("UserIdentity", "Id");
 

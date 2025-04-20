@@ -20,6 +20,9 @@ public sealed record RegisterUserRequest
     {
         public required string Id { get; init; }
         public required string? ExpoPushToken { get; init; }
+
+        // true by default to avoid any non-up-to-date client to pass non-unique device id
+        public bool UniquenessNotGuaranteed { get; init; } = true;
     }
 }
 
@@ -39,7 +42,8 @@ internal sealed class RegisterUserValidator : Validator<RegisterUserRequest>
     }
 }
 
-internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUserRequest, RegisterUserResponse>
+internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser> logger)
+    : Endpoint<RegisterUserRequest, RegisterUserResponse>
 {
     public const string Path = "/@me/register";
 
@@ -57,6 +61,7 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
 
         if (user is null)
         {
+            logger.LogInformation("User {UserId} does not exist, registering user...", userIdentity);
             newUser = true;
             user = Domain.Users.User.Register(userIdentity, new UserDisplayName(req.DisplayName));
         }
@@ -67,13 +72,28 @@ internal sealed class RegisterUser(AppDbContext dbContext) : Endpoint<RegisterUs
             return;
         }
 
+        logger.LogInformation("Updating user info...");
+
         user.UpdateInfo(new UserDisplayName(req.DisplayName), req.PictureUrl);
-        user.AcknowledgeDevice(req.Device.Id, req.Device.ExpoPushToken);
+
+        logger.LogDebug(
+            "Acknowledging user device {DeviceId} (unique ID: {UniqueId}) using Expo token {ExpoToken}",
+            req.Device.Id,
+            req.Device.UniquenessNotGuaranteed,
+            req.Device.ExpoPushToken);
+
+        user.AcknowledgeDevice(req.Device.Id, req.Device.ExpoPushToken, req.Device.UniquenessNotGuaranteed);
 
         if (newUser)
+        {
             await dbContext.Set<User>().AddAsync(user, ct);
+            logger.LogDebug("User {UserId} added to db.", userIdentity);
+        }
         else
+        {
             dbContext.Set<User>().Update(user);
+            logger.LogDebug("User {UserId} updated in db.", userIdentity);
+        }
 
         await dbContext.SaveChangesAsync(ct);
     }

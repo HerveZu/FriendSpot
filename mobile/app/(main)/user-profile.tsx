@@ -2,11 +2,12 @@ import React, {
   createRef,
   Dispatch,
   PropsWithChildren,
+  ReactNode,
   SetStateAction,
   useEffect,
   useState,
 } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { deleteUser, getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -39,6 +40,8 @@ import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { useDeleteAccount } from '~/endpoints/delete-account';
 import { Checkbox } from '~/components/Checkbox';
+import { ScrollView } from 'react-native-gesture-handler';
+import Constants from 'expo-constants';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -169,11 +172,13 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
+        <BigSeparator />
+
         <Button
           variant={'plain'}
           onPress={() => setConfirmLogout(true)}
           size={'lg'}
-          className={'bg-destructive/15 mt-20'}>
+          className={'bg-destructive/15'}>
           <ThemedIcon
             name={'logout'}
             component={MaterialIcons}
@@ -192,6 +197,10 @@ export default function UserProfileScreen() {
           />
           <Text className={'text-destructive'}>Supprimer mon compte</Text>
         </Button>
+
+        <BigSeparator />
+
+        <AppVersionInfo />
       </ScreenWithHeader>
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
       <AccountDeletionConfirmationModal
@@ -200,6 +209,31 @@ export default function UserProfileScreen() {
       />
       <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
     </>
+  );
+}
+
+const BigSeparator = () => <View className={'mt-10'} />;
+
+function AppVersionInfo() {
+  const appVersion = Constants.expoConfig?.version || 'Unknown';
+  const updateId = Constants.updateId || 'No OTA Update Applied';
+  const updateChannel = Constants.updateChannel || 'default';
+
+  function InfoRow(props: { label: string; value: ReactNode }) {
+    return (
+      <View className={'flex-row justify-between'}>
+        <Text variant={'footnote'}>{props.label}</Text>
+        <Text variant={'caption2'}>{props.value}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View className={'flex-col gap-1'}>
+      <InfoRow label={'App Version'} value={appVersion} />
+      <InfoRow label={'Update ID'} value={updateId} />
+      <InfoRow label={'Update Channel'} value={updateChannel} />
+    </View>
   );
 }
 
@@ -255,7 +289,7 @@ export function AccountDeletionConfirmationModal({
           </View>
         </View>
 
-        <View className="mt-4 w-full flex-row gap-4">
+        <View className="mt-4 w-full flex-row justify-between gap-4">
           <Button
             className={'grow'}
             size={'lg'}
@@ -297,7 +331,7 @@ export function LogoutConfirmationModal({
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
   const [logout, loggingOut] = useLoading(useLogout());
-  const deviceId = useDeviceId();
+  const { deviceId } = useDeviceId();
   const auth = getAuth();
   const { colors } = useColorScheme();
 
@@ -317,7 +351,7 @@ export function LogoutConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
         <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
-        <View className="mt-4 w-full flex-row gap-4">
+        <View className="mt-4 w-full flex-row justify-between gap-4">
           <Button
             className={'grow'}
             size={'lg'}

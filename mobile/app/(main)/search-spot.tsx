@@ -17,14 +17,7 @@ import {
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Platform, Pressable, SafeAreaView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -61,6 +54,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 import { pluralize } from '~/lib/locale';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function SearchSpotScreen() {
   const { userProfile } = useCurrentUser();
