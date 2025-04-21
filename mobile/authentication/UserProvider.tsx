@@ -10,8 +10,8 @@ import {
 
 import { useAuth } from '~/authentication/AuthProvider';
 import { Loader } from '~/components/Loader';
-import { useGetProfile, UserProfile } from '~/endpoints/get-profile';
-import { useRegisterUser } from '~/endpoints/register-user';
+import { useGetProfile, UserProfile } from '~/endpoints/me/get-profile';
+import { useRegisterUser } from '~/endpoints/me/register-user';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { useNotification } from '~/notification/NotificationContext';
 import { useDeviceId } from '~/lib/use-device-id';

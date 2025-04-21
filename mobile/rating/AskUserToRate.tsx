@@ -5,8 +5,8 @@ import { ActivityIndicator, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { Button } from '~/components/nativewindui/Button';
-import { BookingToRate } from '~/endpoints/get-profile';
-import { useRateBooking, UserRating } from '~/endpoints/rate-booking';
+import { BookingToRate } from '~/endpoints/me/get-profile';
+import { useRateBooking, UserRating } from '~/endpoints/booking/rate-booking';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { useLoading } from '~/lib/useFetch';
 

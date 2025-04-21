@@ -4,7 +4,6 @@ using Domain.ParkingSpots;
 using Domain.Users;
 using FastEndpoints;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Bookings;
@@ -12,7 +11,6 @@ namespace Api.Bookings;
 [PublicAPI]
 public sealed record GetMyAvailabilitiesRequest
 {
-    [FromQuery]
     public required DateTimeOffset From { get; init; }
 }
 

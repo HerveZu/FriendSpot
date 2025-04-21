@@ -1,27 +1,19 @@
+using Api.Common;
 using Api.Common.Infrastructure;
+using Api.Spots.Contracts;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.MySpot;
+namespace Api.Spots;
 
 [PublicAPI]
 public sealed record SearchAvailableParkingRequest
 {
-    [FromQuery]
     public string? Search { get; init; }
-}
-
-[PublicAPI]
-public sealed record ParkingResponse
-{
-    public required Guid Id { get; init; }
-    public required string Name { get; init; }
-    public required string Address { get; init; }
-    public required int SpotsCount { get; init; }
+    public bool OwnedOnly { get; init; }
 }
 
 internal sealed class SearchAvailableParking(AppDbContext dbContext)
@@ -36,19 +28,24 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
     {
         var matchingParking = dbContext.Set<Parking>().AsQueryable();
         var search = req.Search?.ToLowerInvariant();
+        var currentUser = HttpContext.ToCurrentUser();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
             matchingParking = matchingParking.Where(
                 parking =>
                     // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
-                    EF.Functions.ILike(parking.Name.ToLower(), $"%{search}%")
+                    EF.Functions.ILike(parking.Name, $"%{search}%")
                     // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
-                    || EF.Functions.ILike(parking.Address.ToLower(), $"%{search}%"));
+                    || EF.Functions.ILike(parking.Address, $"%{search}%"));
+        }
+
+        if (req.OwnedOnly)
+        {
+            matchingParking = matchingParking.Where(parking => parking.OwnerId == currentUser.Identity);
         }
 
         var availableParking = await matchingParking
-            .OrderBy(parking => parking.Name)
             .Select(
                 parking => new ParkingResponse
                 {
@@ -57,8 +54,10 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
                     Address = parking.Address,
                     SpotsCount = dbContext
                         .Set<ParkingSpot>()
-                        .Count(spot => spot.ParkingId == parking.Id)
+                        .Count(spot => spot.ParkingId == parking.Id),
+                    OwnerId = parking.OwnerId
                 })
+            .OrderByDescending(parking => parking.SpotsCount)
             .ToArrayAsync(ct);
 
         await SendOkAsync(availableParking, ct);

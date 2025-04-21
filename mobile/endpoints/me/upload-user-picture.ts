@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useApiRequest } from './use-api-request';
+import { useApiRequest } from '~/endpoints/use-api-request';
 
 type UserPictureResponse = {
   readonly writeUrl: string;

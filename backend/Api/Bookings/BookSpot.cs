@@ -35,7 +35,7 @@ internal sealed class BookSpotValidator : Validator<BookSpotRequest>
     }
 }
 
-internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotRequest>
+internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotRequest, BookSpotResponse>
 {
     public override void Configure()
     {
