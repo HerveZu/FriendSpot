@@ -20,27 +20,31 @@ import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
-import { useUploadUserPicture } from '~/endpoints/upload-user-picture';
-import { ParkingResponse, useSearchParking } from '~/endpoints/search-parking';
+import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
+import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading } from '~/lib/useFetch';
-import { useDefineSpot } from '~/endpoints/define-spot';
-import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { useDefineSpot } from '~/endpoints/parkings/define-spot';
+import { FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { List } from '~/components/List';
 import { Card } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
-import { useSendReview } from '~/endpoints/send-review';
+import { useSendReview } from '~/endpoints/me/send-review';
 import { Title } from '~/components/Title';
-import { useLogout } from '~/endpoints/logout';
+import { useLogout } from '~/endpoints/me/logout';
 import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
-import { useDeleteAccount } from '~/endpoints/delete-account';
+import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import { ScrollView } from 'react-native-gesture-handler';
 import Constants from 'expo-constants';
+import { getRandomInt } from '~/lib/utils';
+import { ParkingResponse } from '~/endpoints/parkings/parking-response';
+import { useCreateParking } from '~/endpoints/parkings/create-parking';
+import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -382,8 +386,10 @@ function DefineSpotSheet(props: {
 
   const fullSearch = search ?? userProfile.spot?.parking.address ?? '';
   const [searchDebounce] = useDebounce(fullSearch, 200);
-  const [parking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
+  const [parking, setParking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
   const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
+  const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
+  const [parkingModalOpen, setParkingModalOpen] = useState(false);
 
   const spotNameRef = createRef<ReactTextInput>();
   const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
@@ -428,22 +434,54 @@ function DefineSpotSheet(props: {
     setCurrentSpotName('');
   }
 
+  function replaceParking(parking: ParkingResponse) {
+    setParking((allParking) => [
+      ...(allParking?.filter((p) => p.id !== parking.id) ?? []),
+      parking,
+    ]);
+  }
+
+  function createParking() {
+    setParkingModalOpen(true);
+    setEditingParking(null);
+  }
+
   function ParkingCard(props: { parking: ParkingResponse }) {
     const isSelected = selectedParking?.id === props.parking.id;
+    const isOwned = props.parking.ownerId === userProfile.id;
+
+    function onEdit() {
+      setEditingParking(props.parking);
+      setParkingModalOpen(true);
+    }
 
     return (
       <Pressable onPress={() => selectParking(props.parking)}>
         <Card background>
           <View className={'flex-row items-center justify-between'}>
-            <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
+            <View className={'flex-row items-center'}>
+              <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
+              {isOwned && (
+                <Button
+                  variant={'plain'}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}>
+                  <ThemedIcon name={'pencil'} size={18} color={colors.foreground} />
+                </Button>
+              )}
+            </View>
             <Text
               className={
                 'font-semibold'
               }>{`${props.parking.spotsCount} ${props.parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
           </View>
           <View className="flex-row items-center justify-between gap-4">
-            <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
-            <Text className="shrink text-sm">{props.parking.address}</Text>
+            <View className={'w-4/5 flex-row items-center gap-4'}>
+              <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
+              <Text className="shrink text-sm">{props.parking.address}</Text>
+            </View>
             <View className={'w-8'}>
               {isSelected && <ThemedIcon name={'check'} size={18} color={colors.primary} />}
             </View>
@@ -458,7 +496,7 @@ function DefineSpotSheet(props: {
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={keyboardVisible ? [800] : [550]}>
+      snapPoints={keyboardVisible ? [900] : [650]}>
       <ContentSheetView
         className={'flex-col justify-between gap-6'}
         style={
@@ -480,7 +518,8 @@ function DefineSpotSheet(props: {
             placeholder="Rechercher un parking"
           />
 
-          <ScrollView className={cn('rounded-xl bg-card p-2', keyboardVisible && 'max-h-48')}>
+          <ScrollView
+            className={cn('max-h-72 rounded-xl bg-card p-2', keyboardVisible && 'max-h-48')}>
             <List>
               {parking && parking.length > 0 ? (
                 parking.map((parking) => <ParkingCard key={parking.id} parking={parking} />)
@@ -491,6 +530,15 @@ function DefineSpotSheet(props: {
               )}
             </List>
           </ScrollView>
+
+          <View className={'flex-row items-center justify-between gap-4 rounded-lg bg-card p-3'}>
+            <Text variant={'caption1'} className={'w-2/3'}>
+              Tu ne trouves pas ton parking ? Créé le maintenant !
+            </Text>
+            <Button onPress={createParking} variant={'plain'} className={'h-full'}>
+              <ThemedIcon name={'create'} component={Ionicons} size={24} />
+            </Button>
+          </View>
         </View>
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
@@ -517,6 +565,86 @@ function DefineSpotSheet(props: {
           </Button>
         </View>
       </ContentSheetView>
+      <ParkingModal
+        parking={editingParking}
+        open={parkingModalOpen}
+        onOpenChange={setParkingModalOpen}
+        onParking={replaceParking}
+      />
     </Sheet>
+  );
+}
+
+function ParkingModal(props: {
+  parking: ParkingResponse | null;
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+  onParking: (parking: ParkingResponse) => void;
+}) {
+  const mode = props.parking ? 'edit' : 'create';
+  const [address, setAddress] = React.useState(props.parking?.address ?? '');
+  const [name, setName] = React.useState(props.parking?.name ?? '');
+  const { colors } = useColorScheme();
+
+  const [createParking, isCreating] = useLoading(useCreateParking());
+  const [editParking, isEditing] = useLoading(useEditParkingInfo());
+
+  useEffect(() => {
+    setAddress(props.parking?.address ?? '');
+    setName(props.parking?.name ?? `Mon parking ${getRandomInt(100, 999)}`);
+  }, [props.parking]);
+
+  const submitFn = {
+    create: () => createParking({ name, address }),
+    edit: () => (props.parking?.id ? editParking(props.parking.id, { name, address }) : undefined),
+  };
+
+  const isSubmitting = {
+    create: isCreating,
+    edit: isEditing,
+  };
+
+  const submitText = {
+    create: `Créer ${name}`,
+    edit: 'Enregistrer',
+  };
+
+  const titleText = {
+    create: 'Créer un parking',
+    edit: 'Modifier un parking',
+  };
+
+  async function onSubmit() {
+    const parking = await submitFn[mode]();
+    parking && props.onParking(parking);
+    props.onOpenChange(false);
+  }
+
+  return (
+    <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
+      <ModalTitle text={titleText[mode]} />
+      <View className={'flex-col gap-2'}>
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder={'Mon parking 123'}
+          maxLength={50}
+        />
+        <TextInput
+          value={address}
+          onChangeText={setAddress}
+          placeholder={'Chemin de mon parking 123'}
+          maxLength={100}
+          icon={{
+            element: <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />,
+            position: 'left',
+          }}
+        />
+      </View>
+      <Button disabled={!name || !address || isSubmitting[mode]} onPress={onSubmit}>
+        {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
+        <Text>{submitText[mode]}</Text>
+      </Button>
+    </Modal>
   );
 }

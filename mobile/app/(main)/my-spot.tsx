@@ -34,21 +34,21 @@ import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
-import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
+import { useCancelBooking } from '~/endpoints/booking/cancel-spot-booking';
 import {
   AvailabilityBooking,
   AvailabilityBookingUser,
   SpotAvailability,
   useGetAvailabilities,
-} from '~/endpoints/get-availabilities';
-import { LendSpotResponse, useLendSpot } from '~/endpoints/lend-spot';
+} from '~/endpoints/booking/get-availabilities';
+import { LendSpotResponse, useLendSpot } from '~/endpoints/booking/lend-spot';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
-import { useCancelAvailability } from '~/endpoints/cancel-spot-availability';
+import { useCancelAvailability } from '~/endpoints/booking/cancel-spot-availability';
 import { cn } from '~/lib/cn';
 import { ScrollView } from 'react-native-gesture-handler';
 

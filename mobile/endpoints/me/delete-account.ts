@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useApiRequest } from './use-api-request';
+import { useApiRequest } from '~/endpoints/use-api-request';
 
 export function useDeleteAccount() {
   const { apiRequest } = useApiRequest();

@@ -1,12 +1,6 @@
 import { useApiRequest } from '~/endpoints/use-api-request';
 import { useCallback } from 'react';
-
-export type ParkingResponse = {
-  id: string;
-  address: string;
-  name: string;
-  spotsCount: number;
-};
+import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 
 export function useSearchParking() {
   const { apiRequest } = useApiRequest();
