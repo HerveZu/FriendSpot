@@ -5,7 +5,6 @@ using Domain.Users;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Bookings;
@@ -13,10 +12,7 @@ namespace Api.Bookings;
 [PublicAPI]
 public sealed record GetSuggestedSpotsRequest
 {
-    [FromQuery]
     public required DateTimeOffset From { get; init; }
-
-    [FromQuery]
     public required DateTimeOffset To { get; init; }
 }
 

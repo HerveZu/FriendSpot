@@ -8,12 +8,14 @@ public sealed record SpotName
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
+            throw new BusinessException("ParkingSpot.InvalidName", "Parking spot name cannot be empty");
         }
 
         if (name.Length > MaxLength)
         {
-            throw new ArgumentException($"'{nameof(name)}' cannot be longer than 10 characters.", nameof(name));
+            throw new BusinessException(
+                "ParkingSpot.InvalidName",
+                $"Parking spot name cannot be longer than {MaxLength} characters, was {name.Length}.");
         }
 
         Name = name.ToUpper();

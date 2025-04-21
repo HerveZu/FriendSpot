@@ -13,6 +13,7 @@ namespace Api.Me;
 [PublicAPI]
 public sealed record MeResponse
 {
+    public required string Id { get; init; }
     public required string DisplayName { get; init; }
     public required string? PictureUrl { get; init; }
     public required decimal Rating { get; init; }
@@ -82,6 +83,7 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                 where user.Identity == currentUser.Identity
                 select new MeResponse
                 {
+                    Id = user.Identity,
                     DisplayName = user.DisplayName,
                     PictureUrl = user.PictureUrl,
                     Rating = user.Rating.Rating,
