@@ -505,7 +505,7 @@ function DefineSpotSheet(props: {
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={keyboardVisible ? [900] : [650]}>
+      snapPoints={keyboardVisible ? [800] : [650]}>
       <ContentSheetView
         className={'flex-col justify-between gap-6'}
         style={
@@ -540,14 +540,16 @@ function DefineSpotSheet(props: {
             </List>
           </ScrollView>
 
-          <View className={'flex-row items-center justify-between gap-4 rounded-lg bg-card p-3'}>
-            <Text variant={'caption1'} className={'w-2/3'}>
-              Tu ne trouves pas ton parking ? Créé le maintenant !
-            </Text>
-            <Button onPress={createParking} variant={'plain'} className={'h-full'}>
-              <ThemedIcon name={'create'} component={Ionicons} size={24} />
-            </Button>
-          </View>
+          {!keyboardVisible && (
+            <View className={'flex-row items-center justify-between gap-4 rounded-lg bg-card p-3'}>
+              <Text variant={'caption1'} className={'w-2/3'}>
+                Tu ne trouves pas ton parking ? Créé le maintenant !
+              </Text>
+              <Button onPress={createParking} variant={'plain'} className={'h-full'}>
+                <ThemedIcon name={'create'} component={Ionicons} size={24} />
+              </Button>
+            </View>
+          )}
         </View>
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">

@@ -64,7 +64,7 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
               icon.position === 'right' && 'right-0',
               icon.position === 'left' && 'left-0'
             )}>
-            <View className="m-1 my-auto bg-background p-3">{icon.element}</View>
+            <View className="m-1 my-auto rounded-lg bg-background p-3">{icon.element}</View>
           </View>
         )}
       </View>
