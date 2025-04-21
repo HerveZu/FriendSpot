@@ -2,7 +2,6 @@ import React, {
   createRef,
   Dispatch,
   PropsWithChildren,
-  ReactNode,
   SetStateAction,
   useEffect,
   useState,
@@ -215,24 +214,11 @@ export default function UserProfileScreen() {
 const BigSeparator = () => <View className={'mt-10'} />;
 
 function AppVersionInfo() {
-  const appVersion = Constants.expoConfig?.version || 'Unknown';
-  const updateId = Constants.updateId || 'No OTA Update Applied';
-  const updateChannel = Constants.updateChannel || 'default';
-
-  function InfoRow(props: { label: string; value: ReactNode }) {
-    return (
-      <View className={'flex-row justify-between'}>
-        <Text variant={'footnote'}>{props.label}</Text>
-        <Text variant={'caption2'}>{props.value}</Text>
-      </View>
-    );
-  }
-
   return (
-    <View className={'flex-col gap-1'}>
-      <InfoRow label={'App Version'} value={appVersion} />
-      <InfoRow label={'Update ID'} value={updateId} />
-      <InfoRow label={'Update Channel'} value={updateChannel} />
+    <View className={'flex-row items-center justify-center gap-4'}>
+      <Text variant={'caption2'}>{Constants.expoConfig?.version ?? 'Unknown'}</Text>
+      <Text variant={'caption2'}>-</Text>
+      <Text variant={'caption2'}>{Constants.updateId ?? 'No OTA Update Applied'}</Text>
     </View>
   );
 }
