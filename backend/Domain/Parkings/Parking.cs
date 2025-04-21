@@ -39,6 +39,14 @@ public sealed class Parking
         Name = new ParkingName(newName);
         Address = new ParkingAddress(newAddress);
     }
+
+    public void Delete([UsedImplicitly] string updatingUserId)
+    {
+        if (updatingUserId != OwnerId)
+        {
+            throw new BusinessException("Parking.InvalidDelete", "Only the owner can delete the parking.");
+        }
+    }
 }
 
 internal sealed class ParkingConfig : IEntityConfiguration<Parking>
