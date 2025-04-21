@@ -7,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Me.OnMarkedDeleted;
 
-internal sealed class SwitchOwnedParkingsOwnership(AppDbContext dbContext, ILogger<SwitchOwnedParkingsOwnership> logger)
+internal sealed class TransferOwnedParkingsOwnership(
+    AppDbContext dbContext,
+    ILogger<TransferOwnedParkingsOwnership> logger
+)
     : IDomainEventHandler<UserMarkedDeleted>
 {
     public async Task Handle(UserMarkedDeleted notification, CancellationToken cancellationToken)
@@ -46,7 +49,7 @@ internal sealed class SwitchOwnedParkingsOwnership(AppDbContext dbContext, ILogg
                 "Switching parking {ParkingId} ownership to randomly picked user {NewOwnerId}",
                 ownedParking.Parking.Id,
                 newOwnerId);
-            ownedParking.Parking.SwitchOwnership(newOwnerId);
+            ownedParking.Parking.TransferOwnership(newOwnerId);
             dbContext.Set<Parking>().Update(ownedParking.Parking);
         }
 

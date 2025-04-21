@@ -24,7 +24,7 @@ public sealed class Parking
         return new Parking(Guid.CreateVersion7(), ownerId, new ParkingName(name), new ParkingAddress(address));
     }
 
-    public void SwitchOwnership(string newOwnerId)
+    public void TransferOwnership(string newOwnerId)
     {
         OwnerId = newOwnerId;
     }
