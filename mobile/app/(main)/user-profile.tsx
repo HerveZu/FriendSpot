@@ -41,10 +41,11 @@ import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import { ScrollView } from 'react-native-gesture-handler';
 import Constants from 'expo-constants';
-import { getRandomInt } from '~/lib/utils';
+import { getRandomInt, opacity } from '~/lib/utils';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
+import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -434,11 +435,15 @@ function DefineSpotSheet(props: {
     setCurrentSpotName('');
   }
 
-  function replaceParking(parking: ParkingResponse) {
+  function replaceParkingState(parking: ParkingResponse) {
     setParking((allParking) => [
       ...(allParking?.filter((p) => p.id !== parking.id) ?? []),
       parking,
     ]);
+  }
+
+  function deleteParkingState(parking: ParkingResponse) {
+    setParking((allParking) => [...(allParking?.filter((p) => p.id !== parking.id) ?? [])]);
   }
 
   function createParking() {
@@ -472,10 +477,14 @@ function DefineSpotSheet(props: {
                 </Button>
               )}
             </View>
-            <Text
-              className={
-                'font-semibold'
-              }>{`${props.parking.spotsCount} ${props.parking.spotsCount > 1 ? 'spots' : 'spot'}`}</Text>
+            <View
+              className={cn(
+                'flex-row items-center gap-2',
+                props.parking.spotsCount === 0 && 'opacity-70'
+              )}>
+              <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
+              <ThemedIcon name={'car'} />
+            </View>
           </View>
           <View className="flex-row items-center justify-between gap-4">
             <View className={'w-4/5 flex-row items-center gap-4'}>
@@ -569,7 +578,8 @@ function DefineSpotSheet(props: {
         parking={editingParking}
         open={parkingModalOpen}
         onOpenChange={setParkingModalOpen}
-        onParking={replaceParking}
+        onParking={replaceParkingState}
+        onDelete={deleteParkingState}
       />
     </Sheet>
   );
@@ -580,19 +590,26 @@ function ParkingModal(props: {
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
   onParking: (parking: ParkingResponse) => void;
+  onDelete: (parking: ParkingResponse) => void;
 }) {
   const mode = props.parking ? 'edit' : 'create';
-  const [address, setAddress] = React.useState(props.parking?.address ?? '');
-  const [name, setName] = React.useState(props.parking?.name ?? '');
+  const [address, setAddress] = useState(props.parking?.address ?? '');
+  const [name, setName] = useState(props.parking?.name ?? '');
   const { colors } = useColorScheme();
+  const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
 
   const [createParking, isCreating] = useLoading(useCreateParking());
   const [editParking, isEditing] = useLoading(useEditParkingInfo());
+  const [deleteParking, isDeleting] = useLoading(useDeleteParking());
 
   useEffect(() => {
     setAddress(props.parking?.address ?? '');
     setName(props.parking?.name ?? `Mon parking ${getRandomInt(100, 999)}`);
   }, [props.parking]);
+
+  useEffect(() => {
+    setConfirmedParkingName(null);
+  }, [props.open]);
 
   const submitFn = {
     create: () => createParking({ name, address }),
@@ -620,6 +637,16 @@ function ParkingModal(props: {
     props.onOpenChange(false);
   }
 
+  async function onDelete() {
+    if (!props.parking) {
+      return;
+    }
+
+    await deleteParking(props.parking.id);
+    props.onDelete(props.parking);
+    props.onOpenChange(false);
+  }
+
   return (
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
       <ModalTitle text={titleText[mode]} />
@@ -641,6 +668,46 @@ function ParkingModal(props: {
           }}
         />
       </View>
+
+      {mode === 'edit' && (
+        <>
+          {confirmedParkingName !== null && (
+            <TextInput
+              style={{
+                color: colors.destructive,
+                borderColor: colors.destructive,
+              }}
+              placeholderTextColor={opacity(colors.destructive, 0.5)}
+              placeholder={props.parking?.name}
+              value={confirmedParkingName}
+              onChangeText={setConfirmedParkingName}
+              icon={{
+                position: 'right',
+                element: <ThemedIcon name={'trash'} color={colors.destructive} size={18} />,
+              }}
+            />
+          )}
+          <View className={cn(confirmedParkingName !== null && 'flex-row justify-between')}>
+            {confirmedParkingName !== null && (
+              <Button variant={'tonal'} onPress={() => setConfirmedParkingName(null)}>
+                <Text>Annuler</Text>
+              </Button>
+            )}
+            <Button
+              disabled={
+                confirmedParkingName !== null && confirmedParkingName !== props.parking?.name
+              }
+              variant={'plain'}
+              onPress={() =>
+                confirmedParkingName === null ? setConfirmedParkingName('') : onDelete()
+              }>
+              {isDeleting && <ActivityIndicator color={colors.destructive} />}
+              <Text className={'text-destructive'}>Supprimer</Text>
+            </Button>
+          </View>
+        </>
+      )}
+
       <Button disabled={!name || !address || isSubmitting[mode]} onPress={onSubmit}>
         {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
         <Text>{submitText[mode]}</Text>
