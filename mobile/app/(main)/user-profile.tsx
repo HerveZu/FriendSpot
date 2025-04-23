@@ -41,11 +41,13 @@ import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import { ScrollView } from 'react-native-gesture-handler';
 import Constants from 'expo-constants';
+import Updates from 'expo-updates';
 import { getRandomInt, opacity } from '~/lib/utils';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
 import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
+import { formatDistance } from 'date-fns';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -223,7 +225,11 @@ function AppVersionInfo() {
     <View className={'flex-row items-center justify-center gap-4'}>
       <Text variant={'caption2'}>{Constants.expoConfig?.version ?? 'Unknown'}</Text>
       <Text variant={'caption2'}>-</Text>
-      <Text variant={'caption2'}>{Constants.updateId ?? 'No OTA Update Applied'}</Text>
+      <Text variant={'caption2'}>
+        {Updates.createdAt
+          ? `OTA update applied ${formatDistance(Updates.createdAt, new Date(), { addSuffix: true })}`
+          : 'No OTA update applied'}
+      </Text>
     </View>
   );
 }
