@@ -9,6 +9,7 @@ using Quartz;
 namespace Api.Bookings.OnCancelled;
 
 internal sealed class PushNotification(
+    ILogger<PushNotification> logger,
     ISchedulerFactory schedulerFactory,
     AppDbContext dbContext,
     INotificationPushService notificationPushService
@@ -22,11 +23,16 @@ internal sealed class PushNotification(
             ? @event.BookingUserId
             : @event.OwnerId;
 
+        var userIdsToFetch = new[]
+        {
+            @event.BookingUserId,
+            @event.BookingUserId,
+            @event.CancellingUserId
+        };
+
         var userMap = (await dbContext
                 .Set<User>()
-                .Where(
-                    user => new[] { @event.BookingUserId, @event.BookingUserId, @event.CancellingUserId }.Contains(
-                        user.Identity))
+                .Where(user => userIdsToFetch.Contains(user.Identity))
                 .Select(
                     user => new
                     {
@@ -36,8 +42,18 @@ internal sealed class PushNotification(
                 .ToArrayAsync(cancellationToken))
             .ToDictionary(user => user.UserId, user => user.user);
 
+        var destinationUser = userMap.GetValueOrDefault(userIdThatShouldBeNotified);
+
+        if (destinationUser is null)
+        {
+            logger.LogWarning("Destination user {UserId} not found, aborting...", userIdThatShouldBeNotified);
+            return;
+        }
+
+        logger.LogInformation("Pushing booking cancelled notification to user {UserId}", destinationUser.Identity);
+
         await notificationPushService.PushToUser(
-            userMap[userIdThatShouldBeNotified],
+            destinationUser,
             new Notification
             {
                 Title = "Oups !",
