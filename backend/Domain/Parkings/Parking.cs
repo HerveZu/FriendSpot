@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain.Parkings;
 
-public sealed class Parking
+public sealed record ParkingDeleted : IDomainEvent
 {
+    public required Guid ParkingId { get; init; }
+}
+
+public sealed class Parking : IBroadcastEvents
+{
+    private readonly DomainEvents _domainEvents = new();
+
     private Parking(Guid id, string ownerId, ParkingName name, ParkingAddress address)
     {
         Id = id;
@@ -18,6 +25,11 @@ public sealed class Parking
     public string OwnerId { get; private set; }
     public ParkingName Name { get; private set; }
     public ParkingAddress Address { get; private set; }
+
+    public IEnumerable<IDomainEvent> GetUncommittedEvents()
+    {
+        return _domainEvents.GetUncommittedEvents();
+    }
 
     public static Parking Create(string ownerId, string name, string address)
     {
@@ -46,6 +58,8 @@ public sealed class Parking
         {
             throw new BusinessException("Parking.InvalidDelete", "Only the owner can delete the parking.");
         }
+
+        _domainEvents.Register(new ParkingDeleted { ParkingId = Id });
     }
 }
 

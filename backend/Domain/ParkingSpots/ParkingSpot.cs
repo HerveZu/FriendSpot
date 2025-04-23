@@ -110,16 +110,20 @@ public sealed class ParkingSpot : IBroadcastEvents
         var newBooking = ParkingSpotBooking.New(bookingUserId, from, duration);
 
         var overlappingBookings = _bookings
-            .Where(booking => booking.BookingUserId != bookingUserId)
-            .Where(booking => booking.From <= newBooking.To && newBooking.From <= booking.To)
+            .Where(booking => booking.Overlaps(newBooking.From, newBooking.To))
             .ToArray();
 
-        if (overlappingBookings.Length is not 0)
+        var otherHasBooked = overlappingBookings.Any(booking => booking.BookingUserId != bookingUserId);
+
+        if (otherHasBooked)
         {
             throw new BusinessException("ParkingSpot.NoAvailability", "This spot has already been booked.");
         }
 
-        foreach (var overlappingBooking in overlappingBookings)
+        var userOverlappingBookings = overlappingBookings
+            .Where(booking => booking.BookingUserId == bookingUserId);
+
+        foreach (var overlappingBooking in userOverlappingBookings)
         {
             newBooking.Extend(overlappingBooking.From, overlappingBooking.To);
             _bookings.Remove(overlappingBooking);
@@ -217,16 +221,19 @@ public sealed class ParkingSpot : IBroadcastEvents
             throw new BusinessException("ParkingSpot.InvalidCancelling", "A spot can only be cancelled by the owner.");
         }
 
-        var overlappingBookings = _bookings
+        var conflictingBookings = _bookings
+            .Where(booking => booking.IsActiveNow)
             .Where(booking => availability.Overlaps(booking.From, booking.To))
             .ToArray();
 
-        if (!availability.CanCancel(cancelingUserId, overlappingBookings))
+        if (!availability.CanCancel(cancelingUserId, conflictingBookings))
         {
-            throw new BusinessException("ParkingSpot.InvalidCancelling", "Cannot cancel availability.");
+            throw new BusinessException(
+                "ParkingSpot.InvalidCancelling",
+                "Cannot cancel availability because one of its booking cannot be cancelled.");
         }
 
-        foreach (var booking in overlappingBookings)
+        foreach (var booking in conflictingBookings)
         {
             CancelBooking(cancelingUserId, booking.Id);
         }
@@ -263,6 +270,26 @@ public sealed class ParkingSpot : IBroadcastEvents
                 OwnerId = OwnerId,
                 BookingId = booking.Id,
             });
+    }
+
+    public void CancelAllBookingsWithByPass()
+    {
+        var activeBookings = _bookings
+            .Where(booking => booking.IsActiveNow)
+            .ToArray();
+
+        foreach (var booking in activeBookings)
+        {
+            _bookings.Remove(booking);
+            _domainEvents.Register(
+                new ParkingSpotBookingCancelled
+                {
+                    CancellingUserId = OwnerId,
+                    BookingUserId = booking.BookingUserId,
+                    OwnerId = OwnerId,
+                    BookingId = booking.Id
+                });
+        }
     }
 
     public void MarkBookingComplete(Guid bookingId)
