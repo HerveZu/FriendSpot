@@ -24,7 +24,7 @@ import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
-import { FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { List } from '~/components/List';
 import { Card } from '~/components/Card';
@@ -446,7 +446,7 @@ function DefineSpotSheet(props: {
     setParking((allParking) => [...(allParking?.filter((p) => p.id !== parking.id) ?? [])]);
   }
 
-  function createParking() {
+  function initiateParkingCreation() {
     setParkingModalOpen(true);
     setEditingParking(null);
   }
@@ -462,7 +462,7 @@ function DefineSpotSheet(props: {
 
     return (
       <Pressable onPress={() => selectParking(props.parking)}>
-        <Card background>
+        <Card>
           <View className={'flex-row items-center justify-between'}>
             <View className={'flex-row items-center'}>
               <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
@@ -528,27 +528,30 @@ function DefineSpotSheet(props: {
           />
 
           <ScrollView
-            className={cn('max-h-72 rounded-xl bg-card p-2', keyboardVisible && 'max-h-48')}>
+            className={cn(
+              'bg-background/40 max-h-72 rounded-xl p-2',
+              keyboardVisible && 'max-h-48'
+            )}>
             <List>
               {parking && parking.length > 0 ? (
                 parking.map((parking) => <ParkingCard key={parking.id} parking={parking} />)
               ) : (
                 <Text className={'top-1/2 mx-auto text-center'}>
-                  Aucun parking ne correspond à la recherche.
+                  Aucun parking ne correspond à «{search}».
                 </Text>
               )}
             </List>
           </ScrollView>
 
           {!keyboardVisible && (
-            <View className={'flex-row items-center justify-between gap-4 rounded-lg bg-card p-3'}>
-              <Text variant={'caption1'} className={'w-2/3'}>
-                Tu ne trouves pas ton parking ? Créé le maintenant !
-              </Text>
-              <Button onPress={createParking} variant={'plain'} className={'h-full'}>
-                <ThemedIcon name={'create'} component={Ionicons} size={24} />
-              </Button>
-            </View>
+            <Pressable onPress={initiateParkingCreation}>
+              <Card className={'flex-row items-center justify-between gap-4'}>
+                <Text variant={'caption1'} className={'w-2/3'}>
+                  Tu ne trouves pas ton parking ? Créé le maintenant !
+                </Text>
+                <ThemedIcon name={'location'} component={Entypo} size={24} />
+              </Card>
+            </Pressable>
           )}
         </View>
         <View className="flex-col gap-8">
@@ -607,7 +610,7 @@ function ParkingModal(props: {
   useEffect(() => {
     setAddress(props.parking?.address ?? '');
     setName(props.parking?.name ?? `Mon parking ${getRandomInt(100, 999)}`);
-  }, [props.parking]);
+  }, [props.parking, props.open]);
 
   useEffect(() => {
     setConfirmedParkingName(null);
@@ -653,16 +656,11 @@ function ParkingModal(props: {
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
       <ModalTitle text={titleText[mode]} />
       <View className={'flex-col gap-2'}>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder={'Mon parking 123'}
-          maxLength={50}
-        />
+        <TextInput value={name} onChangeText={setName} placeholder={'Mon parking'} maxLength={50} />
         <TextInput
           value={address}
           onChangeText={setAddress}
-          placeholder={'Chemin de mon parking 123'}
+          placeholder={'Chemin de mon parking'}
           maxLength={100}
           icon={{
             element: <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />,
