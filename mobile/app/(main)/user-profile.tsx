@@ -227,8 +227,8 @@ function AppVersionInfo() {
       <Text variant={'caption2'}>-</Text>
       <Text variant={'caption2'}>
         {Updates.createdAt
-          ? `OTA update applied ${formatDistance(Updates.createdAt, new Date(), { addSuffix: true })}`
-          : 'No OTA update applied'}
+          ? `Patch OTA appliqué ${formatDistance(Updates.createdAt, new Date(), { addSuffix: true })}`
+          : 'Aucun patch OTA'}
       </Text>
     </View>
   );
