@@ -132,7 +132,7 @@ export default function UserProfileScreen() {
                 <View className="w-full flex-row items-center justify-between">
                   <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
-                      ? userProfile.spot.parking.name
+                      ? `${userProfile.spot.parking.name} [n°${userProfile.spot.name}]`
                       : 'Aucun nom de parking de défini'}
                   </Text>
                   <ThemedIcon name={'pencil'} size={18} />
@@ -491,9 +491,7 @@ function DefineSpotSheet(props: {
               <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
               <Text className="shrink text-sm">{props.parking.address}</Text>
             </View>
-            <View className={'w-8'}>
-              {isSelected && <ThemedIcon name={'check'} size={18} color={colors.primary} />}
-            </View>
+            {isSelected && <ThemedIcon name={'check'} size={18} color={colors.primary} />}
           </View>
         </Card>
       </Pressable>
