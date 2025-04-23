@@ -41,7 +41,7 @@ import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import { ScrollView } from 'react-native-gesture-handler';
 import Constants from 'expo-constants';
-import Updates from 'expo-updates';
+import * as Updates from 'expo-updates';
 import { getRandomInt, opacity } from '~/lib/utils';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
