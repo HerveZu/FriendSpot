@@ -26,8 +26,7 @@ import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { Entypo, FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
-import { List } from '~/components/List';
-import { Card } from '~/components/Card';
+import { Card, CardContainer } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
 import { useSendReview } from '~/endpoints/me/send-review';
@@ -39,7 +38,6 @@ import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
-import { ScrollView } from 'react-native-gesture-handler';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { getRandomInt, opacity } from '~/lib/utils';
@@ -436,7 +434,6 @@ function DefineSpotSheet(props: {
 
   function selectParking(parking: ParkingResponse) {
     spotNameRef.current?.focus();
-    setSearch(parking.address);
     setSelectedParking(parking);
     setCurrentSpotName('');
   }
@@ -468,7 +465,7 @@ function DefineSpotSheet(props: {
 
     return (
       <Pressable onPress={() => selectParking(props.parking)}>
-        <Card>
+        <Card highlight={isSelected}>
           <View className={'flex-row items-center justify-between'}>
             <View className={'flex-row items-center'}>
               <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
@@ -531,21 +528,15 @@ function DefineSpotSheet(props: {
             placeholder="Rechercher un parking"
           />
 
-          <ScrollView
-            className={cn(
-              'bg-background/40 max-h-72 rounded-xl p-2',
-              keyboardVisible && 'max-h-48'
-            )}>
-            <List>
-              {parking && parking.length > 0 ? (
-                parking.map((parking) => <ParkingCard key={parking.id} parking={parking} />)
-              ) : (
-                <Text className={'top-1/2 mx-auto text-center'}>
-                  Aucun parking ne correspond à «{search}».
-                </Text>
-              )}
-            </List>
-          </ScrollView>
+          <CardContainer className={cn('h-72 max-h-72', keyboardVisible && 'max-h-48')}>
+            {parking && parking.length > 0 ? (
+              parking.map((parking) => <ParkingCard key={parking.id} parking={parking} />)
+            ) : (
+              <Text className={'top-1/2 mx-auto text-center'}>
+                Aucun parking ne correspond à «{search}».
+              </Text>
+            )}
+          </CardContainer>
 
           {!keyboardVisible && (
             <Pressable onPress={initiateParkingCreation}>

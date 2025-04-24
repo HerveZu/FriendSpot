@@ -23,7 +23,7 @@ import { useDebounce } from 'use-debounce';
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
-import { Card } from '~/components/Card';
+import { Card, CardContainer } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
@@ -54,7 +54,6 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 import { pluralize } from '~/lib/locale';
-import { ScrollView } from 'react-native-gesture-handler';
 
 export default function SearchSpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -419,7 +418,7 @@ function BookingSheet(props: {
       ref={ref}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpen(false)}
-      snapPoints={[650]}>
+      snapPoints={[700]}>
       <BottomSheetView>
         <SafeAreaView>
           <ContentSheetView className="h-full flex-col gap-8">
@@ -437,21 +436,19 @@ function BookingSheet(props: {
                   </Text>
                 </View>
               ) : (
-                <ScrollView className={'h-24 p-1'}>
-                  <View className="grow flex-col gap-2">
-                    {spots
-                      .sort((a, b) => a.owner.rating - b.owner.rating)
-                      .reverse()
-                      .map((spot, i) => (
-                        <AvailableSpotCard
-                          key={i}
-                          spot={spot}
-                          selectedSpot={selectedSpot}
-                          onSelect={() => setSelectedSpot(spot)}
-                        />
-                      ))}
-                  </View>
-                </ScrollView>
+                <CardContainer>
+                  {spots
+                    .sort((a, b) => a.owner.rating - b.owner.rating)
+                    .reverse()
+                    .map((spot, i) => (
+                      <AvailableSpotCard
+                        key={i}
+                        spot={spot}
+                        selectedSpot={selectedSpot}
+                        onSelect={() => setSelectedSpot(spot)}
+                      />
+                    ))}
+                </CardContainer>
               )}
             </View>
             <View className="flex-col items-center justify-between gap-2">
@@ -539,11 +536,7 @@ function BookingSheet(props: {
 
     return (
       <Pressable onPress={props.onSelect}>
-        <View
-          className={cn(
-            'flex-row items-center justify-between rounded-lg bg-background p-4',
-            selected && '-m-[1px] border border-primary'
-          )}>
+        <Card highlight={selected} className={'flex-row items-center justify-between'}>
           <User
             displayName={props.spot.owner.displayName}
             pictureUrl={props.spot.owner.pictureUrl}
@@ -554,7 +547,7 @@ function BookingSheet(props: {
             className="grow-0"
             color={colors.primary}
           />
-        </View>
+        </Card>
       </Pressable>
     );
   }
