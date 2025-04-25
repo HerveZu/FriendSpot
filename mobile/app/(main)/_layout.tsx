@@ -7,7 +7,6 @@ import { ThemedIcon, ThemedIconProps } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { AskUserToRate } from '~/rating/AskUserToRate';
 import { Pressable, PressableProps } from 'react-native';
 
 export default function MainLayout() {
@@ -16,51 +15,51 @@ export default function MainLayout() {
       <UserProvider>
         {/*BottomSheetModalProvider children need to have access to currentUser*/}
         <BottomSheetModalProvider>
-          <AskUserToRate>
-            <Tabs
-              initialRouteName="my-spot"
-              screenOptions={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                sceneStyle: { backgroundColor: 'transparent' },
-                tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
-              }}>
-              <Tabs.Screen
-                name="my-spot"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} />
-                  ),
-                  tabBarButton: NoRipple,
-                }}
-              />
-              <Tabs.Screen
-                name="search-spot"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <TabIcon
-                      name="magnifying-glass"
-                      component={FontAwesome6}
-                      size={24}
-                      focused={focused}
-                    />
-                  ),
-                  tabBarButton: NoRipple,
-                }}
-              />
-              <Tabs.Screen
-                name="user-profile"
-                options={{
-                  tabBarIcon: ({ focused }) => (
-                    <MeAvatar
-                      className={cn('aspect-square h-7', focused && 'h-8 border-2 border-primary')}
-                    />
-                  ),
-                  tabBarButton: NoRipple,
-                }}
-              />
-            </Tabs>
-          </AskUserToRate>
+          {/*<AskUserToRate>*/}
+          <Tabs
+            initialRouteName="my-spot"
+            screenOptions={{
+              headerShown: false,
+              tabBarShowLabel: false,
+              sceneStyle: { backgroundColor: 'transparent' },
+              tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
+            }}>
+            <Tabs.Screen
+              name="my-spot"
+              options={{
+                tabBarIcon: ({ focused }) => (
+                  <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} />
+                ),
+                tabBarButton: NoRipple,
+              }}
+            />
+            <Tabs.Screen
+              name="search-spot"
+              options={{
+                tabBarIcon: ({ focused }) => (
+                  <TabIcon
+                    name="magnifying-glass"
+                    component={FontAwesome6}
+                    size={24}
+                    focused={focused}
+                  />
+                ),
+                tabBarButton: NoRipple,
+              }}
+            />
+            <Tabs.Screen
+              name="user-profile"
+              options={{
+                tabBarIcon: ({ focused }) => (
+                  <MeAvatar
+                    className={cn('aspect-square h-7', focused && 'h-8 border-2 border-primary')}
+                  />
+                ),
+                tabBarButton: NoRipple,
+              }}
+            />
+          </Tabs>
+          {/*</AskUserToRate>*/}
         </BottomSheetModalProvider>
       </UserProvider>
     </AuthProvider>
