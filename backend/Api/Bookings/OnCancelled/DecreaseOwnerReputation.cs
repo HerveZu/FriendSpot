@@ -6,9 +6,9 @@ using Domain.Users;
 namespace Api.Bookings.OnCancelled;
 
 internal sealed class DecreaseOwnerReputation(ILogger<DecreaseOwnerReputation> logger, AppDbContext dbContext)
-    : IDomainEventHandler<ParkingSpotBookingCompleted>
+    : IDomainEventHandler<ParkingSpotBookingCancelled>
 {
-    public async Task Handle(ParkingSpotBookingCompleted notification, CancellationToken cancellationToken)
+    public async Task Handle(ParkingSpotBookingCancelled notification, CancellationToken cancellationToken)
     {
         var owner = await dbContext.Set<User>().FindAsync([notification.OwnerId], cancellationToken);
 
