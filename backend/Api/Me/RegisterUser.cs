@@ -96,5 +96,12 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
         }
 
         await dbContext.SaveChangesAsync(ct);
+
+        await SendOkAsync(
+            new RegisterUserResponse
+            {
+                UserId = user.Identity
+            },
+            ct);
     }
 }
