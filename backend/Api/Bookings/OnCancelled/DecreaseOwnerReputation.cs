@@ -10,6 +10,12 @@ internal sealed class DecreaseOwnerReputation(ILogger<DecreaseOwnerReputation> l
 {
     public async Task Handle(ParkingSpotBookingCancelled notification, CancellationToken cancellationToken)
     {
+        if (notification.CancellingUserId != notification.OwnerId)
+        {
+            logger.LogInformation("Booking cancelled by user, not the owner. Reputation is not impacted.");
+            return;
+        }
+
         var owner = await dbContext.Set<User>().FindAsync([notification.OwnerId], cancellationToken);
 
         if (owner is null)
