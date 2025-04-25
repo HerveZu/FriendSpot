@@ -1,11 +1,10 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using Api.Common.Infrastructure;
 using Api.Common.Options;
-using Api.Me;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
@@ -31,6 +30,10 @@ internal abstract class IntegrationTestsBase
             {
                 $"{PostgresOptions.Section}:CONNECTION_STRING",
                 _pgContainer.GetConnectionString()
+            },
+            {
+                $"{PostgresOptions.Section}:ENABLE_SENSITIVE_DATA_LOGGING",
+                "true"
             },
         };
 
@@ -60,7 +63,7 @@ internal abstract class IntegrationTestsBase
                             .Build());
                 });
 
-        await RegisterUsers();
+        await SeedData();
     }
 
     [TearDown]
@@ -73,31 +76,37 @@ internal abstract class IntegrationTestsBase
     protected WebApplicationFactory<Program> ApplicationFactory { get; private set; }
     private PostgreSqlContainer _pgContainer;
 
-    private async Task RegisterUsers()
+    private async Task SeedData()
     {
-        var client = ApplicationFactory.CreateClient();
+        using var scope = ApplicationFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue(TestAuthHandler.TestScheme, Users.Valid);
+// can be safely disable as this is a test setup + only compile time const are used.
+#pragma warning disable EF1002
+        await dbContext.Database.ExecuteSqlRawAsync(
+            $"""
+             insert into public."User" 
+             ("Identity", "Rating_Rating", "DisplayName", "PictureUrl", "IsDeleted") 
+             values 
+             ('{Seed.Users.SpotOwner}', 3, 'Parking Owner User', null, false),
+             ('{Seed.Users.Other}', 3, 'Other User', null, false);
 
-        var result = await client.PostAsync(
-            "/@me/register",
-            JsonContent.Create(
-                new RegisterUserRequest
-                {
-                    DisplayName = "Test User",
-                    Device = new RegisterUserRequest.UserDevice
-                    {
-                        Id = "grille-pain-3000",
-                        ExpoPushToken = null,
-                        UniquenessNotGuaranteed = true
-                    },
-                    PictureUrl = null
-                }));
+             insert into public."Wallet"
+             ("Id", "UserId")
+             select gen_random_uuid(), "Identity" from public."User";
 
-        await result.AssertIsSuccessful();
-        var registeredUser = await result.Content.ReadFromJsonAsync<RegisterUserResponse>();
+             insert into public."Parking"
+             ("Id", "Name", "Address", "OwnerId") 
+             values 
+             ('{Seed.Parkings.Main}', 'Main Parking', 'Main Street 123', '{Seed.Users.SpotOwner}');
 
-        Assert.That(registeredUser, Is.Not.Null);
+             insert into public."ParkingSpot"
+             ("Id", "ParkingId", "SpotName", "OwnerId")
+             values 
+             ('{Seed.Spots.Main}', '{Seed.Parkings.Main}', 'Main Spot', '{Seed.Users.SpotOwner}');
+             """);
+#pragma warning restore EF1002
+
+        await dbContext.SaveChangesAsync();
     }
 }

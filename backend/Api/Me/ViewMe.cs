@@ -135,17 +135,17 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                                     .Where(availability => availability.From > now)
                                     .Select(availability => availability.From)
                                     .Order()
-                                    .First(),
+                                    .FirstOrDefault(),
                                 LastUse = spot.Bookings
                                     .Where(booking => booking.To < now)
                                     .Select(booking => booking.To)
                                     .OrderDescending()
-                                    .First(),
+                                    .FirstOrDefault(),
                                 NextUse = spot.Bookings
                                     .Where(booking => booking.From > now)
                                     .Select(booking => booking.From)
                                     .Order()
-                                    .First(),
+                                    .FirstOrDefault(),
                                 Name = spot.SpotName,
                                 Parking = dbContext.Set<Parking>()
                                     .Where(parking => parking.Id == spot.ParkingId)
