@@ -100,7 +100,7 @@ public sealed class ParkingSpot : IBroadcastEvents
         var until = from + duration;
 
         var availability = Availabilities
-            .FirstOrDefault(availability => availability.From <= from && availability.To >= until);
+            .FirstOrDefault(availability => availability.DateRange.Overlaps(from, until));
 
         if (availability is null)
         {
@@ -110,7 +110,7 @@ public sealed class ParkingSpot : IBroadcastEvents
         var newBooking = ParkingSpotBooking.New(bookingUserId, from, duration);
 
         var overlappingBookings = _bookings
-            .Where(booking => booking.Overlaps(newBooking.From, newBooking.To))
+            .Where(booking => booking.DateRange.Overlaps(newBooking.DateRange))
             .ToArray();
 
         var otherHasBooked = overlappingBookings.Any(booking => booking.BookingUserId != bookingUserId);
@@ -125,7 +125,7 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         foreach (var overlappingBooking in userOverlappingBookings)
         {
-            newBooking.Extend(overlappingBooking.From, overlappingBooking.To);
+            newBooking.Extend(overlappingBooking.DateRange.From, overlappingBooking.DateRange.To);
             _bookings.Remove(overlappingBooking);
         }
 
@@ -159,7 +159,7 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         var newAvailability = ParkingSpotAvailability.New(from, to);
         var overlappingAvailabilities = Availabilities
-            .Where(other => newAvailability.Overlaps(other.From, other.To))
+            .Where(other => newAvailability.DateRange.Overlaps(other.DateRange))
             .ToArray();
 
         var mergedAvailability = overlappingAvailabilities
@@ -222,8 +222,8 @@ public sealed class ParkingSpot : IBroadcastEvents
         }
 
         var conflictingBookings = _bookings
-            .Where(booking => booking.IsActiveNow)
-            .Where(booking => availability.Overlaps(booking.From, booking.To))
+            .Where(booking => booking.HasNotExpiredNow)
+            .Where(booking => availability.DateRange.Overlaps(booking.DateRange))
             .ToArray();
 
         if (!availability.CanCancel(cancelingUserId, conflictingBookings))
@@ -275,7 +275,7 @@ public sealed class ParkingSpot : IBroadcastEvents
     public void CancelAllBookingsWithByPass()
     {
         var activeBookings = _bookings
-            .Where(booking => booking.IsActiveNow)
+            .Where(booking => booking.HasNotExpiredNow)
             .ToArray();
 
         foreach (var booking in activeBookings)
@@ -336,6 +336,7 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
                 availabilityBuilder.Property(x => x.Id);
                 availabilityBuilder.Property(x => x.From);
                 availabilityBuilder.Property(x => x.To);
+                availabilityBuilder.Ignore(x => x.DateRange);
             });
 
         builder.OwnsMany(
@@ -347,6 +348,7 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
                 bookingBuilder.Property(x => x.From);
                 bookingBuilder.Property(x => x.To);
                 bookingBuilder.Property(x => x.Rating);
+                bookingBuilder.Ignore(x => x.DateRange);
             });
     }
 }

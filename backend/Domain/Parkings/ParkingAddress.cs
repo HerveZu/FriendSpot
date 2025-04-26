@@ -8,14 +8,14 @@ public sealed record ParkingAddress
     {
         if (string.IsNullOrWhiteSpace(address))
         {
-            throw new BusinessException("Parking.InvalidAddress", "Parking address cannot be empty");
+            throw new ArgumentException("Parking address cannot be empty", nameof(address));
         }
 
         if (address.Length > MaxLength)
         {
-            throw new BusinessException(
-                "Parking.InvalidAddress",
-                $"Parking address cannot be longer than {MaxLength} characters, was {address.Length}.");
+            throw new ArgumentException(
+                $"Parking address cannot be longer than {MaxLength} characters, was {address.Length}.",
+                nameof(address));
         }
 
         Address = address;

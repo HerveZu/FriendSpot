@@ -9,7 +9,7 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 {
     [Test]
     [CancelAfter(10_000)]
-    public async Task BookSpot__WhenUnknownParkingSpot__ShouldBadRequest(CancellationToken cancellationToken)
+    public async Task BookSpot_WhenUnknownParkingSpot_ShouldBadRequest(CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.UserClient(Seed.Users.SpotOwner);
 
@@ -29,7 +29,7 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task BookSpot__WhenDateInPast__ShouldBadRequest(CancellationToken cancellationToken)
+    public async Task BookSpot_WhenDateInPast_ShouldBadRequest(CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.UserClient(Seed.Users.Other);
 
@@ -49,7 +49,7 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task BookSpot__WhenUserIsOwner__ShouldBadRequest(CancellationToken cancellationToken)
+    public async Task BookSpot_WhenUserIsOwner_ShouldBadRequest(CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.UserClient(Seed.Users.SpotOwner);
 
