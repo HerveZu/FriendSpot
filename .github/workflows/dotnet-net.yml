@@ -23,8 +23,10 @@ jobs:
     - name: cd backend
       run: cd ./backend
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore backend.sln
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet build backend.sln --no-restore
+    - name: Domain tests
+      run: dotnet test Domain.Tests --no-build --verbosity normal
+    - name: API tests
+      run: dotnet test Api.Tests --no-build --verbosity normal
