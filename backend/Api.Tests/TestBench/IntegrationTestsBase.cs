@@ -1,4 +1,5 @@
 using Api.Common.Infrastructure;
+using Api.Common.Notifications;
 using Api.Common.Options;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -44,6 +45,8 @@ internal abstract class IntegrationTestsBase
                     builder.ConfigureServices(
                         services =>
                         {
+                            services.AddSingleton<INotificationPushService, MockNotificationService>();
+
                             services
                                 .AddAuthentication(TestAuthHandler.TestScheme)
                                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
@@ -88,22 +91,29 @@ internal abstract class IntegrationTestsBase
              insert into public."User" 
              ("Identity", "Rating_Rating", "DisplayName", "PictureUrl", "IsDeleted") 
              values 
-             ('{Seed.Users.SpotOwner}', 3, 'Parking Owner User', null, false),
-             ('{Seed.Users.Other}', 3, 'Other User', null, false);
+             ('{Seed.Users.ParkingAdmin}', 3, 'Parking Admin', null, false),
+             ('{Seed.Users.Resident1}', 3, 'Resident 1', null, false),
+             ('{Seed.Users.Resident2}', 3, 'Resident 2', null, false);
 
              insert into public."Wallet"
              ("Id", "UserId")
              select gen_random_uuid(), "Identity" from public."User";
 
+             insert into public."CreditsTransaction"
+             ("WalletId", "Reference", "Credits", "State") 
+             select "Id", 'initial-credits-for-testing', 100, '1' from public."Wallet";
+
              insert into public."Parking"
              ("Id", "Name", "Address", "OwnerId") 
              values 
-             ('{Seed.Parkings.Main}', 'Main Parking', 'Main Street 123', '{Seed.Users.SpotOwner}');
+             ('{Seed.Parkings.Main}', 'Main Parking', 'Main Street 123', '{Seed.Users.ParkingAdmin}');
 
              insert into public."ParkingSpot"
              ("Id", "ParkingId", "SpotName", "OwnerId")
              values 
-             ('{Seed.Spots.Main}', '{Seed.Parkings.Main}', 'Main Spot', '{Seed.Users.SpotOwner}');
+             ('{Seed.Spots.Admin}', '{Seed.Parkings.Main}', 'OWNR', '{Seed.Users.ParkingAdmin}'),
+             ('{Seed.Spots.Resident1}', '{Seed.Parkings.Main}', 'RESD-1', '{Seed.Users.Resident1}'),
+             ('{Seed.Spots.Resident2}', '{Seed.Parkings.Main}', 'RESD-2', '{Seed.Users.Resident2}');
              """);
 #pragma warning restore EF1002
 

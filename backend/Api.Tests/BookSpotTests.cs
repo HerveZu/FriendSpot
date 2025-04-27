@@ -9,61 +9,34 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 {
     [Test]
     [CancelAfter(10_000)]
-    public async Task BookSpot_ShouldBadRequest_WhenUnknownParkingSpot(CancellationToken cancellationToken)
+    public async Task BookSpot_HappyPath(CancellationToken cancellationToken)
     {
-        var client = ApplicationFactory.UserClient(Seed.Users.SpotOwner);
+        var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
+        var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
 
-        var apiResponse = await client.PostAsync(
-            "/spots/booking",
+        var makeSpotAvailable = await resident2.PostAsync(
+            "/spots/availabilities",
             JsonContent.Create(
-                new BookSpotRequest
+                new MakeMySpotAvailableRequest
                 {
-                    ParkingLotId = Guid.NewGuid(),
                     From = DateTimeOffset.Now.AddHours(1),
-                    To = DateTimeOffset.Now.AddDays(1)
+                    To = DateTimeOffset.Now.AddDays(2)
                 }),
             cancellationToken);
 
-        await apiResponse.AssertIs(HttpStatusCode.BadRequest);
-    }
+        await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
 
-    [Test]
-    [CancelAfter(10_000)]
-    public async Task BookSpot_ShouldBadRequest_WhenDateInPast(CancellationToken cancellationToken)
-    {
-        var client = ApplicationFactory.UserClient(Seed.Users.Other);
-
-        var apiResponse = await client.PostAsync(
+        var bookSpot = await resident1.PostAsync(
             "/spots/booking",
             JsonContent.Create(
                 new BookSpotRequest
                 {
-                    ParkingLotId = Seed.Spots.Main,
-                    From = DateTimeOffset.Now.AddHours(-1),
-                    To = DateTimeOffset.Now.AddDays(1)
+                    ParkingLotId = Seed.Spots.Resident2,
+                    From = DateTimeOffset.Now.AddHours(2),
+                    To = DateTimeOffset.Now.AddHours(6)
                 }),
             cancellationToken);
 
-        await apiResponse.AssertIs(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    [CancelAfter(10_000)]
-    public async Task BookSpot_ShouldBadRequest_WhenUserIsOwner(CancellationToken cancellationToken)
-    {
-        var client = ApplicationFactory.UserClient(Seed.Users.SpotOwner);
-
-        var apiResponse = await client.PostAsync(
-            "/spots/booking",
-            JsonContent.Create(
-                new BookSpotRequest
-                {
-                    ParkingLotId = Seed.Spots.Main,
-                    From = DateTimeOffset.Now.AddHours(1),
-                    To = DateTimeOffset.Now.AddDays(1)
-                }),
-            cancellationToken);
-
-        await apiResponse.AssertIs(HttpStatusCode.BadRequest);
+        await bookSpot.AssertIs(HttpStatusCode.OK, cancellationToken);
     }
 }

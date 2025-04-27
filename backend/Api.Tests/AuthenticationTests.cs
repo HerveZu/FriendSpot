@@ -15,7 +15,7 @@ internal sealed class AuthenticationTests : IntegrationTestsBase
             "/@me",
             cancellationToken);
 
-        await apiResponse.AssertIs(HttpStatusCode.Unauthorized);
+        await apiResponse.AssertIs(HttpStatusCode.Unauthorized, cancellationToken);
     }
 
     [Test]
@@ -28,19 +28,19 @@ internal sealed class AuthenticationTests : IntegrationTestsBase
             "/@me",
             cancellationToken);
 
-        await apiResponse.AssertIs(HttpStatusCode.Unauthorized);
+        await apiResponse.AssertIs(HttpStatusCode.Unauthorized, cancellationToken);
     }
 
     [Test]
     [CancelAfter(10_000)]
     public async Task AuthenticatedRequest_ShouldReturnOk_WhenValidUser(CancellationToken cancellationToken)
     {
-        var client = ApplicationFactory.UserClient(Seed.Users.SpotOwner);
+        var client = ApplicationFactory.UserClient(Seed.Users.Resident1);
 
         var apiResponse = await client.GetAsync(
             "/@me",
             cancellationToken);
 
-        await apiResponse.AssertIs(HttpStatusCode.OK);
+        await apiResponse.AssertIs(HttpStatusCode.OK, cancellationToken);
     }
 }
