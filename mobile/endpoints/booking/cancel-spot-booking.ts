@@ -12,7 +12,7 @@ export function useCancelBooking() {
 
   return useCallback(
     (body: CancelSpotBooking) =>
-      apiRequest<void, CancelSpotBooking>('/spots/bookings/cancel', 'POST', body),
+      apiRequest<void, CancelSpotBooking>('/spots/booking/cancel', 'POST', body),
     [apiRequest]
   );
 }
