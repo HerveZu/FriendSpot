@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ "master" ]
 
+defaults:
+  run:
+    working-directory: ./backend
+
 jobs:
   build:
 
@@ -16,17 +20,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-    - name: cd backend
-      run: cd ./backend
+
     - name: Restore dependencies
       run: dotnet restore backend.sln
+
     - name: Build
       run: dotnet build backend.sln --no-restore
+
     - name: Domain tests
       run: dotnet test Domain.Tests --no-build --verbosity normal
+
     - name: API tests
       run: dotnet test Api.Tests --no-build --verbosity normal
