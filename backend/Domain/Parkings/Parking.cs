@@ -38,6 +38,11 @@ public sealed class Parking : IBroadcastEvents
 
     public void TransferOwnership(string newOwnerId)
     {
+        if (OwnerId == newOwnerId)
+        {
+            throw new BusinessException("Parking.InvalidTransfer", "The owner cannot transfer the parking to himself.");
+        }
+
         OwnerId = newOwnerId;
     }
 
@@ -45,18 +50,18 @@ public sealed class Parking : IBroadcastEvents
     {
         if (updatingUserId != OwnerId)
         {
-            throw new BusinessException("Parking.InvalidEdit", "Only the owner can edit the parking info.");
+            throw new BusinessException("Parking.InvalidEditing", "Only the owner can edit the parking info.");
         }
 
         Name = new ParkingName(newName);
         Address = new ParkingAddress(newAddress);
     }
 
-    public void Delete([UsedImplicitly] string updatingUserId)
+    public void Delete([UsedImplicitly] string deletingUserId)
     {
-        if (updatingUserId != OwnerId)
+        if (deletingUserId != OwnerId)
         {
-            throw new BusinessException("Parking.InvalidDelete", "Only the owner can delete the parking.");
+            throw new BusinessException("Parking.InvalidDeletion", "Only the owner can delete the parking.");
         }
 
         _domainEvents.Register(new ParkingDeleted { ParkingId = Id });
