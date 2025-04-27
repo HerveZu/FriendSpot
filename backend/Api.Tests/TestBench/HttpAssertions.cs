@@ -10,7 +10,6 @@ internal static class HttpAssertions
     {
         if (message.IsSuccessStatusCode)
         {
-            Assert.Pass();
             return;
         }
 
@@ -27,7 +26,6 @@ internal static class HttpAssertions
     {
         if (message.StatusCode == expectedStatusCode)
         {
-            Assert.Pass();
             return;
         }
 

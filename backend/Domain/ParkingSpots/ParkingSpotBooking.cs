@@ -22,7 +22,7 @@ public sealed class ParkingSpotBooking
     public DateTimeOffset To => DateRange.To;
     public TimeSpan Duration => DateRange.Duration;
     public BookRating? Rating { get; private set; }
-    public Credits Cost => new((decimal)Duration.TotalHours);
+    public Credits Cost => new((decimal)Math.Max(1, Duration.TotalHours));
     public bool HasNotExpiredNow => To > DateTimeOffset.Now;
 
     public static ParkingSpotBooking New(string bookingUserId, DateTimeOffset from, TimeSpan duration)

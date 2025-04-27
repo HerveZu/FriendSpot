@@ -1,4 +1,4 @@
-using Api.Bookings.Common;
+using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
 using Domain.Users;

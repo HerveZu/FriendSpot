@@ -88,12 +88,31 @@ public class ParkingSpotBookingTests
     }
 
     [Test]
+    [TestCase(0, 1)]
+    [TestCase(0.1f, 1)]
+    [TestCase(0.5f, 1)]
+    [TestCase(1, 1)]
+    [TestCase(3, 3)]
+    public void Cost_ShouldNeverBeLessThanOne(float hours, decimal expectedCost)
+    {
+        // Arrange
+        var booking = ParkingSpotBooking.New(TestUserId, _justBeforeNow, TimeSpan.FromHours(hours));
+
+        // Act
+        var cost = booking.Cost;
+
+        // Assert
+        Assert.That((decimal)cost, Is.GreaterThanOrEqualTo(expectedCost));
+    }
+
+    [Test]
     public void Cost_ShouldReflectDuration()
     {
         // Arrange
         const int hours = 3;
+        const decimal expectedCost = hours * HourlyRate;
+
         var booking = ParkingSpotBooking.New(TestUserId, _justBeforeNow, TimeSpan.FromHours(hours));
-        var expectedCost = hours * HourlyRate;
 
         // Act
         var cost = booking.Cost;

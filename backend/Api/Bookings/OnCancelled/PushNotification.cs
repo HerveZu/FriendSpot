@@ -1,4 +1,4 @@
-using Api.Bookings.Common;
+using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
 using Domain.Users;
@@ -25,7 +25,7 @@ internal sealed class PushNotification(
         var userIdsToFetch = new[]
         {
             @event.BookingUserId,
-            @event.BookingUserId,
+            @event.OwnerId,
             @event.CancellingUserId
         };
 

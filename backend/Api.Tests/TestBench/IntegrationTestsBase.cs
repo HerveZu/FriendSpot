@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using Quartz;
 using Testcontainers.PostgreSql;
 
 namespace Api.Tests.TestBench;
@@ -43,11 +45,17 @@ internal abstract class IntegrationTestsBase
             .WithWebHostBuilder(
                 builder =>
                 {
-                    builder.ConfigureServices(
+                    builder.ConfigureTestServices(
                         services =>
                         {
                             services.AddSingleton(NotificationPushService);
+                            services.AddSingleton(JobListener);
+                            services.Decorate<ISchedulerFactory, SchedulerFactoryProxy>();
+                        });
 
+                    builder.ConfigureServices(
+                        services =>
+                        {
                             services
                                 .AddAuthentication(TestAuthHandler.TestScheme)
                                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
@@ -78,8 +86,9 @@ internal abstract class IntegrationTestsBase
     }
 
     protected readonly INotificationPushService NotificationPushService = Substitute.For<INotificationPushService>();
-
     protected WebApplicationFactory<Program> ApplicationFactory { get; private set; }
+    protected QuartzJobTrackListener JobListener { get; } = new();
+
     private PostgreSqlContainer _pgContainer;
 
     private async Task SeedData()
@@ -94,9 +103,9 @@ internal abstract class IntegrationTestsBase
              insert into public."User" 
              ("Identity", "Rating_Rating", "DisplayName", "PictureUrl", "IsDeleted") 
              values 
-             ('{Seed.Users.ParkingAdmin}', 3, 'Parking Admin', null, false),
-             ('{Seed.Users.Resident1}', 3, 'Resident 1', null, false),
-             ('{Seed.Users.Resident2}', 3, 'Resident 2', null, false);
+             ('{Seed.Users.ParkingAdmin}', {Seed.Users.InitialRating}, 'Parking Admin', null, false),
+             ('{Seed.Users.Resident1}', {Seed.Users.InitialRating}, 'Resident 1', null, false),
+             ('{Seed.Users.Resident2}', {Seed.Users.InitialRating}, 'Resident 2', null, false);
 
              insert into public."UserDevice"
              ("UserIdentity", "ExpoPushToken", "DeviceId", "UniquenessNotGuaranteed") 
@@ -111,7 +120,7 @@ internal abstract class IntegrationTestsBase
 
              insert into public."CreditsTransaction"
              ("WalletId", "Reference", "Credits", "State") 
-             select "Id", 'initial-credits-for-testing', 100, '1' from public."Wallet";
+             select "Id", 'initial-credits-for-testing', {Seed.Users.InitialBalance}, '1' from public."Wallet";
 
              insert into public."Parking"
              ("Id", "Name", "Address", "OwnerId") 
