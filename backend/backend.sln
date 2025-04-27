@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{7A5EFF02
 		.gitignore = .gitignore
 		..\docker-compose.dev.yml = ..\docker-compose.dev.yml
 		Dockerfile = Dockerfile
+		..\.github\workflows\dotnet-net.yml = ..\.github\workflows\dotnet-net.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Tests", "Api.Tests\Api.Tests.csproj", "{88B49786-10BC-4E1A-8083-CA50DBDB76DE}"
