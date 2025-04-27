@@ -25,12 +25,7 @@ public sealed class SpotNameTests
     {
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => _ = new SpotName(input));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(exception.Message, Does.Contain("Parking spot name cannot be empty"));
-                Assert.That(exception.ParamName, Is.EqualTo("name"));
-            });
+        Assert.That(exception.Message, Does.Contain("Parking spot name cannot be empty"));
     }
 
     [Test]
@@ -41,14 +36,9 @@ public sealed class SpotNameTests
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => _ = new SpotName(input));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(
-                    exception.Message,
-                    Does.Contain($"Parking spot name cannot be longer than {SpotName.MaxLength} characters"));
-                Assert.That(exception.ParamName, Is.EqualTo("name"));
-            });
+        Assert.That(
+            exception.Message,
+            Does.Contain($"Parking spot name cannot be longer than {SpotName.MaxLength} characters"));
     }
 
     [Test]

@@ -89,6 +89,82 @@ public sealed class ParkingSpotTests
     }
 
     [Test]
+    public void Book_ShouldThrow_WhenSpotNotAvailable()
+    {
+        // Arrange
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+
+        // Act & Assert
+        var exception = Assert.Throws<BusinessException>(
+            () =>
+                parkingSpot.Book("user-123", DateTimeOffset.UtcNow.AddDays(1), TimeSpan.FromHours(2)));
+        Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.NoAvailability"));
+    }
+
+    [Test]
+    public void Book_ShouldThrow_WhenSomeoneElseBookingOverlaps()
+    {
+        // Arrange
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+
+        parkingSpot.MakeAvailable(DateTimeOffset.UtcNow.AddMinutes(1), DateTimeOffset.UtcNow.AddDays(2));
+        parkingSpot.Book("other-user-123", DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromHours(2));
+
+        // Act & Assert
+        var exception = Assert.Throws<BusinessException>(
+            () =>
+                parkingSpot.Book("user-123", DateTimeOffset.UtcNow.AddHours(2), TimeSpan.FromHours(2)));
+
+        Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.NoAvailability"));
+    }
+
+    [Test]
+    public void Book_ShouldSucceed_WhenSomeoneElseBookingDoesntOverlap()
+    {
+        // Arrange
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var from = DateTimeOffset.UtcNow.AddHours(6);
+
+        parkingSpot.MakeAvailable(from, from.AddDays(2));
+        parkingSpot.Book("user-123", from, TimeSpan.FromHours(6));
+
+        // Act
+        parkingSpot.Book("user-123", from.AddHours(4), TimeSpan.FromHours(6));
+
+        // Assert
+        Assert.That(parkingSpot.Bookings, Has.Count.EqualTo(1));
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(parkingSpot.Bookings[0].From, Is.EqualTo(from));
+                Assert.That(parkingSpot.Bookings[0].To, Is.EqualTo(from.AddHours(10)));
+            });
+    }
+
+    [Test]
+    public void Book_ShouldExtendExitingBooking_WhenBookingOverlaps()
+    {
+        // Arrange
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var from = DateTimeOffset.UtcNow.AddHours(6);
+
+        parkingSpot.MakeAvailable(from, from.AddDays(2));
+        parkingSpot.Book("other-user-123", from, TimeSpan.FromHours(6));
+
+        // Act
+        parkingSpot.Book("user-123", from.AddHours(8), TimeSpan.FromHours(6));
+
+        // Assert
+        Assert.That(parkingSpot.Bookings, Has.Count.EqualTo(2));
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(parkingSpot.Bookings[1].From, Is.EqualTo(from.AddHours(8)));
+                Assert.That(parkingSpot.Bookings[1].To, Is.EqualTo(from.AddHours(14)));
+            });
+    }
+
+    [Test]
     public void Book_ShouldThrow_WhenDurationIsNotPositive()
     {
         // Arrange
@@ -113,6 +189,28 @@ public sealed class ParkingSpotTests
             () =>
                 parkingSpot.MakeAvailable(DateTimeOffset.UtcNow.AddDays(1), DateTimeOffset.UtcNow.AddDays(2)));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.Disabled"));
+    }
+
+    [Test]
+    public void MakeAvailable_ShouldMerge_WhenOverlappingAvailabilities()
+    {
+        // Arrange
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var from = DateTimeOffset.UtcNow.AddDays(1);
+        var to = from.AddDays(1);
+
+        // Act
+        parkingSpot.MakeAvailable(from, from.AddHours(12));
+        parkingSpot.MakeAvailable(from.AddHours(6), from.AddHours(12));
+        parkingSpot.MakeAvailable(from.AddHours(8), to);
+
+        Assert.That(parkingSpot.Availabilities, Has.Count.EqualTo(1));
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(parkingSpot.Availabilities[0].From, Is.EqualTo(from));
+                Assert.That(parkingSpot.Availabilities[0].To, Is.EqualTo(to));
+            });
     }
 
     [Test]
@@ -192,5 +290,178 @@ public sealed class ParkingSpotTests
 
         // Assert
         Assert.That(parkingSpot.Bookings, Is.Empty);
+    }
+
+    [Test]
+    public void CancelBooking_ShouldSucceed_WhenBookingExists()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        parkingSpot.MakeAvailable(DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddDays(5));
+
+        var booking = parkingSpot.Book(
+                "user-123",
+                DateTimeOffset.UtcNow.AddHours(2),
+                TimeSpan.FromHours(2)
+            )
+            .Booking;
+
+        parkingSpot.CancelBooking("user-123", booking.Id);
+
+        Assert.That(parkingSpot.Bookings, Does.Not.Contain(booking));
+    }
+
+    [Test]
+    public void CancelBooking_ShouldThrow_WhenCancellingAnotherUsersBooking()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        parkingSpot.MakeAvailable(DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddDays(5));
+
+        var booking = parkingSpot.Book(
+                "user-123",
+                DateTimeOffset.UtcNow.AddHours(2),
+                TimeSpan.FromHours(2)
+            )
+            .Booking;
+
+        var ex = Assert.Throws<BusinessException>(
+            () =>
+                parkingSpot.CancelBooking("different-user", booking.Id));
+
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+                Assert.That(parkingSpot.Bookings, Does.Contain(booking));
+            });
+    }
+
+    [Test]
+    public void CancelAvailability_ShouldSucceed_WhenAvailabilityExists()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var startTime = DateTimeOffset.UtcNow.AddHours(1);
+        var endTime = DateTimeOffset.UtcNow.AddDays(5);
+
+        parkingSpot.MakeAvailable(startTime, endTime);
+        parkingSpot.CancelAvailability("owner-123", parkingSpot.Availabilities[0].Id);
+
+        Assert.That(parkingSpot.Availabilities, Is.Empty);
+    }
+
+    [Test]
+    public void CancelAvailability_ShouldCancelAllBookedBookings_WhenAllBookingsStartAfterFrozenPeriod()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var startTime = DateTimeOffset.UtcNow.AddDays(1);
+        var endTime = DateTimeOffset.UtcNow.AddDays(5);
+
+        parkingSpot.MakeAvailable(startTime, endTime);
+        parkingSpot.Book("user-123", startTime.AddHours(1), TimeSpan.FromHours(1));
+        parkingSpot.Book("other-user-123", startTime.AddHours(3), TimeSpan.FromHours(1));
+        parkingSpot.Book("user-123", startTime.AddHours(5), TimeSpan.FromHours(1));
+
+        parkingSpot.CancelAvailability("owner-123", parkingSpot.Availabilities[0].Id);
+
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(parkingSpot.Bookings, Is.Empty);
+                Assert.That(parkingSpot.Availabilities, Is.Empty);
+            });
+    }
+
+    [Test]
+    public void CancelAvailability_ShouldThrow_WhenOneBookingStartsTooSoon()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var startTime = DateTimeOffset.UtcNow.AddHours(1);
+        var endTime = DateTimeOffset.UtcNow.AddDays(5);
+
+        parkingSpot.MakeAvailable(startTime, endTime);
+        parkingSpot.Book("user-123", startTime.AddHours(1), TimeSpan.FromHours(1));
+        parkingSpot.Book("other-user-123", startTime.AddHours(3), TimeSpan.FromHours(1));
+        parkingSpot.Book("user-123", startTime.AddHours(5), TimeSpan.FromHours(1));
+
+        var ex = Assert.Throws<BusinessException>(
+            () =>
+                parkingSpot.CancelAvailability("owner-123", parkingSpot.Availabilities[0].Id));
+
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+                Assert.That(parkingSpot.Availabilities, Has.Count.EqualTo(1));
+                Assert.That(parkingSpot.Bookings, Has.Count.EqualTo(3));
+            });
+    }
+
+    [Test]
+    public void CancelAvailability_ShouldThrow_WhenNotOwner()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var startTime = DateTimeOffset.UtcNow.AddHours(1);
+        var endTime = DateTimeOffset.UtcNow.AddDays(5);
+
+        parkingSpot.MakeAvailable(startTime, endTime);
+
+        var ex = Assert.Throws<BusinessException>(
+            () =>
+                parkingSpot.CancelAvailability("not-owner-user-123", parkingSpot.Availabilities[0].Id));
+
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+                Assert.That(parkingSpot.Availabilities, Does.Contain(parkingSpot.Availabilities[0]));
+            });
+    }
+
+    [Test]
+    public void CancelAvailability_ShouldThrow_WhenAvailabilityNotFound()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+
+        var ex = Assert.Throws<BusinessException>(
+            () =>
+                parkingSpot.CancelAvailability("owner-123", Guid.NewGuid()));
+
+        Assert.That(ex.Code, Is.EqualTo("ParkingSpot.AvailabilityNotFound"));
+    }
+
+    [Test]
+    public void CancelBooking_ShouldThrow_WhenOwnerCancelTooLate()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var verySoonStartTime = DateTimeOffset.UtcNow.AddMinutes(1);
+        var endTime = DateTimeOffset.UtcNow.AddDays(5);
+
+        parkingSpot.MakeAvailable(verySoonStartTime, endTime);
+        var booking = parkingSpot.Book("user-123", verySoonStartTime, TimeSpan.FromHours(6)).Booking;
+
+        var ex = Assert.Throws<BusinessException>(
+            () =>
+                parkingSpot.CancelBooking("owner-123", booking.Id));
+
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+                Assert.That(parkingSpot.Bookings, Does.Contain(booking));
+            });
+    }
+
+    [Test]
+    public void CancelBooking_ShouldSucceed_WhenBookingUserCancelLastMinute()
+    {
+        var parkingSpot = ParkingSpot.Define("owner-123", Guid.NewGuid(), "Spot A");
+        var verySoonStartTime = DateTimeOffset.UtcNow.AddMinutes(1);
+        var endTime = DateTimeOffset.UtcNow.AddDays(5);
+
+        parkingSpot.MakeAvailable(verySoonStartTime, endTime);
+        var booking = parkingSpot.Book("user-123", verySoonStartTime, TimeSpan.FromHours(6)).Booking;
+
+        parkingSpot.CancelBooking("user-123", booking.Id);
+
+        Assert.That(parkingSpot.Bookings, Does.Not.Contain(booking));
     }
 }

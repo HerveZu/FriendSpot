@@ -7,7 +7,7 @@ internal sealed class AuthenticationTests : IntegrationTestsBase
 {
     [Test]
     [CancelAfter(10_000)]
-    public async Task Request_WhenAnonymous_ShouldReturnUnauthorized(CancellationToken cancellationToken)
+    public async Task Request_ShouldReturnUnauthorized_WhenAnonymous(CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.CreateClient();
 
@@ -20,7 +20,7 @@ internal sealed class AuthenticationTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task AuthenticatedRequest_WhenUnknownUser_ShouldReturnUnauthorized(CancellationToken cancellationToken)
+    public async Task AuthenticatedRequest_ShouldReturnUnauthorized_WhenUnknownUser(CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.UserClient(Seed.Users.Unknown);
 
@@ -33,7 +33,7 @@ internal sealed class AuthenticationTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task AuthenticatedRequest_WhenValidUser_ShouldReturnOk(CancellationToken cancellationToken)
+    public async Task AuthenticatedRequest_ShouldReturnOk_WhenValidUser(CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.UserClient(Seed.Users.SpotOwner);
 

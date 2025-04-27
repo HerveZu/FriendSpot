@@ -64,14 +64,14 @@ public sealed class ParkingSpotAvailability
             .All(booking => booking.CanCancel(userId));
     }
 
-    public ParkingSpotAvailability[] Split(ParkingSpotBooking[] bookings)
+    public ParkingSpotAvailability[] SplitNonOverlapping(ParkingSpotBooking[] bookings)
     {
         if (bookings.Length is 0)
         {
             return [CreateValid(From, To)];
         }
 
-        var availabilities = new Stack<ParkingSpotAvailability>();
+        var nonOverlappingAvailabilities = new Stack<ParkingSpotAvailability>();
 
         var availableSince = new[] { From, bookings.First().From }.Min();
         var borderMargin = TimeSpan.FromMinutes(1);
@@ -83,7 +83,7 @@ public sealed class ParkingSpotAvailability
 
             if (notAvailableFrom > availableSince)
             {
-                availabilities.Push(CreateValid(availableSince, notAvailableFrom));
+                nonOverlappingAvailabilities.Push(CreateValid(availableSince, notAvailableFrom));
             }
 
             availableSince = notAvailableTo;
@@ -91,9 +91,9 @@ public sealed class ParkingSpotAvailability
 
         if (availableSince < To)
         {
-            availabilities.Push(CreateValid(availableSince, To));
+            nonOverlappingAvailabilities.Push(CreateValid(availableSince, To));
         }
 
-        return availabilities.ToArray();
+        return nonOverlappingAvailabilities.Reverse().ToArray();
     }
 }
