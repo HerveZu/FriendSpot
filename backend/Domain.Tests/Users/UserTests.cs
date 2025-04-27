@@ -1,4 +1,5 @@
 using Domain.Users;
+using NSubstitute;
 
 namespace Domain.Tests.Users;
 
@@ -50,9 +51,13 @@ public sealed class UserTests
         // Act
         user.UpdateInfo(newDisplayName, newPictureUrl);
 
-        // Assert
-        Assert.That(user.DisplayName, Is.EqualTo(newDisplayName));
-        Assert.That(user.PictureUrl, Is.EqualTo(newPictureUrl));
+        Assert.Multiple(
+            () =>
+            {
+                // Assert
+                Assert.That(user.DisplayName, Is.EqualTo(newDisplayName));
+                Assert.That(user.PictureUrl, Is.EqualTo(newPictureUrl));
+            });
     }
 
     [Test]
@@ -79,9 +84,13 @@ public sealed class UserTests
         user.AcknowledgeDevice("device1", "token1", false);
 
         // Assert
-        Assert.That(user.UserDevices.Count, Is.EqualTo(1));
-        Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
-        Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token1"));
+        Assert.That(user.UserDevices, Has.Count.EqualTo(1));
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
+                Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token1"));
+            });
     }
 
     [Test]
@@ -95,7 +104,7 @@ public sealed class UserTests
         user.AcknowledgeDevice("device1", "token2", false);
 
         // Assert
-        Assert.That(user.UserDevices.Count, Is.EqualTo(1));
+        Assert.That(user.UserDevices, Has.Count.EqualTo(1));
         Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token2"));
     }
 
@@ -104,16 +113,20 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", true);
+        user.AcknowledgeDevice("device1", "token1", false);
         user.AcknowledgeDevice("device2", "token2", true);
 
         // Act
-        user.AcknowledgeDevice("device1", "token3", true);
+        user.AcknowledgeDevice("device3", "token3", true);
 
         // Assert
-        Assert.That(user.UserDevices.Count, Is.EqualTo(1));
-        Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
-        Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token3"));
+        Assert.That(user.UserDevices, Has.Count.EqualTo(2));
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
+                Assert.That(user.UserDevices[1].DeviceId, Is.EqualTo("device3"));
+            });
     }
 
     [Test]
@@ -156,5 +169,33 @@ public sealed class UserTests
 
         // Assert
         Assert.That(user.IsDeleted, Is.True);
+    }
+
+    [Test]
+    public async Task PushNotification_ShouldPushNotificationForAllDevices()
+    {
+        // Arrange
+        var user = User.Register("user123", new UserDisplayName("ValidName"));
+        user.AcknowledgeDevice("device1", "token1", false);
+        user.AcknowledgeDevice("device2", "token2", false);
+        var notificationService = Substitute.For<INotificationPushService>();
+
+        // Act
+        await user.PushNotification(
+            notificationService,
+            new Notification
+            {
+                Title = "Test notification",
+                Body = "I'm just a test notification"
+            },
+            CancellationToken.None);
+
+        // Assert
+        await notificationService.Received(2)
+            .PushToDevice(
+                Arg.Any<UserDevice>(),
+                Arg.Any<Notification>(),
+                Arg.Any<CancellationToken>()
+            );
     }
 }

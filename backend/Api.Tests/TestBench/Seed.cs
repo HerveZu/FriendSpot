@@ -10,6 +10,13 @@ internal static class Seed
         public const string Unknown = "unknown-user-id";
     }
 
+    public static class Devices
+    {
+        public const string ParkingAdmin = "parking-admin-id";
+        public const string Resident1 = "parking-resident-1-id";
+        public const string Resident2 = "parking-resident-2-id";
+    }
+
     public static class Parkings
     {
         public static readonly Guid Main = Guid.NewGuid();

@@ -1,6 +1,6 @@
 using Api.Common.Infrastructure;
-using Api.Common.Notifications;
 using Api.Common.Options;
+using Domain.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using Testcontainers.PostgreSql;
 
 namespace Api.Tests.TestBench;
@@ -45,7 +46,7 @@ internal abstract class IntegrationTestsBase
                     builder.ConfigureServices(
                         services =>
                         {
-                            services.AddSingleton<INotificationPushService, MockNotificationService>();
+                            services.AddSingleton(NotificationPushService);
 
                             services
                                 .AddAuthentication(TestAuthHandler.TestScheme)
@@ -76,6 +77,8 @@ internal abstract class IntegrationTestsBase
         await ApplicationFactory.DisposeAsync();
     }
 
+    protected readonly INotificationPushService NotificationPushService = Substitute.For<INotificationPushService>();
+
     protected WebApplicationFactory<Program> ApplicationFactory { get; private set; }
     private PostgreSqlContainer _pgContainer;
 
@@ -94,6 +97,13 @@ internal abstract class IntegrationTestsBase
              ('{Seed.Users.ParkingAdmin}', 3, 'Parking Admin', null, false),
              ('{Seed.Users.Resident1}', 3, 'Resident 1', null, false),
              ('{Seed.Users.Resident2}', 3, 'Resident 2', null, false);
+
+             insert into public."UserDevice"
+             ("UserIdentity", "ExpoPushToken", "DeviceId", "UniquenessNotGuaranteed") 
+             values 
+             ('{Seed.Users.ParkingAdmin}', null, '{Seed.Devices.ParkingAdmin}', false),
+             ('{Seed.Users.Resident1}', null, '{Seed.Devices.Resident1}', false),
+             ('{Seed.Users.Resident2}', null, '{Seed.Devices.Resident2}', false);
 
              insert into public."Wallet"
              ("Id", "UserId")

@@ -7,7 +7,7 @@ internal sealed class UserTests : IntegrationTestsBase
 {
     [Test]
     [CancelAfter(60_000)]
-    public async Task ViewMe_HappyPath(CancellationToken cancellationToken)
+    public async Task ViewMe_ShouldSucceed(CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.UserClient(Seed.Users.Resident1);
 
