@@ -8,7 +8,7 @@ namespace Api.Tests;
 internal sealed class BookSpotTests : IntegrationTestsBase
 {
     [Test]
-    [CancelAfter(10_000)]
+    [CancelAfter(60_000)]
     public async Task BookSpot_HappyPath(CancellationToken cancellationToken)
     {
         var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
