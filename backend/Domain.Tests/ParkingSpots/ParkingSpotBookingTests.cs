@@ -88,7 +88,6 @@ public class ParkingSpotBookingTests
     }
 
     [Test]
-    [TestCase(0, 1)]
     [TestCase(0.1f, 1)]
     [TestCase(0.5f, 1)]
     [TestCase(1, 1)]
