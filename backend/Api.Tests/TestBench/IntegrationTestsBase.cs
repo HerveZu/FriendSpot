@@ -1,4 +1,4 @@
-using Api.Common.Infrastructure;
+using System.Net.Http.Headers;
 using Api.Common.Options;
 using Domain.Users;
 using Microsoft.AspNetCore.Authentication;
@@ -6,22 +6,22 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using NSubstitute;
 using Quartz;
+using Respawn;
 using Testcontainers.PostgreSql;
 
 namespace Api.Tests.TestBench;
 
 [TestFixture]
-[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
-[Parallelizable(ParallelScope.All)]
+[Parallelizable(ParallelScope.Fixtures)]
 internal abstract class IntegrationTestsBase
 {
-    [SetUp]
-    public async Task SetupEnv()
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
     {
         _pgContainer = new PostgreSqlBuilder()
             .WithImage("postgres:15-alpine")
@@ -41,7 +41,7 @@ internal abstract class IntegrationTestsBase
             },
         };
 
-        ApplicationFactory = new WebApplicationFactory<Program>()
+        _applicationFactory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(
                 builder =>
                 {
@@ -75,30 +75,24 @@ internal abstract class IntegrationTestsBase
                             .Build());
                 });
 
-        await SeedData();
+        using var _ = _applicationFactory.CreateClient();
+
+        await using var conn = new NpgsqlConnection(GetConnectionString());
+        await conn.OpenAsync();
+        _respawn = await Respawner.CreateAsync(conn, new RespawnerOptions { DbAdapter = DbAdapter.Postgres });
     }
 
-    [TearDown]
-    public async Task TearDownEnv()
+    [SetUp]
+    public async Task SetUp()
     {
-        await _pgContainer.DisposeAsync();
-        await ApplicationFactory.DisposeAsync();
-    }
+        await using var conn = new NpgsqlConnection(GetConnectionString());
+        await conn.OpenAsync();
 
-    protected readonly INotificationPushService NotificationPushService = Substitute.For<INotificationPushService>();
-    protected WebApplicationFactory<Program> ApplicationFactory { get; private set; }
-    protected QuartzJobTrackListener JobListener { get; } = new();
+        await _respawn.ResetAsync(conn);
 
-    private PostgreSqlContainer _pgContainer;
+        var command = conn.CreateCommand();
 
-    private async Task SeedData()
-    {
-        using var scope = ApplicationFactory.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-// can be safely disable as this is a test setup + only compile time const are used.
-#pragma warning disable EF1002
-        await dbContext.Database.ExecuteSqlRawAsync(
+        command.CommandText =
             $"""
              insert into public."User" 
              ("Identity", "Rating_Rating", "DisplayName", "PictureUrl", "IsDeleted") 
@@ -133,9 +127,49 @@ internal abstract class IntegrationTestsBase
              ('{Seed.Spots.Admin}', '{Seed.Parkings.Main}', 'OWNR', '{Seed.Users.ParkingAdmin}'),
              ('{Seed.Spots.Resident1}', '{Seed.Parkings.Main}', 'RESD-1', '{Seed.Users.Resident1}'),
              ('{Seed.Spots.Resident2}', '{Seed.Parkings.Main}', 'RESD-2', '{Seed.Users.Resident2}');
-             """);
-#pragma warning restore EF1002
+             """;
 
-        await dbContext.SaveChangesAsync();
+        await command.ExecuteNonQueryAsync();
+    }
+
+    [TearDown]
+    public async Task TearDown()
+    {
+        // this is a dirty workaround that prevents deadlocks
+        await Task.Delay(100);
+    }
+
+    [OneTimeTearDown]
+    public async Task OneTimeTearDown()
+    {
+        await _applicationFactory.DisposeAsync();
+        await _pgContainer.DisposeAsync();
+    }
+
+    protected readonly INotificationPushService NotificationPushService = Substitute.For<INotificationPushService>();
+    protected QuartzJobTrackListener JobListener { get; } = new();
+
+    private WebApplicationFactory<Program> _applicationFactory = null!;
+    private PostgreSqlContainer _pgContainer = null!;
+    private Respawner _respawn = null!;
+
+    protected HttpClient UserClient(string userId)
+    {
+        var client = _applicationFactory.CreateClient();
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(TestAuthHandler.TestScheme, userId);
+
+        return client;
+    }
+
+    protected HttpClient CreateClient()
+    {
+        return _applicationFactory.CreateClient();
+    }
+
+    private string GetConnectionString()
+    {
+        return _pgContainer.GetConnectionString() + ";Include Error Detail=true";
     }
 }

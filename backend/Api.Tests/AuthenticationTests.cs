@@ -6,10 +6,10 @@ namespace Api.Tests;
 internal sealed class AuthenticationTests : IntegrationTestsBase
 {
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task Request_ShouldReturnUnauthorized_WhenAnonymous(CancellationToken cancellationToken)
     {
-        using var client = ApplicationFactory.CreateClient();
+        using var client = CreateClient();
 
         var apiResponse = await client.GetAsync(
             "/@me",
@@ -19,10 +19,10 @@ internal sealed class AuthenticationTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task AuthenticatedRequest_ShouldReturnUnauthorized_WhenUnknownUser(CancellationToken cancellationToken)
     {
-        using var client = ApplicationFactory.UserClient(Seed.Users.Unknown);
+        using var client = UserClient(Seed.Users.Unknown);
 
         var apiResponse = await client.GetAsync(
             "/@me",
@@ -32,10 +32,10 @@ internal sealed class AuthenticationTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task AuthenticatedRequest_ShouldReturnOk_WhenValidUser(CancellationToken cancellationToken)
     {
-        using var client = ApplicationFactory.UserClient(Seed.Users.Resident1);
+        using var client = UserClient(Seed.Users.Resident1);
 
         var apiResponse = await client.GetAsync(
             "/@me",

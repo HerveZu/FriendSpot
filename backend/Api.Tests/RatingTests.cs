@@ -9,11 +9,11 @@ namespace Api.Tests;
 internal sealed class RatingTests : IntegrationTestsBase
 {
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task CancelBooking_ShouldDecreaseReputation_WhenCancelledByOwner(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
@@ -60,18 +60,18 @@ internal sealed class RatingTests : IntegrationTestsBase
             cancellationToken);
 
         await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await bookSpot.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
 
         Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Rating, Is.EqualTo(Seed.Users.InitialRating - 0.2m));
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task CancelBooking_ShouldNotImpactReputation_WhenCancelledByUser(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
@@ -118,7 +118,7 @@ internal sealed class RatingTests : IntegrationTestsBase
             cancellationToken);
 
         await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await bookSpot.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
 
         Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Rating, Is.EqualTo(Seed.Users.InitialRating));
@@ -126,11 +126,11 @@ internal sealed class RatingTests : IntegrationTestsBase
 
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task SpotBookingCompletes_ShouldIncreaseOwnersReputation(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var bookingCompleteCompletion = JobListener.WaitForJob<MarkBookingComplete>();
 

@@ -10,11 +10,11 @@ namespace Api.Tests;
 internal sealed class CancelBookingTests : IntegrationTestsBase
 {
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task CancelBooking_ShouldReturnNoContent(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
@@ -58,11 +58,11 @@ internal sealed class CancelBookingTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task CancelBooking_ShouldSendNotificationToOwner_WhenUserCancelled(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var pushToDeviceCompletion = NotificationPushService
             .PushToDevice(
@@ -117,11 +117,11 @@ internal sealed class CancelBookingTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task CancelBooking_ShouldSendNotificationToUser_WhenOwnerCancelled(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var pushToDeviceCompletion = NotificationPushService
             .PushToDevice(

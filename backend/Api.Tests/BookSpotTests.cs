@@ -12,11 +12,11 @@ namespace Api.Tests;
 internal sealed class BookSpotTests : IntegrationTestsBase
 {
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task BookSpot_ShouldReturnOk(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
@@ -45,11 +45,11 @@ internal sealed class BookSpotTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task BookSpot_ShouldSendNotificationToOwner_WhenUserBooked(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var pushToDeviceCompletion = NotificationPushService
             .PushToDevice(
@@ -89,11 +89,11 @@ internal sealed class BookSpotTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task BookSpot_ShouldAddPendingCredits_WhenUserBooked(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var pushToDeviceCompletion = NotificationPushService
             .PushToDevice(
@@ -143,11 +143,11 @@ internal sealed class BookSpotTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task SpotBookingCompletes_ShouldIncreaseOwnersReputation(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var bookingCompleteCompletion = JobListener.WaitForJob<MarkBookingComplete>();
 
@@ -190,11 +190,11 @@ internal sealed class BookSpotTests : IntegrationTestsBase
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(10_000)]
     public async Task SpotBookingCompletes_ShouldIncreaseConfirmPendingCredits(CancellationToken cancellationToken)
     {
-        using var resident1 = ApplicationFactory.UserClient(Seed.Users.Resident1);
-        using var resident2 = ApplicationFactory.UserClient(Seed.Users.Resident2);
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
 
         var bookingCompleteCompletion = JobListener.WaitForJob<MarkBookingComplete>();
 

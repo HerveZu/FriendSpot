@@ -6,7 +6,7 @@ namespace Api.Tests.TestBench;
 
 internal sealed class QuartzJobTrackListener : JobListenerSupport
 {
-    private readonly Dictionary<Type, List<TaskCompletionSource>> _jobTcs = new();
+    private readonly Dictionary<string, List<TaskCompletionSource>> _jobTcs = new();
 
     public override string Name => "Test Job Listener";
 
@@ -16,7 +16,9 @@ internal sealed class QuartzJobTrackListener : JobListenerSupport
         CancellationToken cancellationToken = new())
     {
         var jobType = context.JobInstance.GetType();
-        var tcsList = _jobTcs.GetValueOrDefault(jobType);
+        var joyKey = jobType.FullName ?? jobType.Name;
+
+        var tcsList = _jobTcs.GetValueOrDefault(joyKey);
 
         if (tcsList is null || tcsList.Count is 0)
         {
@@ -29,7 +31,8 @@ internal sealed class QuartzJobTrackListener : JobListenerSupport
             return Task.CompletedTask;
         }
 
-        tcsList.ForEach(tcs => tcs.SetResult());
+        tcsList.ForEach(tcs => tcs.TrySetResult());
+        _jobTcs.Remove(joyKey);
 
         return Task.CompletedTask;
     }
@@ -39,10 +42,11 @@ internal sealed class QuartzJobTrackListener : JobListenerSupport
     {
         var tcs = new TaskCompletionSource();
         var jobType = typeof(TJob);
+        var joyKey = jobType.FullName ?? jobType.Name;
 
-        var tcsList = _jobTcs.GetValueOrDefault(jobType, []);
+        var tcsList = _jobTcs.GetValueOrDefault(joyKey, []);
         tcsList.Add(tcs);
-        _jobTcs[jobType] = tcsList;
+        _jobTcs[joyKey] = tcsList;
 
         return new CompletionAssertion(tcs);
     }
