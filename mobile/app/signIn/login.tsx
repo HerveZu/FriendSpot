@@ -41,7 +41,7 @@ export default function LoginScreen() {
     try {
       await sendEmailVerification(currentUser);
     } catch (error) {
-      setError('Une erreur est survenue lors de l\'envoi de l\'email de vérification.');
+      setError('Merci de réessayer ultérieurement.');
     }
   }
   
