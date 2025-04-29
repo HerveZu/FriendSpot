@@ -1,21 +1,40 @@
 import { Text } from '~/components/nativewindui/Text';
-import { SafeAreaView, View, ViewProps } from 'react-native';
+import { SafeAreaView, View, ViewProps, Vibration } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
+
+import { useRouter } from 'expo-router';
+
 
 export function Modal({
   open,
   onOpenChange,
   className,
   children,
+  backdropRedirect,
+  vibration = false,
   ...props
-}: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>> } & ViewProps) {
+}: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>>, backdropRedirect?: string, vibration?: boolean } & ViewProps) {
+  const router = useRouter()
+
+  function triggerVibration() {
+    Vibration.vibrate(100)
+  }
+
+  if (vibration) {
+    triggerVibration();
+  }
+  
   return (
     <ReactModal
       isVisible={open}
-      onBackdropPress={() => onOpenChange(false)}
-      // this removes the flickering on exit
+      onBackdropPress={() => {
+        if (backdropRedirect) {
+          router.push(backdropRedirect as any);
+        }
+        onOpenChange(false);
+      }}
       backdropTransitionOutTiming={1}>
       <SafeAreaView>
         <View className={'bg-background'} {...props}>

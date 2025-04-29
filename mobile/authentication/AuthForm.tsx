@@ -76,22 +76,25 @@ export function AuthForm({
   const [email, setEmail] = useState<string>('')
   const auth = getAuth();
   const { colors } = useColorScheme();
+  const [resetEmailStatus, setResetEmailStatus] = useState('Envoyer');
 
   async function handleSubmit() {
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email)
       setPendingAction(true)
+      setResetEmailStatus('Envoie en cours..');
       setTimeout(() => {
         setIsOpen(false);
         setEmail('')
         setPendingAction(false)
+        setResetEmailStatus('Envoyer');
       }, 500);
     } catch (error) {
       console.error(error);
     }
   }
 
-  const error = useCallback(
+  const error = useCallback( 
     (id: string, error: boolean) => {
       if (error) {
         setInputErrors((errors) => [...new Set([...errors, id])]);
@@ -160,7 +163,7 @@ export function AuthForm({
                     variant="primary"
                     className="w-full">
                     {pendingAction && <ActivityIndicator color={colors.foreground} />}
-                    <Text>{"Envoyer"}</Text>
+                    <Text>{resetEmailStatus}</Text>
                   </Button>
                 </Modal>
                 </>
