@@ -92,11 +92,6 @@ public sealed class Wallet
 
     private void IdempotentTransaction(CreditsTransaction newTransaction)
     {
-        if (!newTransaction.HasAnyEffect)
-        {
-            return;
-        }
-
         var existingTransaction = _transactions
             .SingleOrDefault(transaction => transaction.Reference == newTransaction.Reference);
 

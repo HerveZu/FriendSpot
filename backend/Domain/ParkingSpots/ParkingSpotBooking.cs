@@ -11,19 +11,19 @@ public sealed class ParkingSpotBooking
     {
         Id = id;
         BookingUserId = bookingUserId;
-        From = from;
-        To = to;
+        DateRange = new DateTimeOffsetRange(from, to);
         Rating = rating;
     }
 
     public Guid Id { get; }
     public string BookingUserId { get; }
-    public DateTimeOffset From { get; private set; }
-    public DateTimeOffset To { get; private set; }
-    public TimeSpan Duration => To - From;
+    public DateTimeOffsetRange DateRange { get; private set; }
+    public DateTimeOffset From => DateRange.From;
+    public DateTimeOffset To => DateRange.To;
+    public TimeSpan Duration => DateRange.Duration;
     public BookRating? Rating { get; private set; }
-    public Credits Cost => new((decimal)Duration.TotalHours);
-    public bool IsActiveNow => To > DateTimeOffset.Now;
+    public Credits Cost => new((decimal)Math.Max(1, Duration.TotalHours));
+    public bool HasNotExpiredNow => To > DateTimeOffset.Now;
 
     public static ParkingSpotBooking New(string bookingUserId, DateTimeOffset from, TimeSpan duration)
     {
@@ -37,8 +37,7 @@ public sealed class ParkingSpotBooking
 
     public void Extend(DateTimeOffset newFrom, DateTimeOffset newTo)
     {
-        From = new[] { From, newFrom }.Min();
-        To = new[] { To, newTo }.Max();
+        DateRange = DateRange.Extend(newFrom, newTo);
     }
 
     public bool CanCancel(string userId)
@@ -60,14 +59,14 @@ public sealed class ParkingSpotBooking
         return bookingIsActiveIn > frozenFor;
     }
 
-    public bool Overlaps(DateTimeOffset from, DateTimeOffset to)
-    {
-        return From <= to && from <= To;
-    }
-
     internal void Rate(BookRating rating)
     {
-        if (DateTimeOffset.UtcNow < To)
+        if (Rating is not null)
+        {
+            throw new BusinessException("ParkingSpot.InvalidRating", "Cannot rate a booking twice");
+        }
+
+        if (HasNotExpiredNow)
         {
             throw new BusinessException("ParkingSpot.InvalidRating", "Cannot rate an ongoing booking");
         }

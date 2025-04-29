@@ -1,6 +1,5 @@
-using Api.Bookings.Common;
+using Api.Common;
 using Api.Common.Infrastructure;
-using Api.Common.Notifications;
 using Domain.ParkingSpots;
 using Domain.Users;
 using Quartz;
@@ -24,8 +23,8 @@ internal sealed class PushNotificationToOwner(
             return;
         }
 
-        await notificationPushService.PushToUser(
-            owner,
+        await owner.PushNotification(
+            notificationPushService,
             new Notification
             {
                 Title = "Nouvelle réservation !",

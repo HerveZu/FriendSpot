@@ -20,7 +20,14 @@ internal sealed class AppDbContext(
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(postgresOptions.Value.ConnectionString);
+        var connectionString = postgresOptions.Value.ConnectionString;
+        if (postgresOptions.Value.EnableSensitiveDataLogging)
+        {
+            connectionString += ";Include Error Detail=true";
+        }
+
+        optionsBuilder.UseNpgsql(connectionString);
+        optionsBuilder.EnableSensitiveDataLogging(postgresOptions.Value.EnableSensitiveDataLogging);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

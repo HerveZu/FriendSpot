@@ -8,14 +8,14 @@ public sealed class ParkingSpotAvailability
         DateTimeOffset to)
     {
         Id = id;
-        From = from;
-        To = to;
+        DateRange = new DateTimeOffsetRange(from, to);
     }
 
     public Guid Id { get; }
-    public DateTimeOffset From { get; }
-    public DateTimeOffset To { get; }
-    public TimeSpan Duration => To - From;
+    public DateTimeOffsetRange DateRange { get; }
+    public DateTimeOffset From => DateRange.From;
+    public DateTimeOffset To => DateRange.To;
+    public TimeSpan Duration => DateRange.Duration;
     public Credits Price => new((decimal)Duration.TotalHours);
 
     private static ParkingSpotAvailability CreateValid(DateTimeOffset from, DateTimeOffset to)
@@ -44,7 +44,7 @@ public sealed class ParkingSpotAvailability
 
     public static ParkingSpotAvailability Merge(ParkingSpotAvailability existing, ParkingSpotAvailability @new)
     {
-        if (!existing.Overlaps(@new.From, @new.To))
+        if (!existing.DateRange.Overlaps(@new.DateRange))
         {
             throw new BusinessException(
                 "ParkingSpot.InvalidAvailabilities",
@@ -57,26 +57,21 @@ public sealed class ParkingSpotAvailability
         return CreateValid(minFrom, maxTo);
     }
 
-    public bool Overlaps(DateTimeOffset from, DateTimeOffset to)
-    {
-        return From <= to && from <= To;
-    }
-
     public bool CanCancel(string userId, IEnumerable<ParkingSpotBooking> withBookings)
     {
         return withBookings
-            .Where(booking => Overlaps(booking.From, booking.To))
+            .Where(booking => DateRange.Overlaps(booking.DateRange))
             .All(booking => booking.CanCancel(userId));
     }
 
-    public ParkingSpotAvailability[] Split(ParkingSpotBooking[] bookings)
+    public ParkingSpotAvailability[] SplitNonOverlapping(ParkingSpotBooking[] bookings)
     {
         if (bookings.Length is 0)
         {
             return [CreateValid(From, To)];
         }
 
-        var availabilities = new Stack<ParkingSpotAvailability>();
+        var nonOverlappingAvailabilities = new Stack<ParkingSpotAvailability>();
 
         var availableSince = new[] { From, bookings.First().From }.Min();
         var borderMargin = TimeSpan.FromMinutes(1);
@@ -88,7 +83,7 @@ public sealed class ParkingSpotAvailability
 
             if (notAvailableFrom > availableSince)
             {
-                availabilities.Push(CreateValid(availableSince, notAvailableFrom));
+                nonOverlappingAvailabilities.Push(CreateValid(availableSince, notAvailableFrom));
             }
 
             availableSince = notAvailableTo;
@@ -96,9 +91,9 @@ public sealed class ParkingSpotAvailability
 
         if (availableSince < To)
         {
-            availabilities.Push(CreateValid(availableSince, To));
+            nonOverlappingAvailabilities.Push(CreateValid(availableSince, To));
         }
 
-        return availabilities.ToArray();
+        return nonOverlappingAvailabilities.Reverse().ToArray();
     }
 }

@@ -1,6 +1,5 @@
-using Api.Bookings.Common;
+using Api.Common;
 using Api.Common.Infrastructure;
-using Api.Common.Notifications;
 using Domain.ParkingSpots;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +25,7 @@ internal sealed class PushNotification(
         var userIdsToFetch = new[]
         {
             @event.BookingUserId,
-            @event.BookingUserId,
+            @event.OwnerId,
             @event.CancellingUserId
         };
 
@@ -52,8 +51,8 @@ internal sealed class PushNotification(
 
         logger.LogInformation("Pushing booking cancelled notification to user {UserId}", destinationUser.Identity);
 
-        await notificationPushService.PushToUser(
-            destinationUser,
+        await destinationUser.PushNotification(
+            notificationPushService,
             new Notification
             {
                 Title = "Oups !",

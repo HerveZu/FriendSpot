@@ -8,14 +8,14 @@ public sealed record ParkingName
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new BusinessException("Parking.InvalidName", "Parking name cannot be empty");
+            throw new ArgumentException("Parking name cannot be empty", nameof(name));
         }
 
         if (name.Length > MaxLength)
         {
-            throw new BusinessException(
-                "Parking.InvalidName",
-                $"Parking name cannot be longer than {MaxLength} characters, was {name.Length}.");
+            throw new ArgumentException(
+                $"Parking name cannot be longer than {MaxLength} characters, was {name.Length}.",
+                nameof(name));
         }
 
         Name = name;

@@ -9,15 +9,15 @@ namespace Api.Bookings;
 [PublicAPI]
 public sealed record CancelBookingRequest
 {
-    public Guid ParkingLotId { get; init; }
-    public Guid BookingId { get; init; }
+    public required Guid ParkingLotId { get; init; }
+    public required Guid BookingId { get; init; }
 }
 
 internal sealed class CancelBooking(AppDbContext dbContext) : Endpoint<CancelBookingRequest>
 {
     public override void Configure()
     {
-        Post("/spots/bookings/cancel");
+        Post("/spots/booking/cancel");
     }
 
     public override async Task HandleAsync(CancelBookingRequest req, CancellationToken ct)

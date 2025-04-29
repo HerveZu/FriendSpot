@@ -9,7 +9,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{7A5EFF02
 		.gitignore = .gitignore
 		..\docker-compose.dev.yml = ..\docker-compose.dev.yml
 		Dockerfile = Dockerfile
+		..\.github\workflows\dotnet-net.yml = ..\.github\workflows\dotnet-net.yml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Tests", "Api.Tests\Api.Tests.csproj", "{88B49786-10BC-4E1A-8083-CA50DBDB76DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0083A9D9-86CF-449C-859F-983C5B59ECF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Tests", "Domain.Tests\Domain.Tests.csproj", "{08436582-05A0-43B5-94A0-A144D0D7D020}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,5 +32,17 @@ Global
 		{22E82CBC-C270-429E-BC3C-3268D4360E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22E82CBC-C270-429E-BC3C-3268D4360E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22E82CBC-C270-429E-BC3C-3268D4360E24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88B49786-10BC-4E1A-8083-CA50DBDB76DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88B49786-10BC-4E1A-8083-CA50DBDB76DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88B49786-10BC-4E1A-8083-CA50DBDB76DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88B49786-10BC-4E1A-8083-CA50DBDB76DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08436582-05A0-43B5-94A0-A144D0D7D020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08436582-05A0-43B5-94A0-A144D0D7D020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08436582-05A0-43B5-94A0-A144D0D7D020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08436582-05A0-43B5-94A0-A144D0D7D020}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{88B49786-10BC-4E1A-8083-CA50DBDB76DE} = {0083A9D9-86CF-449C-859F-983C5B59ECF2}
+		{08436582-05A0-43B5-94A0-A144D0D7D020} = {0083A9D9-86CF-449C-859F-983C5B59ECF2}
 	EndGlobalSection
 EndGlobal

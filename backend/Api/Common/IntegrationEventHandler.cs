@@ -1,10 +1,9 @@
-using Api.Common;
 using Domain;
 using MediatR;
 using Newtonsoft.Json;
 using Quartz;
 
-namespace Api.Bookings.Common;
+namespace Api.Common;
 
 internal abstract class IntegrationEventHandler<THandler, TEvent>(ISchedulerFactory schedulerFactory)
     : IDomainEventHandler<TEvent>, IJob

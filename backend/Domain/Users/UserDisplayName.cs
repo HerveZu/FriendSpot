@@ -9,12 +9,12 @@ public sealed record UserDisplayName
     {
         if (string.IsNullOrWhiteSpace(displayName))
         {
-            throw new BusinessException("Users.InvalidDisplayName", "Cannot register null or empty display name.");
+            throw new ArgumentException("Cannot register null or empty display name.", nameof(displayName));
         }
 
         if (displayName.Length is < MinLength or > MaxLength)
         {
-            throw new BusinessException("Users.InvalidDisplayName", "Cannot register display name length.");
+            throw new ArgumentException("Cannot register display name length.", nameof(displayName));
         }
 
         DisplayName = displayName;
