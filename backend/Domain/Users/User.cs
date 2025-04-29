@@ -7,6 +7,11 @@ public sealed record UserRegistered : IDomainEvent
     public required string UserId { get; init; }
 }
 
+public sealed record UserMarkedDeleted : IDomainEvent
+{
+    public required string UserId { get; init; }
+}
+
 public sealed class User : IBroadcastEvents
 {
     private readonly DomainEvents _domainEvents = new();
@@ -22,6 +27,7 @@ public sealed class User : IBroadcastEvents
     public UserDisplayName DisplayName { get; private set; }
     public string? PictureUrl { get; private set; }
     public UserRating Rating { get; init; } = null!;
+    public bool IsDeleted { get; private set; }
     public IReadOnlyList<UserDevice> UserDevices => _userDevices.AsReadOnly();
 
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
@@ -40,22 +46,47 @@ public sealed class User : IBroadcastEvents
         PictureUrl = pictureUrl;
     }
 
-    public void AcknowledgeDevice(string id, string? expoToken)
+    public void AcknowledgeDevice(string id, string? expoToken, bool uniquenessNotGuaranteed)
     {
         var device = _userDevices.FirstOrDefault(device => device.DeviceId == id);
 
-        if (device is null)
+        if (device is not null)
         {
-            _userDevices.Add(new UserDevice(id, expoToken));
+            device.UpdatePushToken(expoToken);
             return;
         }
 
-        device.UpdatePushToken(expoToken);
+        // as the device id is not guaranteed to be unique,
+        // there's a risk that an existing device whose id is neither
+        // guaranteed to be unique and represents the same physical device
+
+        // To prevent duplicate devices, we need to remove all potential duplicated devices
+        if (uniquenessNotGuaranteed)
+        {
+            _userDevices.RemoveAll(exitingDevice => exitingDevice.UniquenessNotGuaranteed);
+        }
+
+        _userDevices.Add(new UserDevice(id, expoToken, uniquenessNotGuaranteed));
     }
 
     public void RemoveDevice(string deviceId)
     {
         _userDevices.RemoveAll(device => device.DeviceId == deviceId);
+    }
+
+    public void RemoveAllDevices()
+    {
+        _userDevices.Clear();
+    }
+
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        _domainEvents.Register(
+            new UserMarkedDeleted
+            {
+                UserId = Identity
+            });
     }
 
     public static User Register(string identity, UserDisplayName displayName)
@@ -89,16 +120,20 @@ internal sealed class UserConfig : IEntityConfiguration<User>
             .HasMaxLength(UserDisplayName.MaxLength)
             .HasConversion(x => x.DisplayName, x => new UserDisplayName(x));
         builder.Property(x => x.PictureUrl);
+        builder.Property(x => x.IsDeleted);
         builder.OwnsMany(
             x => x.UserDevices,
             deviceBuilder =>
             {
-                deviceBuilder.HasIndex(x => x.DeviceId).IsUnique();
+                // device id should not be unique as the same device could be used on multiple accounts
                 deviceBuilder.Property(x => x.DeviceId);
+                deviceBuilder.Property(x => x.UniquenessNotGuaranteed);
                 deviceBuilder.Property(x => x.ExpoPushToken);
             });
         builder.OwnsOne(
             x => x.Rating,
             ratingBuilder => { ratingBuilder.Property(x => x.Rating); });
+
+        // we don't filter deleted users as other users might need to see the user's profile
     }
 }

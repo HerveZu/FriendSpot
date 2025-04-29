@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { useApiRequest } from '~/endpoints/use-api-request';
 
 export type UserProfile = {
+  readonly id: string;
   readonly displayName: string;
   readonly pictureUrl: string | null;
   readonly rating: number;

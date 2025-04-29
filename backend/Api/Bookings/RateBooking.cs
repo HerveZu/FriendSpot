@@ -10,16 +10,16 @@ namespace Api.Bookings;
 [PublicAPI]
 public sealed record RateBookingRequest
 {
-    public required Guid ParkingLotId { get; init; }
-    public required Guid BookingId { get; init; }
-    public required Rating UserRating { get; init; }
-
     public enum Rating
     {
         Neutral,
         Bad,
         Good
     }
+
+    public required Guid ParkingLotId { get; init; }
+    public required Guid BookingId { get; init; }
+    public required Rating UserRating { get; init; }
 }
 
 internal sealed class RateBooking(AppDbContext dbContext) : Endpoint<RateBookingRequest>

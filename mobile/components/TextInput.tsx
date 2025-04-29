@@ -1,5 +1,6 @@
 import { forwardRef, ReactNode, useEffect, useRef, useState } from 'react';
 import {
+  Platform,
   TextInput as ReactTextInput,
   TextInputProps as NativeTextInputProps,
   View,
@@ -39,7 +40,6 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
             setFocus(false);
             onBlur && onBlur(e);
           }}
-          value={props.value}
           className={cn(
             'relative min-h-12 rounded-xl border bg-background p-2 text-lg',
             icon?.position === 'left' && 'pl-11',
@@ -49,7 +49,7 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
           placeholderTextColor={colors.grey}
           style={[
             {
-              lineHeight: 0,
+              lineHeight: Platform.select({ ios: 0 }),
               color: colors.foreground,
               borderColor: focus ? colors.primary : colors.card,
             },
@@ -64,7 +64,7 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
               icon.position === 'right' && 'right-0',
               icon.position === 'left' && 'left-0'
             )}>
-            <View className="m-1 my-auto bg-background p-3">{icon.element}</View>
+            <View className="m-1 my-auto rounded-lg bg-background p-3">{icon.element}</View>
           </View>
         )}
       </View>

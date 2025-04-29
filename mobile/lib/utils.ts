@@ -79,3 +79,7 @@ export function fromUtc(date: string | Date): Date {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   return toZonedTime(date, timezone);
 }
+
+export function getRandomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}

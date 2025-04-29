@@ -63,7 +63,9 @@ export function AuthForm({
   error?: string;
   onSubmit: () => Promise<void>;
   submitText: string;
+  disabled?: boolean;
   Illustration?: Illustration;
+  submitCaption?: ReactNode;
   preFilled?: boolean;
   displayForgotPassword?: boolean;
 } & PropsWithChildren) {
@@ -123,6 +125,8 @@ export function AuthForm({
   }, [keyboardVisible]);
 
   return (
+    <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
+      <KeyboardAvoidingView behavior={'padding'}>
     <_AuthFormContext.Provider value={{ touchTrigger, preFilled, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -187,7 +191,10 @@ export function AuthForm({
               <Text className="text-center text-destructive">{props.error}</Text>
               {props.children}
             </View>
+            {props.submitCaption}
             <Button
+              size={'lg'}
+              disabled={props.disabled || !isTouched || inputErrors.length > 0}
               size={Platform.select({ ios: 'lg', default: 'md' })}
               disabled={!isTouched && (!preFilled || inputErrors.length > 0)}
               onPress={() => {

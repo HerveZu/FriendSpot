@@ -8,7 +8,7 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { Loader } from '~/components/Loader';
 import { Screen } from '~/components/Screen';
 import { Text } from '~/components/nativewindui/Text';
-import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
+import { BookingResponse, useGetBooking } from '~/endpoints/booking/get-booking';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { parseDuration, rgbToHex } from '~/lib/utils';

@@ -23,6 +23,7 @@ public sealed class ParkingSpotBooking
     public TimeSpan Duration => To - From;
     public BookRating? Rating { get; private set; }
     public Credits Cost => new((decimal)Duration.TotalHours);
+    public bool IsActiveNow => To > DateTimeOffset.Now;
 
     public static ParkingSpotBooking New(string bookingUserId, DateTimeOffset from, TimeSpan duration)
     {
@@ -43,11 +44,11 @@ public sealed class ParkingSpotBooking
     public bool CanCancel(string userId)
     {
         var now = DateTimeOffset.UtcNow;
+        var hasAlreadyEnded = To < now;
 
-        if (To < now)
+        if (hasAlreadyEnded)
         {
-            // we don't mind cancelling a booking from the past
-            return true;
+            return false;
         }
 
         var frozenFor = userId == BookingUserId
@@ -57,6 +58,11 @@ public sealed class ParkingSpotBooking
         var bookingIsActiveIn = From - now;
 
         return bookingIsActiveIn > frozenFor;
+    }
+
+    public bool Overlaps(DateTimeOffset from, DateTimeOffset to)
+    {
+        return From <= to && from <= To;
     }
 
     internal void Rate(BookRating rating)

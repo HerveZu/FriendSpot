@@ -9,18 +9,21 @@ import React, { useEffect, useRef, useState } from 'react';
 type DisplayUser = {
   displayName: string;
   pictureUrl?: string | null;
+  fontSize?: number;
 };
 
 const MAX_USERS = 3;
 
 export function Users(props: { users: DisplayUser[] }) {
+  const displayedUsers = props.users.slice(0, MAX_USERS);
+
   return (
     <View className={'flex-row'}>
-      {props.users.slice(0, MAX_USERS).map((user, i) => (
+      {displayedUsers.map((user, i) => (
         <UserAvatar
           className={'-ml-4 h-8 w-8'}
           style={{
-            zIndex: 50 + i,
+            zIndex: 50 + displayedUsers.length - i,
           }}
           key={i}
           displayName={user.displayName}
@@ -79,22 +82,26 @@ export function UserAvatar({ displayName, pictureUrl, ...props }: UserAvatarProp
           onLoadEnd={() => setLoading(false)}
           source={{ uri: pictureUrl ?? undefined }}
         />
-        <AvatarFallback>
-          <Text>{userInitials.join('')}</Text>
+        <AvatarFallback className={'bg-card'}>
+          <Text
+            className={cn(!props.fontSize ? 'text-sm' : 'text-4xl')}
+            style={{ fontSize: props.fontSize }}>
+            {userInitials.join('')}
+          </Text>
         </AvatarFallback>
       </Avatar>
     </View>
   );
 }
 
-export function MeAvatar(props: ViewProps) {
+export function MeAvatar(props: Omit<UserAvatarProps, 'displayName'>) {
   const { userProfile } = useCurrentUser();
 
   return (
     <UserAvatar
+      {...props}
       displayName={userProfile.displayName}
       pictureUrl={userProfile.pictureUrl}
-      {...props}
     />
   );
 }

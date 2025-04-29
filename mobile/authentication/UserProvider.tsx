@@ -1,4 +1,4 @@
-import { updateProfile, User } from 'firebase/auth';
+import { getAuth, signOut, updateProfile, User } from 'firebase/auth';
 import {
   createContext,
   PropsWithChildren,
@@ -10,8 +10,8 @@ import {
 
 import { useAuth } from '~/authentication/AuthProvider';
 import { Loader } from '~/components/Loader';
-import { useGetProfile, UserProfile } from '~/endpoints/get-profile';
-import { useRegisterUser } from '~/endpoints/register-user';
+import { useGetProfile, UserProfile } from '~/endpoints/me/get-profile';
+import { useRegisterUser } from '~/endpoints/me/register-user';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { useNotification } from '~/notification/NotificationContext';
 import { useDeviceId } from '~/lib/use-device-id';
@@ -47,7 +47,7 @@ export function UserProvider(props: PropsWithChildren) {
   const [registerTrigger, setRegisterTrigger] = useState({});
 
   const { expoPushToken } = useNotification();
-  const deviceId = useDeviceId();
+  const { deviceId, uniquenessNotGuaranteed } = useDeviceId();
 
   const updateInternalProfile = useCallback(
     async (photoURL: string | null | undefined, displayName: string) => {
@@ -76,6 +76,7 @@ export function UserProvider(props: PropsWithChildren) {
   useEffect(() => {
     if (REGISTER_ATTEMPT_COUNT > 5) {
       console.error('Max register attempt count reach');
+      signOut(getAuth()).then();
       return;
     }
 
@@ -98,15 +99,12 @@ export function UserProvider(props: PropsWithChildren) {
       device: {
         id: deviceId,
         expoPushToken: expoPushToken,
+        uniquenessNotGuaranteed: uniquenessNotGuaranteed,
       },
     })
       .then(() => getProfile().then(setUserProfile))
       .then(() => (REGISTER_ATTEMPT_COUNT = 0));
   }, [registerTrigger, deviceId, internalFirebaseUser, expoPushToken]);
-
-  useEffect(() => {
-    refreshProfile().then();
-  }, [stateTrigger]);
 
   useEffect(() => {
     if (userProfile) {
@@ -119,6 +117,10 @@ export function UserProvider(props: PropsWithChildren) {
       .then(setUserProfile)
       .then(() => setRefreshTrigger({}));
   }, [getProfile, setUserProfile]);
+
+  useEffect(() => {
+    refreshProfile().then();
+  }, [refreshProfile, stateTrigger]);
 
   return userProfile ? (
     <_UserProfileContext.Provider

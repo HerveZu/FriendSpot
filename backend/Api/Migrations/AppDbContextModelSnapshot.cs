@@ -471,6 +471,9 @@ namespace Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Disabled")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("OwnerId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -512,7 +515,13 @@ namespace Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Parking");
                 });
@@ -526,6 +535,9 @@ namespace Api.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("PictureUrl")
                         .HasColumnType("text");
@@ -688,6 +700,15 @@ namespace Api.Migrations
                     b.Navigation("Bookings");
                 });
 
+            modelBuilder.Entity("Domain.Parkings.Parking", b =>
+                {
+                    b.HasOne("Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Users.User", b =>
                 {
                     b.OwnsMany("Domain.Users.UserDevice", "UserDevices", b1 =>
@@ -708,10 +729,10 @@ namespace Api.Migrations
                             b1.Property<string>("ExpoPushToken")
                                 .HasColumnType("text");
 
-                            b1.HasKey("UserIdentity", "Id");
+                            b1.Property<bool>("UniquenessNotGuaranteed")
+                                .HasColumnType("boolean");
 
-                            b1.HasIndex("DeviceId")
-                                .IsUnique();
+                            b1.HasKey("UserIdentity", "Id");
 
                             b1.ToTable("UserDevice");
 

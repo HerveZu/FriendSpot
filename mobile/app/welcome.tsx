@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
 import React from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Logo from '~/assets/logo.svg';
@@ -24,16 +24,13 @@ export default function WelcomeScreen() {
         <View className="flex-grow-2 w-full items-center gap-6">
           <View className="flex w-full flex-col items-center gap-4 p-4">
             <Link href="/signIn/login" asChild>
-              <Button className="w-full" size={Platform.select({ ios: 'lg', default: 'md' })}>
-                <Text>Se connecter</Text>
+              <Button className="w-full" size={'lg'}>
+                <Text className={'w-full text-center'}>Se connecter</Text>
               </Button>
             </Link>
             <Link href="/signUp/step-one" asChild>
-              <Button
-                className="w-full"
-                variant="secondary"
-                size={Platform.select({ ios: 'lg', default: 'md' })}>
-                <Text>Créer un compte</Text>
+              <Button className="w-full" variant="secondary" size={'lg'}>
+                <Text className={'w-full text-center'}>Créer un compte</Text>
               </Button>
             </Link>
           </View>

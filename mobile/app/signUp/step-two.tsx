@@ -1,7 +1,7 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile, User, onAuthStateChanged } from 'firebase/auth';
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View } from 'react-native';
+import { createUserWithEmailAndPassword, updateProfile, User} from 'firebase/auth';
+import React, { useState } from 'react';
+import { SafeAreaView, View } from 'react-native';
 import stepTwoIllustration from '~/assets/security.svg';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { sendEmailVerification} from "firebase/auth";
@@ -9,6 +9,9 @@ import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthFor
 import { firebaseAuth } from '~/authentication/firebase';
 import { notEmpty } from '~/lib/utils';
 import { Button } from '~/components/nativewindui/Button';
+import { ExternalLink } from '~/components/ExternalLink';
+import { Checkbox } from '~/components/Checkbox';
+import { Text } from '~/components/nativewindui/Text';
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;
@@ -18,6 +21,7 @@ export default function StepTwoScreen() {
   const [password, setPassword] = useState<string>();
   const [passwordConfirm, setPasswordConfirm] = useState<string>();
   const [error, setError] = useState<string>();
+  const [userHasConfirmed, setUserHasConfirmed] = useState(false);
   const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
@@ -83,8 +87,24 @@ export default function StepTwoScreen() {
         Illustration={stepTwoIllustration}
         error={error}
         title={<AuthFormTitle title="Créer un compte" />}
+        disabled={!userHasConfirmed}
         onSubmit={createAccount}
-        submitText="S'inscrire">
+        submitText="S'inscrire"
+        submitCaption={
+          <View className={'w-full flex-row items-center gap-4'}>
+            <Checkbox value={userHasConfirmed} onValueChange={setUserHasConfirmed} />
+            <Text variant={'caption1'}>
+              Je confirme avoir lu et accepter{' '}
+              <ExternalLink
+                url={process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL ?? ''}
+                variant={'caption1'}
+                className={'break-words text-primary'}>
+                notre politique de confidentialité
+              </ExternalLink>
+              .
+            </Text>
+          </View>
+        }>
         <AuthFormInput
           value={password}
           onValueChange={setPassword}

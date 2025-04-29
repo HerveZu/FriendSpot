@@ -1,6 +1,6 @@
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import Slider from '@react-native-community/slider';
+import { Slider } from '~/components/nativewindui/Slider';
 import QuestionIllustration from 'assets/question.svg';
 import {
   addHours,
@@ -17,13 +17,13 @@ import {
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, SafeAreaView, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
-import { Card } from '~/components/Card';
+import { Card, CardContainer } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
@@ -39,11 +39,11 @@ import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
-import { useBookSpot } from '~/endpoints/book-spot';
-import { useCancelBooking } from '~/endpoints/cancel-spot-booking';
-import { AvailableSpot, useGetAvailableSpots } from '~/endpoints/get-available-spots';
-import { BookingResponse, useGetBooking } from '~/endpoints/get-booking';
-import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/get-suggested-spots';
+import { useBookSpot } from '~/endpoints/booking/book-spot';
+import { useCancelBooking } from '~/endpoints/booking/cancel-spot-booking';
+import { AvailableSpot, useGetAvailableSpots } from '~/endpoints/booking/get-available-spots';
+import { BookingResponse, useGetBooking } from '~/endpoints/booking/get-booking';
+import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/booking/get-suggested-spots';
 import { cn } from '~/lib/cn';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -51,7 +51,7 @@ import { useFetch, useLoading } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
-import SuccessIllustration from 'assets/succes.svg';
+import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 import { pluralize } from '~/lib/locale';
 
@@ -110,7 +110,7 @@ export default function SearchSpotScreen() {
       <View className="flex-row justify-between">
         <ScreenTitle title="Réserve un spot">
           <Button
-            className={'h-full'}
+            className={'h-16'}
             variant={'primary'}
             disabled={booking?.bookings.length === 0}
             onPress={() => setBookingListSheetOpen(true)}>
@@ -418,7 +418,7 @@ function BookingSheet(props: {
       ref={ref}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpen(false)}
-      snapPoints={[650]}>
+      snapPoints={[700]}>
       <BottomSheetView>
         <SafeAreaView>
           <ContentSheetView className="h-full flex-col gap-8">
@@ -436,21 +436,19 @@ function BookingSheet(props: {
                   </Text>
                 </View>
               ) : (
-                <ScrollView className={'h-24 p-1'}>
-                  <View className="grow flex-col gap-2">
-                    {spots
-                      .sort((a, b) => a.owner.rating - b.owner.rating)
-                      .reverse()
-                      .map((spot, i) => (
-                        <AvailableSpotCard
-                          key={i}
-                          spot={spot}
-                          selectedSpot={selectedSpot}
-                          onSelect={() => setSelectedSpot(spot)}
-                        />
-                      ))}
-                  </View>
-                </ScrollView>
+                <CardContainer>
+                  {spots
+                    .sort((a, b) => a.owner.rating - b.owner.rating)
+                    .reverse()
+                    .map((spot, i) => (
+                      <AvailableSpotCard
+                        key={i}
+                        spot={spot}
+                        selectedSpot={selectedSpot}
+                        onSelect={() => setSelectedSpot(spot)}
+                      />
+                    ))}
+                </CardContainer>
               )}
             </View>
             <View className="flex-col items-center justify-between gap-2">
@@ -460,6 +458,8 @@ function BookingSheet(props: {
                   minimumDate={justAfterNow}
                   value={from}
                   mode="datetime"
+                  materialTimeClassName={'w-24'}
+                  materialDateClassName={'w-32'}
                   onChange={(ev) => {
                     const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
                     setFrom(from);
@@ -473,6 +473,8 @@ function BookingSheet(props: {
                   minimumDate={minTo(from)}
                   value={to}
                   mode="datetime"
+                  materialTimeClassName={'w-24'}
+                  materialDateClassName={'w-32'}
                   onChange={(ev) => {
                     const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
                     setTo(to);
@@ -481,10 +483,18 @@ function BookingSheet(props: {
                 />
               </View>
             </View>
-            <View className="flex-col justify-between">
+            <View className="flex-col justify-between gap-2">
               <View className="flex-row items-center gap-2">
-                <ThemedIcon component={FontAwesome6} name="clock" size={18} />
-                <Text variant="heading">
+                <ThemedIcon
+                  component={FontAwesome6}
+                  name="clock"
+                  size={Platform.select({ ios: 18, android: 14 })}
+                />
+                <Text
+                  className={cn(
+                    'font-semibold',
+                    Platform.select({ ios: 'text-lg', android: 'text-md' })
+                  )}>
                   {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
                 </Text>
               </View>
@@ -526,11 +536,7 @@ function BookingSheet(props: {
 
     return (
       <Pressable onPress={props.onSelect}>
-        <View
-          className={cn(
-            'flex-row items-center justify-between rounded-lg bg-background p-4',
-            selected && '-m-[1px] border border-primary'
-          )}>
+        <Card highlight={selected} className={'flex-row items-center justify-between'}>
           <User
             displayName={props.spot.owner.displayName}
             pictureUrl={props.spot.owner.pictureUrl}
@@ -541,7 +547,7 @@ function BookingSheet(props: {
             className="grow-0"
             color={colors.primary}
           />
-        </View>
+        </Card>
       </Pressable>
     );
   }

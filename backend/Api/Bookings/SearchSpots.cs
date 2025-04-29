@@ -5,7 +5,6 @@ using Domain.Users;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Bookings;
@@ -13,10 +12,7 @@ namespace Api.Bookings;
 [PublicAPI]
 public sealed record SearchSpotsRequest
 {
-    [FromQuery]
     public required DateTimeOffset From { get; init; }
-
-    [FromQuery]
     public required DateTimeOffset To { get; init; }
 }
 
@@ -35,7 +31,7 @@ public sealed record SearchSpotsResponse
         public sealed record SpotOwner
         {
             public required string DisplayName { get; init; }
-            public required string PictureUrl { get; init; }
+            public required string? PictureUrl { get; init; }
             public required decimal Rating { get; init; }
         }
     }
@@ -72,6 +68,7 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
 
         var availableSpots = await (
                 from parkingLot in dbContext.Set<ParkingSpot>()
+                where !parkingLot.Disabled
                 where parkingLot.OwnerId != currentUser.Identity
                 where parkingLot.ParkingId == parkingSpot.ParkingId
                 join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity

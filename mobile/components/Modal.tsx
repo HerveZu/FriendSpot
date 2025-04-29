@@ -27,6 +27,23 @@ export function Modal({
   }
   
   return (
+    // this extra View makes it display properly on Android devices
+    <>
+    <View>
+      <ReactModal
+        isVisible={open}
+        onBackdropPress={() => onOpenChange(false)}
+        // this removes the flickering on exit
+        backdropTransitionOutTiming={1}>
+        <SafeAreaView>
+          <View className={'bg-background'} {...props}>
+            <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
+              {children}
+            </View>
+          </View>
+        </SafeAreaView>
+      </ReactModal>
+    </View>
     <ReactModal
       isVisible={open}
       onBackdropPress={() => {
@@ -44,6 +61,7 @@ export function Modal({
         </View>
       </SafeAreaView>
     </ReactModal>
+    </>
   );
 }
 

@@ -8,6 +8,7 @@ type RegisterUserRequest = {
   readonly device: {
     readonly id: string;
     readonly expoPushToken: string | null;
+    readonly uniquenessNotGuaranteed?: boolean;
   };
 };
 
