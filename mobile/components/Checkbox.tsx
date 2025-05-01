@@ -5,6 +5,7 @@ import { omitUndefined } from '~/lib/utils';
 
 export function Checkbox({ style, color, ...props }: CheckboxProps) {
   const { colors } = useColorScheme();
+  const checkedColor = color ?? colors.primary;
 
   return (
     <ReactCheckbox
@@ -15,7 +16,7 @@ export function Checkbox({ style, color, ...props }: CheckboxProps) {
         },
         omitUndefined(style),
       ]}
-      color={color ?? colors.primary}
+      color={props.value ? checkedColor : colors.foreground}
       {...props}
     />
   );
