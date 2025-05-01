@@ -258,7 +258,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   const INITIAL_FROM_MARGIN_MINUTES = 15;
   const INITIAL_DURATION_HOURS = 2;
 
-  const now = new Date();
+  const now = useActualTime(60_000);
   const { refreshProfile } = useCurrentUser();
   const { colors } = useColorScheme();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
