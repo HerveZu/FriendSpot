@@ -1,11 +1,17 @@
 import { Text } from '~/components/nativewindui/Text';
-import { SafeAreaView, View, ViewProps, Vibration } from 'react-native';
+import { SafeAreaView, Vibration, View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
 import { useRouter } from 'expo-router';
 
+export type ModalProps = {
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+  backdropRedirect?: string;
+  vibration?: boolean;
+} & ViewProps;
 
 export function Modal({
   open,
@@ -15,25 +21,43 @@ export function Modal({
   backdropRedirect,
   vibration = false,
   ...props
-}: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>>, backdropRedirect?: string, vibration?: boolean } & ViewProps) {
-  const router = useRouter()
+}: ModalProps) {
+  const router = useRouter();
 
   function triggerVibration() {
-    Vibration.vibrate(100)
+    Vibration.vibrate(100);
   }
 
   if (vibration) {
     triggerVibration();
   }
-  
+
   return (
     // this extra View makes it display properly on Android devices
     <>
-    <View>
+      <View>
+        <ReactModal
+          isVisible={open}
+          onBackdropPress={() => onOpenChange(false)}
+          // this removes the flickering on exit
+          backdropTransitionOutTiming={1}>
+          <SafeAreaView>
+            <View className={'bg-background'} {...props}>
+              <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
+                {children}
+              </View>
+            </View>
+          </SafeAreaView>
+        </ReactModal>
+      </View>
       <ReactModal
         isVisible={open}
-        onBackdropPress={() => onOpenChange(false)}
-        // this removes the flickering on exit
+        onBackdropPress={() => {
+          if (backdropRedirect) {
+            router.push(backdropRedirect as any);
+          }
+          onOpenChange(false);
+        }}
         backdropTransitionOutTiming={1}>
         <SafeAreaView>
           <View className={'bg-background'} {...props}>
@@ -43,24 +67,6 @@ export function Modal({
           </View>
         </SafeAreaView>
       </ReactModal>
-    </View>
-    <ReactModal
-      isVisible={open}
-      onBackdropPress={() => {
-        if (backdropRedirect) {
-          router.push(backdropRedirect as any);
-        }
-        onOpenChange(false);
-      }}
-      backdropTransitionOutTiming={1}>
-      <SafeAreaView>
-        <View className={'bg-background'} {...props}>
-          <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
-            {children}
-          </View>
-        </View>
-      </SafeAreaView>
-    </ReactModal>
     </>
   );
 }
