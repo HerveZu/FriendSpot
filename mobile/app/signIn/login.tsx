@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, Pressable } from 'react-native';
+import { SafeAreaView, View, Text, Pressable, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams, } from 'expo-router';
-import { getAuth, signInWithEmailAndPassword} from 'firebase/auth';
+import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword} from 'firebase/auth';
 import { isEmail } from 'validator';
 import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
 import { notEmpty } from '~/lib/utils';
@@ -10,6 +10,7 @@ import { firebaseAuth } from '~/authentication/firebase';
 import { Modal } from '~/components/Modal';
 import { ModalTitle } from '~/components/Modal';
 import { sendEmailVerification} from "firebase/auth";
+import { Button } from '~/components/nativewindui/Button';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>(
@@ -19,7 +20,7 @@ export default function LoginScreen() {
     useLocalSearchParams<{ password: string }>().password || ''
   );
   const [error, setError] = useState<string>();
-  const [isOpen, setIsOpen] = useState(false)
+  const [isModalConfirmEmailOpen, setIsModalConfirmEmail] = useState(false)
   const [isPreFilled, setIsPreFilled] = useState(false)
   const auth = getAuth();
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function LoginScreen() {
   }, []);
 
   async function sendEmail() {
-    setIsOpen(false);
+    setIsModalConfirmEmail(false);
     const currentUser = firebaseAuth.currentUser;
     if (!currentUser) {
       return;
@@ -50,14 +51,14 @@ export default function LoginScreen() {
       const { user } = await signInWithEmailAndPassword(auth, email!, password!);
       if (!user.emailVerified) {
         setTimeout(() => {
-          setIsOpen(true);
+          setIsModalConfirmEmail(true);
           setError('');
         }, 300);
         return;
       } else {
         router.push('/my-spot');
         setError('');
-        setIsOpen(false);
+        setIsModalConfirmEmail(false);
         setIsPreFilled(false);
       }
     }
@@ -72,8 +73,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {isOpen && (
-        <Modal open={isOpen} onOpenChange={setIsOpen}>
+        <Modal open={isModalConfirmEmailOpen} onOpenChange={setIsModalConfirmEmail}>
             <ModalTitle text='Vérifie ta boîte mail !'/>
             <View className='gap-4'>
                 <Text className='text-foreground text-base'>
@@ -87,15 +87,13 @@ export default function LoginScreen() {
                   </View>
             </View>
         </Modal>
-      )}
       <AuthForm
         Illustration={LoginIllustration}
         title={<AuthFormTitle title="Se connecter" />}
         error={error}
         onSubmit={() => handleSubmit()}
         submitText="Se connecter"
-        preFilled={isPreFilled}
-        displayForgotPassword={true}>
+        autoTouch={isPreFilled}>
         <AuthFormInput
           value={email}
           onValueChange={(value) => setEmail(value || '')}
@@ -124,7 +122,68 @@ export default function LoginScreen() {
             },
           ]}
         />
+          <Pressable className="flex-row justify-center" onPress={() => setIsOpen(true)}>
+            <Text variant="footnote" className="text-foreground">
+              Mot de passe oublié ?
+            </Text>
+          </Pressable>
       </AuthForm>
     </SafeAreaView>
   );
 }
+
+function ResetPassordModal() {
+
+  const [isOpen, setIsOpen] = useState(false)
+  const auth = getAuth();
+
+  const [email, setEmail] = useState<string>()
+   const [resetEmailStatus, setResetEmailStatus] = useState('Envoyer');
+
+   async function resetPassword(email: string) {
+      try {
+        setResetEmailStatus('Envoie en cours..');
+        await sendPasswordResetEmail(auth, email)
+        setResetEmailStatus('Un email a été envoyé');
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+  return (
+    <Modal open={isOpen} onOpenChange={setIsOpen} className='gap-4'>
+          <ModalTitle text='Entre ton adresse e-mail'/>
+          <View className='flex-row items-center '>
+              <Text className='text-foreground text-sm'>On t’enverra un lien pour réinitialiser ton mot de passe. Assure-toi que l’adresse est valide.</Text>
+          </View>
+          <AuthFormInput
+            value={email}
+            onValueChange={(value) => setEmail(value || '')}
+            placeholder="Adresse email"
+            inputMode="email"
+            autoCapitalize="none"
+            keyboardType="email-address"                      
+            validators={[
+              {
+                validate: (email) => !email || isEmail(email),
+                message: "L'adresse e-mail n'est pas valide",
+              },
+              {
+                validate: notEmpty,
+              },
+            ]}
+          />
+          <Button
+            size={Platform.select({ default: 'md' })}
+            disabled={!isTouched && (!autoTouch || inputErrors.length > 0)}
+            onPress={() => email && resetPassword(email)}
+            variant="primary"
+            className="w-full">
+            {pendingAction && <ActivityIndicator color={colors.foreground} />}
+            <Text>{resetEmailStatus}</Text>
+          </Button>
+    </Modal>
+  )
+}
+
+

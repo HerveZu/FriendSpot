@@ -38,7 +38,7 @@ type AuthFormContext = {
   touch: () => void;
   isSubmitted: boolean;
   touchTrigger: object;
-  preFilled: boolean;
+  autoTouch: boolean;
   displayForgotPassword?: boolean;
 };
 
@@ -55,8 +55,7 @@ interface Illustration {
 
 export function AuthForm({
   Illustration,
-  preFilled = false,
-  displayForgotPassword = false,
+  autoTouch = false,
   ...props
 }: {
   title: ReactNode;
@@ -66,36 +65,16 @@ export function AuthForm({
   disabled?: boolean;
   Illustration?: Illustration;
   submitCaption?: ReactNode;
-  preFilled?: boolean;
-  displayForgotPassword?: boolean;
+  autoTouch?: boolean;
 } & PropsWithChildren) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
-  const [isTouched, setIsTouched] = useState(false);
+  const [isTouched, setIsTouched] = useState(autoTouch);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [pendingAction, setPendingAction] = useState(false);
   const [touchTrigger, setTouchTrigger] = useState({});
-  const [isOpen, setIsOpen] = useState(false)
-  const [email, setEmail] = useState<string>('')
-  const auth = getAuth();
+
   const { colors } = useColorScheme();
-  const [resetEmailStatus, setResetEmailStatus] = useState('Envoyer');
-
-  async function handleSubmit() {
-    try {
-      await sendPasswordResetEmail(auth, email)
-      setPendingAction(true)
-      setResetEmailStatus('Envoie en cours..');
-      setTimeout(() => {
-        setIsOpen(false);
-        setEmail('')
-        setPendingAction(false)
-        setResetEmailStatus('Envoyer');
-      }, 500);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
+ 
   const error = useCallback( 
     (id: string, error: boolean) => {
       if (error) {
@@ -125,54 +104,15 @@ export function AuthForm({
   }, [keyboardVisible]);
 
   return (
-    <_AuthFormContext.Provider value={{ touchTrigger, isSubmitted, touch, error }}>
+    <_AuthFormContext.Provider value={{ touchTrigger, autoTouch, isSubmitted, touch, error }}>
       <KeyboardAvoidingView behavior={'padding'}>
-    <_AuthFormContext.Provider value={{ touchTrigger, preFilled, isSubmitted, touch, error }}>
-      <KeyboardAvoidingView behavior={'height'}>
+        <KeyboardAvoidingView behavior={'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <Screen className="relative flex h-full flex-col justify-between gap-12">
             <View className="relative w-full flex-row items-center justify-center">
               <BackButton className="absolute left-0" />
               <View className="self-center">{props.title}</View>
             </View>
-
-            {isOpen && (
-              <>
-                <Modal open={isOpen} onOpenChange={setIsOpen} className='gap-4'>
-                  <ModalTitle text='Entre ton adresse e-mail'/>
-                  <View className='flex-row items-center '>
-                      <Text className='text-foreground text-sm'>On t’enverra un lien pour réinitialiser ton mot de passe. Assure-toi que l’adresse est valide.</Text>
-                  </View>
-                  <AuthFormInput
-                    value={email}
-                    onValueChange={(value) => setEmail(value || '')}
-                    placeholder="Adresse email"
-                    inputMode="email"
-                    autoCapitalize="none"
-                    keyboardType="email-address"                      
-                    validators={[
-                      {
-                        validate: (email) => !email || isEmail(email),
-                        message: "L'adresse e-mail n'est pas valide",
-                      },
-                      {
-                        validate: notEmpty,
-                      },
-                    ]}
-                  />
-                  <Button
-                    size={Platform.select({ default: 'md' })}
-                    disabled={!isTouched && (!preFilled || inputErrors.length > 0)}
-                    onPress={() => handleSubmit()}
-                    variant="primary"
-                    className="w-full">
-                    {pendingAction && <ActivityIndicator color={colors.foreground} />}
-                    <Text>{resetEmailStatus}</Text>
-                  </Button>
-                </Modal>
-                </>
-            )}
-
             <Animated.View
               className="mx-auto"
               style={{
@@ -193,10 +133,8 @@ export function AuthForm({
             </View>
             {props.submitCaption}
             <Button
-              size={'lg'}
-              disabled={props.disabled || !isTouched || inputErrors.length > 0}
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              disabled={!isTouched && (!preFilled || inputErrors.length > 0)}
+              disabled={props.disabled || !isTouched || inputErrors.length > 0}
               onPress={() => {
                 setPendingAction(true);
                 setIsSubmitted(true);
@@ -208,15 +146,9 @@ export function AuthForm({
               {pendingAction && <ActivityIndicator color={colors.foreground} />}
               <Text>{props.submitText}</Text>
             </Button>
-              {displayForgotPassword && (
-                <Pressable className="flex-row justify-center" onPress={() => setIsOpen(true)}>
-                  <Text variant="footnote" className="text-foreground">
-                    Mot de passe oublié ?
-                  </Text>
-                </Pressable>
-              )}
           </Screen>
         </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </KeyboardAvoidingView>
     </_AuthFormContext.Provider>
   );
