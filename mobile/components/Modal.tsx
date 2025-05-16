@@ -2,10 +2,8 @@ import { Text } from '~/components/nativewindui/Text';
 import { Vibration, View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { useRouter } from 'expo-router';
 
 export type ModalProps = {
   open: boolean;
@@ -23,15 +21,11 @@ export function Modal({
   vibration = false,
   ...props
 }: ModalProps) {
-  const router = useRouter();
-
-  function triggerVibration() {
-    Vibration.vibrate(100);
-  }
-
-  if (vibration) {
-    triggerVibration();
-  }
+  useEffect(() => {
+    if (vibration) {
+      Vibration.vibrate(100);
+    }
+  }, [vibration, open]);
 
   return (
     // this extra View makes it display properly on Android devices
@@ -42,7 +36,7 @@ export function Modal({
           onBackdropPress={() => onOpenChange(false)}
           // this removes the flickering on exit
           backdropTransitionOutTiming={1}>
-          <SafeAreaView>
+          <SafeAreaView style={{ flex: 1 }}>
             <View className={'bg-background'} {...props}>
               <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
                 {children}
@@ -51,23 +45,6 @@ export function Modal({
           </SafeAreaView>
         </ReactModal>
       </View>
-      <ReactModal
-        isVisible={open}
-        onBackdropPress={() => {
-          if (backdropRedirect) {
-            router.push(backdropRedirect as any);
-          }
-          onOpenChange(false);
-        }}
-        backdropTransitionOutTiming={1}>
-        <SafeAreaView>
-          <View className={'bg-background'} {...props}>
-            <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
-              {children}
-            </View>
-          </View>
-        </SafeAreaView>
-      </ReactModal>
     </>
   );
 }

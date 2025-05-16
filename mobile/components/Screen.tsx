@@ -18,6 +18,7 @@ import {
   View,
   ViewProps,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
@@ -26,7 +27,6 @@ import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { BlurView } from '@react-native-community/blur';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -63,46 +63,46 @@ export function ScreenWithHeader(
   }
 
   return (
-    <HeaderContext.Provider value={{ hideHeader, headerText, setHeaderText }}>
-      <Animated.View
-        className={cn(
-          'pt-safe-offset-0 absolute left-0 right-0 top-0 z-50 h-32 bg-transparent backdrop-blur-3xl'
-        )}
-        style={{
-          opacity: fadeOpacity,
-        }}>
-        {Platform.OS === 'ios' ? (
-          <BlurView
-            blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
-            blurAmount={5}
-            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-          />
-        ) : (
-          <View
-            className={'bg-card/90'}
-            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-          />
-        )}
-        <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
-          {headerText}
-        </Text>
-      </Animated.View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <HeaderContext.Provider value={{ hideHeader, headerText, setHeaderText }}>
+        <Animated.View
+          className={cn(
+            'pt-safe-offset-0 absolute left-0 right-0 top-0 z-50 h-32 bg-transparent backdrop-blur-3xl'
+          )}
+          style={{
+            opacity: fadeOpacity,
+          }}>
+          {Platform.OS === 'ios' ? (
+            <BlurView
+              blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
+              blurAmount={5}
+              style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
+          ) : (
+            <View
+              className={'bg-card/90'}
+              style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
+          )}
+          <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
+            {headerText}
+          </Text>
+        </Animated.View>
 
-      <>
-        <LinearGradient
-          colors={[colors.primary, 'darkblue']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.9 }}
-        />
-        <LinearGradient
-          colors={['transparent', colors.background]}
-          locations={[0, 0.35]}
-          style={{ height: '100%', width: '100%', position: 'absolute' }}
-        />
-      </>
+        <>
+          <LinearGradient
+            colors={[colors.primary, 'darkblue']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.9 }}
+          />
+          <LinearGradient
+            colors={['transparent', colors.background]}
+            locations={[0, 0.35]}
+            style={{ height: '100%', width: '100%', position: 'absolute' }}
+          />
+        </>
 
-      <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
           <KeyboardAwareScrollView
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshScreen} />}
@@ -117,13 +117,13 @@ export function ScreenWithHeader(
             </Screen>
           </KeyboardAwareScrollView>
           {props.stickyBottom && (
-            <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
+            <View className={'absolute bottom-0 left-0 right-0 bg-background px-6 pt-0'}>
               {props.stickyBottom}
             </View>
           )}
         </KeyboardAvoidingView>
-      </SafeAreaView>
-    </HeaderContext.Provider>
+      </HeaderContext.Provider>
+    </SafeAreaView>
   );
 }
 
