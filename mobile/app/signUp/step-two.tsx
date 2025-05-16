@@ -66,7 +66,7 @@ export default function StepTwoScreen() {
         <Modal
           open={isModalVisible}
           onOpenChange={setIsModalVisible}
-          backdropRedirect="/welcome"
+          onBackdropPress={() => router.push({pathname: '/welcome'})}
           vibration={true}>
           <ModalTitle text={'Presque terminé !'} />
           <View className="gap-4">

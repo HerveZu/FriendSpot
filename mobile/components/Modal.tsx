@@ -3,12 +3,11 @@ import { Vibration, View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
 import { Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export type ModalProps = {
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
-  backdropRedirect?: string;
+  onBackdropPress?: () => void;
   vibration?: boolean;
 } & ViewProps;
 
@@ -17,7 +16,7 @@ export function Modal({
   onOpenChange,
   className,
   children,
-  backdropRedirect,
+  onBackdropPress,
   vibration = false,
   ...props
 }: ModalProps) {
@@ -36,13 +35,11 @@ export function Modal({
           onBackdropPress={() => onOpenChange(false)}
           // this removes the flickering on exit
           backdropTransitionOutTiming={1}>
-          <SafeAreaView style={{ flex: 1 }}>
-            <View className={'bg-background'} {...props}>
-              <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
-                {children}
-              </View>
+          <View className={'bg-background'} {...props}>
+            <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
+              {children}
             </View>
-          </SafeAreaView>
+          </View>
         </ReactModal>
       </View>
     </>
