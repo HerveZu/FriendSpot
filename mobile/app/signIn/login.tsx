@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, SafeAreaView, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   getAuth,
@@ -14,7 +14,7 @@ import { firebaseAuth } from '~/authentication/firebase';
 import { Modal, ModalProps, ModalTitle } from '~/components/Modal';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { Form, FormContext } from '~/form/FormContext';
+import { Form, FormContext } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
@@ -60,7 +60,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <>
       <MailConfirmationPendingModal
         open={isPendingMailModalOpen}
         onOpenChange={setIsPendingMailModalOpen}
@@ -101,7 +101,7 @@ export default function LoginScreen() {
           </Text>
         </Pressable>
       </AuthForm>
-    </SafeAreaView>
+    </>
   );
 }
 

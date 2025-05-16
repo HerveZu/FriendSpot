@@ -17,7 +17,7 @@ import {
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, SafeAreaView, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -420,108 +420,106 @@ function BookingSheet(props: {
       onDismiss={() => props.onOpen(false)}
       snapPoints={[700]}>
       <BottomSheetView>
-        <SafeAreaView>
-          <ContentSheetView className="h-full flex-col gap-8">
-            <View className="grow flex-col gap-6">
-              <View className="flex-row items-center gap-4">
-                <ThemedIcon name="calendar" size={22} />
-                <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
-              </View>
+        <ContentSheetView className="h-full flex-col gap-8">
+          <View className="grow flex-col gap-6">
+            <View className="flex-row items-center gap-4">
+              <ThemedIcon name="calendar" size={22} />
+              <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
+            </View>
 
-              {spots.length === 0 ? (
-                <View className="my-auto flex-col items-center gap-4">
-                  <QuestionIllustration width={150} height={150} />
-                  <Text variant="body" className="text-center text-primary">
-                    Aucun spot n’est disponible {'\n'} sur cette période.
-                  </Text>
-                </View>
-              ) : (
-                <CardContainer>
-                  {spots
-                    .sort((a, b) => a.owner.rating - b.owner.rating)
-                    .reverse()
-                    .map((spot, i) => (
-                      <AvailableSpotCard
-                        key={i}
-                        spot={spot}
-                        selectedSpot={selectedSpot}
-                        onSelect={() => setSelectedSpot(spot)}
-                      />
-                    ))}
-                </CardContainer>
-              )}
-            </View>
-            <View className="flex-col items-center justify-between gap-2">
-              <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">Réserver du</Text>
-                <DatePicker
-                  minimumDate={justAfterNow}
-                  value={from}
-                  mode="datetime"
-                  materialTimeClassName={'w-24'}
-                  materialDateClassName={'w-32'}
-                  onChange={(ev) => {
-                    const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
-                    setFrom(from);
-                    setTo(max([minTo(from), to]));
-                  }}
-                />
-              </View>
-              <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">Jusqu'au</Text>
-                <DatePicker
-                  minimumDate={minTo(from)}
-                  value={to}
-                  mode="datetime"
-                  materialTimeClassName={'w-24'}
-                  materialDateClassName={'w-32'}
-                  onChange={(ev) => {
-                    const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
-                    setTo(to);
-                    setFrom(min([from, to]));
-                  }}
-                />
-              </View>
-            </View>
-            <View className="flex-col justify-between gap-2">
-              <View className="flex-row items-center gap-2">
-                <ThemedIcon
-                  component={FontAwesome6}
-                  name="clock"
-                  size={Platform.select({ ios: 18, android: 14 })}
-                />
-                <Text
-                  className={cn(
-                    'font-semibold',
-                    Platform.select({ ios: 'text-lg', android: 'text-md' })
-                  )}>
-                  {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
+            {spots.length === 0 ? (
+              <View className="my-auto flex-col items-center gap-4">
+                <QuestionIllustration width={150} height={150} />
+                <Text variant="body" className="text-center text-primary">
+                  Aucun spot n’est disponible {'\n'} sur cette période.
                 </Text>
               </View>
-              <Slider
-                step={STEP_HOURS / MAX_DURATION_HOURS}
-                value={differenceInHours(to, from) / MAX_DURATION_HOURS}
-                onValueChange={(value) =>
-                  setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
-                }
+            ) : (
+              <CardContainer>
+                {spots
+                  .sort((a, b) => a.owner.rating - b.owner.rating)
+                  .reverse()
+                  .map((spot, i) => (
+                    <AvailableSpotCard
+                      key={i}
+                      spot={spot}
+                      selectedSpot={selectedSpot}
+                      onSelect={() => setSelectedSpot(spot)}
+                    />
+                  ))}
+              </CardContainer>
+            )}
+          </View>
+          <View className="flex-col items-center justify-between gap-2">
+            <View className="w-full flex-row items-center justify-between">
+              <Text className="w-24">Réserver du</Text>
+              <DatePicker
+                minimumDate={justAfterNow}
+                value={from}
+                mode="datetime"
+                materialTimeClassName={'w-24'}
+                materialDateClassName={'w-32'}
+                onChange={(ev) => {
+                  const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
+                  setFrom(from);
+                  setTo(max([minTo(from), to]));
+                }}
               />
             </View>
-            <Button
-              variant="primary"
-              size="lg"
-              disabled={
-                !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
-              }
-              onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
-              {actionPending && <ActivityIndicator color={colors.foreground} />}
-              <Text>
-                {bookingSimulation
-                  ? `Réserver pour ${bookingSimulation.usedCredits} crédits`
-                  : 'Réserver'}
+            <View className="w-full flex-row items-center justify-between">
+              <Text className="w-24">Jusqu'au</Text>
+              <DatePicker
+                minimumDate={minTo(from)}
+                value={to}
+                mode="datetime"
+                materialTimeClassName={'w-24'}
+                materialDateClassName={'w-32'}
+                onChange={(ev) => {
+                  const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
+                  setTo(to);
+                  setFrom(min([from, to]));
+                }}
+              />
+            </View>
+          </View>
+          <View className="flex-col justify-between gap-2">
+            <View className="flex-row items-center gap-2">
+              <ThemedIcon
+                component={FontAwesome6}
+                name="clock"
+                size={Platform.select({ ios: 18, android: 14 })}
+              />
+              <Text
+                className={cn(
+                  'font-semibold',
+                  Platform.select({ ios: 'text-lg', android: 'text-md' })
+                )}>
+                {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
               </Text>
-            </Button>
-          </ContentSheetView>
-        </SafeAreaView>
+            </View>
+            <Slider
+              step={STEP_HOURS / MAX_DURATION_HOURS}
+              value={differenceInHours(to, from) / MAX_DURATION_HOURS}
+              onValueChange={(value) =>
+                setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
+              }
+            />
+          </View>
+          <Button
+            variant="primary"
+            size="lg"
+            disabled={
+              !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
+            }
+            onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
+            {actionPending && <ActivityIndicator color={colors.foreground} />}
+            <Text>
+              {bookingSimulation
+                ? `Réserver pour ${bookingSimulation.usedCredits} crédits`
+                : 'Réserver'}
+            </Text>
+          </Button>
+        </ContentSheetView>
       </BottomSheetView>
     </Sheet>
   );

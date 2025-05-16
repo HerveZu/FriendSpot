@@ -6,7 +6,7 @@ import {
   UserCredential,
 } from 'firebase/auth';
 import React, { useState } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { View } from 'react-native';
 import stepTwoIllustration from '~/assets/security.svg';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { AuthForm, AuthFormTitle } from '~/authentication/AuthForm';
@@ -61,7 +61,7 @@ export default function StepTwoScreen() {
   }
 
   return (
-    <SafeAreaView>
+    <>
       {isModalVisible && (
         <Modal
           open={isModalVisible}
@@ -126,6 +126,6 @@ export default function StepTwoScreen() {
           </Text>
         </View>
       </AuthForm>
-    </SafeAreaView>
+    </>
   );
 }

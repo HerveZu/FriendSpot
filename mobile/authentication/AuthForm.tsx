@@ -16,7 +16,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
-import { Form, FormContext, FormProps } from '~/form/FormContext';
+import { Form, FormContext, FormProps } from '~/form/Form';
 
 type IllustrationProps = {
   width: number;

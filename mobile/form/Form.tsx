@@ -59,7 +59,7 @@ export function Form({ autoTouch, ...props }: FormProps) {
         setIsSubmitted(true);
       };
     },
-    [setIsLoading, setIsSubmitted]
+    [setIsLoading, setIsSubmitted, isValid]
   );
 
   return (

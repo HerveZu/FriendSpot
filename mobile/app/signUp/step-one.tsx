@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView } from 'react-native';
 import profileIllustration from '~/assets/profile.svg';
 
 import { AuthForm, AuthFormTitle } from '~/authentication/AuthForm';
@@ -21,34 +20,32 @@ export default function StepOneScreen() {
   }
 
   return (
-    <SafeAreaView>
-      <AuthForm
-        Illustration={profileIllustration}
-        title={<AuthFormTitle title="Créer un compte" />}
-        onSubmit={async () => goToStep2(email!)}
-        submitText="Suivant">
-        <FormInput
-          value={displayName}
-          onValueChange={setDisplayName}
-          placeholder="Nom d'utilisateur"
-          validators={[
-            {
-              validate: minLength(3),
-              errorMessage: "Nom d'utilisateur trop court",
-            },
-            Validators.required,
-          ]}
-        />
-        <FormInput
-          value={email}
-          onValueChange={setEmail}
-          placeholder="Adresse email"
-          inputMode="email"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          validators={[Validators.email, Validators.required]}
-        />
-      </AuthForm>
-    </SafeAreaView>
+    <AuthForm
+      Illustration={profileIllustration}
+      title={<AuthFormTitle title="Créer un compte" />}
+      onSubmit={async () => goToStep2(email!)}
+      submitText="Suivant">
+      <FormInput
+        value={displayName}
+        onValueChange={setDisplayName}
+        placeholder="Nom d'utilisateur"
+        validators={[
+          {
+            validate: minLength(3),
+            errorMessage: "Nom d'utilisateur trop court",
+          },
+          Validators.required,
+        ]}
+      />
+      <FormInput
+        value={email}
+        onValueChange={setEmail}
+        placeholder="Adresse email"
+        inputMode="email"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        validators={[Validators.email, Validators.required]}
+      />
+    </AuthForm>
   );
 }
