@@ -83,6 +83,10 @@ export default function UserProfileScreen() {
   const [displayNameDebounce] = useDebounce(currentDisplayName, 400);
 
   useEffect(() => {
+    if (displayNameDebounce.length < 2) {
+      return;
+    }
+
     updateInternalProfile(firebaseUser?.photoURL, currentDisplayName).then();
   }, [displayNameDebounce]);
 
