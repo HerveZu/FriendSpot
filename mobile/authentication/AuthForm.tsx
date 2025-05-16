@@ -59,45 +59,45 @@ function AuthFormInternal({ Illustration, ...props }: AuthFormProps) {
   }, [keyboardVisible]);
 
   return (
-    <KeyboardAvoidingView behavior={'padding'}>
-      <KeyboardAvoidingView behavior={'height'}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Screen className="relative flex h-full flex-col justify-between gap-12">
-            <View className="relative w-full flex-row items-center justify-center">
-              <BackButton className="absolute left-0" />
-              <View className="self-center">{props.title}</View>
-            </View>
-            <Animated.View
-              className="mx-auto"
-              style={{
-                opacity: illustrationProgress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 1],
-                }),
-                height: illustrationProgress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 300],
-                }),
-              }}>
-              {Illustration && <Illustration width={300} height={300} />}
-            </Animated.View>
-            <View className={'w-full flex-col gap-4'}>
-              <Text className="text-center text-destructive">{props.error}</Text>
-              {props.children}
-            </View>
-            {props.submitCaption}
-            <Button
-              size={Platform.select({ ios: 'lg', default: 'md' })}
-              disabled={!isValid}
-              onPress={handleSubmit(props.onSubmit)}
-              variant="primary"
-              className="w-full">
-              {isLoading && <ActivityIndicator color={colors.foreground} />}
-              <Text>{props.submitText}</Text>
-            </Button>
-          </Screen>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+    <KeyboardAvoidingView
+      behavior={Platform.select({ ios: 'padding', default: 'height' })}
+      keyboardVerticalOffset={100}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <Screen className="relative flex h-full flex-col justify-between gap-12">
+          <View className="relative w-full flex-row items-center justify-center">
+            <BackButton className="absolute left-0" />
+            <View className="self-center">{props.title}</View>
+          </View>
+          <Animated.View
+            className="mx-auto"
+            style={{
+              opacity: illustrationProgress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+              }),
+              height: illustrationProgress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 300],
+              }),
+            }}>
+            {Illustration && <Illustration width={300} height={300} />}
+          </Animated.View>
+          <View className={'w-full flex-col gap-4'}>
+            <Text className="text-center text-destructive">{props.error}</Text>
+            {props.children}
+          </View>
+          {props.submitCaption}
+          <Button
+            size={Platform.select({ ios: 'lg', default: 'md' })}
+            disabled={!isValid}
+            onPress={handleSubmit(props.onSubmit)}
+            variant="primary"
+            className="w-full">
+            {isLoading && <ActivityIndicator color={colors.foreground} />}
+            <Text>{props.submitText}</Text>
+          </Button>
+        </Screen>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }

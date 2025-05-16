@@ -96,7 +96,7 @@ export default function LoginScreen() {
         <Pressable
           className="flex-row justify-center"
           onPress={() => setIsResetPasswordModalOpen(true)}>
-          <Text variant="footnote" className="text-foreground">
+          <Text variant="footnote" className="text-primary">
             Mot de passe oublié ?
           </Text>
         </Pressable>
