@@ -1,8 +1,9 @@
 import { Text } from '~/components/nativewindui/Text';
-import { SafeAreaView, Vibration, View, ViewProps } from 'react-native';
+import { Vibration, View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useRouter } from 'expo-router';
 

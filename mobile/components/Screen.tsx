@@ -26,6 +26,7 @@ import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { BlurView } from '@react-native-community/blur';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -101,25 +102,27 @@ export function ScreenWithHeader(
         />
       </>
 
-      <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
-        <KeyboardAwareScrollView
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshScreen} />}
-          className={cn(props.stickyBottom && 'mb-4')}
-          enableOnAndroid={true}
-          viewIsInsideTabBar={true}
-          extraHeight={100} // workaround to make the scroll to focused multiline input work
-          scrollIndicatorInsets={{ right: 3 }}
-          onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
-          <Screen className={cn(Platform.OS === 'android' ? 'mt-8' : 'mt-4')}>
-            <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
-          </Screen>
-        </KeyboardAwareScrollView>
-        {props.stickyBottom && (
-          <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
-            {props.stickyBottom}
-          </View>
-        )}
-      </KeyboardAvoidingView>
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
+          <KeyboardAwareScrollView
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshScreen} />}
+            className={cn(props.stickyBottom && 'mb-4')}
+            enableOnAndroid={true}
+            viewIsInsideTabBar={true}
+            extraHeight={100} // workaround to make the scroll to focused multiline input work
+            scrollIndicatorInsets={{ right: 3 }}
+            onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
+            <Screen className={cn(Platform.OS === 'android' ? 'mt-8' : 'mt-4')}>
+              <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
+            </Screen>
+          </KeyboardAwareScrollView>
+          {props.stickyBottom && (
+            <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
+              {props.stickyBottom}
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </HeaderContext.Provider>
   );
 }
