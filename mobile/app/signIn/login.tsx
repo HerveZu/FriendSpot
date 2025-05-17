@@ -145,14 +145,13 @@ function MailConfirmationPendingModal(props: ModalProps & { onError: (error: str
 }
 
 function ResetPasswordModal({ className, ...props }: ModalProps) {
+  const { t } = useTranslation();
+
   return (
     <Modal {...props} className={cn('gap-4', className)}>
-      <ModalTitle text="Entre ton adresse e-mail" />
+      <ModalTitle text={t('auth.resetPassword.title')} />
       <View className="flex-row items-center ">
-        <Text className="text-sm text-foreground">
-          On t’enverra un lien pour réinitialiser ton mot de passe. Assure-toi que l’adresse est
-          valide.
-        </Text>
+        <Text className="text-sm text-foreground">{t('auth.resetPassword.description')}</Text>
       </View>
 
       <Form>
