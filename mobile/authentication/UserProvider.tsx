@@ -97,7 +97,8 @@ export function UserProvider(props: PropsWithChildren) {
   );
 
   useEffect(() => {
-    if (!deviceId || !internalFirebaseUser) {
+    // discarding when no displayName, because it takes one more render to be actually populated.
+    if (!deviceId || !internalFirebaseUser.displayName) {
       return;
     }
 
@@ -119,8 +120,12 @@ export function UserProvider(props: PropsWithChildren) {
   }, [getProfile, setUserProfile]);
 
   useEffect(() => {
+    if (!internalFirebaseUser.emailVerified) {
+      return;
+    }
+
     refreshProfile().then();
-  }, [refreshProfile, stateTrigger]);
+  }, [internalFirebaseUser, refreshProfile, stateTrigger]);
 
   return userProfile ? (
     <_UserProfileContext.Provider
