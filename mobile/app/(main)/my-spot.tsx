@@ -249,10 +249,10 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 
 function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {
   const ref = useSheetRef();
-  const [lend, actionPending] = useLoading(
-    useLendSpot(),
-    (_, simulation?: boolean) => !!simulation
-  );
+  const [lend, actionPending] = useLoading(useLendSpot(), {
+    skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
+    beforeMarkingComplete: () => props.onOpen(false),
+  });
 
   const MIN_DURATION_HOURS = 0.5;
   const INITIAL_FROM_MARGIN_MINUTES = 15;
@@ -301,9 +301,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
     lend({
       from,
       to,
-    })
-      .then(refreshProfile)
-      .then(() => props.onOpen(false));
+    }).then(refreshProfile);
   }
 
   const justAfterNow = addMinutes(now, 5);

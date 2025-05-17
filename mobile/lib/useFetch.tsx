@@ -30,18 +30,24 @@ export function useFetch<TResponse>(
 
 export function useLoading<TArgs extends unknown[], TResponse>(
   apiRequest: (...args: TArgs) => Promise<TResponse>,
-  skiLoadingWhen?: (...request: TArgs) => boolean
+  options?: {
+    beforeMarkingComplete?: () => void;
+    skiLoadingWhen?: (...request: TArgs) => boolean;
+  }
 ): [(...req: TArgs) => Promise<TResponse>, boolean] {
   const [loading, setLoading] = useState(false);
 
   const callback = useCallback(
     async (...req: TArgs) => {
-      if (!skiLoadingWhen || !skiLoadingWhen(...req)) {
+      const withLoading = !options?.skiLoadingWhen || !options.skiLoadingWhen(...req);
+      if (withLoading) {
         setLoading(true);
       }
 
       try {
-        return await apiRequest(...req);
+        const result = await apiRequest(...req);
+        withLoading && options?.beforeMarkingComplete?.();
+        return result;
       } finally {
         setLoading(false);
       }

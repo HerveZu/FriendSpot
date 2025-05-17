@@ -321,10 +321,10 @@ function BookingSheet(props: {
 
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
-  const [book, actionPending] = useLoading(
-    useBookSpot(),
-    (_, simulation?: boolean) => !!simulation
-  );
+  const [book, actionPending] = useLoading(useBookSpot(), {
+    skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
+    beforeMarkingComplete: () => props.onOpen(false),
+  });
   const getAvailableSpots = useGetAvailableSpots();
   const { refreshProfile } = useCurrentUser();
   const [toDebounce] = useDebounce(to, 200);
@@ -400,7 +400,6 @@ function BookingSheet(props: {
       parkingLotId,
     })
       .then(refreshProfile)
-      .then(() => props.onOpen(false))
       .then(() => {
         triggerModal();
       });
