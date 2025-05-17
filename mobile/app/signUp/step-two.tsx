@@ -16,7 +16,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { ExternalLink } from '~/components/ExternalLink';
 import { Checkbox } from '~/components/Checkbox';
 import { FormInput } from '~/form/FormInput';
-import { Validators } from '~/form/validators';
+import { useValidators } from '~/form/validators';
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;
@@ -31,6 +31,7 @@ export default function StepTwoScreen() {
   const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
+  const validators = useValidators();
 
   async function createAccount() {
     let signUp: UserCredential;
@@ -66,7 +67,7 @@ export default function StepTwoScreen() {
         <Modal
           open={isModalVisible}
           onOpenChange={setIsModalVisible}
-          onBackdropPress={() => router.push({pathname: '/welcome'})}
+          onBackdropPress={() => router.push({ pathname: '/welcome' })}
           vibration={true}>
           <ModalTitle text={'Presque terminé !'} />
           <View className="gap-4">
@@ -106,7 +107,7 @@ export default function StepTwoScreen() {
               validate: (confirm?: string) => !confirm || confirm === password,
               errorMessage: 'Les mots de passes ne sont pas identiques.',
             },
-            Validators.required,
+            validators.required,
           ]}
         />
         <View className={'mt-4 w-full flex-row items-center gap-4'}>

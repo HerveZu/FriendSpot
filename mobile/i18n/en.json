@@ -1,0 +1,30 @@
+{
+  "auth": {
+    "createAccount": "Create Account",
+    "next": "Next",
+    "username": "Username",
+    "email": "Email address",
+    "errors": {
+      "usernameTooShort": "Username is too short",
+      "required": "This field is required",
+      "invalidEmail": "Invalid email address"
+    },
+    "login": {
+      "title": "Login",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    }
+  },
+  "common": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email",
+    "invalidPassword": "Invalid password"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "auth": {
+    "createAccount": "Créer un compte",
+    "next": "Suivant",
+    "username": "Nom d'utilisateur",
+    "email": "Adresse email",
+    "errors": {
+      "usernameTooShort": "Nom d'utilisateur trop court",
+      "required": "Ce champ est requis",
+      "invalidEmail": "Adresse email invalide"
+    },
+    "login": {
+      "title": "Connexion",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "S'inscrire"
+    }
+  },
+  "common": {
+    "submit": "Valider",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "next": "Suivant"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "invalidEmail": "Email invalide",
+    "invalidPassword": "Mot de passe invalide"
+  }
+}
