@@ -11,6 +11,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "expo-localization",
       "expo-router",
       [
         "expo-build-properties",
