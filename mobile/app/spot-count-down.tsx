@@ -12,6 +12,7 @@ import { BookingResponse, useGetBooking } from '~/endpoints/booking/get-booking'
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { parseDuration, rgbToHex } from '~/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export type SpotCountDownScreenParams = { activeBookingsJson: string };
 
@@ -61,6 +62,7 @@ export function SpotCountDownOnRender(props: PropsWithChildren) {
 
 function SpotCountDown(props: { activeBooking: BookingResponse }) {
   const { colors } = useColorScheme();
+  const { t } = useTranslation();
   const initialRemainingSeconds = useMemo(
     () => differenceInSeconds(props.activeBooking.to, new Date()),
     []
@@ -108,7 +110,7 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
               </Text>
             </View>
             <Text variant="title1" className="font-semibold">
-              n° {props.activeBooking.parkingLot.name}
+              {t('common.spot.number', { number: props.activeBooking.parkingLot.name })}
             </Text>
           </View>
         );

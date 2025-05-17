@@ -116,7 +116,7 @@ export default function SearchSpotScreen() {
           <Button
             className={'h-[60px]'}
             variant={'primary'}
-            disabled={booking?.bookings.length === 0}
+            disabled={!booking || booking.bookings.length === 0}
             onPress={() => setBookingListSheetOpen(true)}>
             <ThemedIcon name="car" color={colors.foreground} />
             <Text>{booking?.bookings.length ?? 0}</Text>
@@ -125,7 +125,7 @@ export default function SearchSpotScreen() {
       </View>
       {infoModalOpen && (
         <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-          <ModalTitle className=" justify-center text-center" text={t('booking.newSpot.title')} />
+          <ModalTitle className="justify-center text-center" text={t('booking.newSpot.title')} />
           <View className="items-center">
             <SuccessIllustration width={250} height={250} />
           </View>
@@ -287,11 +287,11 @@ function BookingCard(props: {
             />
             <View>
               {props.booking.parkingLot.name ? (
-                <Tag text={t('booking.spotNumber', { number: props.booking.parkingLot.name })} />
+                <Tag text={t('common.spot.number', { number: props.booking.parkingLot.name })} />
               ) : (
                 <Tag
                   onPress={() => setLockInfo(!lockInfo)}
-                  text={t('booking.spotNumberLabel')}
+                  text={t('common.spot.numberLabel')}
                   icon={'lock'}
                 />
               )}

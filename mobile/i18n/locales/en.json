@@ -60,7 +60,12 @@
     "logout": "Logout",
     "other": "Other",
     "search": "Search",
-    "return": "Return"
+    "return": "Return",
+    "spot": {
+      "name": "{{parking}} [#{{number}}]",
+      "number": "Spot #{{number}}",
+      "numberLabel": "Spot #"
+    }
   },
   "welcome": {
     "welcomeTo": "Welcome to"
@@ -83,7 +88,6 @@
       "randomParking": "My parking {{number}}"
     },
     "parking": {
-      "spotNumberPrefix": "Spot # ",
       "spotNumber": "Spot number",
       "cantFindParking": "Can't find your parking? Create it now!",
       "searchParking": "Search a parking",
@@ -108,8 +112,7 @@
   },
   "searchSpot": {
     "title": "Search Spot",
-    "duration": "Duration",
-    "spotNumberLabel": "Spot #"
+    "duration": "Duration"
   },
   "validation": {
     "required": "This field is required",
@@ -131,8 +134,6 @@
     "now": "Now",
     "occupyingSpot": "You are occupying this spot",
     "occupyingSpots": "You are occupying these {{count}} spots",
-    "spotNumber": "Spot # {{number}}",
-    "spotNumberLabel": "Spot #",
     "spot": {
       "locked": "Locked spot",
       "lockedDescription": "The spot number will be revealed at the beginning of the reservation."
