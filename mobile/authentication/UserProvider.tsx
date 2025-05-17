@@ -33,9 +33,6 @@ export function useCurrentUser() {
   return useContext(_UserProfileContext);
 }
 
-// shared global value to avoid other attempts during re-renders
-let REGISTER_ATTEMPT_COUNT = 0;
-
 export function UserProvider(props: PropsWithChildren) {
   const { firebaseUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>();
@@ -44,7 +41,6 @@ export function UserProvider(props: PropsWithChildren) {
   const getProfile = useGetProfile();
   const stateTrigger = useListenOnAppStateChange('background');
   const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
-  const [registerTrigger, setRegisterTrigger] = useState({});
 
   const { expoPushToken } = useNotification();
   const { deviceId, uniquenessNotGuaranteed } = useDeviceId();
@@ -73,38 +69,43 @@ export function UserProvider(props: PropsWithChildren) {
     return () => clearTimeout(handler);
   }, []);
 
+  const registerWithRetries = useCallback(
+    async (internalFirebaseUser: User, deviceId: string) => {
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        try {
+          await registerUser({
+            displayName:
+              internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? 'Unknown User',
+            pictureUrl: internalFirebaseUser.photoURL,
+            device: {
+              id: deviceId,
+              expoPushToken: expoPushToken,
+              uniquenessNotGuaranteed: uniquenessNotGuaranteed,
+            },
+          });
+          return;
+        } catch (error) {
+          const delayMs = 200 * attempt;
+          console.error(`Register failed on attempt ${attempt}, retrying in ${delayMs}ms`, error);
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+      }
+
+      throw new Error('Max register attempt count reach');
+    },
+    [internalFirebaseUser, expoPushToken, deviceId, uniquenessNotGuaranteed]
+  );
+
   useEffect(() => {
-    if (REGISTER_ATTEMPT_COUNT > 5) {
-      console.error('Max register attempt count reach');
-      signOut(getAuth()).then();
-      return;
-    }
-
-    if (!userProfile && !internalFirebaseUser.displayName) {
-      console.error(`Register failed on attempt ${REGISTER_ATTEMPT_COUNT}, retrying in 200ms`);
-      REGISTER_ATTEMPT_COUNT++;
-
-      // dirty fix to handle concurrency issue when the user is not registered yet
-      const handler = setTimeout(() => setRegisterTrigger({}), 200);
-      return () => clearTimeout(handler);
-    }
-
+    // discarding when no displayName, because it takes one more render to be actually populated.
     if (!deviceId || !internalFirebaseUser.displayName) {
       return;
     }
 
-    registerUser({
-      displayName: internalFirebaseUser.displayName,
-      pictureUrl: internalFirebaseUser.photoURL,
-      device: {
-        id: deviceId,
-        expoPushToken: expoPushToken,
-        uniquenessNotGuaranteed: uniquenessNotGuaranteed,
-      },
-    })
-      .then(() => getProfile().then(setUserProfile))
-      .then(() => (REGISTER_ATTEMPT_COUNT = 0));
-  }, [registerTrigger, deviceId, internalFirebaseUser, expoPushToken]);
+    registerWithRetries(internalFirebaseUser, deviceId)
+      .catch(() => signOut(getAuth()))
+      .then(() => getProfile().then(setUserProfile));
+  }, [registerWithRetries, internalFirebaseUser, deviceId]);
 
   useEffect(() => {
     if (userProfile) {
@@ -119,8 +120,12 @@ export function UserProvider(props: PropsWithChildren) {
   }, [getProfile, setUserProfile]);
 
   useEffect(() => {
+    if (!internalFirebaseUser.emailVerified) {
+      return;
+    }
+
     refreshProfile().then();
-  }, [refreshProfile, stateTrigger]);
+  }, [internalFirebaseUser, refreshProfile, stateTrigger]);
 
   return userProfile ? (
     <_UserProfileContext.Provider

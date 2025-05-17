@@ -6,11 +6,11 @@ import { firebaseAuth } from '~/authentication/firebase';
 import { Loader } from '~/components/Loader';
 
 export function AuthenticationGuard(props: PropsWithChildren) {
-  const [user, isLoading] = useAuthState(firebaseAuth);
+  const [firebaseUser, isLoading] = useAuthState(firebaseAuth);
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!firebaseUser && firebaseUser.emailVerified;
 
   useEffect(() => {
     !isLoading && !isAuthenticated && SplashScreen.hide();

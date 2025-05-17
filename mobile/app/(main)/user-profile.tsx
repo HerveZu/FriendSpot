@@ -4,6 +4,7 @@ import React, {
   PropsWithChildren,
   SetStateAction,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -83,6 +84,10 @@ export default function UserProfileScreen() {
   const [displayNameDebounce] = useDebounce(currentDisplayName, 400);
 
   useEffect(() => {
+    if (displayNameDebounce.length < 2) {
+      return;
+    }
+
     updateInternalProfile(firebaseUser?.photoURL, currentDisplayName).then();
   }, [displayNameDebounce]);
 
@@ -319,8 +324,8 @@ export function AccountDeletionConfirmationModal({
 
 export function LogoutConfirmationModal({
   children,
-  visible,
   onVisibleChange,
+  visible,
 }: PropsWithChildren<{
   visible: boolean;
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
@@ -334,12 +339,11 @@ export function LogoutConfirmationModal({
     if (!deviceId) {
       return;
     }
-
+    onVisibleChange(false);
     await logout({
       deviceId: deviceId,
     });
     await signOut(auth);
-    onVisibleChange(false);
   };
 
   return (
@@ -379,7 +383,6 @@ function DefineSpotSheet(props: {
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
   const { userProfile, refreshProfile } = useCurrentUser();
-  const [isUpdating, setIsUpdating] = useState(false);
   const [currentSpotName, setCurrentSpotName] = useState(userProfile.spot?.name);
 
   const { colors } = useColorScheme();
@@ -387,9 +390,14 @@ function DefineSpotSheet(props: {
 
   const [search, setSearch] = useState<string>();
   const searchParking = useSearchParking();
-  const defineSpot = useDefineSpot();
+  const [defineSpot, isUpdating] = useLoading(useDefineSpot(), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
 
-  const fullSearch = search ?? userProfile.spot?.parking.address ?? '';
+  const fullSearch = useMemo(
+    () => search ?? userProfile.spot?.parking.address ?? '',
+    [search, userProfile.spot?.parking.address]
+  );
   const [searchDebounce] = useDebounce(fullSearch, 200);
   const [parking, setParking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
   const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
@@ -421,15 +429,10 @@ function DefineSpotSheet(props: {
       return;
     }
 
-    setIsUpdating(true);
-
     defineSpot({
       parkingId: selectedParking.id,
       lotName: currentSpotName,
-    })
-      .then(refreshProfile)
-      .then(() => props.onOpenChange(false))
-      .finally(() => setIsUpdating(false));
+    }).then(refreshProfile);
   }
 
   function selectParking(parking: ParkingResponse) {
@@ -454,51 +457,9 @@ function DefineSpotSheet(props: {
     setEditingParking(null);
   }
 
-  function ParkingCard(props: { parking: ParkingResponse }) {
-    const isSelected = selectedParking?.id === props.parking.id;
-    const isOwned = props.parking.ownerId === userProfile.id;
-
-    function onEdit() {
-      setEditingParking(props.parking);
-      setParkingModalOpen(true);
-    }
-
-    return (
-      <Pressable onPress={() => selectParking(props.parking)}>
-        <Card highlight={isSelected}>
-          <View className={'flex-row items-center justify-between'}>
-            <View className={'flex-row items-center'}>
-              <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
-              {isOwned && (
-                <Button
-                  variant={'plain'}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    onEdit();
-                  }}>
-                  <ThemedIcon name={'pencil'} size={18} color={colors.foreground} />
-                </Button>
-              )}
-            </View>
-            <View
-              className={cn(
-                'flex-row items-center gap-2',
-                props.parking.spotsCount === 0 && 'opacity-70'
-              )}>
-              <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
-              <ThemedIcon name={'car'} />
-            </View>
-          </View>
-          <View className="flex-row items-center justify-between gap-4">
-            <View className={'w-4/5 flex-row items-center gap-4'}>
-              <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
-              <Text className="shrink text-sm">{props.parking.address}</Text>
-            </View>
-            {isSelected && <ThemedIcon name={'check'} size={18} color={colors.primary} />}
-          </View>
-        </Card>
-      </Pressable>
-    );
+  function onParkingEdit(parking: ParkingResponse) {
+    setEditingParking(parking);
+    setParkingModalOpen(true);
   }
 
   return (
@@ -506,7 +467,7 @@ function DefineSpotSheet(props: {
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={keyboardVisible ? [800] : [650]}>
+      snapPoints={keyboardVisible ? [800] : [700]}>
       <ContentSheetView
         className={'flex-col justify-between gap-6'}
         style={
@@ -514,7 +475,7 @@ function DefineSpotSheet(props: {
             paddingBottom: keyboardHeight + 24,
           }
         }>
-        <View className="grow flex-col gap-4">
+        <View className="grow flex-col gap-2">
           <TextInput
             icon={{
               position: 'left',
@@ -523,32 +484,41 @@ function DefineSpotSheet(props: {
             textContentType={'addressCityAndState'}
             editable={true}
             value={fullSearch}
-            onChangeText={(text) => setSearch(text)}
+            onChangeText={setSearch}
             onPress={() => setSearch('')}
             placeholder="Rechercher un parking"
           />
 
-          <CardContainer className={cn('h-72 max-h-72', keyboardVisible && 'max-h-48')}>
+          <CardContainer className={'flex-1'}>
             {parking && parking.length > 0 ? (
-              parking.map((parking) => <ParkingCard key={parking.id} parking={parking} />)
+              parking.map((parking) => (
+                <ParkingCard
+                  key={parking.id}
+                  parking={parking}
+                  isSelected={selectedParking?.id === parking.id}
+                  onSelect={() => selectParking(parking)}
+                  onEdit={() => onParkingEdit(parking)}
+                />
+              ))
             ) : (
               <Text className={'top-1/2 mx-auto text-center'}>
                 Aucun parking ne correspond à «{search}».
               </Text>
             )}
           </CardContainer>
-
-          {!keyboardVisible && (
-            <Pressable onPress={initiateParkingCreation}>
-              <Card className={'flex-row items-center justify-between gap-4'}>
-                <Text variant={'caption1'} className={'w-2/3'}>
-                  Tu ne trouves pas ton parking ? Créé le maintenant !
-                </Text>
-                <ThemedIcon name={'location'} component={Entypo} size={24} />
-              </Card>
-            </Pressable>
-          )}
         </View>
+
+        {!keyboardVisible && (
+          <Pressable onPress={initiateParkingCreation}>
+            <Card className={'flex-row items-center justify-between gap-4'}>
+              <Text variant={'caption1'} className={'w-2/3'}>
+                Tu ne trouves pas ton parking ? Créé le maintenant !
+              </Text>
+              <ThemedIcon name={'location'} component={Entypo} size={24} />
+            </Card>
+          </Pressable>
+        )}
+
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
             <Text className="text-lg">N° de place</Text>
@@ -585,6 +555,55 @@ function DefineSpotSheet(props: {
   );
 }
 
+function ParkingCard(props: {
+  isSelected: boolean;
+  parking: ParkingResponse;
+  onSelect: () => void;
+  onEdit: () => void;
+}) {
+  const { userProfile } = useCurrentUser();
+  const { colors } = useColorScheme();
+
+  const isOwned = props.parking.ownerId === userProfile.id;
+
+  return (
+    <Pressable onPress={props.onSelect}>
+      <Card highlight={props.isSelected}>
+        <View className={'flex-row items-center justify-between'}>
+          <View className={'flex-row items-center'}>
+            <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
+            {isOwned && (
+              <Button
+                variant={'plain'}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  props.onEdit();
+                }}>
+                <ThemedIcon name={'pencil'} size={18} color={colors.foreground} />
+              </Button>
+            )}
+          </View>
+          <View
+            className={cn(
+              'flex-row items-center gap-2',
+              props.parking.spotsCount === 0 && 'opacity-70'
+            )}>
+            <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
+            <ThemedIcon name={'car'} />
+          </View>
+        </View>
+        <View className="flex-row items-center justify-between gap-4">
+          <View className={'w-4/5 flex-row items-center gap-4'}>
+            <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
+            <Text className="shrink text-sm">{props.parking.address}</Text>
+          </View>
+          {props.isSelected && <ThemedIcon name={'check'} size={18} color={colors.primary} />}
+        </View>
+      </Card>
+    </Pressable>
+  );
+}
+
 function ParkingModal(props: {
   parking: ParkingResponse | null;
   open: boolean;
@@ -598,9 +617,15 @@ function ParkingModal(props: {
   const { colors } = useColorScheme();
   const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
 
-  const [createParking, isCreating] = useLoading(useCreateParking());
-  const [editParking, isEditing] = useLoading(useEditParkingInfo());
-  const [deleteParking, isDeleting] = useLoading(useDeleteParking());
+  const [createParking, isCreating] = useLoading(useCreateParking(), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
+  const [editParking, isEditing] = useLoading(useEditParkingInfo(), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
+  const [deleteParking, isDeleting] = useLoading(useDeleteParking(), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
 
   useEffect(() => {
     setAddress(props.parking?.address ?? '');
@@ -634,7 +659,6 @@ function ParkingModal(props: {
   async function onSubmit() {
     const parking = await submitFn[mode]();
     parking && props.onParking(parking);
-    props.onOpenChange(false);
   }
 
   async function onDelete() {
@@ -644,7 +668,6 @@ function ParkingModal(props: {
 
     await deleteParking(props.parking.id);
     props.onDelete(props.parking);
-    props.onOpenChange(false);
   }
 
   return (

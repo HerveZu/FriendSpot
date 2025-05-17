@@ -22,7 +22,7 @@ export function Card({
     <View
       className={cn(
         'bg-primary/10 flex-col gap-6 rounded-xl p-4',
-        highlight && '-m-[1px] border border-primary',
+        highlight && 'bg-primary/30',
         className
       )}
       {...props}

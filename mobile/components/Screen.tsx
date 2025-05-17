@@ -14,7 +14,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
-  SafeAreaView,
   useAnimatedValue,
   View,
   ViewProps,
@@ -64,51 +63,50 @@ export function ScreenWithHeader(
 
   return (
     <HeaderContext.Provider value={{ hideHeader, headerText, setHeaderText }}>
-      <Animated.View
-        className={cn(
-          'pt-safe-offset-0 absolute left-0 right-0 top-0 z-50 h-32 bg-transparent backdrop-blur-3xl'
-        )}
-        style={{
-          opacity: fadeOpacity,
-        }}>
-        {Platform.OS === 'ios' ? (
-          <BlurView
-            blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
-            blurAmount={5}
-            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+      <View className={'pt-safe flex-1'}>
+        <Animated.View
+          className={cn(
+            'pt-safe-offset-0 absolute left-0 right-0 top-0 z-50 h-32 bg-transparent backdrop-blur-3xl'
+          )}
+          style={{
+            opacity: fadeOpacity,
+          }}>
+          {Platform.OS === 'ios' ? (
+            <BlurView
+              blurType={isDarkColorScheme ? 'chromeMaterialDark' : 'chromeMaterialLight'}
+              blurAmount={5}
+              style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
+          ) : (
+            <View
+              className={'bg-card/90'}
+              style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
+          )}
+          <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
+            {headerText}
+          </Text>
+        </Animated.View>
+        <>
+          <LinearGradient
+            colors={[colors.primary, 'darkblue']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.9 }}
           />
-        ) : (
-          <View
-            className={'bg-card/90'}
-            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+          <LinearGradient
+            colors={['transparent', colors.background]}
+            locations={[0, 0.35]}
+            style={{ height: '100%', width: '100%', position: 'absolute' }}
           />
-        )}
-        <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
-          {headerText}
-        </Text>
-      </Animated.View>
-
-      <>
-        <LinearGradient
-          colors={[colors.primary, 'darkblue']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ height: '40%', width: '100%', position: 'absolute', opacity: 0.9 }}
-        />
-        <LinearGradient
-          colors={['transparent', colors.background]}
-          locations={[0, 0.35]}
-          style={{ height: '100%', width: '100%', position: 'absolute' }}
-        />
-      </>
-
-      <SafeAreaView>
-        <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
+        </>
+        <KeyboardAvoidingView
+          behavior={Platform.select({ ios: 'padding', default: 'height' })}
+          className={'flex grow justify-between'}>
           <KeyboardAwareScrollView
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshScreen} />}
-            className={cn(props.stickyBottom && 'mb-4')}
             enableOnAndroid={true}
-            viewIsInsideTabBar={true}
+            viewIsInsideTabBar={false}
             extraHeight={100} // workaround to make the scroll to focused multiline input work
             scrollIndicatorInsets={{ right: 3 }}
             onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
@@ -117,12 +115,10 @@ export function ScreenWithHeader(
             </Screen>
           </KeyboardAwareScrollView>
           {props.stickyBottom && (
-            <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
-              {props.stickyBottom}
-            </View>
+            <View className={'bg-background p-6 pt-0'}>{props.stickyBottom}</View>
           )}
         </KeyboardAvoidingView>
-      </SafeAreaView>
+      </View>
     </HeaderContext.Provider>
   );
 }

@@ -1,33 +1,48 @@
 import { Text } from '~/components/nativewindui/Text';
-import { SafeAreaView, View, ViewProps } from 'react-native';
+import { Vibration, View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
+
+export type ModalProps = {
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+  onBackdropPress?: () => void;
+  vibration?: boolean;
+} & ViewProps;
 
 export function Modal({
   open,
   onOpenChange,
   className,
   children,
+  onBackdropPress,
+  vibration = false,
   ...props
-}: { open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>> } & ViewProps) {
+}: ModalProps) {
+  useEffect(() => {
+    if (vibration) {
+      Vibration.vibrate(100);
+    }
+  }, [vibration, open]);
+
   return (
     // this extra View makes it display properly on Android devices
-    <View>
-      <ReactModal
-        isVisible={open}
-        onBackdropPress={() => onOpenChange(false)}
-        // this removes the flickering on exit
-        backdropTransitionOutTiming={1}>
-        <SafeAreaView>
+    <>
+      <View>
+        <ReactModal
+          isVisible={open}
+          onBackdropPress={() => onOpenChange(false)}
+          // this removes the flickering on exit
+          backdropTransitionOutTiming={1}>
           <View className={'bg-background'} {...props}>
             <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
               {children}
             </View>
           </View>
-        </SafeAreaView>
-      </ReactModal>
-    </View>
+        </ReactModal>
+      </View>
+    </>
   );
 }
 

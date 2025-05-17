@@ -1,15 +1,22 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+  UserCredential,
+} from 'firebase/auth';
 import React, { useState } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { View } from 'react-native';
 import stepTwoIllustration from '~/assets/security.svg';
-
-import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
+import { Modal, ModalTitle } from '~/components/Modal';
+import { AuthForm, AuthFormTitle } from '~/authentication/AuthForm';
 import { firebaseAuth } from '~/authentication/firebase';
-import { notEmpty } from '~/lib/utils';
+import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { ExternalLink } from '~/components/ExternalLink';
 import { Checkbox } from '~/components/Checkbox';
+import { FormInput } from '~/form/FormInput';
+import { Validators } from '~/form/validators';
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;
@@ -20,51 +27,64 @@ export default function StepTwoScreen() {
   const [passwordConfirm, setPasswordConfirm] = useState<string>();
   const [error, setError] = useState<string>();
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
-  const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
 
+  const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
 
   async function createAccount() {
+    let signUp: UserCredential;
+
     try {
-      const result = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
-      await updateProfile(result.user, { displayName }).then(() =>
-        router.navigate('/user-profile')
-      );
+      signUp = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
     } catch (e) {
       console.error(e);
       setError('Cette adresse e-mail est déjà utilisée.');
+      return;
     }
+
+    await updateProfile(signUp.user, { displayName });
+    await sendEmailVerification(signUp.user);
+    setIsModalVisible(true);
   }
 
   if (!email || !displayName) {
     return <Redirect href="/signUp/step-one" />;
   }
 
+  function redirect() {
+    setIsModalVisible(false);
+    router.push({
+      pathname: '/signIn/login',
+      params: { email, password },
+    });
+  }
+
   return (
-    <SafeAreaView>
+    <>
+      {isModalVisible && (
+        <Modal
+          open={isModalVisible}
+          onOpenChange={setIsModalVisible}
+          onBackdropPress={() => router.push({pathname: '/welcome'})}
+          vibration={true}>
+          <ModalTitle text={'Presque terminé !'} />
+          <View className="gap-4">
+            <Text className="text-base text-foreground">{`Vérifie ta boîte mail et clique sur le lien de confirmation pour activer ton compte.`}</Text>
+            <Button size={'lg'} onPress={() => redirect()}>
+              <Text className="text-foreground">C'est fait !</Text>
+            </Button>
+          </View>
+        </Modal>
+      )}
       <AuthForm
         Illustration={stepTwoIllustration}
         error={error}
         title={<AuthFormTitle title="Créer un compte" />}
-        disabled={!userHasConfirmed}
         onSubmit={createAccount}
         submitText="S'inscrire"
-        submitCaption={
-          <View className={'w-full flex-row items-center gap-4'}>
-            <Checkbox value={userHasConfirmed} onValueChange={setUserHasConfirmed} />
-            <Text variant={'caption1'}>
-              Je confirme avoir lu et accepter{' '}
-              <ExternalLink
-                url={process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL ?? ''}
-                variant={'caption1'}
-                className={'break-words text-primary'}>
-                notre politique de confidentialité
-              </ExternalLink>
-              .
-            </Text>
-          </View>
-        }>
-        <AuthFormInput
+        disabled={!userHasConfirmed}>
+        <FormInput
           value={password}
           onValueChange={setPassword}
           placeholder="Mot de passe"
@@ -72,11 +92,11 @@ export default function StepTwoScreen() {
           validators={[
             {
               validate: strongPassword,
-              message: 'Le mot de passe doit contenir au moins 6 caractères.',
+              errorMessage: 'Le mot de passe doit contenir au moins 6 caractères.',
             },
           ]}
         />
-        <AuthFormInput
+        <FormInput
           value={passwordConfirm}
           onValueChange={setPasswordConfirm}
           placeholder="Confirmer le mot de passe"
@@ -84,14 +104,28 @@ export default function StepTwoScreen() {
           validators={[
             {
               validate: (confirm?: string) => !confirm || confirm === password,
-              message: 'Les mots de passes ne sont pas identiques.',
+              errorMessage: 'Les mots de passes ne sont pas identiques.',
             },
-            {
-              validate: notEmpty,
-            },
+            Validators.required,
           ]}
         />
+        <View className={'mt-4 w-full flex-row items-center gap-4'}>
+          <Checkbox
+            value={userHasConfirmed}
+            onValueChange={(value) => setUserHasConfirmed(value)}
+          />
+          <Text variant={'caption1'}>
+            Je confirme avoir lu et accepter{' '}
+            <ExternalLink
+              url={process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL ?? ''}
+              variant={'caption1'}
+              className={'break-words text-primary'}>
+              notre politique de confidentialité
+            </ExternalLink>
+            .
+          </Text>
+        </View>
       </AuthForm>
-    </SafeAreaView>
+    </>
   );
 }

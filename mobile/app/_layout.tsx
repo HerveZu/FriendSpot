@@ -13,6 +13,7 @@ import { getCurrentLocale } from '~/lib/locale';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 import { NotificationProvider } from '~/notification/NotificationContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -29,7 +30,7 @@ export default function RootLayout() {
   const { colorScheme, isDarkColorScheme } = useColorScheme();
 
   return (
-    <>
+    <SafeAreaProvider>
       <StatusBar
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
@@ -49,6 +50,6 @@ export default function RootLayout() {
           </NavThemeProvider>
         </GestureHandlerRootView>
       </NotificationProvider>
-    </>
+    </SafeAreaProvider>
   );
 }

@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView } from 'react-native';
-import { isEmail } from 'validator';
 import profileIllustration from '~/assets/profile.svg';
 
-import { AuthForm, AuthFormInput, AuthFormTitle } from '~/authentication/AuthForm';
-import { minLength, notEmpty } from '~/lib/utils';
+import { AuthForm, AuthFormTitle } from '~/authentication/AuthForm';
+import { minLength } from '~/lib/utils';
+import { Validators } from '~/form/validators';
+import { FormInput } from '~/form/FormInput';
 
 export default function StepOneScreen() {
   const [displayName, setDisplayName] = useState<string>();
@@ -20,44 +20,32 @@ export default function StepOneScreen() {
   }
 
   return (
-    <SafeAreaView>
-      <AuthForm
-        Illustration={profileIllustration}
-        title={<AuthFormTitle title="Créer un compte" />}
-        onSubmit={async () => goToStep2(email!)}
-        submitText="Suivant">
-        <AuthFormInput
-          value={displayName}
-          onValueChange={setDisplayName}
-          placeholder="Nom d'utilisateur"
-          validators={[
-            {
-              validate: minLength(3),
-              message: "Nom d'utilisateur trop court",
-            },
-            {
-              validate: notEmpty,
-            },
-          ]}
-        />
-        <AuthFormInput
-          value={email}
-          onValueChange={setEmail}
-          placeholder="Adresse email"
-          inputMode="email"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          validators={[
-            {
-              validate: (email) => !email || isEmail(email),
-              message: "L'adresse e-mail n'est pas valide",
-            },
-            {
-              validate: notEmpty,
-            },
-          ]}
-        />
-      </AuthForm>
-    </SafeAreaView>
+    <AuthForm
+      Illustration={profileIllustration}
+      title={<AuthFormTitle title="Créer un compte" />}
+      onSubmit={async () => goToStep2(email!)}
+      submitText="Suivant">
+      <FormInput
+        value={displayName}
+        onValueChange={setDisplayName}
+        placeholder="Nom d'utilisateur"
+        validators={[
+          {
+            validate: minLength(3),
+            errorMessage: "Nom d'utilisateur trop court",
+          },
+          Validators.required,
+        ]}
+      />
+      <FormInput
+        value={email}
+        onValueChange={setEmail}
+        placeholder="Adresse email"
+        inputMode="email"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        validators={[Validators.email, Validators.required]}
+      />
+    </AuthForm>
   );
 }
