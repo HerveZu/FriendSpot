@@ -35,6 +35,27 @@ public sealed class User : IBroadcastEvents
         return _domainEvents.GetUncommittedEvents();
     }
 
+    public static User Register(string identity, UserDisplayName displayName)
+    {
+        if (string.IsNullOrWhiteSpace(identity))
+        {
+            throw new BusinessException("Users.InvalidIdentity", "Cannot register null or empty identity.");
+        }
+
+        var user = new User(identity, displayName)
+        {
+            Rating = UserRating.Neutral()
+        };
+
+        user._domainEvents.Register(
+            new UserRegistered
+            {
+                UserId = user.Identity
+            });
+
+        return user;
+    }
+
     public void UpdateInfo(UserDisplayName displayName, string? pictureUrl)
     {
         DisplayName = displayName;
@@ -89,25 +110,14 @@ public sealed class User : IBroadcastEvents
             });
     }
 
-    public static User Register(string identity, UserDisplayName displayName)
+    public async Task PushNotification(
+        INotificationPushService notificationPushService,
+        Notification notification,
+        CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(identity))
-        {
-            throw new BusinessException("Users.InvalidIdentity", "Cannot register null or empty identity.");
-        }
-
-        var user = new User(identity, displayName)
-        {
-            Rating = UserRating.Neutral()
-        };
-
-        user._domainEvents.Register(
-            new UserRegistered
-            {
-                UserId = user.Identity
-            });
-
-        return user;
+        await Task.WhenAll(
+            UserDevices.Select(
+                device => notificationPushService.PushToDevice(device, notification, cancellationToken)));
     }
 }
 

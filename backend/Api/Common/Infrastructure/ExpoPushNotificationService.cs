@@ -3,7 +3,7 @@ using Api.Common.Options;
 using Domain.Users;
 using Microsoft.Extensions.Options;
 
-namespace Api.Common.Notifications;
+namespace Api.Common.Infrastructure;
 
 internal sealed class ExpoPushNotificationService
     : INotificationPushService
@@ -25,17 +25,7 @@ internal sealed class ExpoPushNotificationService
             expoOptions.Value.PushNotificationToken);
     }
 
-    public async Task PushToUser(User user, Notification notification, CancellationToken cancellationToken)
-    {
-        _logger.LogInformation(
-            "Pushing notification to user {UserId} to {DeviceCount} devices",
-            user,
-            user.UserDevices.Count);
-
-        await Task.WhenAll(user.UserDevices.Select(device => PushToDevice(device, notification, cancellationToken)));
-    }
-
-    private async Task PushToDevice(UserDevice device, Notification notification, CancellationToken cancellationToken)
+    public async Task PushToDevice(UserDevice device, Notification notification, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Pushing notification to device {Device}", device.DeviceId);
 

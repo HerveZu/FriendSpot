@@ -100,7 +100,7 @@ internal sealed class GetSuggestedSpots(AppDbContext dbContext)
 
         var suggestions = availabilities
             .SelectMany(
-                x => x.Availability.Split(x.OrderedBookings)
+                x => x.Availability.SplitNonOverlapping(x.OrderedBookings)
                     .Select(
                         slice => new GetSuggestedSpotsResponse.SpotSuggestion
                         {

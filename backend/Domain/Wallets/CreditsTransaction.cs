@@ -12,7 +12,6 @@ public sealed class CreditsTransaction
     public string Reference { get; }
     public Credits Credits { get; }
     public TransactionState State { get; }
-    public bool HasAnyEffect => Credits.Amount is not 0;
 
     public static CreditsTransaction Create(string reference, Credits credits, TransactionState state)
     {
