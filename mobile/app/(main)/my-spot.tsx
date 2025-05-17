@@ -18,6 +18,7 @@ import { Redirect } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
@@ -53,6 +54,7 @@ import { cn } from '~/lib/cn';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function MySpotScreen() {
+  const { t } = useTranslation();
   const { userProfile } = useCurrentUser();
 
   const getAvailabilities = useGetAvailabilities();
@@ -72,15 +74,15 @@ export default function MySpotScreen() {
           variant="primary"
           onPress={() => setLendSheetOpen(true)}>
           <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
-          <Text>Prêter mon spot</Text>
+          <Text>{t('lending.lendMySpot')}</Text>
         </Button>
       }>
-      <ScreenTitle title="Mon spot" />
+      <ScreenTitle title={t('mySpot.title')} />
       {!availabilities ? (
         <ActivityIndicator />
       ) : availabilities.availabilities.length > 0 ? (
         <View>
-          <Title>Ton spot est en accès libre</Title>
+          <Title>{t('lending.spotIsAvailable')}</Title>
           <View className={'flex-col gap-4'}>
             {availabilities.availabilities.map((availability) => (
               <MySpotAvailabilityCard
@@ -93,7 +95,7 @@ export default function MySpotScreen() {
         </View>
       ) : (
         <View className="flex-col items-center justify-center gap-10">
-          <MessageInfo info="Tu ne prêtes pas encore ton spot" />
+          <MessageInfo info={t('lending.notLendingYet')} />
           <TreeIllustration width={280} height={280} />
         </View>
       )}
@@ -105,6 +107,7 @@ export default function MySpotScreen() {
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
   const { refreshProfile } = useCurrentUser();
+  const { t } = useTranslation();
   const cancelAvailability = useCancelAvailability();
 
   async function cancel() {
@@ -138,7 +141,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
           {props.availability.bookings.length === 0 && (
             <View className="mt-2 flex-row items-center gap-2">
               <BlinkingDot color={colors.primary} />
-              <Text className="text-xs">En attente de réservation</Text>
+              <Text className="text-xs">{t('lending.waitingForBooking')}</Text>
             </View>
           )}
         </View>
@@ -233,7 +236,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
                 <View>
                   <View className="flex-row items-center gap-2">
                     <BlinkingDot color={colors.destructive} />
-                    <Text className="text-xs">Utilise actuellement ton spot</Text>
+                    <Text className="text-xs">{t('lending.currentlyUsingSpot')}</Text>
                   </View>
                 </View>
               )}
@@ -248,6 +251,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
 }
 
 function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {
+  const { t } = useTranslation();
   const ref = useSheetRef();
   const [lend, actionPending] = useLoading(useLendSpot(), {
     skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
@@ -334,8 +338,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
           {simulation?.overlaps && (
             <View className="mx-auto w-full flex-row items-center justify-center gap-8 p-4">
               <Text variant="title3" className="text-center text-primary">
-                Ta place est déjà partagée, {'\n'} sa disponibilité s'étend si tu ajoutes des
-                créneaux.
+                {t('lending.spotAlreadyShared')}
               </Text>
             </View>
           )}
@@ -343,7 +346,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
           <View className={'flex-col gap-8'}>
             <View className="flex-col items-center justify-between gap-2">
               <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">Prêter du</Text>
+                <Text className="w-24">{t('lending.lendFrom')}</Text>
                 <DatePicker
                   minimumDate={justAfterNow}
                   value={from}
@@ -358,7 +361,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
                 />
               </View>
               <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">Jusqu'au</Text>
+                <Text className="w-24">{t('lending.lendUntil')}</Text>
                 <DatePicker
                   minimumDate={minTo(from)}
                   value={to}
@@ -382,8 +385,10 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               {actionPending && <ActivityIndicator color={colors.foreground} />}
               <Text>
                 {simulation && simulation.earnedCredits > 0
-                  ? `Prêter et gagner jusqu'à ${Math.round(simulation?.earnedCredits)} crédits`
-                  : 'Prêter mon spot'}
+                  ? t('lending.lendAndEarnCredits', {
+                      credits: Math.round(simulation?.earnedCredits),
+                    })
+                  : t('lending.lendMySpot')}
               </Text>
             </Button>
           </View>
