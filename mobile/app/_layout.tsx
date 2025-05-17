@@ -1,5 +1,7 @@
 import React from 'react';
 import '../global.css';
+import '../i18n/i18n';
+
 import 'expo-dev-client';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { setDefaultOptions } from 'date-fns';

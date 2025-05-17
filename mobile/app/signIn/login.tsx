@@ -18,7 +18,7 @@ import { Form, FormContext } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
-import { Validators } from '~/form/validators';
+import { useValidators } from '~/form/validators';
 import { FormError } from '~/form/FormError';
 
 export default function LoginScreen() {
@@ -31,6 +31,7 @@ export default function LoginScreen() {
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const auth = getAuth();
   const router = useRouter();
+  const validators = useValidators();
 
   useEffect(() => {
     if (!autoFillParams.email || !autoFillParams.password) {
@@ -85,14 +86,14 @@ export default function LoginScreen() {
           inputMode="email"
           autoCapitalize="none"
           keyboardType="email-address"
-          validators={[Validators.email, Validators.required]}
+          validators={[validators.email, validators.required]}
         />
         <FormInput
           value={password}
           onValueChange={(value) => setPassword(value || '')}
           placeholder="Mot de passe"
           secure
-          validators={[Validators.required]}
+          validators={[validators.required]}
         />
         <Pressable
           className="flex-row justify-center"
@@ -163,6 +164,7 @@ function ResetPasswordForm() {
 
   const auth = getAuth();
   const { colors } = useColorScheme();
+  const validators = useValidators();
 
   const [email, setEmail] = useState<string>();
   const [resetEmailStatus, setResetEmailStatus] = useState<string>();
@@ -183,7 +185,7 @@ function ResetPasswordForm() {
         inputMode="email"
         autoCapitalize="none"
         keyboardType="email-address"
-        validators={[Validators.email, Validators.required]}
+        validators={[validators.email, validators.required]}
       />
       {resetEmailStatus && <FormError>{resetEmailStatus}</FormError>}
       <Button
