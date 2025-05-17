@@ -77,11 +77,10 @@ function RateButton(props: {
   }
 
   return (
-    <Button 
-      variant="plain" 
-      onPress={rate} 
-      accessibilityLabel={t(`rating.buttons.${props.rating.toLowerCase()}`)}
-    >
+    <Button
+      variant="plain"
+      onPress={rate}
+      accessibilityLabel={t(`rating.buttons.${props.rating.toLowerCase()}`)}>
       {isRating ? (
         <ActivityIndicator />
       ) : (
