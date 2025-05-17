@@ -13,7 +13,7 @@ export default function WelcomeScreen() {
 
   return (
     <Screen className="items-center justify-around">
-      <View className="flex flex-col gap-2">
+      <View className="mt-6 flex flex-col gap-2">
         <Text variant="largeTitle" className="text-center">
           {t('welcome.welcomeTo')}
         </Text>
