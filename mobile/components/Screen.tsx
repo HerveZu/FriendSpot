@@ -18,7 +18,6 @@ import {
   View,
   ViewProps,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
@@ -63,8 +62,8 @@ export function ScreenWithHeader(
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <HeaderContext.Provider value={{ hideHeader, headerText, setHeaderText }}>
+    <HeaderContext.Provider value={{ hideHeader, headerText, setHeaderText }}>
+      <View className={'pt-safe flex-1'}>
         <Animated.View
           className={cn(
             'pt-safe-offset-0 absolute left-0 right-0 top-0 z-50 h-32 bg-transparent backdrop-blur-3xl'
@@ -88,7 +87,6 @@ export function ScreenWithHeader(
             {headerText}
           </Text>
         </Animated.View>
-
         <>
           <LinearGradient
             colors={[colors.primary, 'darkblue']}
@@ -102,13 +100,13 @@ export function ScreenWithHeader(
             style={{ height: '100%', width: '100%', position: 'absolute' }}
           />
         </>
-
-        <KeyboardAvoidingView behavior={'padding'} className={'h-full'}>
+        <KeyboardAvoidingView
+          behavior={Platform.select({ ios: 'padding', default: 'height' })}
+          className={'flex grow justify-between'}>
           <KeyboardAwareScrollView
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshScreen} />}
-            className={cn(props.stickyBottom && 'mb-4')}
             enableOnAndroid={true}
-            viewIsInsideTabBar={true}
+            viewIsInsideTabBar={false}
             extraHeight={100} // workaround to make the scroll to focused multiline input work
             scrollIndicatorInsets={{ right: 3 }}
             onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
@@ -117,13 +115,11 @@ export function ScreenWithHeader(
             </Screen>
           </KeyboardAwareScrollView>
           {props.stickyBottom && (
-            <View className={'absolute bottom-0 left-0 right-0 bg-background px-6 pt-0'}>
-              {props.stickyBottom}
-            </View>
+            <View className={'bg-background p-6 pt-0'}>{props.stickyBottom}</View>
           )}
         </KeyboardAvoidingView>
-      </HeaderContext.Provider>
-    </SafeAreaView>
+      </View>
+    </HeaderContext.Provider>
   );
 }
 

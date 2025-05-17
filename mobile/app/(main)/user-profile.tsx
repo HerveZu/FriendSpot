@@ -517,7 +517,7 @@ function DefineSpotSheet(props: {
             paddingBottom: keyboardHeight + 24,
           }
         }>
-        <View className="grow flex-col gap-4">
+        <View className="grow flex-col gap-2">
           <TextInput
             icon={{
               position: 'left',
@@ -531,7 +531,7 @@ function DefineSpotSheet(props: {
             placeholder="Rechercher un parking"
           />
 
-          <CardContainer className={cn('h-72 max-h-72', keyboardVisible && 'max-h-48')}>
+          <CardContainer className={'flex-1'}>
             {parking && parking.length > 0 ? (
               parking.map((parking) => <ParkingCard key={parking.id} parking={parking} />)
             ) : (
@@ -540,18 +540,19 @@ function DefineSpotSheet(props: {
               </Text>
             )}
           </CardContainer>
-
-          {!keyboardVisible && (
-            <Pressable onPress={initiateParkingCreation}>
-              <Card className={'flex-row items-center justify-between gap-4'}>
-                <Text variant={'caption1'} className={'w-2/3'}>
-                  Tu ne trouves pas ton parking ? Créé le maintenant !
-                </Text>
-                <ThemedIcon name={'location'} component={Entypo} size={24} />
-              </Card>
-            </Pressable>
-          )}
         </View>
+
+        {!keyboardVisible && (
+          <Pressable onPress={initiateParkingCreation}>
+            <Card className={'flex-row items-center justify-between gap-4'}>
+              <Text variant={'caption1'} className={'w-2/3'}>
+                Tu ne trouves pas ton parking ? Créé le maintenant !
+              </Text>
+              <ThemedIcon name={'location'} component={Entypo} size={24} />
+            </Card>
+          </Pressable>
+        )}
+
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
             <Text className="text-lg">N° de place</Text>
