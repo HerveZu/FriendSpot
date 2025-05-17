@@ -69,7 +69,10 @@ export default function SearchSpotScreen() {
 
   const now = useActualTime(5000);
   const [booking] = useFetch(() => getBooking(), []);
-  const [suggestedSpots] = useFetch(() => getSuggestedSpots(now, addHours(now, 12)), []);
+  const [suggestedSpots] = useFetch(
+    () => !!userProfile.spot && getSuggestedSpots(now, addHours(now, 12)),
+    [!!userProfile.spot]
+  );
 
   const activeBookings =
     booking?.bookings
