@@ -139,7 +139,10 @@ export default function UserProfileScreen() {
                 <View className="w-full flex-row items-center justify-between">
                   <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
-                      ? `${userProfile.spot.parking.name} [${t('user.parking.spotNumberPrefix')}${userProfile.spot.name}]`
+                      ? t('common.spot.name', {
+                          parking: userProfile.spot.parking.name,
+                          number: userProfile.spot.name,
+                        })
                       : t('user.profile.noParkingDefined')}
                   </Text>
                   <ThemedIcon name={'pencil'} size={18} />
@@ -529,7 +532,7 @@ function DefineSpotSheet(props: {
 
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
-            <Text className="text-lg">{t('user.parking.spotNumber')}</Text>
+            <Text className="text-lg">{t('common.spot.numberLabel')}</Text>
             <TextInput
               ref={spotNameRef}
               className={'w-40'}
