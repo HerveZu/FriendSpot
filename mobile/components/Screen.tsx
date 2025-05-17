@@ -102,7 +102,7 @@ export function ScreenWithHeader(
         </>
         <KeyboardAvoidingView
           behavior={Platform.select({ ios: 'padding', default: 'height' })}
-          className={'flex grow justify-between'}>
+          className={'relative flex grow'}>
           <KeyboardAwareScrollView
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshScreen} />}
             enableOnAndroid={true}
@@ -114,8 +114,12 @@ export function ScreenWithHeader(
               <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
             </Screen>
           </KeyboardAwareScrollView>
+
+          {/*absolute positioning is needed to make the sticky bottom work*/}
           {props.stickyBottom && (
-            <View className={'bg-background p-6 pt-0'}>{props.stickyBottom}</View>
+            <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
+              {props.stickyBottom}
+            </View>
           )}
         </KeyboardAvoidingView>
       </View>
