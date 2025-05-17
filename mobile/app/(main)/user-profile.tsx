@@ -47,11 +47,13 @@ import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
 import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
 import { formatDistance } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
   const { colors } = useColorScheme();
   const { userProfile, updateInternalProfile } = useCurrentUser();
+  const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
   const [review, setReview] = useState<string>();
@@ -102,7 +104,7 @@ export default function UserProfileScreen() {
           <Pressable className={'relative h-28'} onPress={pickImageAsync}>
             <View
               className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-              accessibilityLabel="Edit Avatar">
+              accessibilityLabel={t('user.profile.editAvatar')}>
               <ThemedIcon name={'pencil'} size={14} />
             </View>
             <MeAvatar className="h-28 w-28" fontSize={32} />
@@ -130,15 +132,15 @@ export default function UserProfileScreen() {
         </View>
 
         <View className={'flex-col'}>
-          <Title>Mon spot</Title>
+          <Title>{t('user.profile.mySpot')}</Title>
           <View className={'flex-col gap-2'}>
             <Pressable onPress={() => setBottomSheet(true)}>
               <Card className="flex-col items-start gap-3">
                 <View className="w-full flex-row items-center justify-between">
                   <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
-                      ? `${userProfile.spot.parking.name} [n°${userProfile.spot.name}]`
-                      : 'Aucun nom de parking de défini'}
+                      ? `${userProfile.spot.parking.name} [${t('user.parking.spotNumberPrefix')}${userProfile.spot.name}]`
+                      : t('user.profile.noParkingDefined')}
                   </Text>
                   <ThemedIcon name={'pencil'} size={18} />
                 </View>
@@ -147,7 +149,7 @@ export default function UserProfileScreen() {
                   <Text className="text-md w-10/12">
                     {userProfile.spot
                       ? userProfile.spot?.parking.address
-                      : 'Aucune adresse parking définie'}
+                      : t('user.profile.noAddressDefined')}
                   </Text>
                 </View>
               </Card>
@@ -155,13 +157,13 @@ export default function UserProfileScreen() {
           </View>
         </View>
         <View className={'flex-col'}>
-          <Title>Autre</Title>
+          <Title>{t('common.other')}</Title>
           <View className={'flex-col gap-2'}>
             <TextInput
               value={review}
               onChangeText={setReview}
               className={'w-full'}
-              placeholder={'Tu as une suggestion ? Écris-nous ici !'}
+              placeholder={t('user.profile.provideFeedback')}
             />
             <Button
               disabled={!review}
@@ -176,7 +178,7 @@ export default function UserProfileScreen() {
                 size={18}
                 color={colors.primary}
               />
-              <Text>Faire un retour</Text>
+              <Text>{t('user.profile.sendFeedback')}</Text>
             </Button>
           </View>
         </View>
@@ -194,7 +196,7 @@ export default function UserProfileScreen() {
             size={18}
             color={colors.destructive}
           />
-          <Text className={'text-destructive'}>Se déconnecter</Text>
+          <Text className={'text-destructive'}>{t('common.logout')}</Text>
         </Button>
 
         <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
@@ -204,7 +206,7 @@ export default function UserProfileScreen() {
             size={18}
             color={colors.destructive}
           />
-          <Text className={'text-destructive'}>Supprimer mon compte</Text>
+          <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
         </Button>
 
         <BigSeparator />
@@ -224,14 +226,18 @@ export default function UserProfileScreen() {
 const BigSeparator = () => <View className={'mt-10'} />;
 
 function AppVersionInfo() {
+  const { t } = useTranslation();
+
   return (
     <View className={'flex-row items-center justify-center gap-4'}>
       <Text variant={'caption2'}>{Constants.expoConfig?.version ?? 'Unknown'}</Text>
       <Text variant={'caption2'}>-</Text>
       <Text variant={'caption2'}>
         {Updates.createdAt
-          ? `Patch OTA appliqué ${formatDistance(Updates.createdAt, new Date(), { addSuffix: true })}`
-          : 'Aucun patch OTA'}
+          ? t('app.otaPatch', {
+              time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
+            })
+          : t('app.noOtaPatch')}
       </Text>
     </View>
   );
@@ -250,6 +256,7 @@ export function AccountDeletionConfirmationModal({
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
   const { firebaseUser } = useAuth();
   const auth = getAuth();
+  const { t } = useTranslation();
 
   function deleteAccountBackendAndFirebase() {
     deleteAccount().then(() => deleteUser(firebaseUser).then(() => signOut(auth)));
@@ -263,14 +270,13 @@ export function AccountDeletionConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20'}>
         <ModalTitle
-          text={'Supprimer mon compte'}
+          text={t('user.profile.deleteAccountTitle')}
           icon={<ThemedIcon name={'warning'} size={18} />}
         />
 
         <View className={'mt-4 flex-col gap-8'}>
           <Text className={'text-destructive'} variant={'callout'}>
-            Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes
-            les réservations de ton spot en cours seront terminées.
+            {t('user.profile.deleteAccountConfirmation')}
           </Text>
 
           <View className={'flex-row items-center gap-4'}>
@@ -282,10 +288,7 @@ export function AccountDeletionConfirmationModal({
                 borderRadius: 6,
               }}
             />
-            <Text variant={'caption1'}>
-              Je confirme vouloir supprimer mon compte et je comprends que cette action est
-              irreversible.
-            </Text>
+            <Text variant={'caption1'}>{t('user.profile.deleteAccountConfirm')}</Text>
           </View>
         </View>
 
@@ -295,7 +298,7 @@ export function AccountDeletionConfirmationModal({
             size={'lg'}
             variant="tonal"
             onPress={() => onVisibleChange(false)}>
-            <Text className={'text-primary'}>Annuler</Text>
+            <Text className={'text-primary'}>{t('common.cancel')}</Text>
           </Button>
           <Button
             disabled={!userHasConfirmed}
@@ -313,7 +316,7 @@ export function AccountDeletionConfirmationModal({
                 color={colors.destructive}
               />
             )}
-            <Text className={'text-destructive'}>Supprimer</Text>
+            <Text className={'text-destructive'}>{t('common.delete')}</Text>
           </Button>
         </View>
       </Modal>
@@ -334,6 +337,7 @@ export function LogoutConfirmationModal({
   const { deviceId } = useDeviceId();
   const auth = getAuth();
   const { colors } = useColorScheme();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     if (!deviceId) {
@@ -349,14 +353,17 @@ export function LogoutConfirmationModal({
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
-        <ModalTitle text={'Se déconnecter'} icon={<ThemedIcon name={'warning'} size={18} />} />
+        <ModalTitle
+          text={t('account.logoutConfirmation')}
+          icon={<ThemedIcon name={'warning'} size={18} />}
+        />
         <View className="mt-4 w-full flex-row justify-between gap-4">
           <Button
             className={'grow'}
             size={'lg'}
             variant="tonal"
             onPress={() => onVisibleChange(false)}>
-            <Text className={'text-primary'}>Retour</Text>
+            <Text className={'text-primary'}>{t('common.back')}</Text>
           </Button>
           <Button className={'grow'} variant={'plain'} size={'lg'} onPress={() => handleLogout()}>
             {loggingOut ? (
@@ -369,7 +376,7 @@ export function LogoutConfirmationModal({
                 color={colors.destructive}
               />
             )}
-            <Text className={'text-destructive'}>Se déconnecter</Text>
+            <Text className={'text-destructive'}>{t('common.logout')}</Text>
           </Button>
         </View>
       </Modal>
@@ -387,6 +394,7 @@ function DefineSpotSheet(props: {
 
   const { colors } = useColorScheme();
   const bottomSheetModalRef = useSheetRef();
+  const { t } = useTranslation();
 
   const [search, setSearch] = useState<string>();
   const searchParking = useSearchParking();
@@ -486,7 +494,7 @@ function DefineSpotSheet(props: {
             value={fullSearch}
             onChangeText={setSearch}
             onPress={() => setSearch('')}
-            placeholder="Rechercher un parking"
+            placeholder={t('user.parking.searchParking')}
           />
 
           <CardContainer className={'flex-1'}>
@@ -502,7 +510,7 @@ function DefineSpotSheet(props: {
               ))
             ) : (
               <Text className={'top-1/2 mx-auto text-center'}>
-                Aucun parking ne correspond à «{search}».
+                {t('user.parking.noMatchingParking', { search })}
               </Text>
             )}
           </CardContainer>
@@ -512,7 +520,7 @@ function DefineSpotSheet(props: {
           <Pressable onPress={initiateParkingCreation}>
             <Card className={'flex-row items-center justify-between gap-4'}>
               <Text variant={'caption1'} className={'w-2/3'}>
-                Tu ne trouves pas ton parking ? Créé le maintenant !
+                {t('user.parking.cantFindParking')}
               </Text>
               <ThemedIcon name={'location'} component={Entypo} size={24} />
             </Card>
@@ -521,7 +529,7 @@ function DefineSpotSheet(props: {
 
         <View className="flex-col gap-8">
           <View className="w-full flex-row items-center justify-between">
-            <Text className="text-lg">N° de place</Text>
+            <Text className="text-lg">{t('user.parking.spotNumber')}</Text>
             <TextInput
               ref={spotNameRef}
               className={'w-40'}
@@ -540,7 +548,7 @@ function DefineSpotSheet(props: {
             onPress={() => updateParking()}
             size={'lg'}>
             {isUpdating && <ActivityIndicator color={colors.foreground} />}
-            <Text className="text-white">Enregistrer</Text>
+            <Text className="text-white">{t('common.save')}</Text>
           </Button>
         </View>
       </ContentSheetView>
@@ -616,6 +624,7 @@ function ParkingModal(props: {
   const [name, setName] = useState(props.parking?.name ?? '');
   const { colors } = useColorScheme();
   const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const [createParking, isCreating] = useLoading(useCreateParking(), {
     beforeMarkingComplete: () => props.onOpenChange(false),
@@ -629,7 +638,9 @@ function ParkingModal(props: {
 
   useEffect(() => {
     setAddress(props.parking?.address ?? '');
-    setName(props.parking?.name ?? `Mon parking ${getRandomInt(100, 999)}`);
+    setName(
+      props.parking?.name ?? t('user.profile.randomParking', { number: getRandomInt(100, 999) })
+    );
   }, [props.parking, props.open]);
 
   useEffect(() => {
@@ -647,13 +658,13 @@ function ParkingModal(props: {
   };
 
   const submitText = {
-    create: `Créer ${name}`,
-    edit: 'Enregistrer',
+    create: t('user.parking.create', { name }),
+    edit: t('common.save'),
   };
 
   const titleText = {
-    create: 'Créer un parking',
-    edit: 'Modifier un parking',
+    create: t('user.parking.createParking'),
+    edit: t('user.parking.editParking'),
   };
 
   async function onSubmit() {
@@ -674,11 +685,16 @@ function ParkingModal(props: {
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
       <ModalTitle text={titleText[mode]} />
       <View className={'flex-col gap-2'}>
-        <TextInput value={name} onChangeText={setName} placeholder={'Mon parking'} maxLength={50} />
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder={t('user.parking.parkingName')}
+          maxLength={50}
+        />
         <TextInput
           value={address}
           onChangeText={setAddress}
-          placeholder={'Chemin de mon parking'}
+          placeholder={t('user.parking.parkingAddress')}
           maxLength={100}
           icon={{
             element: <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />,
@@ -708,7 +724,7 @@ function ParkingModal(props: {
           <View className={cn(confirmedParkingName !== null && 'flex-row justify-between')}>
             {confirmedParkingName !== null && (
               <Button variant={'tonal'} onPress={() => setConfirmedParkingName(null)}>
-                <Text>Annuler</Text>
+                <Text>{t('user.parking.cancelDelete')}</Text>
               </Button>
             )}
             <Button
@@ -720,7 +736,7 @@ function ParkingModal(props: {
                 confirmedParkingName === null ? setConfirmedParkingName('') : onDelete()
               }>
               {isDeleting && <ActivityIndicator color={colors.destructive} />}
-              <Text className={'text-destructive'}>Supprimer</Text>
+              <Text className={'text-destructive'}>{t('user.parking.confirmDelete')}</Text>
             </Button>
           </View>
         </>

@@ -8,6 +8,7 @@ import {
   signInWithEmailAndPassword,
   UserCredential,
 } from 'firebase/auth';
+import { useTranslation } from 'react-i18next';
 import { AuthForm, AuthFormTitle } from '~/authentication/AuthForm';
 import LoginIllustration from '~/assets/login.svg';
 import { firebaseAuth } from '~/authentication/firebase';
@@ -21,6 +22,7 @@ import { cn } from '~/lib/cn';
 import { useValidators } from '~/form/validators';
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const autoFillParams = useLocalSearchParams<{ email?: string; password?: string }>();
 
   const [email, setEmail] = useState<string>(autoFillParams.email || '');
@@ -45,7 +47,7 @@ export default function LoginScreen() {
     try {
       signIn = await signInWithEmailAndPassword(auth, email, password);
     } catch {
-      setError('Email ou mot de passe incorrect');
+      setError(t('auth.login.errors.incorrectCredentials'));
       return;
     }
 
@@ -73,15 +75,15 @@ export default function LoginScreen() {
       />
       <AuthForm
         Illustration={LoginIllustration}
-        title={<AuthFormTitle title="Se connecter" />}
+        title={<AuthFormTitle title={t('auth.login.title')} />}
         error={error}
         onSubmit={() => signInUser(email!, password!)}
-        submitText="Se connecter"
+        submitText={t('auth.login.title')}
         autoTouch={!!autoFillParams}>
         <FormInput
           value={email}
           onValueChange={(value) => setEmail(value || '')}
-          placeholder="Adresse email"
+          placeholder={t('auth.email')}
           inputMode="email"
           autoCapitalize="none"
           keyboardType="email-address"
@@ -90,7 +92,7 @@ export default function LoginScreen() {
         <FormInput
           value={password}
           onValueChange={(value) => setPassword(value || '')}
-          placeholder="Mot de passe"
+          placeholder={t('auth.password')}
           secure
           validators={[validators.required]}
         />
@@ -98,7 +100,7 @@ export default function LoginScreen() {
           className="flex-row justify-center"
           onPress={() => setIsResetPasswordModalOpen(true)}>
           <Text variant="footnote" className="text-primary">
-            Mot de passe oublié ?
+            {t('auth.login.forgotPassword')}
           </Text>
         </Pressable>
       </AuthForm>
@@ -107,6 +109,8 @@ export default function LoginScreen() {
 }
 
 function MailConfirmationPendingModal(props: ModalProps & { onError: (error: string) => void }) {
+  const { t } = useTranslation();
+
   async function sendEmail() {
     props.onOpenChange(false);
 
@@ -118,21 +122,21 @@ function MailConfirmationPendingModal(props: ModalProps & { onError: (error: str
     try {
       await sendEmailVerification(currentUser);
     } catch {
-      props.onError('Merci de réessayer ultérieurement.');
+      props.onError(t('auth.errors.tryAgainLater'));
     }
   }
 
   return (
     <Modal {...props}>
-      <ModalTitle text="Vérifie ta boîte mail !" />
+      <ModalTitle text={t('auth.mailConfirmation.title')} />
       <View className="gap-4">
-        <Text className="text-base text-foreground">
-          Nous avons besoin que tu confirmes ton adresse e-mail pour finaliser ton inscription.
-        </Text>
+        <Text className="text-base text-foreground">{t('auth.mailConfirmation.description')}</Text>
         <View className="flex-row items-center gap-2">
-          <Text className="text-center text-xs text-foreground">Aucun email de reçu ?</Text>
+          <Text className="text-center text-xs text-foreground">
+            {t('auth.mailConfirmation.noEmailReceived')}
+          </Text>
           <Pressable onPress={() => sendEmail()}>
-            <Text className="text-xs text-primary">Clique ici.</Text>
+            <Text className="text-xs text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
           </Pressable>
         </View>
       </View>
@@ -159,6 +163,7 @@ function ResetPasswordModal({ className, ...props }: ModalProps) {
 }
 
 function ResetPasswordForm() {
+  const { t } = useTranslation();
   const { isValid, handleSubmit, isLoading } = useContext(FormContext);
 
   const auth = getAuth();
@@ -166,12 +171,12 @@ function ResetPasswordForm() {
   const validators = useValidators();
 
   const [email, setEmail] = useState<string>();
-  const [resetEmailStatus, setResetEmailStatus] = useState('Envoyer');
+  const [resetEmailStatus, setResetEmailStatus] = useState(t('auth.resetPassword.send'));
 
   async function resetPassword(email: string) {
-    setResetEmailStatus('Envoie en cours..');
+    setResetEmailStatus(t('auth.resetPassword.sending'));
     await sendPasswordResetEmail(auth, email);
-    setResetEmailStatus('Un email a été envoyé');
+    setResetEmailStatus(t('auth.resetPassword.emailSent'));
   }
 
   return (
@@ -179,7 +184,7 @@ function ResetPasswordForm() {
       <FormInput
         value={email}
         onValueChange={setEmail}
-        placeholder="Adresse email"
+        placeholder={t('auth.email')}
         inputMode="email"
         autoCapitalize="none"
         keyboardType="email-address"

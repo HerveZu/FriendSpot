@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import React, { useState } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import stepTwoIllustration from '~/assets/security.svg';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { AuthForm, AuthFormTitle } from '~/authentication/AuthForm';
@@ -23,6 +24,7 @@ function strongPassword(password?: string) {
 }
 
 export default function StepTwoScreen() {
+  const { t } = useTranslation();
   const [password, setPassword] = useState<string>();
   const [passwordConfirm, setPasswordConfirm] = useState<string>();
   const [error, setError] = useState<string>();
@@ -40,7 +42,7 @@ export default function StepTwoScreen() {
       signUp = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
     } catch (e) {
       console.error(e);
-      setError('Cette adresse e-mail est déjà utilisée.');
+      setError(t('auth.signUp.errors.emailAlreadyInUse'));
       return;
     }
 
@@ -69,11 +71,13 @@ export default function StepTwoScreen() {
           onOpenChange={setIsModalVisible}
           onBackdropPress={() => router.push({ pathname: '/welcome' })}
           vibration={true}>
-          <ModalTitle text={'Presque terminé !'} />
+          <ModalTitle text={t('auth.signUp.almostDone')} />
           <View className="gap-4">
-            <Text className="text-base text-foreground">{`Vérifie ta boîte mail et clique sur le lien de confirmation pour activer ton compte.`}</Text>
+            <Text className="text-base text-foreground">
+              {t('auth.signUp.checkEmailAndConfirm')}
+            </Text>
             <Button size={'lg'} onPress={() => redirect()}>
-              <Text className="text-foreground">C'est fait !</Text>
+              <Text className="text-foreground">{t('auth.signUp.done')}</Text>
             </Button>
           </View>
         </Modal>
@@ -81,31 +85,31 @@ export default function StepTwoScreen() {
       <AuthForm
         Illustration={stepTwoIllustration}
         error={error}
-        title={<AuthFormTitle title="Créer un compte" />}
+        title={<AuthFormTitle title={t('auth.createAccount')} />}
         onSubmit={createAccount}
-        submitText="S'inscrire"
+        submitText={t('auth.signUp.signUp')}
         disabled={!userHasConfirmed}>
         <FormInput
           value={password}
           onValueChange={setPassword}
-          placeholder="Mot de passe"
+          placeholder={t('auth.password')}
           secure
           validators={[
             {
               validate: strongPassword,
-              errorMessage: 'Le mot de passe doit contenir au moins 6 caractères.',
+              errorMessage: t('auth.signUp.errors.passwordTooShort'),
             },
           ]}
         />
         <FormInput
           value={passwordConfirm}
           onValueChange={setPasswordConfirm}
-          placeholder="Confirmer le mot de passe"
+          placeholder={t('auth.signUp.confirmPassword')}
           secure
           validators={[
             {
               validate: (confirm?: string) => !confirm || confirm === password,
-              errorMessage: 'Les mots de passes ne sont pas identiques.',
+              errorMessage: t('auth.signUp.errors.passwordsDoNotMatch'),
             },
             validators.required,
           ]}
@@ -116,12 +120,12 @@ export default function StepTwoScreen() {
             onValueChange={(value) => setUserHasConfirmed(value)}
           />
           <Text variant={'caption1'}>
-            Je confirme avoir lu et accepter{' '}
+            {t('auth.signUp.confirmPrivacyPolicy.part1')}{' '}
             <ExternalLink
               url={process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL ?? ''}
               variant={'caption1'}
               className={'break-words text-primary'}>
-              notre politique de confidentialité
+              {t('auth.signUp.confirmPrivacyPolicy.part2')}
             </ExternalLink>
             .
           </Text>

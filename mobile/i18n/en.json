@@ -4,27 +4,190 @@
     "next": "Next",
     "username": "Username",
     "email": "Email address",
+    "password": "Password",
     "errors": {
       "usernameTooShort": "Username is too short",
       "required": "This field is required",
-      "invalidEmail": "Invalid email address"
+      "invalidEmail": "Invalid email address",
+      "tryAgainLater": "Please try again later."
     },
     "login": {
       "title": "Login",
       "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
-      "signUp": "Sign up"
+      "signUp": "Sign up",
+      "errors": {
+        "incorrectCredentials": "Incorrect email or password"
+      }
+    },
+    "mailConfirmation": {
+      "title": "Check your mailbox!",
+      "description": "We need you to confirm your email address to complete your registration.",
+      "noEmailReceived": "No email received?",
+      "clickHere": "Click here."
+    },
+    "resetPassword": {
+      "title": "Enter your email address",
+      "description": "We'll send you a link to reset your password. Make sure the address is valid.",
+      "send": "Send",
+      "sending": "Sending...",
+      "emailSent": "Email has been sent"
+    },
+    "signUp": {
+      "signUp": "Sign up",
+      "almostDone": "Almost done!",
+      "checkEmailAndConfirm": "Check your email and click the confirmation link to activate your account.",
+      "done": "Done!",
+      "confirmPassword": "Confirm password",
+      "errors": {
+        "emailAlreadyInUse": "This email address is already in use.",
+        "passwordTooShort": "Password must contain at least 6 characters.",
+        "passwordsDoNotMatch": "Passwords do not match."
+      },
+      "confirmPrivacyPolicy": {
+        "part1": "I confirm that I have read and accept",
+        "part2": "our privacy policy"
+      }
     }
   },
   "common": {
     "submit": "Submit",
     "cancel": "Cancel",
     "back": "Back",
-    "next": "Next"
+    "next": "Next",
+    "save": "Save",
+    "delete": "Delete",
+    "logout": "Logout",
+    "other": "Other",
+    "search": "Search",
+    "return": "Return"
+  },
+  "welcome": {
+    "welcomeTo": "Welcome to"
+  },
+  "user": {
+    "profile": {
+      "noAddressDefined": "No parking address defined",
+      "title": "My Profile",
+      "mySpot": "My Spot",
+      "noParkingDefined": "No parking name defined",
+      "provideFeedback": "Have a suggestion? Write to us here!",
+      "sendFeedback": "Send feedback",
+      "deleteAccount": "Delete my account",
+      "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
+      "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
+      "deleteAccountTitle": "Delete my account",
+      "editAvatar": "Edit Avatar",
+      "logout": "Logout",
+      "logoutConfirmation": "Logout",
+      "randomParking": "My parking {{number}}"
+    },
+    "parking": {
+      "spotNumberPrefix": "Spot # ",
+      "spotNumber": "Spot number",
+      "cantFindParking": "Can't find your parking? Create it now!",
+      "searchParking": "Search a parking",
+      "noMatchingParking": "No parking matches '{{search}}'.",
+      "createParking": "Create a parking",
+      "editParking": "Edit a parking",
+      "parkingName": "My parking",
+      "parkingAddress": "Parking address",
+      "create": "Create {{name}}",
+      "save": "Save",
+      "cars": "cars",
+      "confirmDelete": "Delete",
+      "cancelDelete": "Cancel"
+    }
+  },
+  "mySpot": {
+    "title": "My Spot",
+    "lendMySpot": "Lend my spot",
+    "spotInformation": "Spot information",
+    "spotNotShared": "Not currently shared",
+    "spotShared": "Shared until {{time}}"
+  },
+  "searchSpot": {
+    "title": "Search Spot",
+    "duration": "Duration",
+    "spotNumberLabel": "Spot #"
   },
   "validation": {
     "required": "This field is required",
     "invalidEmail": "Invalid email",
     "invalidPassword": "Invalid password"
+  },
+  "booking": {
+    "reserveSpot": "Reserve a spot",
+    "reserveNow": "Reserve a spot now!",
+    "nextReservation": "Your next reservation starts in {{time}}",
+    "nextReservationTitle": "Next reservation",
+    "reservations": "Reservations",
+    "suggestedSpots": "Suggested Spots",
+    "noSpotsAvailable": "No spots available\nduring this period.",
+    "reserveFrom": "Reserve from",
+    "reserveUntil": "Until",
+    "reserve": "Reserve",
+    "reserveForCredits": "Reserve for {{credits}} credits",
+    "now": "Now",
+    "occupyingSpot": "You are occupying this spot",
+    "occupyingSpots": "You are occupying these {{count}} spots",
+    "spotNumber": "Spot # {{number}}",
+    "spotNumberLabel": "Spot #",
+    "spot": {
+      "locked": "Locked spot",
+      "lockedDescription": "The spot number will be revealed at the beginning of the reservation."
+    },
+    "newSpot": {
+      "title": "New spot reserved!",
+      "viewReservations": "View my reservations"
+    },
+    "countdown": {
+      "timeLeft": "Time left",
+      "started": "Started",
+      "finished": "Finished",
+      "remaining": "Remaining",
+      "almostFinished": "Almost finished",
+      "revealedSpot": "Your spot has been revealed!",
+      "spotNumber": "Spot number",
+      "hours": "{{hours}} hours",
+      "minutes": "{{minutes}} minutes",
+      "spotLocation": "Spot location"
+    }
+  },
+  "lending": {
+    "lendMySpot": "Lend my spot",
+    "spotIsAvailable": "Your spot is freely available",
+    "notLendingYet": "You're not lending your spot yet",
+    "waitingForBooking": "Waiting for reservation",
+    "currentlyUsingSpot": "Currently using your spot",
+    "spotAlreadyShared": "Your spot is already shared,\nits availability extends when you add timeslots.",
+    "lendFrom": "Lend from",
+    "lendUntil": "Until",
+    "lendAndEarnCredits": "Lend and earn up to {{credits}} credits"
+  },
+  "wallet": {
+    "howItWorks": "How does it work?",
+    "availableCreditsExplanation": "Use these credits to reserve an available spot.",
+    "pendingCreditsExplanation": "Credits that will be added to your current balance once your spot lending is completed.",
+    "creditInfo": "Info: Lending or reserving 1h = 1 credit."
+  },
+  "rating": {
+    "bookingCompleted": {
+      "title": "Your reservation has ended, what did you think of it?"
+    },
+    "buttons": {
+      "good": "Good rating",
+      "bad": "Bad rating",
+      "neutral": "Neutral rating"
+    }
+  },
+  "app": {
+    "version": "Version",
+    "otaPatch": "OTA Patch applied {{time}}",
+    "noOtaPatch": "No OTA patch"
+  },
+  "account": {
+    "logout": "Logout",
+    "logoutConfirmation": "Logout"
   }
 }

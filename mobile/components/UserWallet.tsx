@@ -6,8 +6,10 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { cn } from '~/lib/cn';
 import { Modal, ModalFooter, ModalTitle } from '~/components/Modal';
 import { Card } from '~/components/Card';
+import { useTranslation } from 'react-i18next';
 
 export function UserWallet({ className, ...props }: ViewProps) {
+  const { t } = useTranslation();
   const { userProfile } = useCurrentUser();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
 
@@ -35,21 +37,15 @@ export function UserWallet({ className, ...props }: ViewProps) {
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-        <ModalTitle text={'Comment ça marche ?'} />
+        <ModalTitle text={t('wallet.howItWorks')} />
         <View className="w-full">
           <CreditsExplanation
             pending={false}
-            explanation="Utilise ces crédits pour réserver un spot disponible."
+            explanation={t('wallet.availableCreditsExplanation')}
           />
-          <CreditsExplanation
-            pending={true}
-            explanation="Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé."
-          />
+          <CreditsExplanation pending={true} explanation={t('wallet.pendingCreditsExplanation')} />
         </View>
-        <ModalFooter
-          text={'Info : Prêter ou réserver 1h = 1 crédit.'}
-          className="bg-primary/20 rounded-lg py-2"
-        />
+        <ModalFooter text={t('wallet.creditInfo')} className="bg-primary/20 rounded-lg py-2" />
       </Modal>
     </>
   );
