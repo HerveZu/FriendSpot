@@ -48,9 +48,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       if (listenerRef) {
         Notifications.removeNotificationSubscription(listenerRef);
       }
-      if (listenerRef) {
-        Notifications.removeNotificationSubscription(listenerRef);
-      }
     };
   }, []);
 
