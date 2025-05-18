@@ -1,27 +1,46 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'expo-localization';
-import en from './locales/en.json';
-import fr from './locales/fr.json';
+import enTrad from './locales/en.json';
+import frTrad from './locales/fr.json';
+import ukTrad from './locales/uk.json';
+import { setDefaultOptions } from 'date-fns';
+import { enUS, fr, Locale, uk } from 'date-fns/locale';
 
 const resources = {
   en: {
-    translation: en,
+    translation: enTrad,
   },
   fr: {
-    translation: fr,
+    translation: frTrad,
+  },
+  uk: {
+    translation: ukTrad,
   },
 };
 
-const deviceLanguage = getLocales()[0].languageCode;
+const deviceLocale = getLocales()[0];
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: deviceLanguage ?? undefined,
+  lng: deviceLocale?.languageCode ?? undefined,
   fallbackLng: 'en',
   interpolation: {
-    escapeValue: false, // not needed
+    escapeValue: false,
   },
 });
 
-export default i18n;
+const dateFnsLocales: Record<string, Locale> = {
+  en: enUS,
+  'en-US': enUS,
+  fr: fr,
+  uk: uk,
+};
+
+export function getDateFnsLocale() {
+  return (
+    dateFnsLocales[deviceLocale.languageTag] ?? dateFnsLocales[deviceLocale.languageCode ?? 'en']
+  );
+}
+
+setDefaultOptions({ locale: getDateFnsLocale() });
