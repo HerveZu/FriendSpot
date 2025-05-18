@@ -1,0 +1,193 @@
+{
+  "auth": {
+    "createAccount": "Створити обліковий запис",
+    "next": "Далі",
+    "username": "Ім’я користувача",
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "errors": {
+      "usernameTooShort": "Ім’я користувача занадто коротке",
+      "required": "Це поле є обов’язковим",
+      "invalidEmail": "Недійсна електронна адреса",
+      "tryAgainLater": "Будь ласка, спробуйте пізніше."
+    },
+    "login": {
+      "title": "Увійти",
+      "forgotPassword": "Забули пароль?",
+      "noAccount": "Ще не маєте облікового запису?",
+      "signUp": "Зареєструватися",
+      "errors": {
+        "incorrectCredentials": "Невірна електронна адреса або пароль"
+      }
+    },
+    "mailConfirmation": {
+      "title": "Перевірте свою пошту!",
+      "description": "Нам потрібно, щоб ви підтвердили свою електронну адресу для завершення реєстрації.",
+      "noEmailReceived": "Не отримали листа?",
+      "clickHere": "Натисніть тут."
+    },
+    "resetPassword": {
+      "title": "Введіть вашу електронну адресу",
+      "description": "Ми надішлемо вам посилання для скидання пароля. Переконайтесь, що адреса правильна.",
+      "send": "Надіслати",
+      "sending": "Надсилання...",
+      "emailSent": "Лист було надіслано"
+    },
+    "signUp": {
+      "signUp": "Зареєструватися",
+      "almostDone": "Майже готово!",
+      "checkEmailAndConfirm": "Перевірте свою пошту та натисніть на посилання для активації облікового запису.",
+      "done": "Готово!",
+      "confirmPassword": "Підтвердити пароль",
+      "errors": {
+        "emailAlreadyInUse": "Ця електронна адреса вже використовується.",
+        "passwordTooShort": "Пароль має містити щонайменше 6 символів.",
+        "passwordsDoNotMatch": "Паролі не збігаються."
+      },
+      "confirmPrivacyPolicy": {
+        "part1": "Я підтверджую, що прочитав і приймаю",
+        "part2": "нашу політику конфіденційності"
+      }
+    }
+  },
+  "common": {
+    "submit": "Підтвердити",
+    "cancel": "Скасувати",
+    "back": "Назад",
+    "next": "Далі",
+    "save": "Зберегти",
+    "delete": "Видалити",
+    "logout": "Вийти",
+    "other": "Інше",
+    "search": "Пошук",
+    "return": "Повернутися",
+    "spot": {
+      "name": "{{parking}} [Місце № {{number}}]",
+      "number": "Місце № {{number}}",
+      "numberLabel": "Місце №"
+    }
+  },
+  "welcome": {
+    "welcomeTo": "Ласкаво просимо до"
+  },
+  "user": {
+    "profile": {
+      "noAddressDefined": "Адресу паркінгу не вказано",
+      "title": "Мій профіль",
+      "mySpot": "Моє місце",
+      "noParkingDefined": "Назву паркінгу не вказано",
+      "provideFeedback": "Є пропозиція? Напишіть нам тут!",
+      "sendFeedback": "Надіслати відгук",
+      "deleteAccount": "Видалити мій акаунт",
+      "deleteAccountConfirmation": "Видалити акаунт і всі пов’язані дані. Видалення відбудеться після завершення всіх активних бронювань.",
+      "deleteAccountConfirm": "Я підтверджую видалення мого акаунту та розумію, що ця дія незворотна.",
+      "deleteAccountTitle": "Видалити акаунт",
+      "editAvatar": "Змінити аватар",
+      "logout": "Вийти",
+      "logoutConfirmation": "Вийти",
+      "randomParking": "Мій паркінг {{number}}"
+    },
+    "parking": {
+      "cantFindParking": "Не можете знайти свій паркінг? Створіть його зараз!",
+      "searchParking": "Пошук паркінгу",
+      "noMatchingParking": "Паркінгів, що відповідають «{{search}}», не знайдено.",
+      "createParking": "Створити паркінг",
+      "editParking": "Редагувати паркінг",
+      "parkingName": "Мій паркінг",
+      "parkingAddress": "Адреса мого паркінгу",
+      "create": "Створити {{name}}",
+      "save": "Зберегти",
+      "cars": "авто",
+      "confirmDelete": "Видалити",
+      "cancelDelete": "Скасувати"
+    }
+  },
+  "mySpot": {
+    "title": "Моє місце",
+    "lendMySpot": "Надати місце",
+    "spotInformation": "Інформація про місце",
+    "spotNotShared": "Наразі не надано",
+    "spotShared": "Надається до {{time}}"
+  },
+  "searchSpot": {
+    "title": "Пошук місця",
+    "duration": "Тривалість"
+  },
+  "validation": {
+    "required": "Це поле є обов’язковим",
+    "invalidEmail": "Недійсний email",
+    "invalidPassword": "Недійсний пароль"
+  },
+  "booking": {
+    "reserveSpot": "Забронювати місце",
+    "reserveNow": "Забронюйте місце вже зараз!",
+    "nextReservation": "Ваше наступне бронювання почнеться через {{time}}",
+    "nextReservationTitle": "Наступне бронювання",
+    "reservations": "Бронювання",
+    "suggestedSpots": "Рекомендовані місця",
+    "noSpotsAvailable": "Немає доступних місць\nна цей період.",
+    "reserveFrom": "Бронювання з",
+    "reserveUntil": "До",
+    "reserve": "Забронювати",
+    "reserveForCredits": "Забронювати за {{credits}} кредитів",
+    "now": "Зараз",
+    "occupyingSpot": "Ви займаєте це місце",
+    "occupyingSpots": "Ви займаєте {{count}} місць",
+    "spot": {
+      "locked": "Місце заблоковане",
+      "lockedDescription": "Номер буде показано на початку бронювання."
+    },
+    "newSpot": {
+      "title": "Нове місце заброньовано!",
+      "viewReservations": "Переглянути мої бронювання"
+    },
+    "countdown": {
+      "timeLeft": "Залишилось часу",
+      "started": "Почалося",
+      "finished": "Завершено",
+      "remaining": "Залишилося",
+      "almostFinished": "Майже завершено",
+      "revealedSpot": "Ваше місце було розкрито!",
+      "spotNumber": "Номер місця",
+      "hours": "{{hours}} годин",
+      "minutes": "{{minutes}} хвилин",
+      "spotLocation": "Розташування місця"
+    }
+  },
+  "lending": {
+    "lendMySpot": "Надати місце",
+    "spotIsAvailable": "Ваше місце зараз у вільному доступі",
+    "notLendingYet": "Ви ще не надаєте своє місце",
+    "waitingForBooking": "Очікування бронювання",
+    "currentlyUsingSpot": "Ви зараз використовуєте місце",
+    "spotAlreadyShared": "Місце вже надано,\nви можете подовжити, додавши нові інтервали.",
+    "lendFrom": "Надати з",
+    "lendUntil": "До",
+    "lendAndEarnCredits": "Надайте місце і заробіть до {{credits}} кредитів"
+  },
+  "wallet": {
+    "howItWorks": "Як це працює?",
+    "availableCreditsExplanation": "Використовуйте ці кредити для бронювання доступних місць.",
+    "pendingCreditsExplanation": "Кредити будуть зараховані після завершення надання.",
+    "creditInfo": "Інфо: 1 година бронювання або надання = 1 кредит."
+  },
+  "rating": {
+    "bookingCompleted": {
+      "title": "Ваше бронювання завершено, як вам усе сподобалося?"
+    },
+    "buttons": {
+      "good": "Добре",
+      "bad": "Погано",
+      "neutral": "Нейтрально"
+    }
+  },
+  "app": {
+    "version": "Версія",
+    "otaPatch": "OTA-патч застосовано {{time}}",
+    "noOtaPatch": "OTA-патч не застосовано"
+  },
+  "account": {
+    "logout": "Вийти",
+    "logoutConfirmation": "Вийти"
+  }
+}
