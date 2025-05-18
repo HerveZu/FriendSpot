@@ -3,6 +3,7 @@ using System;
 using Api.Common.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518222210_AddDeviceLocale")]
+    partial class AddDeviceLocale
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -713,7 +716,17 @@ namespace Api.Migrations
                 {
                     b.OwnsMany("Domain.Users.UserDevice", "UserDevices", b1 =>
                         {
+                            b1.Property<string>("UserIdentity")
+                                .HasColumnType("text");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
                             b1.Property<string>("DeviceId")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.Property<string>("ExpoPushToken")
@@ -726,13 +739,7 @@ namespace Api.Migrations
                             b1.Property<bool>("UniquenessNotGuaranteed")
                                 .HasColumnType("boolean");
 
-                            b1.Property<string>("UserIdentity")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("DeviceId");
-
-                            b1.HasIndex("UserIdentity");
+                            b1.HasKey("UserIdentity", "Id");
 
                             b1.ToTable("UserDevice");
 

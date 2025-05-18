@@ -20,6 +20,7 @@ public sealed record RegisterUserRequest
     {
         public required string Id { get; init; }
         public required string? ExpoPushToken { get; init; }
+        public required string Locale { get; init; }
 
         // true by default to avoid any non-up-to-date client to pass non-unique device id
         public bool UniquenessNotGuaranteed { get; init; } = true;
@@ -96,7 +97,7 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
             req.Device.UniquenessNotGuaranteed,
             req.Device.ExpoPushToken);
 
-        user.AcknowledgeDevice(req.Device.Id, req.Device.ExpoPushToken, req.Device.UniquenessNotGuaranteed);
+        user.AcknowledgeDevice(req.Device.Id, req.Device.ExpoPushToken, req.Device.UniquenessNotGuaranteed, req.Device.Locale);
 
         if (newUser)
         {
