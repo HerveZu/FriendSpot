@@ -81,7 +81,7 @@ public sealed class UserTests
         var user = User.Register("user123", new UserDisplayName("InitialName"));
 
         // Act
-        user.AcknowledgeDevice("device1", "token1", false);
+        user.AcknowledgeDevice("device1", "token1", false, "en");
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(1));
@@ -90,6 +90,7 @@ public sealed class UserTests
             {
                 Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
                 Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token1"));
+                Assert.That(user.UserDevices[0].Locale, Is.EqualTo("en"));
             });
     }
 
@@ -98,14 +99,15 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false);
+        user.AcknowledgeDevice("device1", "token1", false, "en");
 
         // Act
-        user.AcknowledgeDevice("device1", "token2", false);
+        user.AcknowledgeDevice("device1", "token2", false, "fr");
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(1));
         Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token2"));
+        Assert.That(user.UserDevices[0].Locale, Is.EqualTo("fr"));
     }
 
     [Test]
@@ -113,11 +115,11 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false);
-        user.AcknowledgeDevice("device2", "token2", true);
+        user.AcknowledgeDevice("device1", "token1", false, "en");
+        user.AcknowledgeDevice("device2", "token2", true, "fr");
 
         // Act
-        user.AcknowledgeDevice("device3", "token3", true);
+        user.AcknowledgeDevice("device3", "token3", true, "de");
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(2));
@@ -134,7 +136,7 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false);
+        user.AcknowledgeDevice("device1", "token1", false, "en");
 
         // Act
         user.RemoveDevice("device1");
@@ -148,8 +150,8 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false);
-        user.AcknowledgeDevice("device2", "token2", false);
+        user.AcknowledgeDevice("device1", "token1", false, "en");
+        user.AcknowledgeDevice("device2", "token2", false, "en");
 
         // Act
         user.RemoveAllDevices();
@@ -176,8 +178,8 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("ValidName"));
-        user.AcknowledgeDevice("device1", "token1", false);
-        user.AcknowledgeDevice("device2", "token2", false);
+        user.AcknowledgeDevice("device1", "token1", false, "en");
+        user.AcknowledgeDevice("device2", "token2", false, "en");
         var notificationService = Substitute.For<INotificationPushService>();
 
         // Act
