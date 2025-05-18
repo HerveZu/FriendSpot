@@ -1,6 +1,6 @@
 namespace Domain.Users;
 
-public sealed class UserDevice(string deviceId, string? expoPushToken, bool uniquenessNotGuaranteed)
+public sealed class UserDevice(string deviceId, string? expoPushToken, bool uniquenessNotGuaranteed, string locale)
 {
     /// <summary>
     ///     Whether the <see cref="DeviceId" /> is truly unique.
@@ -10,9 +10,11 @@ public sealed class UserDevice(string deviceId, string? expoPushToken, bool uniq
 
     public string DeviceId { get; } = deviceId;
     public string? ExpoPushToken { get; private set; } = expoPushToken;
+    public string Locale { get; private set; } = locale;
 
-    public void UpdatePushToken(string? token)
+    public void UpdateInfo(string? token, string locale)
     {
         ExpoPushToken = token;
+        Locale = locale;
     }
 }

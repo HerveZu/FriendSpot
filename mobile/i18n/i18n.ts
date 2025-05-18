@@ -19,7 +19,7 @@ const resources = {
   },
 };
 
-const deviceLocale = getLocales()[0];
+export const deviceLocale = getLocales()[0];
 
 i18n.use(initReactI18next).init({
   resources,
