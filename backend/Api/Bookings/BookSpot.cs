@@ -46,11 +46,11 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
     {
         var currentUser = HttpContext.ToCurrentUser();
 
-        var usersParkingLot = await dbContext
+        var userHasParkingSpot = await dbContext
             .Set<ParkingSpot>()
-            .FirstOrDefaultAsync(parkingLot => parkingLot.OwnerId == currentUser.Identity, ct);
+            .AnyAsync(parkingLot => parkingLot.OwnerId == currentUser.Identity, ct);
 
-        if (usersParkingLot is null)
+        if (!userHasParkingSpot)
         {
             ThrowError("You must have a parking lot to book another spot");
             return;
