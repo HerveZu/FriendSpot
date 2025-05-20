@@ -470,7 +470,7 @@ function DefineSpotSheet(props: {
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={keyboardVisible ? [800] : [700]}>
+      snapPoints={keyboardVisible ? ['95%'] : ['80%']}>
       <ContentSheetView
         className={'flex-col justify-between gap-6'}
         style={
