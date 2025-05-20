@@ -389,6 +389,7 @@ function DefineSpotSheet(props: {
   const bottomSheetModalRef = useSheetRef();
 
   const [search, setSearch] = useState<string>();
+  const [searchFocused, setSearchFocused] = useState(false);
   const searchParking = useSearchParking();
   const [defineSpot, isUpdating] = useLoading(useDefineSpot(), {
     beforeMarkingComplete: () => props.onOpenChange(false),
@@ -462,12 +463,14 @@ function DefineSpotSheet(props: {
     setParkingModalOpen(true);
   }
 
+  const maximizeSpace = searchFocused && keyboardVisible;
+
   return (
     <Sheet
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpenChange(false)}
-      snapPoints={keyboardVisible ? [800] : [700]}>
+      snapPoints={keyboardVisible ? ['95%'] : ['80%']}>
       <ContentSheetView
         className={'flex-col justify-between gap-6'}
         style={
@@ -481,6 +484,8 @@ function DefineSpotSheet(props: {
               position: 'left',
               element: <ThemedIcon size={18} name={'search'} />,
             }}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
             textContentType={'addressCityAndState'}
             editable={true}
             value={fullSearch}
@@ -508,7 +513,7 @@ function DefineSpotSheet(props: {
           </CardContainer>
         </View>
 
-        {!keyboardVisible && (
+        {!maximizeSpace && (
           <Pressable onPress={initiateParkingCreation}>
             <Card className={'flex-row items-center justify-between gap-4'}>
               <Text variant={'caption1'} className={'w-2/3'}>
@@ -519,30 +524,32 @@ function DefineSpotSheet(props: {
           </Pressable>
         )}
 
-        <View className="flex-col gap-8">
-          <View className="w-full flex-row items-center justify-between">
-            <Text className="text-lg">N° de place</Text>
-            <TextInput
-              ref={spotNameRef}
-              className={'w-40'}
-              icon={{
-                position: 'right',
-                element: <ThemedIcon size={18} name={'pencil'} />,
-              }}
-              value={currentSpotName}
-              editable={true}
-              onChangeText={setCurrentSpotName}
-            />
+        {!maximizeSpace && (
+          <View className="flex-col gap-8">
+            <View className="w-full flex-row items-center justify-between">
+              <Text className="text-lg">N° de place</Text>
+              <TextInput
+                ref={spotNameRef}
+                className={'w-40'}
+                icon={{
+                  position: 'right',
+                  element: <ThemedIcon size={18} name={'pencil'} />,
+                }}
+                value={currentSpotName}
+                editable={true}
+                onChangeText={setCurrentSpotName}
+              />
+            </View>
+            <Button
+              className={`w-full rounded-xl bg-primary`}
+              disabled={!selectedParking || !currentSpotName || isUpdating}
+              onPress={() => updateParking()}
+              size={'lg'}>
+              {isUpdating && <ActivityIndicator color={colors.foreground} />}
+              <Text className="text-white">Enregistrer</Text>
+            </Button>
           </View>
-          <Button
-            className={`w-full rounded-xl bg-primary`}
-            disabled={!selectedParking || !currentSpotName || isUpdating}
-            onPress={() => updateParking()}
-            size={'lg'}>
-            {isUpdating && <ActivityIndicator color={colors.foreground} />}
-            <Text className="text-white">Enregistrer</Text>
-          </Button>
-        </View>
+        )}
       </ContentSheetView>
       <ParkingModal
         parking={editingParking}

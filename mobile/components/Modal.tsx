@@ -1,5 +1,5 @@
 import { Text } from '~/components/nativewindui/Text';
-import { Vibration, View, ViewProps } from 'react-native';
+import { KeyboardAvoidingView, Vibration, View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
 import { Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
@@ -35,11 +35,13 @@ export function Modal({
           onBackdropPress={() => onOpenChange(false)}
           // this removes the flickering on exit
           backdropTransitionOutTiming={1}>
-          <View className={'bg-background'} {...props}>
-            <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
-              {children}
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
+            <View className={'bg-background'} {...props}>
+              <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
+                {children}
+              </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </ReactModal>
       </View>
     </>

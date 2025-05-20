@@ -420,7 +420,7 @@ function BookingSheet(props: {
       ref={ref}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpen(false)}
-      snapPoints={[700]}>
+      snapPoints={['80%']}>
       <BottomSheetView>
         <ContentSheetView className="h-full flex-col gap-8">
           <View className="grow flex-col gap-6">
