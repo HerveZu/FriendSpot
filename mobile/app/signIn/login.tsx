@@ -19,6 +19,7 @@ import { FormInput } from '~/form/FormInput';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { Validators } from '~/form/validators';
+import { FormError } from '~/form/FormError';
 
 export default function LoginScreen() {
   const autoFillParams = useLocalSearchParams<{ email?: string; password?: string }>();
@@ -164,12 +165,13 @@ function ResetPasswordForm() {
   const { colors } = useColorScheme();
 
   const [email, setEmail] = useState<string>();
-  const [resetEmailStatus, setResetEmailStatus] = useState('Envoyer');
+  const [resetEmailStatus, setResetEmailStatus] = useState<string>();
 
   async function resetPassword(email: string) {
     setResetEmailStatus('Envoie en cours..');
-    await sendPasswordResetEmail(auth, email);
-    setResetEmailStatus('Un email a été envoyé');
+    await sendPasswordResetEmail(auth, email)
+      .then(() => setResetEmailStatus('Un email a été envoyé'))
+      .catch((e: Error) => setResetEmailStatus(e.message));
   }
 
   return (
@@ -183,6 +185,7 @@ function ResetPasswordForm() {
         keyboardType="email-address"
         validators={[Validators.email, Validators.required]}
       />
+      {resetEmailStatus && <FormError>{resetEmailStatus}</FormError>}
       <Button
         size={Platform.select({ default: 'md' })}
         disabled={!isValid}
@@ -190,7 +193,7 @@ function ResetPasswordForm() {
         variant="primary"
         className="w-full">
         {isLoading && <ActivityIndicator color={colors.foreground} />}
-        <Text>{resetEmailStatus}</Text>
+        <Text>Envoyer</Text>
       </Button>
     </>
   );
