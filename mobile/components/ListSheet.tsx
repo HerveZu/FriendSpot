@@ -1,12 +1,13 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useEffect } from 'react';
-import { Pressable } from 'react-native';
-
+import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useEffect, useState } from 'react';
+import { Pressable, View } from 'react-native';
+import { useColorScheme } from '~/lib/useColorScheme';
 import { ContentSheetView } from '~/components/ContentView';
 import { List } from '~/components/List';
 import { SheetTitle } from '~/components/Title';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { ScrollView } from 'react-native-gesture-handler';
+
 
 export function ListSheet(
   props: {
@@ -18,7 +19,7 @@ export function ListSheet(
   } & PropsWithChildren
 ) {
   const ref = useSheetRef();
-
+  
   useEffect(() => {
     if (props.open) {
       ref.current?.present();
@@ -37,7 +38,9 @@ export function ListSheet(
       topInset={150}>
       <BottomSheetView>
         <ContentSheetView className="flex-col justify-between gap-8">
-          <SheetTitle>{props.title}</SheetTitle>
+          <View>
+            <SheetTitle>{props.title}</SheetTitle>
+          </View>
           <ScrollView>
             <List>{props.children}</List>
           </ScrollView>

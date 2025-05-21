@@ -54,6 +54,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 import { pluralize } from '~/lib/locale';
+import { Filter} from '~/components/filter';
 
 export default function SearchSpotScreen() {
   const { userProfile } = useCurrentUser();
@@ -63,9 +64,11 @@ export default function SearchSpotScreen() {
   const getSuggestedSpots = useGetSuggestedSpots();
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
-  const [nextReservedSpot, setNextReservedSpot] = useState<boolean>(false);
+  const [displayNextReservedSpot, setDisplayNextReservedSpot] = useState<boolean>(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState<SpotSuggestion>();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
+  const [filterSearchSpot, setFilterSearchSpot] = useState("suggested-spot");
+  const [filterListSheet, setFilterListSheet] = useState("all-spot");
 
   const now = useActualTime(5000);
   const [booking] = useFetch(() => getBooking(), []);
@@ -138,35 +141,51 @@ export default function SearchSpotScreen() {
           </Button>
         </Modal>
       )}
+      <Filter 
+        filterOne='suggested-spot'
+        filterTwo='live-spot'
+        filterTextOne='Suggérés'
+        filterTextTwo='En cours'
+        liveSpotCount={activeBookingsCount}
+        filterChoice={filterSearchSpot}
+        setFilterChoice={setFilterSearchSpot}
+      />
       {!booking ? (
         <ActivityIndicator />
-      ) : activeBookings.length > 0 ? (
+      ) : activeBookings.length > 0 && filterSearchSpot === 'live-spot' ? (
         <View>
           <View className="flex-row items-center gap-2">
             <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
             <Title>{`Tu occupes ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
           </View>
-          {activeBookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} countdownOnTap />
-          ))}
+          <View className='gap-2'>
+            {activeBookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} countdownOnTap />
+            ))}
+          </View>
         </View>
       ) : booking.bookings.length > 0 ? (
-        <MessageInfo
-          info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
-          action={() => {
-            setBookingListSheetOpen(true);
-            setNextReservedSpot(true);
-          }}
-        />
+        null
       ) : (
         <MessageInfo info="Réserve un spot dès maintenant !" />
       )}
       <View className="flex-col">
         {!suggestedSpots ? (
           <ActivityIndicator />
-        ) : (
-          suggestedSpots.suggestions.length > 0 && (
-            <>
+        ) : suggestedSpots.suggestions.length > 0 && filterSearchSpot === "suggested-spot" ? (
+          <>
+            {booking && booking?.bookings.length > 0 && (
+              <View className='mb-6'>
+                <MessageInfo
+                  info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
+                  action={() => {
+                    setBookingListSheetOpen(true);
+                    setDisplayNextReservedSpot(true);
+                  }}
+                />
+              </View>
+            )}
+            <View>
               <Title>Spots Suggérés</Title>
               <List>
                 {suggestedSpots.suggestions.map((suggestion, i) => (
@@ -175,17 +194,16 @@ export default function SearchSpotScreen() {
                   </Pressable>
                 ))}
               </List>
-            </>
-          )
-        )}
+            </View>
+          </>
+        ) : null}
       </View>
-
       {booking && (
         <ListSheet
-          title={`${nextReservedSpot ? 'Prochaine réservation' : 'Réservations'}`}
-          setNextReservedSpot={setNextReservedSpot}
+          title={`${displayNextReservedSpot ? 'Prochaine réservation' : 'Mes réservations'}`}
+          setNextReservedSpot={setDisplayNextReservedSpot}
           action={
-            !nextReservedSpot && (
+            !displayNextReservedSpot && (
               <Button
                 size="lg"
                 variant="primary"
@@ -200,12 +218,36 @@ export default function SearchSpotScreen() {
           }
           open={bookingListSheetOpen}
           onOpen={setBookingListSheetOpen}>
-          {nextReservedSpot && booking.bookings.length > 0 ? (
+          {!displayNextReservedSpot && (
+            <View className='mb-4'>
+              <Filter
+                filterOne="all-spot"
+                filterTwo="live-spot"
+                filterTextOne='Toutes'
+                filterTextTwo='En cours'
+                liveSpotCount={activeBookingsCount}
+                filterChoice={filterListSheet}
+                setFilterChoice={setFilterListSheet}
+              />
+            </View>
+          )}
+
+          {/* !! Fix here not displaying the next spot !!*/}
+          {displayNextReservedSpot && booking.bookings.length > 0 && (
             <BookingCard booking={booking.bookings[0]} deletable={true} />
-          ) : (
+          )}
+          {activeBookings && activeBookings.length > 0 && filterListSheet === "live-spot" && !displayNextReservedSpot && (
+            activeBookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} deletable={true} />
+            ))
+          )}
+          {booking && booking.bookings && filterListSheet === "all-spot" && !displayNextReservedSpot && (
             booking.bookings
-              .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
-              .map((booking) => <BookingCard key={booking.id} booking={booking} deletable={true} />)
+              .filter((b: BookingResponse) => !activeBookings.some((ab) => ab.id === b.id))
+              .sort((a: BookingResponse, b: BookingResponse) => new Date(a.from).getTime() - new Date(b.from).getTime())
+              .map((booking: BookingResponse) => (
+          <BookingCard key={booking.id} booking={booking} deletable={true} />
+              ))
           )}
         </ListSheet>
       )}
