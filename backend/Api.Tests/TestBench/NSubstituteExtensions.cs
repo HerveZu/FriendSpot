@@ -6,24 +6,17 @@ internal static class NSubstituteExtensions
 {
     public static CompletionAssertion AfterHavingCompleted(
         this ConfiguredCall call,
-        int onCallNumber,
         Func<CallInfo, bool> assertion)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(onCallNumber);
-
         var tcs = new TaskCompletionSource();
-        var callCount = 0;
 
         call.AndDoes(
             info =>
             {
-                if (++callCount != onCallNumber)
+                if (assertion(info))
                 {
-                    return;
+                    tcs.SetResult();
                 }
-
-                assertion(info);
-                tcs.SetResult();
             });
 
         return new CompletionAssertion(tcs);

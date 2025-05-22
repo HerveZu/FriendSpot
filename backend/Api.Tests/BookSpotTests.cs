@@ -58,7 +58,7 @@ internal sealed class BookSpotTests : IntegrationTestsBase
                 Arg.Any<CancellationToken>()
             )
             .ReturnsForAnyArgs(Task.CompletedTask)
-            .AfterHavingCompleted(1, info => info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident2);
+            .AfterHavingCompleted(info => info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident2);
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
@@ -102,7 +102,7 @@ internal sealed class BookSpotTests : IntegrationTestsBase
                 Arg.Any<CancellationToken>()
             )
             .ReturnsForAnyArgs(Task.CompletedTask)
-            .AfterHavingCompleted(1, info => info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident2);
+            .AfterHavingCompleted(info => info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident2);
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
