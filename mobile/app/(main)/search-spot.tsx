@@ -7,6 +7,7 @@ import {
   addMinutes,
   differenceInHours,
   differenceInSeconds,
+  isBefore,
   formatDistance,
   formatDuration,
   formatRelative,
@@ -84,6 +85,9 @@ export default function SearchSpotScreen() {
 
   const activeBookingsCount = activeBookings.length;
 
+  const nextBooking = booking?.bookings
+  .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())[0] ?? null;
+  
   useEffect(() => {
     (!booking || booking.bookings.length === 0) && setBookingListSheetOpen(false);
   }, [booking]);
@@ -174,10 +178,10 @@ export default function SearchSpotScreen() {
           <ActivityIndicator />
         ) : suggestedSpots.suggestions.length > 0 && filterSearchSpot === "suggested-spot" ? (
           <>
-            {booking && booking?.bookings.length > 0 && (
+            {nextBooking && isBefore(now, new Date(nextBooking.from)) && (
               <View className='mb-6'>
                 <MessageInfo
-                  info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
+                  info={`Ta prochaine réservation commence dans ${formatDistance(now, new Date(nextBooking.from))}`}
                   action={() => {
                     setBookingListSheetOpen(true);
                     setDisplayNextReservedSpot(true);
@@ -243,10 +247,8 @@ export default function SearchSpotScreen() {
           )}
           {booking && booking.bookings && filterListSheet === "all-spot" && !displayNextReservedSpot && (
             booking.bookings
-              .filter((b: BookingResponse) => !activeBookings.some((ab) => ab.id === b.id))
-              .sort((a: BookingResponse, b: BookingResponse) => new Date(a.from).getTime() - new Date(b.from).getTime())
               .map((booking: BookingResponse) => (
-          <BookingCard key={booking.id} booking={booking} deletable={true} />
+              <BookingCard key={booking.id} booking={booking} deletable={true} />
               ))
           )}
         </ListSheet>
