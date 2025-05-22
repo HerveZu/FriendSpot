@@ -109,6 +109,7 @@ export function ScreenWithHeader(
             viewIsInsideTabBar={false}
             extraHeight={100} // workaround to make the scroll to focused multiline input work
             scrollIndicatorInsets={{ right: 3 }}
+            className={cn(props.stickyBottom && 'mb-20')}
             onScroll={(e) => setScroll(e.nativeEvent.contentOffset.y)}>
             <Screen className={cn(Platform.OS === 'android' ? 'mt-8' : 'mt-4')}>
               <View className={cn('flex-col gap-8', props.className)}>{props.children}</View>
@@ -117,7 +118,7 @@ export function ScreenWithHeader(
 
           {/*absolute positioning is needed to make the sticky bottom work*/}
           {props.stickyBottom && (
-            <View className={'absolute bottom-0 left-0 right-0 bg-background p-6 pt-0'}>
+            <View className={'absolute bottom-0 left-0 right-0 p-6 pt-0'}>
               {props.stickyBottom}
             </View>
           )}
