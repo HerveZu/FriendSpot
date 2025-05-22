@@ -50,6 +50,11 @@ internal sealed class QuartzJobTrackListener : JobListenerSupport
 
         return new CompletionAssertion(tcs);
     }
+
+    public void Reset()
+    {
+        _jobTcs.Clear();
+    }
 }
 
 internal sealed class SchedulerFactoryProxy(
