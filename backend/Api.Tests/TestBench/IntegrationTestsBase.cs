@@ -24,17 +24,17 @@ internal abstract class IntegrationTestsBase
     [OneTimeSetUp]
     public async Task OneTimeSetup()
     {
-        _pgContainer = new PostgreSqlBuilder()
+        PgContainer = new PostgreSqlBuilder()
             .WithImage("postgres:15-alpine")
             .Build();
 
-        await _pgContainer.StartAsync();
+        await PgContainer.StartAsync();
 
         var inMemorySettings = new Dictionary<string, string?>
         {
             {
                 $"{PostgresOptions.Section}:CONNECTION_STRING",
-                _pgContainer.GetConnectionString()
+                PgContainer.GetConnectionString()
             },
             {
                 $"{PostgresOptions.Section}:ENABLE_SENSITIVE_DATA_LOGGING",
@@ -148,15 +148,15 @@ internal abstract class IntegrationTestsBase
     public async Task OneTimeTearDown()
     {
         await _applicationFactory.DisposeAsync();
-        await _pgContainer.DisposeAsync();
+        await PgContainer.DisposeAsync();
     }
 
     protected readonly INotificationPushService NotificationPushService = Substitute.For<INotificationPushService>();
     protected QuartzJobTrackListener JobListener { get; } = new();
 
-    private WebApplicationFactory<Program> _applicationFactory = null!;
-    private PostgreSqlContainer _pgContainer = null!;
+    protected PostgreSqlContainer PgContainer { get; private set; }
     private Respawner _respawn = null!;
+    private WebApplicationFactory<Program> _applicationFactory = null!;
 
     protected HttpClient UserClient(string userId)
     {
@@ -175,6 +175,6 @@ internal abstract class IntegrationTestsBase
 
     private string GetConnectionString()
     {
-        return _pgContainer.GetConnectionString() + ";Include Error Detail=true";
+        return PgContainer.GetConnectionString() + ";Include Error Detail=true";
     }
 }

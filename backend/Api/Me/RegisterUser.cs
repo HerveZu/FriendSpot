@@ -72,8 +72,22 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
             return;
         }
 
-        logger.LogInformation("Updating user info...");
+        logger.LogInformation("Registering user...");
 
+        var usersHavingTheSameDevice = await dbContext
+            .Set<User>()
+            .Where(otherUser => otherUser.UserDevices.Any(device => device.DeviceId == req.Device.Id))
+            .ToListAsync(ct);
+
+        logger.LogDebug(
+            "Found {Count} users with the same device {DeviceId}",
+            usersHavingTheSameDevice.Count,
+            req.Device.Id);
+        usersHavingTheSameDevice.ForEach(conflictingUser => conflictingUser.RemoveDevice(req.Device.Id));
+
+        dbContext.Set<User>().UpdateRange(usersHavingTheSameDevice);
+
+        logger.LogDebug("Updating user info...");
         user.UpdateInfo(new UserDisplayName(req.DisplayName), req.PictureUrl);
 
         logger.LogDebug(
