@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using NSubstitute;
+using NSubstitute.ClearExtensions;
 using Quartz;
 using Respawn;
 using Testcontainers.PostgreSql;
@@ -75,6 +76,7 @@ internal abstract class IntegrationTestsBase
                             .Build());
                 });
 
+        // runs the app to trigger migrations
         using var _ = _applicationFactory.CreateClient();
 
         await using var conn = new NpgsqlConnection(GetConnectionString());
@@ -135,6 +137,9 @@ internal abstract class IntegrationTestsBase
     [TearDown]
     public async Task TearDown()
     {
+        JobListener.Reset();
+        NotificationPushService.ClearSubstitute();
+
         // this is a dirty workaround that prevents deadlocks
         await Task.Delay(100);
     }
