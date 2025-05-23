@@ -20,7 +20,7 @@ public sealed record RegisterUserRequest
     {
         public required string Id { get; init; }
         public required string? ExpoPushToken { get; init; }
-        public required string Locale { get; init; }
+        public string Locale { get; init; } = "fr";
 
         // true by default to avoid any non-up-to-date client to pass non-unique device id
         public bool UniquenessNotGuaranteed { get; init; } = true;

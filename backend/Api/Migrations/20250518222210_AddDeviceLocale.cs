@@ -15,7 +15,7 @@ namespace Api.Migrations
                 table: "UserDevice",
                 type: "text",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "fr");
         }
 
         /// <inheritdoc />
