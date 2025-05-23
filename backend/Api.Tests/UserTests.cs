@@ -37,7 +37,8 @@ internal sealed class UserTests : IntegrationTestsBase
                     Device = new RegisterUserRequest.UserDevice
                     {
                         Id = "device-id",
-                        ExpoPushToken = null
+                        ExpoPushToken = null,
+                        Locale = "fr"
                     },
                     DisplayName = "resident1",
                     PictureUrl = null
@@ -54,7 +55,8 @@ internal sealed class UserTests : IntegrationTestsBase
                     Device = new RegisterUserRequest.UserDevice
                     {
                         Id = "device-id",
-                        ExpoPushToken = null
+                        ExpoPushToken = null,
+                        Locale = "en"
                     },
                     DisplayName = "resident2",
                     PictureUrl = null
