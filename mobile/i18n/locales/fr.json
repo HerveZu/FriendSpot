@@ -103,14 +103,14 @@
     }
   },
   "mySpot": {
-    "title": "Mon emplacement",
+    "title": "Mon spot",
     "lendMySpot": "Prêter mon spot",
     "spotInformation": "Informations du spot",
     "spotNotShared": "Non partagé actuellement",
     "spotShared": "Partagé jusqu'à {{time}}"
   },
   "searchSpot": {
-    "title": "Rechercher un emplacement",
+    "title": "Rechercher un spot",
     "duration": "Durée"
   },
   "validation": {
