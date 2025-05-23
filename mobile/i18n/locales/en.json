@@ -79,7 +79,7 @@
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
       "deleteAccount": "Delete my account",
-      "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
+      "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing bookings of your spot are completed.",
       "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
       "deleteAccountTitle": "Delete my account",
       "editAvatar": "Edit Avatar",
@@ -120,27 +120,27 @@
     "invalidPassword": "Invalid password"
   },
   "booking": {
-    "reserveSpot": "Reserve a spot",
-    "reserveNow": "Reserve a spot now!",
-    "nextReservation": "Your next reservation starts in {{time}}",
-    "nextReservationTitle": "Next reservation",
-    "reservations": "Reservations",
+    "reserveSpot": "Book a spot",
+    "reserveNow": "Book a spot now!",
+    "nextReservation": "Your next booking starts in {{time}}",
+    "nextReservationTitle": "Next booking",
+    "reservations": "Bookings",
     "suggestedSpots": "Suggested Spots",
     "noSpotsAvailable": "No spots available\nduring this period.",
-    "reserveFrom": "Reserve from",
+    "reserveFrom": "Book from",
     "reserveUntil": "Until",
-    "reserve": "Reserve",
-    "reserveForCredits": "Reserve for {{credits}} credits",
+    "reserve": "Book",
+    "reserveForCredits": "Book for {{credits}} credits",
     "now": "Now",
     "occupyingSpot": "You are occupying this spot",
     "occupyingSpots": "You are occupying these {{count}} spots",
     "spot": {
       "locked": "Locked spot",
-      "lockedDescription": "The spot number will be revealed at the beginning of the reservation."
+      "lockedDescription": "The spot number will be revealed at the beginning of the booking."
     },
     "newSpot": {
-      "title": "New spot reserved!",
-      "viewReservations": "View my reservations"
+      "title": "New spot booked!",
+      "viewReservations": "View my bookings"
     },
     "countdown": {
       "timeLeft": "Time left",
@@ -159,7 +159,7 @@
     "lendMySpot": "Lend my spot",
     "spotIsAvailable": "Your spot is freely available",
     "notLendingYet": "You're not lending your spot yet",
-    "waitingForBooking": "Waiting for reservation",
+    "waitingForBooking": "Waiting for booking",
     "currentlyUsingSpot": "Currently using your spot",
     "spotAlreadyShared": "Your spot is already shared,\nits availability extends when you add timeslots.",
     "lendFrom": "Lend from",
@@ -168,13 +168,13 @@
   },
   "wallet": {
     "howItWorks": "How does it work?",
-    "availableCreditsExplanation": "Use these credits to reserve an available spot.",
+    "availableCreditsExplanation": "Use these credits to book an available spot.",
     "pendingCreditsExplanation": "Credits that will be added to your current balance once your spot lending is completed.",
-    "creditInfo": "Info: Lending or reserving 1h = 1 credit."
+    "creditInfo": "Info: Lending or booking 1h = 1 credit."
   },
   "rating": {
     "bookingCompleted": {
-      "title": "Your reservation has ended, what did you think of it?"
+      "title": "Your booking has ended, what did you think of it?"
     },
     "buttons": {
       "good": "Good rating",

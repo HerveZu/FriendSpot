@@ -538,7 +538,7 @@ function DefineSpotSheet(props: {
         {!maximizeSpace && (
           <View className="flex-col gap-8">
             <View className="w-full flex-row items-center justify-between">
-              <Text className="text-lg">{t('user.parking.numberLabel')}</Text>
+              <Text className="text-lg">{t('user.parking.spotNumber')}</Text>
               <TextInput
                 ref={spotNameRef}
                 className={'w-40'}
