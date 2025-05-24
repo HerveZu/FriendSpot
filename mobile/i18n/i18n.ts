@@ -40,7 +40,9 @@ const dateFnsLocales: Record<string, Locale> = {
 
 export function getDateFnsLocale() {
   return (
-    dateFnsLocales[deviceLocale.languageTag] ?? dateFnsLocales[deviceLocale.languageCode ?? 'en']
+    dateFnsLocales[deviceLocale.languageTag] ??
+    dateFnsLocales[deviceLocale.languageCode ?? 'en'] ??
+    enUS
   );
 }
 
