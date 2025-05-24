@@ -53,9 +53,10 @@ import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
-import { pluralize } from '~/lib/locale';
+import { useTranslation } from 'react-i18next';
 
 export default function SearchSpotScreen() {
+  const { t } = useTranslation();
   const { userProfile } = useCurrentUser();
 
   const { colors } = useColorScheme();
@@ -107,15 +108,15 @@ export default function SearchSpotScreen() {
             setBookSheetOpen(true);
           }}>
           <ThemedIcon name="search" size={18} color={COLORS.white} />
-          <Text>Réserve un spot</Text>
+          <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
       <View className="flex-row justify-between">
-        <ScreenTitle title="Réserve un spot">
+        <ScreenTitle title={t('booking.reserveSpot')}>
           <Button
             className={'h-[60px]'}
             variant={'primary'}
-            disabled={booking?.bookings.length === 0}
+            disabled={!booking || booking.bookings.length === 0}
             onPress={() => setBookingListSheetOpen(true)}>
             <ThemedIcon name="car" color={colors.foreground} />
             <Text>{booking?.bookings.length ?? 0}</Text>
@@ -124,7 +125,7 @@ export default function SearchSpotScreen() {
       </View>
       {infoModalOpen && (
         <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-          <ModalTitle className=" justify-center text-center" text={`Nouveau spot réservé !`} />
+          <ModalTitle className="justify-center text-center" text={t('booking.newSpot.title')} />
           <View className="items-center">
             <SuccessIllustration width={250} height={250} />
           </View>
@@ -134,7 +135,7 @@ export default function SearchSpotScreen() {
               setInfoModalOpen(false);
               setBookingListSheetOpen(true);
             }}>
-            <Text>Voir mes réservations</Text>
+            <Text>{t('booking.newSpot.viewReservations')}</Text>
           </Button>
         </Modal>
       )}
@@ -144,7 +145,11 @@ export default function SearchSpotScreen() {
         <View>
           <View className="flex-row items-center gap-2">
             <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
-            <Title>{`Tu occupes ce${pluralize(activeBookingsCount)} spot${pluralize(activeBookingsCount)}`}</Title>
+            <Title>
+              {activeBookingsCount > 1
+                ? t('booking.occupyingSpots', { count: activeBookingsCount })
+                : t('booking.occupyingSpot')}
+            </Title>
           </View>
           {activeBookings.map((booking) => (
             <BookingCard key={booking.id} booking={booking} countdownOnTap />
@@ -152,14 +157,16 @@ export default function SearchSpotScreen() {
         </View>
       ) : booking.bookings.length > 0 ? (
         <MessageInfo
-          info={`Ta prochaine réservation commence dans ${formatDistance(now, booking.bookings[0].from)}`}
+          info={t('booking.nextReservation', {
+            time: formatDistance(now, booking.bookings[0].from),
+          })}
           action={() => {
             setBookingListSheetOpen(true);
             setNextReservedSpot(true);
           }}
         />
       ) : (
-        <MessageInfo info="Réserve un spot dès maintenant !" />
+        <MessageInfo info={t('booking.reserveNow')} />
       )}
       <View className="flex-col">
         {!suggestedSpots ? (
@@ -167,7 +174,7 @@ export default function SearchSpotScreen() {
         ) : (
           suggestedSpots.suggestions.length > 0 && (
             <>
-              <Title>Spots Suggérés</Title>
+              <Title>{t('booking.suggestedSpots')}</Title>
               <List>
                 {suggestedSpots.suggestions.map((suggestion, i) => (
                   <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
@@ -182,7 +189,7 @@ export default function SearchSpotScreen() {
 
       {booking && (
         <ListSheet
-          title={`${nextReservedSpot ? 'Prochaine réservation' : 'Réservations'}`}
+          title={nextReservedSpot ? t('booking.nextReservationTitle') : t('booking.reservations')}
           setNextReservedSpot={setNextReservedSpot}
           action={
             !nextReservedSpot && (
@@ -194,7 +201,7 @@ export default function SearchSpotScreen() {
                   setBookSheetOpen(true);
                 }}>
                 <ThemedIcon name="search" size={18} color={COLORS.white} />
-                <Text>Réserve un spot</Text>
+                <Text>{t('booking.reserveSpot')}</Text>
               </Button>
             )
           }
@@ -230,6 +237,7 @@ function BookingCard(props: {
   const now = useActualTime(30_000);
   const { refreshProfile } = useCurrentUser();
   const cancelBooking = useCancelBooking();
+  const { t } = useTranslation();
 
   const canDelete = !!props.deletable && props.booking.canCancel;
   const [lockInfo, setLockInfo] = useState(false);
@@ -279,9 +287,13 @@ function BookingCard(props: {
             />
             <View>
               {props.booking.parkingLot.name ? (
-                <Tag text={`Spot n° ${props.booking.parkingLot.name}`} />
+                <Tag text={t('common.spot.number', { number: props.booking.parkingLot.name })} />
               ) : (
-                <Tag onPress={() => setLockInfo(!lockInfo)} text={'Spot n°'} icon={'lock'} />
+                <Tag
+                  onPress={() => setLockInfo(!lockInfo)}
+                  text={t('common.spot.numberLabel')}
+                  icon={'lock'}
+                />
               )}
             </View>
             <DateRange
@@ -293,9 +305,9 @@ function BookingCard(props: {
         </Pressable>
       </Deletable>
       <Modal open={lockInfo} onOpenChange={() => setLockInfo(false)}>
-        <ModalTitle text={'Spot verouillé'} icon={<ThemedIcon size={24} name={'lock'} />} />
+        <ModalTitle text={t('booking.spot.locked')} icon={<ThemedIcon size={24} name={'lock'} />} />
         <View className="w-full">
-          <Text>Le numéro du spot sera révélé au début de la réservation.</Text>
+          <Text>{t('booking.spot.lockedDescription')}</Text>
         </View>
       </Modal>
     </>
@@ -309,6 +321,7 @@ function BookingSheet(props: {
   infoModalOpen?: boolean;
   setInfoModalOpen?: Dispatch<SetStateAction<boolean>>;
 }) {
+  const { t } = useTranslation();
   const ref = useSheetRef();
 
   const MIN_DURATION_HOURS = 0.5;
@@ -433,7 +446,7 @@ function BookingSheet(props: {
               <View className="my-auto flex-col items-center gap-4">
                 <QuestionIllustration width={150} height={150} />
                 <Text variant="body" className="text-center text-primary">
-                  Aucun spot n’est disponible {'\n'} sur cette période.
+                  {t('booking.noSpotsAvailable')}
                 </Text>
               </View>
             ) : (
@@ -454,7 +467,7 @@ function BookingSheet(props: {
           </View>
           <View className="flex-col items-center justify-between gap-2">
             <View className="w-full flex-row items-center justify-between">
-              <Text className="w-24">Réserver du</Text>
+              <Text className="w-24">{t('booking.reserveFrom')}</Text>
               <DatePicker
                 minimumDate={justAfterNow}
                 value={from}
@@ -469,7 +482,7 @@ function BookingSheet(props: {
               />
             </View>
             <View className="w-full flex-row items-center justify-between">
-              <Text className="w-24">Jusqu'au</Text>
+              <Text className="w-24">{t('booking.reserveUntil')}</Text>
               <DatePicker
                 minimumDate={minTo(from)}
                 value={to}
@@ -517,8 +530,8 @@ function BookingSheet(props: {
             {actionPending && <ActivityIndicator color={colors.foreground} />}
             <Text>
               {bookingSimulation
-                ? `Réserver pour ${bookingSimulation.usedCredits} crédits`
-                : 'Réserver'}
+                ? t('booking.reserveForCredits', { credits: bookingSimulation.usedCredits })
+                : t('booking.reserve')}
             </Text>
           </Button>
         </ContentSheetView>
@@ -555,6 +568,7 @@ function BookingSheet(props: {
 
 function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
   const { colors } = useColorScheme();
+  const { t } = useTranslation();
   const now = useActualTime(30_000);
 
   return (
@@ -565,7 +579,7 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
           <Text variant="heading" className="font-bold">
             {differenceInSeconds(props.suggestion.from, now) > 0
               ? capitalize(formatRelative(props.suggestion.from, now))
-              : 'Maintenant'}
+              : t('booking.now')}
           </Text>
         </View>
         <Rating

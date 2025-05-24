@@ -62,6 +62,9 @@ builder.Services
         options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Services
+    .AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services
     .AddAuthorization()
     .AddAuthentication(
         options =>

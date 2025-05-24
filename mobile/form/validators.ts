@@ -1,14 +1,24 @@
-import { isEmail } from 'validator';
+import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 import { Validator } from '~/form/FormInput';
-import { notEmpty } from '~/lib/utils';
 
-export const Validators = {
-  email: {
-    validate: (email: string) => !email || isEmail(email),
-    message: "L'adresse e-mail n'est pas valide",
-  } as Validator,
-  required: {
-    validate: notEmpty,
-    message: 'Ce champ est requis',
-  } as Validator,
-};
+export function useValidators() {
+  const { t } = useTranslation();
+
+  return useMemo(
+    () => ({
+      required: {
+        validate: (value: string) => value != null && value.length > 0,
+        errorMessage: t('validation.required'),
+      } as Validator,
+      email: {
+        validate: (value: string) => {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(value);
+        },
+        errorMessage: t('validation.invalidEmail'),
+      } as Validator,
+    }),
+    [t]
+  );
+}

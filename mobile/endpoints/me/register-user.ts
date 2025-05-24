@@ -9,6 +9,7 @@ type RegisterUserRequest = {
     readonly id: string;
     readonly expoPushToken: string | null;
     readonly uniquenessNotGuaranteed?: boolean;
+    readonly locale: string
   };
 };
 

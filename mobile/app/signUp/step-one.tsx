@@ -1,16 +1,19 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import profileIllustration from '~/assets/profile.svg';
 
 import { AuthForm, AuthFormTitle } from '~/authentication/AuthForm';
 import { minLength } from '~/lib/utils';
-import { Validators } from '~/form/validators';
 import { FormInput } from '~/form/FormInput';
+import { useValidators } from '~/form/validators';
 
 export default function StepOneScreen() {
   const [displayName, setDisplayName] = useState<string>();
   const [email, setEmail] = useState<string>();
   const router = useRouter();
+  const { t } = useTranslation();
+  const validators = useValidators();
 
   function goToStep2(email: string) {
     router.push({
@@ -22,29 +25,29 @@ export default function StepOneScreen() {
   return (
     <AuthForm
       Illustration={profileIllustration}
-      title={<AuthFormTitle title="Créer un compte" />}
+      title={<AuthFormTitle title={t('auth.createAccount')} />}
       onSubmit={async () => goToStep2(email!)}
-      submitText="Suivant">
+      submitText={t('common.next')}>
       <FormInput
         value={displayName}
         onValueChange={setDisplayName}
-        placeholder="Nom d'utilisateur"
+        placeholder={t('auth.username')}
         validators={[
           {
             validate: minLength(3),
-            errorMessage: "Nom d'utilisateur trop court",
+            errorMessage: t('auth.errors.usernameTooShort'),
           },
-          Validators.required,
+          validators.required,
         ]}
       />
       <FormInput
         value={email}
         onValueChange={setEmail}
-        placeholder="Adresse email"
+        placeholder={t('auth.email')}
         inputMode="email"
         autoCapitalize="none"
         keyboardType="email-address"
-        validators={[Validators.email, Validators.required]}
+        validators={[validators.email, validators.required]}
       />
     </AuthForm>
   );

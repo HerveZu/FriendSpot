@@ -1,23 +1,21 @@
 import React from 'react';
 import '../global.css';
+import '../i18n/i18n';
+
 import 'expo-dev-client';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { setDefaultOptions } from 'date-fns';
 import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { configureReanimatedLogger } from 'react-native-reanimated';
 
 import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
-import { getCurrentLocale } from '~/lib/locale';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 import { NotificationProvider } from '~/notification/NotificationContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export { ErrorBoundary } from 'expo-router';
-
-setDefaultOptions({ locale: getCurrentLocale() });
 
 configureReanimatedLogger({
   strict: false,

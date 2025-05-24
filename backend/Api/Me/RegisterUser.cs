@@ -1,3 +1,4 @@
+using System.Globalization;
 using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.Users;
@@ -20,6 +21,7 @@ public sealed record RegisterUserRequest
     {
         public required string Id { get; init; }
         public required string? ExpoPushToken { get; init; }
+        public string Locale { get; init; } = "fr";
 
         // true by default to avoid any non-up-to-date client to pass non-unique device id
         public bool UniquenessNotGuaranteed { get; init; } = true;
@@ -39,6 +41,9 @@ internal sealed class RegisterUserValidator : Validator<RegisterUserRequest>
         RuleFor(x => x.DisplayName)
             .MinimumLength(UserDisplayName.MinLength)
             .MaximumLength(UserDisplayName.MaxLength);
+
+        RuleFor(x => x.Device.Id).NotEmpty();
+        RuleFor(x => x.Device.Locale).NotEmpty();
     }
 }
 
@@ -96,7 +101,11 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
             req.Device.UniquenessNotGuaranteed,
             req.Device.ExpoPushToken);
 
-        user.AcknowledgeDevice(req.Device.Id, req.Device.ExpoPushToken, req.Device.UniquenessNotGuaranteed);
+        user.AcknowledgeDevice(
+            req.Device.Id,
+            req.Device.ExpoPushToken,
+            req.Device.UniquenessNotGuaranteed,
+            new CultureInfo(req.Device.Locale));
 
         if (newUser)
         {

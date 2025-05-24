@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain.Users;
@@ -67,13 +68,13 @@ public sealed class User : IBroadcastEvents
         PictureUrl = pictureUrl;
     }
 
-    public void AcknowledgeDevice(string id, string? expoToken, bool uniquenessNotGuaranteed)
+    public void AcknowledgeDevice(string id, string? expoToken, bool uniquenessNotGuaranteed, CultureInfo locale)
     {
         var device = _userDevices.FirstOrDefault(device => device.DeviceId == id);
 
         if (device is not null)
         {
-            device.UpdatePushToken(expoToken);
+            device.UpdateInfo(expoToken, locale);
             return;
         }
 
@@ -87,7 +88,7 @@ public sealed class User : IBroadcastEvents
             _userDevices.RemoveAll(exitingDevice => exitingDevice.UniquenessNotGuaranteed);
         }
 
-        _userDevices.Add(new UserDevice(id, expoToken, uniquenessNotGuaranteed));
+        _userDevices.Add(new UserDevice(id, expoToken, uniquenessNotGuaranteed, locale));
     }
 
     public void RemoveDevice(string deviceId)
@@ -138,6 +139,9 @@ internal sealed class UserConfig : IEntityConfiguration<User>
                 deviceBuilder.HasKey(x => x.DeviceId);
                 deviceBuilder.Property(x => x.UniquenessNotGuaranteed);
                 deviceBuilder.Property(x => x.ExpoPushToken);
+                deviceBuilder
+                    .Property(x => x.Locale)
+                    .HasConversion(x => x.Name, x => new CultureInfo(x));
             });
         builder.OwnsOne(
             x => x.Rating,

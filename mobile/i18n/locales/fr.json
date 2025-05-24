@@ -1,0 +1,193 @@
+{
+  "auth": {
+    "createAccount": "Créer un compte",
+    "next": "Suivant",
+    "username": "Nom d'utilisateur",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "errors": {
+      "usernameTooShort": "Nom d'utilisateur trop court",
+      "required": "Ce champ est requis",
+      "invalidEmail": "Adresse email invalide",
+      "tryAgainLater": "Merci de réessayer ultérieurement."
+    },
+    "login": {
+      "title": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "S'inscrire",
+      "errors": {
+        "incorrectCredentials": "Email ou mot de passe incorrect"
+      }
+    },
+    "mailConfirmation": {
+      "title": "Vérifie ta boîte mail !",
+      "description": "Nous avons besoin que tu confirmes ton adresse e-mail pour finaliser ton inscription.",
+      "noEmailReceived": "Aucun email de reçu ?",
+      "clickHere": "Clique ici."
+    },
+    "resetPassword": {
+      "title": "Entre ton adresse e-mail",
+      "description": "On t'enverra un lien pour réinitialiser ton mot de passe. Assure-toi que l'adresse est valide.",
+      "send": "Envoyer",
+      "sending": "Envoie en cours..",
+      "emailSent": "Un email a été envoyé"
+    },
+    "signUp": {
+      "signUp": "S'inscrire",
+      "almostDone": "Presque terminé !",
+      "checkEmailAndConfirm": "Vérifie ta boîte mail et clique sur le lien de confirmation pour activer ton compte.",
+      "done": "C'est fait !",
+      "confirmPassword": "Confirmer le mot de passe",
+      "errors": {
+        "emailAlreadyInUse": "Cette adresse e-mail est déjà utilisée.",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+        "passwordsDoNotMatch": "Les mots de passes ne sont pas identiques."
+      },
+      "confirmPrivacyPolicy": {
+        "part1": "Je confirme avoir lu et accepter",
+        "part2": "notre politique de confidentialité"
+      }
+    }
+  },
+  "common": {
+    "submit": "Valider",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "next": "Suivant",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "logout": "Se déconnecter",
+    "other": "Autre",
+    "search": "Rechercher",
+    "return": "Retour",
+    "spot": {
+      "name": "{{parking}} [Spot n° {{number}}]",
+      "number": "Spot n° {{number}}",
+      "numberLabel": "Spot n°"
+    }
+  },
+  "welcome": {
+    "welcomeTo": "Bienvenue sur"
+  },
+  "user": {
+    "profile": {
+      "noAddressDefined": "Aucune adresse parking définie",
+      "title": "Mon profil",
+      "mySpot": "Mon spot",
+      "noParkingDefined": "Aucun nom de parking de défini",
+      "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
+      "sendFeedback": "Faire un retour",
+      "deleteAccount": "Supprimer mon compte",
+      "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
+      "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
+      "deleteAccountTitle": "Supprimer mon compte",
+      "editAvatar": "Modifier l'avatar",
+      "logout": "Se déconnecter",
+      "logoutConfirmation": "Se déconnecter",
+      "randomParking": "Mon parking {{number}}"
+    },
+    "parking": {
+      "cantFindParking": "Tu ne trouves pas ton parking ? Créé le maintenant !",
+      "searchParking": "Rechercher un parking",
+      "noMatchingParking": "Aucun parking ne correspond à «{{search}}».",
+      "createParking": "Créer un parking",
+      "editParking": "Modifier un parking",
+      "parkingName": "Mon parking",
+      "parkingAddress": "Chemin de mon parking",
+      "create": "Créer {{name}}",
+      "save": "Enregistrer",
+      "cars": "voitures",
+      "confirmDelete": "Supprimer",
+      "cancelDelete": "Annuler"
+    }
+  },
+  "mySpot": {
+    "title": "Mon spot",
+    "lendMySpot": "Prêter mon spot",
+    "spotInformation": "Informations du spot",
+    "spotNotShared": "Non partagé actuellement",
+    "spotShared": "Partagé jusqu'à {{time}}"
+  },
+  "searchSpot": {
+    "title": "Rechercher un spot",
+    "duration": "Durée"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "invalidEmail": "Email invalide",
+    "invalidPassword": "Mot de passe invalide"
+  },
+  "booking": {
+    "reserveSpot": "Réserve un spot",
+    "reserveNow": "Réserve un spot dès maintenant !",
+    "nextReservation": "Ta prochaine réservation commence dans {{time}}",
+    "nextReservationTitle": "Prochaine réservation",
+    "reservations": "Réservations",
+    "suggestedSpots": "Spots Suggérés",
+    "noSpotsAvailable": "Aucun spot n'est disponible\nsur cette période.",
+    "reserveFrom": "Réserver du",
+    "reserveUntil": "Jusqu'au",
+    "reserve": "Réserver",
+    "reserveForCredits": "Réserver pour {{credits}} crédits",
+    "now": "Maintenant",
+    "occupyingSpot": "Tu occupes ce spot",
+    "occupyingSpots": "Tu occupes ces {{count}} spots",
+    "spot": {
+      "locked": "Spot verouillé",
+      "lockedDescription": "Le numéro du spot sera révélé au début de la réservation."
+    },
+    "newSpot": {
+      "title": "Nouveau spot réservé !",
+      "viewReservations": "Voir mes réservations"
+    },
+    "countdown": {
+      "timeLeft": "Temps restant",
+      "started": "Commencé",
+      "finished": "Terminé",
+      "remaining": "Restant",
+      "almostFinished": "Presque terminé",
+      "revealedSpot": "Ton spot a été révélé !",
+      "spotNumber": "Numéro de spot",
+      "hours": "{{hours}} heures",
+      "minutes": "{{minutes}} minutes",
+      "spotLocation": "Emplacement du spot"
+    }
+  },
+  "lending": {
+    "lendMySpot": "Prêter mon spot",
+    "spotIsAvailable": "Ton spot est en accès libre",
+    "notLendingYet": "Tu ne prêtes pas encore ton spot",
+    "waitingForBooking": "En attente de réservation",
+    "currentlyUsingSpot": "Utilise actuellement ton spot",
+    "spotAlreadyShared": "Ta place est déjà partagée,\nsa disponibilité s'étend si tu ajoutes des créneaux.",
+    "lendFrom": "Prêter du",
+    "lendUntil": "Jusqu'au",
+    "lendAndEarnCredits": "Prêter et gagner jusqu'à {{credits}} crédits"
+  },
+  "wallet": {
+    "howItWorks": "Comment ça marche ?",
+    "availableCreditsExplanation": "Utilise ces crédits pour réserver un spot disponible.",
+    "pendingCreditsExplanation": "Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.",
+    "creditInfo": "Info : Prêter ou réserver 1h = 1 crédit."
+  },
+  "rating": {
+    "bookingCompleted": {
+      "title": "Votre réservation s'est terminée, qu'en avez-vous pensé ?"
+    },
+    "buttons": {
+      "good": "Bonne évaluation",
+      "bad": "Mauvaise évaluation",
+      "neutral": "Évaluation neutre"
+    }
+  },
+  "app": {
+    "version": "Version",
+    "otaPatch": "Patch OTA appliqué {{time}}",
+    "noOtaPatch": "Aucun patch OTA"
+  },
+  "account": {
+    "logout": "Se déconnecter",
+    "logoutConfirmation": "Se déconnecter"
+  }
+}

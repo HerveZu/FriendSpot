@@ -1,5 +1,6 @@
 using Api.Common;
 using Api.Common.Infrastructure;
+using Domain;
 using Domain.ParkingSpots;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -55,10 +56,20 @@ internal sealed class PushNotification(
             notificationPushService,
             new Notification
             {
-                Title = "Oups !",
+                Title = new LocalizedString("PushNotification.Cancelled.Title"),
                 Body = cancelledByOwner
-                    ? $"{userMap[@event.OwnerId].DisplayName} a annulé ta réseravation."
-                    : $"{userMap[@event.BookingUserId].DisplayName} n'utilisera finalement pas ton spot."
+                    ? new LocalizedString(
+                        "PushNotification.Cancelled.ByOwner.Body",
+                        [
+                            LocalizedArg.String(userMap[@event.OwnerId].DisplayName),
+                            LocalizedArg.Date(@event.CancelledAt)
+                        ])
+                    : new LocalizedString(
+                        "PushNotification.Cancelled.ByUser.Body",
+                        [
+                            LocalizedArg.String(userMap[@event.BookingUserId].DisplayName),
+                            LocalizedArg.Date(@event.CancelledAt)
+                        ])
             },
             cancellationToken);
     }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="PushNotification.Booking.Title" xml:space="preserve">
+        <value>Паркомісце зарезервовано!</value>
+    </data>
+    <data name="PushNotification.Booking.Body" xml:space="preserve">
+        <value>{0} забронював ваше паркомісце на {1}.</value>
+    </data>
+    <data name="PushNotification.Cancelled.Title" xml:space="preserve">
+        <value>Бронювання скасовано</value>
+    </data>
+    <data name="PushNotification.Cancelled.ByOwner.Body" xml:space="preserve">
+        <value>Паркомісце {0} більше не доступне на {1}.</value>
+    </data>
+    <data name="PushNotification.Cancelled.ByUser.Body" xml:space="preserve">
+        <value>{0} скасував бронювання вашого місця на {1}.</value>
+    </data>
+</root>

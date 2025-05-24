@@ -6,7 +6,7 @@ const getIdFunc: () => Promise<DeviceInfo> =
   Platform.OS === 'ios'
     ? async () =>
         ({ deviceId: await getIosIdForVendorAsync(), uniquenessNotGuaranteed: true }) as DeviceInfo
-    : async () => ({ deviceId: getAndroidId(), uniquenessNotGuaranteed: false }) as DeviceInfo;
+    : async () => ({ deviceId: getAndroidId(), uniquenessNotGuaranteed: true }) as DeviceInfo; // find a way to get a truly unique id on android
 
 type DeviceInfo = {
   deviceId: string | null;

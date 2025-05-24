@@ -13,7 +13,7 @@ export default function MainLayout() {
   return (
     <AuthProvider>
       <UserProvider>
-        {/*BottomSheetModalProvider children need to have access to currentUser*/}
+        {/*BottomSheetModalProvider children need to have access to the currentUser*/}
         <BottomSheetModalProvider>
           {/*<AskUserToRate>*/}
           <Tabs

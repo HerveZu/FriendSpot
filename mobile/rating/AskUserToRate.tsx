@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -11,6 +12,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import { useLoading } from '~/lib/useFetch';
 
 export function AskUserToRate(props: PropsWithChildren) {
+  const { t } = useTranslation();
   const { userProfile } = useCurrentUser();
   const [isModalVisible, setModalVisible] = useState(false);
   const rate = useRateBooking();
@@ -32,7 +34,7 @@ export function AskUserToRate(props: PropsWithChildren) {
             userRating: 'Neutral',
           })
         }>
-        <ModalTitle text={"Votre réservation s'est terminée, qu'en avez-vous pensé ?"} />
+        <ModalTitle text={t('rating.bookingCompleted.title')} />
         <View className="flex-row justify-between">
           <RateButton
             rating={'Good'}
@@ -62,6 +64,7 @@ function RateButton(props: {
   booking: BookingToRate | undefined;
   onRated: () => void;
 }) {
+  const { t } = useTranslation();
   const [rateBooking, isRating] = useLoading(useRateBooking());
 
   function rate() {
@@ -74,7 +77,10 @@ function RateButton(props: {
   }
 
   return (
-    <Button variant="plain" onPress={rate}>
+    <Button
+      variant="plain"
+      onPress={rate}
+      accessibilityLabel={t(`rating.buttons.${props.rating.toLowerCase()}`)}>
       {isRating ? (
         <ActivityIndicator />
       ) : (

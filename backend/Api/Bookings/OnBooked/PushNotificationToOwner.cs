@@ -1,5 +1,6 @@
 using Api.Common;
 using Api.Common.Infrastructure;
+using Domain;
 using Domain.ParkingSpots;
 using Domain.Users;
 using Quartz;
@@ -27,8 +28,13 @@ internal sealed class PushNotificationToOwner(
             notificationPushService,
             new Notification
             {
-                Title = "Nouvelle réservation !",
-                Body = $"{user.DisplayName} a réservé ton spot."
+                Title = new LocalizedString("PushNotification.Booking.Title"),
+                Body = new LocalizedString(
+                    "PushNotification.Booking.Body",
+                    [
+                        LocalizedArg.String(user.DisplayName),
+                        LocalizedArg.Date(@event.BookedAt),
+                    ]),
             },
             cancellationToken);
     }
