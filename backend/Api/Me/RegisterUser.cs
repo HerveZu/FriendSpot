@@ -41,6 +41,9 @@ internal sealed class RegisterUserValidator : Validator<RegisterUserRequest>
         RuleFor(x => x.DisplayName)
             .MinimumLength(UserDisplayName.MinLength)
             .MaximumLength(UserDisplayName.MaxLength);
+
+        RuleFor(x => x.Device.Id).NotEmpty();
+        RuleFor(x => x.Device.Locale).NotEmpty();
     }
 }
 
@@ -74,17 +77,6 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
             return;
         }
 
-        CultureInfo deviceLocale;
-        try
-        {
-            deviceLocale = CultureInfo.GetCultureInfo(req.Device.Locale, true);
-        }
-        catch (CultureNotFoundException)
-        {
-            ThrowError($"Invalid device locale '{req.Device.Locale}'");
-            return;
-        }
-
         logger.LogInformation("Registering user...");
 
         var usersHavingTheSameDevice = await dbContext
@@ -113,7 +105,7 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
             req.Device.Id,
             req.Device.ExpoPushToken,
             req.Device.UniquenessNotGuaranteed,
-            deviceLocale);
+            new CultureInfo(req.Device.Locale));
 
         if (newUser)
         {
