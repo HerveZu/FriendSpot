@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
     <data name="PushNotification.Booking.Title" xml:space="preserve">
-        <value>Nouvelle réservation</value>
+        <value>Spot reserved !</value>
     </data>
     <data name="PushNotification.Booking.Body" xml:space="preserve">
-        <value>Vous avez une nouvelle réservation de {{user}} pour le {{date}}.</value>
+        <value>{0} reserved your spot on {1}.</value>
     </data>
     <data name="PushNotification.Cancelled.Title" xml:space="preserve">
-        <value>Réservation annulée</value>
+        <value>Reservation cancelled</value>
     </data>
     <data name="PushNotification.Cancelled.ByOwner.Body" xml:space="preserve">
-        <value>La réservation de {{user}} pour le {{date}} a été annulée.</value>
+        <value>{0}'s spot is no longer available on {1}.</value>
     </data>
     <data name="PushNotification.Cancelled.ByUser.Body" xml:space="preserve">
-        <value>La réservation de {{user}} pour le {{date}} a été annulée.</value>
+        <value>{0} cancelled a reservation on your spot on {1}.</value>
     </data>
 </root>

@@ -78,7 +78,31 @@ internal sealed class UserTests : IntegrationTestsBase
 
         var count = await cmd.ExecuteScalarAsync(cancellationToken);
 
-        Assert.That(count, Is.Not.Null);
         Assert.That(Convert.ToInt32(count), Is.EqualTo(1));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task Register_ShouldFail__WhenInvalidDeviceLocale(CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+
+        var register = await resident1.PostAsync(
+            "/@me/register",
+            JsonContent.Create(
+                new RegisterUserRequest
+                {
+                    Device = new RegisterUserRequest.UserDevice
+                    {
+                        Id = "device-id",
+                        ExpoPushToken = null,
+                        Locale = "invalid"
+                    },
+                    DisplayName = "resident1",
+                    PictureUrl = null
+                }),
+            cancellationToken);
+
+        await register.AssertIs(HttpStatusCode.BadRequest, cancellationToken);
     }
 }

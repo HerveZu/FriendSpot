@@ -1,6 +1,8 @@
+using System.Globalization;
+
 namespace Domain.Users;
 
-public sealed class UserDevice(string deviceId, string? expoPushToken, bool uniquenessNotGuaranteed, string locale)
+public sealed class UserDevice(string deviceId, string? expoPushToken, bool uniquenessNotGuaranteed, CultureInfo locale)
 {
     /// <summary>
     ///     Whether the <see cref="DeviceId" /> is truly unique.
@@ -10,9 +12,9 @@ public sealed class UserDevice(string deviceId, string? expoPushToken, bool uniq
 
     public string DeviceId { get; } = deviceId;
     public string? ExpoPushToken { get; private set; } = expoPushToken;
-    public string Locale { get; private set; } = locale;
+    public CultureInfo Locale { get; private set; } = locale;
 
-    public void UpdateInfo(string? token, string locale)
+    public void UpdateInfo(string? token, CultureInfo locale)
     {
         ExpoPushToken = token;
         Locale = locale;

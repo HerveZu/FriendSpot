@@ -1,8 +1,7 @@
-using System.Globalization;
 using System.Net.Http.Headers;
+using System.Resources;
 using Api.Common.Options;
 using Domain.Users;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Api.Common.Infrastructure;
@@ -13,17 +12,18 @@ internal sealed class ExpoPushNotificationService
     private readonly Uri _expoPushUri = new("https://exp.host/--/api/v2/push/send");
     private readonly HttpClient _httpClient;
     private readonly ILogger<ExpoPushNotificationService> _logger;
-    private readonly IStringLocalizer<ExpoPushNotificationService> _stringLocalizer;
+    private readonly ResourceManager _resourceManager;
 
     public ExpoPushNotificationService(
         HttpClient httpClient,
         IOptions<ExpoOptions> expoOptions,
-        ILogger<ExpoPushNotificationService> logger,
-        IStringLocalizer<ExpoPushNotificationService> stringLocalizer)
+        ILogger<ExpoPushNotificationService> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
-        _stringLocalizer = stringLocalizer;
+        _resourceManager = new ResourceManager(
+            "Api.Resources.NotificationResources",
+            typeof(NotificationResources).Assembly);
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
@@ -32,32 +32,27 @@ internal sealed class ExpoPushNotificationService
 
     public async Task PushToDevice(UserDevice device, Notification notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Pushing notification to device {Device}", device.DeviceId);
-        var currentCulture = CultureInfo.CurrentCulture;
-        var testDevice = _stringLocalizer[notification.TitleKey];
+        _logger.LogInformation(
+            "Pushing notification to device {Device} using locale {Locale}",
+            device.DeviceId,
+            device.Locale);
+
         try
         {
-            CultureInfo.CurrentCulture = new CultureInfo(device.Locale);
             await _httpClient.PostAsJsonAsync(
                 _expoPushUri,
-                // ReSharper disable RedundantAnonymousTypePropertyName
                 new
                 {
                     To = device.ExpoPushToken,
                     Sound = "default",
-                    Title = _stringLocalizer[notification.TitleKey],
-                    Body = _stringLocalizer[notification.BodyKey]
+                    Title = notification.Title.Translate(_resourceManager, device.Locale),
+                    Body = notification.Body.Translate(_resourceManager, device.Locale)
                 },
-                // ReSharper enable RedundantAnonymousTypePropertyName
                 cancellationToken);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Failed to push expo notification to device {DeviceId}", device.DeviceId);
-        }
-        finally
-        {
-            CultureInfo.CurrentCulture = currentCulture;
         }
     }
 }

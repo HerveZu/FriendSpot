@@ -9,6 +9,7 @@ public sealed record ParkingSpotBooked : IDomainEvent
     public required Guid SpotId { get; init; }
     public required Guid BookingId { get; init; }
     public required Credits Cost { get; init; }
+    public required DateTimeOffset BookedAt { get; init; }
     public required DateTimeOffset BookedUntil { get; init; }
     public required string OwnerId { get; init; }
     public required string UserId { get; init; }
@@ -26,6 +27,7 @@ public sealed record ParkingSpotBookingCancelled : IDomainEvent
     public required string BookingUserId { get; init; }
     public required string CancellingUserId { get; init; }
     public required string OwnerId { get; init; }
+    public required DateTimeOffset CancelledAt { get; init; }
 }
 
 public sealed record ParkingSpotBookingCompleted : IDomainEvent
@@ -140,6 +142,7 @@ public sealed class ParkingSpot : IBroadcastEvents
                 SpotId = Id,
                 BookingId = newBooking.Id,
                 Cost = cost,
+                BookedAt = newBooking.From,
                 BookedUntil = newBooking.To,
                 UserId = newBooking.BookingUserId,
                 OwnerId = OwnerId
@@ -269,6 +272,7 @@ public sealed class ParkingSpot : IBroadcastEvents
                 BookingUserId = booking.BookingUserId,
                 OwnerId = OwnerId,
                 BookingId = booking.Id,
+                CancelledAt = booking.From
             });
     }
 
@@ -287,7 +291,8 @@ public sealed class ParkingSpot : IBroadcastEvents
                     CancellingUserId = OwnerId,
                     BookingUserId = booking.BookingUserId,
                     OwnerId = OwnerId,
-                    BookingId = booking.Id
+                    BookingId = booking.Id,
+                    CancelledAt = booking.From
                 });
         }
     }

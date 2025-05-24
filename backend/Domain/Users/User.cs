@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain.Users;
@@ -67,7 +68,7 @@ public sealed class User : IBroadcastEvents
         PictureUrl = pictureUrl;
     }
 
-    public void AcknowledgeDevice(string id, string? expoToken, bool uniquenessNotGuaranteed, string locale)
+    public void AcknowledgeDevice(string id, string? expoToken, bool uniquenessNotGuaranteed, CultureInfo locale)
     {
         var device = _userDevices.FirstOrDefault(device => device.DeviceId == id);
 
@@ -138,7 +139,9 @@ internal sealed class UserConfig : IEntityConfiguration<User>
                 deviceBuilder.HasKey(x => x.DeviceId);
                 deviceBuilder.Property(x => x.UniquenessNotGuaranteed);
                 deviceBuilder.Property(x => x.ExpoPushToken);
-                deviceBuilder.Property(x => x.Locale);
+                deviceBuilder
+                    .Property(x => x.Locale)
+                    .HasConversion(x => x.Name, x => new CultureInfo(x));
             });
         builder.OwnsOne(
             x => x.Rating,

@@ -2,8 +2,8 @@ namespace Domain.Users;
 
 public sealed record Notification
 {
-    public required string TitleKey { get; init; }
-    public required string BodyKey { get; init; }
+    public required LocalizedString Title { get; init; }
+    public required LocalizedString Body { get; init; }
 }
 
 public interface INotificationPushService

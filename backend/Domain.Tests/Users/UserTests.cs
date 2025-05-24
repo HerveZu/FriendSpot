@@ -1,3 +1,4 @@
+using System.Globalization;
 using Domain.Users;
 using NSubstitute;
 
@@ -81,7 +82,7 @@ public sealed class UserTests
         var user = User.Register("user123", new UserDisplayName("InitialName"));
 
         // Act
-        user.AcknowledgeDevice("device1", "token1", false, "en");
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(1));
@@ -90,7 +91,7 @@ public sealed class UserTests
             {
                 Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
                 Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token1"));
-                Assert.That(user.UserDevices[0].Locale, Is.EqualTo("en"));
+                Assert.That(user.UserDevices[0].Locale, Is.EqualTo(new CultureInfo("en")));
             });
     }
 
@@ -99,15 +100,15 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, "en");
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
 
         // Act
-        user.AcknowledgeDevice("device1", "token2", false, "fr");
+        user.AcknowledgeDevice("device1", "token2", false, new CultureInfo("fr"));
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(1));
         Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token2"));
-        Assert.That(user.UserDevices[0].Locale, Is.EqualTo("fr"));
+        Assert.That(user.UserDevices[0].Locale, Is.EqualTo(new CultureInfo("fr")));
     }
 
     [Test]
@@ -115,11 +116,11 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, "en");
-        user.AcknowledgeDevice("device2", "token2", true, "fr");
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device2", "token2", true, new CultureInfo("fr"));
 
         // Act
-        user.AcknowledgeDevice("device3", "token3", true, "de");
+        user.AcknowledgeDevice("device3", "token3", true, new CultureInfo("de"));
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(2));
@@ -136,7 +137,7 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, "en");
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
 
         // Act
         user.RemoveDevice("device1");
@@ -150,8 +151,8 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, "en");
-        user.AcknowledgeDevice("device2", "token2", false, "en");
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device2", "token2", false, new CultureInfo("en"));
 
         // Act
         user.RemoveAllDevices();
@@ -178,8 +179,8 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("ValidName"));
-        user.AcknowledgeDevice("device1", "token1", false, "en");
-        user.AcknowledgeDevice("device2", "token2", false, "en");
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device2", "token2", false, new CultureInfo("en"));
         var notificationService = Substitute.For<INotificationPushService>();
 
         // Act
@@ -187,8 +188,8 @@ public sealed class UserTests
             notificationService,
             new Notification
             {
-                TitleKey = "Test notification",
-                BodyKey = "I'm just a test notification"
+                Title = new LocalizedString("Test notification"),
+                Body = new LocalizedString("I'm just a test notification")
             },
             CancellationToken.None);
 
