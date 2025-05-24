@@ -20,7 +20,7 @@ import { FormInput } from '~/form/FormInput';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useValidators } from '~/form/validators';
-import { FormError } from '~/form/FormError';
+import { FormInfo, FormMessages } from '~/form/FormMessages';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -171,13 +171,14 @@ function ResetPasswordForm() {
   const validators = useValidators();
 
   const [email, setEmail] = useState<string>();
-  const [resetEmailStatus, setResetEmailStatus] = useState<string>();
+  const [error, setError] = useState<string>();
+  const [info, setInfo] = useState<string>();
 
   async function resetPassword(email: string) {
-    setResetEmailStatus(t('auth.resetPassword.sending'));
+    setInfo(t('auth.resetPassword.sending'));
     await sendPasswordResetEmail(auth, email)
-      .then(() => setResetEmailStatus(t('auth.resetPassword.emailSent')))
-      .catch((e: Error) => setResetEmailStatus(e.message));
+      .then(() => setInfo(t('auth.resetPassword.emailSent')))
+      .catch((e: Error) => setError(e.message));
   }
 
   return (
@@ -191,7 +192,8 @@ function ResetPasswordForm() {
         keyboardType="email-address"
         validators={[validators.email, validators.required]}
       />
-      {resetEmailStatus && <FormError>{resetEmailStatus}</FormError>}
+      {error && <FormMessages>{error}</FormMessages>}
+      {info && <FormInfo>{info}</FormInfo>}
       <Button
         size={Platform.select({ default: 'md' })}
         disabled={!isValid}

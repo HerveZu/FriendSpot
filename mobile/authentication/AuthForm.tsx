@@ -18,7 +18,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { Form, FormContext, FormProps } from '~/form/Form';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FormError } from '~/form/FormError';
+import { FormMessages } from '~/form/FormMessages';
 
 type IllustrationProps = {
   width: number;
@@ -84,7 +84,7 @@ function AuthFormInternal({ Illustration, ...props }: AuthFormProps) {
               {Illustration && <Illustration width={300} height={300} />}
             </Animated.View>
             <View className={'w-full flex-col gap-4'}>
-              <FormError>{props.error}</FormError>
+              <FormMessages>{props.error}</FormMessages>
               {props.children}
             </View>
             {props.submitCaption}
