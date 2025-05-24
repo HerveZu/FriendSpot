@@ -55,10 +55,10 @@ internal sealed class PushNotification(
             notificationPushService,
             new Notification
             {
-                Title = "Oups !",
-                Body = cancelledByOwner
-                    ? $"{userMap[@event.OwnerId].DisplayName} a annulé ta réseravation."
-                    : $"{userMap[@event.BookingUserId].DisplayName} n'utilisera finalement pas ton spot."
+                TitleKey = "PushNotification.Cancelled.Title",
+                BodyKey = cancelledByOwner
+                    ? "PushNotification.Cancelled.ByOwner.Body"
+                    : "PushNotification.Cancelled.ByUser.Body"
             },
             cancellationToken);
     }

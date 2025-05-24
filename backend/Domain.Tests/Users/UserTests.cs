@@ -187,8 +187,8 @@ public sealed class UserTests
             notificationService,
             new Notification
             {
-                Title = "Test notification",
-                Body = "I'm just a test notification"
+                TitleKey = "Test notification",
+                BodyKey = "I'm just a test notification"
             },
             CancellationToken.None);
 

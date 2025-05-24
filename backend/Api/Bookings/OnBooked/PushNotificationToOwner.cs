@@ -27,8 +27,8 @@ internal sealed class PushNotificationToOwner(
             notificationPushService,
             new Notification
             {
-                Title = "Nouvelle réservation !",
-                Body = $"{user.DisplayName} a réservé ton spot."
+                TitleKey = "PushNotification.Booking.Title",
+                BodyKey = "PushNotification.Booking.Body",
             },
             cancellationToken);
     }
