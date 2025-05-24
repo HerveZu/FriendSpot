@@ -5,7 +5,7 @@ import enTrad from './locales/en.json';
 import frTrad from './locales/fr.json';
 import ukTrad from './locales/uk.json';
 import { setDefaultOptions } from 'date-fns';
-import { enUS, fr, Locale, uk } from 'date-fns/locale';
+import { enGB, enUS, fr, Locale, uk } from 'date-fns/locale';
 
 const resources = {
   en: {
@@ -33,6 +33,7 @@ i18n.use(initReactI18next).init({
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,
   'en-US': enUS,
+  'en-GB': enGB,
   fr: fr,
   uk: uk,
 };
