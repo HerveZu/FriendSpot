@@ -1,15 +1,23 @@
-import { TextProps } from 'react-native';
+import { TextProps, View } from 'react-native';
 
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
+import { ReactNode } from 'react';
 
-export function Title({ primary, className, ...props }: { primary?: boolean } & TextProps) {
+export function Title({
+  primary,
+  className,
+  ...props
+}: { primary?: boolean; action?: ReactNode } & TextProps) {
   return (
-    <Text
-      variant="title1"
-      className={cn('mb-4 font-extrabold', primary ? 'text-3xl' : 'text-xl', className)}>
-      {props.children}
-    </Text>
+    <View className={'mb-4 w-full flex-row items-center justify-between'}>
+      <Text
+        variant="title1"
+        className={cn('font-extrabold', primary ? 'text-3xl' : 'text-xl', className)}>
+        {props.children}
+      </Text>
+      {props.action}
+    </View>
   );
 }
 

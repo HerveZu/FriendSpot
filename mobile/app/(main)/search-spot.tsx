@@ -54,6 +54,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 import { useTranslation } from 'react-i18next';
+import { CollapsableButton } from '~/components/CollapsableButton';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -62,6 +63,7 @@ export default function SearchSpotScreen() {
   const { colors } = useColorScheme();
   const getBooking = useGetBooking();
   const getSuggestedSpots = useGetSuggestedSpots();
+  const [showCurrentBooking, setShowCurrentBooking] = useState(true);
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
   const [nextReservedSpot, setNextReservedSpot] = useState<boolean>(false);
@@ -145,15 +147,22 @@ export default function SearchSpotScreen() {
         <View>
           <View className="flex-row items-center gap-2">
             <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
-            <Title>
+            <Title
+              action={
+                <CollapsableButton
+                  collapsed={showCurrentBooking}
+                  onCollapse={setShowCurrentBooking}
+                />
+              }>
               {activeBookingsCount > 1
                 ? t('booking.occupyingSpots', { count: activeBookingsCount })
                 : t('booking.occupyingSpot')}
             </Title>
           </View>
-          {activeBookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} countdownOnTap />
-          ))}
+          {showCurrentBooking &&
+            activeBookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} countdownOnTap />
+            ))}
         </View>
       ) : booking.bookings.length > 0 ? (
         <MessageInfo
