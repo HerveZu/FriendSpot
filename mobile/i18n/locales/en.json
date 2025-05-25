@@ -88,7 +88,6 @@
       "randomParking": "My parking {{number}}"
     },
     "parking": {
-      "spotNumber": "Spot number",
       "cantFindParking": "Can't find your parking? Create it now!",
       "searchParking": "Search a parking",
       "noMatchingParking": "No parking matches '{{search}}'.",
@@ -149,7 +148,6 @@
       "remaining": "Remaining",
       "almostFinished": "Almost finished",
       "revealedSpot": "Your spot has been revealed!",
-      "spotNumber": "Spot number",
       "hours": "{{hours}} hours",
       "minutes": "{{minutes}} minutes",
       "spotLocation": "Spot location"
