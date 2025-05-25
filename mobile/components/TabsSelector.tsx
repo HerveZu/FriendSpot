@@ -24,7 +24,7 @@ export function TabArea(props: PropsWithChildren<{ tabIndex: number }>) {
 }
 
 export function TabsSelector(props: PropsWithChildren) {
-  return <Card className={'flex-row gap-0 p-0'}>{props.children}</Card>;
+  return <Card className={'flex-row gap-1 p-1'}>{props.children}</Card>;
 }
 
 export function Tab(props: PropsWithChildren<{ index: number; disabled?: boolean }>) {
