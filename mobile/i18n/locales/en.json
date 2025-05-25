@@ -155,7 +155,7 @@
       "spotLocation": "Spot location"
     },
     "tabs": {
-      "onGoingBookings": "Occupying",
+      "onGoingBookings": "Occupying ({{count}})",
       "suggestedSpots": "Suggested"
     }
   },

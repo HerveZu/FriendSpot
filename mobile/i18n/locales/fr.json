@@ -154,7 +154,7 @@
       "spotLocation": "Emplacement du spot"
     },
     "tabs": {
-      "onGoingBookings": "En cours",
+      "onGoingBookings": "En cours ({{count}})",
       "suggestedSpots": "Suggérés"
     }
   },

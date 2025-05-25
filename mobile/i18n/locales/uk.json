@@ -154,7 +154,7 @@
       "spotLocation": "Розташування місця"
     },
     "tabs": {
-      "onGoingBookings": "Поточні",
+      "onGoingBookings": "Поточні ({{count}})",
       "suggestedSpots": "Рекомендовані"
     }
   },
