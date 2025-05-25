@@ -1,4 +1,3 @@
-import React from 'react';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -6,9 +5,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
-import { cn } from '~/lib/cn';
+import { useCallback } from 'react';
 
-export default function BlinkingDot(props: { color: string; className?: string }) {
+export function BlinkingDot(props: { color: string; className?: string }) {
   const opacity = useSharedValue(0.8);
 
   const startAnimation = () => {
@@ -16,7 +15,7 @@ export default function BlinkingDot(props: { color: string; className?: string }
   };
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       startAnimation();
 
       return () => {
@@ -31,7 +30,7 @@ export default function BlinkingDot(props: { color: string; className?: string }
 
   return (
     <Animated.View
-      className={cn('', props.className)}
+      className={props.className}
       style={[
         {
           width: 10,

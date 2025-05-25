@@ -151,6 +151,10 @@
       "hours": "{{hours}} годин",
       "minutes": "{{minutes}} хвилин",
       "spotLocation": "Розташування місця"
+    },
+    "tabs": {
+      "onGoingBookings": "Поточні ({{count}})",
+      "suggestedSpots": "Рекомендовані"
     }
   },
   "lending": {

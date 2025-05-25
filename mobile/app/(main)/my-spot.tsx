@@ -1,7 +1,7 @@
 import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import TreeIllustration from 'assets/tree.svg';
-import BlinkingDot from '../../components/BlinkingDot';
+import { BlinkingDot } from '~/components/BlinkingDot';
 import {
   addHours,
   addMinutes,
