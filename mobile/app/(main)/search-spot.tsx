@@ -85,7 +85,7 @@ export default function SearchSpotScreen() {
   );
 
   const notStartedBookings = useMemo(
-    () => activeBookings.filter((booking) => new Date(booking.from) > now),
+    () => booking?.bookings.filter((booking) => new Date(booking.from) > now) ?? [],
     [activeBookings, now]
   );
 
@@ -118,7 +118,7 @@ export default function SearchSpotScreen() {
           <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
-      <TabsProvider defaultTabIndex={1}>
+      <TabsProvider defaultTabIndex={1} disabled={activeBookings.length === 0}>
         <ScreenTitle title={t('booking.reserveSpot')}>
           <Button
             className={'h-[60px]'}
@@ -130,17 +130,15 @@ export default function SearchSpotScreen() {
           </Button>
         </ScreenTitle>
 
-        {activeBookings.length > 0 && (
-          <TabsSelector>
-            <Tab index={0}>
-              <Text>{t('booking.tabs.suggestedSpots')}</Text>
-            </Tab>
-            <Tab index={1} disabled={activeBookings.length === 0}>
-              <BlinkingDot color={colors.destructive} />
-              <Text>{t('booking.tabs.onGoingBookings', { count: activeBookings.length })}</Text>
-            </Tab>
-          </TabsSelector>
-        )}
+        <TabsSelector>
+          <Tab index={0}>
+            <Text>{t('booking.tabs.suggestedSpots')}</Text>
+          </Tab>
+          <Tab index={1}>
+            <BlinkingDot color={colors.destructive} />
+            <Text>{t('booking.tabs.onGoingBookings', { count: activeBookings.length })}</Text>
+          </Tab>
+        </TabsSelector>
 
         {infoModalOpen && (
           <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
@@ -181,7 +179,7 @@ export default function SearchSpotScreen() {
           )}
         </TabArea>
 
-        <TabArea tabIndex={0}>
+        <TabArea tabIndex={0} displayOnDisable>
           {notStartedBookings.length > 0 ? (
             <MessageInfo
               info={t('booking.nextReservation', {

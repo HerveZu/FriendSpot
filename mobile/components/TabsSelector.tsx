@@ -3,28 +3,38 @@ import { Card } from './Card';
 import { Button } from '~/components/nativewindui/Button';
 
 const TabsSelectorContext = createContext<{
+  disabled: boolean;
   selectedTab: number;
   setSelectedTab: (index: number) => void;
 }>(null!);
 
-export function TabsProvider(props: PropsWithChildren<{ defaultTabIndex: number }>) {
+export function TabsProvider(
+  props: PropsWithChildren<{ defaultTabIndex: number; disabled?: boolean }>
+) {
   const [selectedTab, setSelectedTab] = useState(props.defaultTabIndex);
 
   return (
-    <TabsSelectorContext.Provider value={{ selectedTab, setSelectedTab }}>
+    <TabsSelectorContext.Provider
+      value={{ selectedTab, setSelectedTab, disabled: !!props.disabled }}>
       {props.children}
     </TabsSelectorContext.Provider>
   );
 }
 
-export function TabArea(props: PropsWithChildren<{ tabIndex: number }>) {
-  const { selectedTab } = useContext(TabsSelectorContext);
+export function TabArea(
+  props: PropsWithChildren<{ tabIndex: number; displayOnDisable?: boolean }>
+) {
+  const { selectedTab, disabled } = useContext(TabsSelectorContext);
 
-  return props.tabIndex === selectedTab ? props.children : null;
+  const isFocused = !disabled && selectedTab === props.tabIndex;
+  const displayAsDisable = disabled && props.displayOnDisable;
+
+  return displayAsDisable || isFocused ? props.children : null;
 }
 
 export function TabsSelector(props: PropsWithChildren) {
-  return <Card className={'flex-row gap-1 p-1'}>{props.children}</Card>;
+  const { disabled } = useContext(TabsSelectorContext);
+  return !disabled && <Card className={'flex-row gap-1 p-1'}>{props.children}</Card>;
 }
 
 export function Tab(props: PropsWithChildren<{ index: number; disabled?: boolean }>) {
