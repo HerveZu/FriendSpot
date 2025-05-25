@@ -54,7 +54,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import BlinkingDot from '~/components/BlinkingDot';
 import { useTranslation } from 'react-i18next';
-import { CollapsableButton } from '~/components/CollapsableButton';
+import { Tab, TabArea, TabsProvider, TabsSelector } from '~/components/TabsSelector';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -63,7 +63,7 @@ export default function SearchSpotScreen() {
   const { colors } = useColorScheme();
   const getBooking = useGetBooking();
   const getSuggestedSpots = useGetSuggestedSpots();
-  const [showCurrentBooking, setShowCurrentBooking] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(0);
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
   const [nextReservedSpot, setNextReservedSpot] = useState<boolean>(false);
@@ -113,7 +113,7 @@ export default function SearchSpotScreen() {
           <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
-      <View className="flex-row justify-between">
+      <TabsProvider selectedTab={selectedTab} onTabSelected={setSelectedTab}>
         <ScreenTitle title={t('booking.reserveSpot')}>
           <Button
             className={'h-[60px]'}
@@ -124,114 +124,127 @@ export default function SearchSpotScreen() {
             <Text>{booking?.bookings.length ?? 0}</Text>
           </Button>
         </ScreenTitle>
-      </View>
-      {infoModalOpen && (
-        <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-          <ModalTitle className="justify-center text-center" text={t('booking.newSpot.title')} />
-          <View className="items-center">
-            <SuccessIllustration width={250} height={250} />
-          </View>
-          <Button
-            variant="primary"
-            onPress={() => {
-              setInfoModalOpen(false);
-              setBookingListSheetOpen(true);
-            }}>
-            <Text>{t('booking.newSpot.viewReservations')}</Text>
-          </Button>
-        </Modal>
-      )}
-      {!booking ? (
-        <ActivityIndicator />
-      ) : activeBookings.length > 0 ? (
-        <View>
-          <View className="flex-row items-center gap-2">
-            <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
-            <Title
-              action={
-                <CollapsableButton
-                  collapsed={showCurrentBooking}
-                  onCollapse={setShowCurrentBooking}
-                />
-              }>
-              {activeBookingsCount > 1
-                ? t('booking.occupyingSpots', { count: activeBookingsCount })
-                : t('booking.occupyingSpot')}
-            </Title>
-          </View>
-          {showCurrentBooking &&
-            activeBookings.map((booking) => (
-              <BookingCard key={booking.id} booking={booking} countdownOnTap />
-            ))}
-        </View>
-      ) : booking.bookings.length > 0 ? (
-        <MessageInfo
-          info={t('booking.nextReservation', {
-            time: formatDistance(now, booking.bookings[0].from),
-          })}
-          action={() => {
-            setBookingListSheetOpen(true);
-            setNextReservedSpot(true);
-          }}
-        />
-      ) : (
-        <MessageInfo info={t('booking.reserveNow')} />
-      )}
-      <View className="flex-col">
-        {!suggestedSpots ? (
-          <ActivityIndicator />
-        ) : (
-          suggestedSpots.suggestions.length > 0 && (
-            <>
-              <Title>{t('booking.suggestedSpots')}</Title>
-              <List>
-                {suggestedSpots.suggestions.map((suggestion, i) => (
-                  <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
-                    <SuggestedSpotCard suggestion={suggestion} />
-                  </Pressable>
-                ))}
-              </List>
-            </>
-          )
-        )}
-      </View>
 
-      {booking && (
-        <ListSheet
-          title={nextReservedSpot ? t('booking.nextReservationTitle') : t('booking.reservations')}
-          setNextReservedSpot={setNextReservedSpot}
-          action={
-            !nextReservedSpot && (
-              <Button
-                size="lg"
-                variant="primary"
-                onPress={() => {
-                  setBookingListSheetOpen(false);
-                  setBookSheetOpen(true);
-                }}>
-                <ThemedIcon name="search" size={18} color={COLORS.white} />
-                <Text>{t('booking.reserveSpot')}</Text>
-              </Button>
-            )
-          }
-          open={bookingListSheetOpen}
-          onOpen={setBookingListSheetOpen}>
-          {nextReservedSpot && booking.bookings.length > 0 ? (
-            <BookingCard booking={booking.bookings[0]} deletable={true} />
+        <TabsSelector>
+          <Tab index={0} title={t('booking.tabs.suggestedSpots')} />
+          <Tab
+            index={1}
+            title={t('booking.tabs.onGoingBookings')}
+            disabled={activeBookings.length === 0}
+          />
+        </TabsSelector>
+
+        {infoModalOpen && (
+          <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
+            <ModalTitle className="justify-center text-center" text={t('booking.newSpot.title')} />
+            <View className="items-center">
+              <SuccessIllustration width={250} height={250} />
+            </View>
+            <Button
+              variant="primary"
+              onPress={() => {
+                setInfoModalOpen(false);
+                setBookingListSheetOpen(true);
+              }}>
+              <Text>{t('booking.newSpot.viewReservations')}</Text>
+            </Button>
+          </Modal>
+        )}
+
+        <TabArea tabIndex={1}>
+          {!booking ? (
+            <ActivityIndicator />
+          ) : activeBookings.length > 0 ? (
+            <View>
+              <View className="flex-row items-center gap-2">
+                <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
+                <Title>
+                  {activeBookingsCount > 1
+                    ? t('booking.occupyingSpots', { count: activeBookingsCount })
+                    : t('booking.occupyingSpot')}
+                </Title>
+              </View>
+              {activeBookings.map((booking) => (
+                <BookingCard key={booking.id} booking={booking} countdownOnTap />
+              ))}
+            </View>
+          ) : booking.bookings.length > 0 ? (
+            <MessageInfo
+              info={t('booking.nextReservation', {
+                time: formatDistance(now, booking.bookings[0].from),
+              })}
+              action={() => {
+                setBookingListSheetOpen(true);
+                setNextReservedSpot(true);
+              }}
+            />
           ) : (
-            booking.bookings
-              .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
-              .map((booking) => <BookingCard key={booking.id} booking={booking} deletable={true} />)
+            <MessageInfo info={t('booking.reserveNow')} />
           )}
-        </ListSheet>
-      )}
-      <BookingSheet
-        selectedSuggestion={selectedSuggestion}
-        open={bookSheetOpen}
-        onOpen={setBookSheetOpen}
-        infoModalOpen={infoModalOpen}
-        setInfoModalOpen={setInfoModalOpen}
-      />
+        </TabArea>
+
+        <TabArea tabIndex={0}>
+          <View className="flex-col">
+            {!suggestedSpots ? (
+              <ActivityIndicator />
+            ) : (
+              suggestedSpots.suggestions.length > 0 && (
+                <>
+                  <Title>{t('booking.suggestedSpots')}</Title>
+                  <List>
+                    {suggestedSpots.suggestions.map((suggestion, i) => (
+                      <Pressable key={i} onPress={() => setSelectedSuggestion(suggestion)}>
+                        <SuggestedSpotCard suggestion={suggestion} />
+                      </Pressable>
+                    ))}
+                  </List>
+                </>
+              )
+            )}
+          </View>
+
+          {booking && (
+            <ListSheet
+              title={
+                nextReservedSpot ? t('booking.nextReservationTitle') : t('booking.reservations')
+              }
+              setNextReservedSpot={setNextReservedSpot}
+              action={
+                !nextReservedSpot && (
+                  <Button
+                    size="lg"
+                    variant="primary"
+                    onPress={() => {
+                      setBookingListSheetOpen(false);
+                      setBookSheetOpen(true);
+                    }}>
+                    <ThemedIcon name="search" size={18} color={COLORS.white} />
+                    <Text>{t('booking.reserveSpot')}</Text>
+                  </Button>
+                )
+              }
+              open={bookingListSheetOpen}
+              onOpen={setBookingListSheetOpen}>
+              {nextReservedSpot && booking.bookings.length > 0 ? (
+                <BookingCard booking={booking.bookings[0]} deletable={true} />
+              ) : (
+                booking.bookings
+                  .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
+                  .map((booking) => (
+                    <BookingCard key={booking.id} booking={booking} deletable={true} />
+                  ))
+              )}
+            </ListSheet>
+          )}
+        </TabArea>
+        <BookingSheet
+          selectedSuggestion={selectedSuggestion}
+          open={bookSheetOpen}
+          onOpen={setBookSheetOpen}
+          infoModalOpen={infoModalOpen}
+          setInfoModalOpen={setInfoModalOpen}
+        />
+      </TabsProvider>
     </ScreenWithHeader>
   );
 }

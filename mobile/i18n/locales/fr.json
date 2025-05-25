@@ -152,6 +152,10 @@
       "hours": "{{hours}} heures",
       "minutes": "{{minutes}} minutes",
       "spotLocation": "Emplacement du spot"
+    },
+    "tabs": {
+      "onGoingBookings": "En cours",
+      "suggestedSpots": "Suggérés"
     }
   },
   "lending": {
