@@ -118,7 +118,7 @@ export default function SearchSpotScreen() {
           <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
-      <TabsProvider defaultTabIndex={0}>
+      <TabsProvider defaultTabIndex={1}>
         <ScreenTitle title={t('booking.reserveSpot')}>
           <Button
             className={'h-[60px]'}
