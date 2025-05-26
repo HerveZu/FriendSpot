@@ -31,7 +31,7 @@ internal sealed class EditParkingInfo(ILogger<EditParkingInfo> logger, AppDbCont
 {
     public override void Configure()
     {
-        Put("/parking/{ParkingId}");
+        Put("/parking/{ParkingId:guid}");
     }
 
     public override async Task HandleAsync(EditParkingInfoRequest req, CancellationToken ct)

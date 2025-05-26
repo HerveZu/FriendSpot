@@ -42,12 +42,32 @@ public sealed class ParkingSpot : IBroadcastEvents
     private readonly List<ParkingSpotBooking> _bookings = [];
     private readonly DomainEvents _domainEvents = new();
 
-    private ParkingSpot(Guid id, string ownerId, Guid parkingId, SpotName spotName)
+    private ParkingSpot(
+        Guid id,
+        string ownerId,
+        Guid parkingId,
+        SpotName spotName)
     {
         Id = id;
         OwnerId = ownerId;
         ParkingId = parkingId;
         SpotName = spotName;
+    }
+
+    private ParkingSpot(
+        Guid id,
+        string ownerId,
+        Guid parkingId,
+        SpotName spotName,
+        List<ParkingSpotBooking>? bookings = null,
+        List<ParkingSpotAvailability>? availabilities = null)
+    {
+        Id = id;
+        OwnerId = ownerId;
+        ParkingId = parkingId;
+        SpotName = spotName;
+        _bookings = bookings ?? [];
+        _availabilities = availabilities ?? [];
     }
 
     public Guid Id { get; init; }
@@ -87,16 +107,6 @@ public sealed class ParkingSpot : IBroadcastEvents
         if (bookingUserId == OwnerId)
         {
             throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book your own spot.");
-        }
-
-        if (from < DateTimeOffset.UtcNow)
-        {
-            throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book spot in the past.");
-        }
-
-        if (duration <= TimeSpan.Zero)
-        {
-            throw new BusinessException("ParkingSpot.InvalidBooking", "Booking duration must be positive.");
         }
 
         var until = from + duration;

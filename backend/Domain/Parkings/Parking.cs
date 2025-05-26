@@ -11,6 +11,7 @@ public sealed record ParkingDeleted : IDomainEvent
 
 public sealed class Parking : IBroadcastEvents
 {
+    private readonly List<ParkingBookingRequest> _bookingRequests = [];
     private readonly DomainEvents _domainEvents = new();
 
     private Parking(Guid id, string ownerId, ParkingName name, ParkingAddress address)
@@ -21,10 +22,25 @@ public sealed class Parking : IBroadcastEvents
         Address = address;
     }
 
+    private Parking(
+        Guid id,
+        string ownerId,
+        ParkingName name,
+        ParkingAddress address,
+        List<ParkingBookingRequest>? bookingRequests = null)
+    {
+        Id = id;
+        OwnerId = ownerId;
+        Name = name;
+        Address = address;
+        _bookingRequests = bookingRequests ?? [];
+    }
+
     public Guid Id { get; }
     public string OwnerId { get; private set; }
     public ParkingName Name { get; private set; }
     public ParkingAddress Address { get; private set; }
+    public IReadOnlyList<ParkingBookingRequest> BookingRequests => _bookingRequests.AsReadOnly();
 
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
     {
@@ -34,6 +50,18 @@ public sealed class Parking : IBroadcastEvents
     public static Parking Create(string ownerId, string name, string address)
     {
         return new Parking(Guid.CreateVersion7(), ownerId, new ParkingName(name), new ParkingAddress(address));
+    }
+
+    public ParkingBookingRequest RequestBooking(
+        string requesterId,
+        DateTimeOffset from,
+        DateTimeOffset to,
+        Credits bonus)
+    {
+        var request = ParkingBookingRequest.New(requesterId, from, to, bonus);
+        _bookingRequests.Add(request);
+
+        return request;
     }
 
     public void TransferOwnership(string newOwnerId)
@@ -84,5 +112,19 @@ internal sealed class ParkingConfig : IEntityConfiguration<Parking>
             .Property(x => x.Address)
             .HasConversion<string>(x => x.Address, x => new ParkingAddress(x))
             .HasMaxLength(ParkingAddress.MaxLength);
+
+        builder.OwnsMany(
+            x => x.BookingRequests,
+            bookingBuilder =>
+            {
+                bookingBuilder.Property(x => x.Id);
+                bookingBuilder.HasOne<User>().WithMany().HasForeignKey(x => x.RequesterId);
+                bookingBuilder.Property(x => x.From);
+                bookingBuilder.Property(x => x.To);
+                bookingBuilder
+                    .Property(x => x.Bonus)
+                    .HasConversion(x => x.Amount, x => new Credits(x));
+                bookingBuilder.Ignore(x => x.DateRange);
+            });
     }
 }

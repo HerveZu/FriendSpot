@@ -1,6 +1,6 @@
 using Domain.Wallets;
 
-namespace Domain.Tests.Wallets;
+namespace Domain.Tests;
 
 [TestFixture]
 [TestOf(typeof(Wallet))]

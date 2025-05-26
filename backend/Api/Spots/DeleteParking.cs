@@ -17,7 +17,7 @@ internal sealed class DeleteParking(AppDbContext dbContext, ILogger<DeleteParkin
 {
     public override void Configure()
     {
-        Delete("/parking/{parkingId}");
+        Delete("/parking/{ParkingId:guid}");
     }
 
     public override async Task HandleAsync(DeleteParkingRequest req, CancellationToken ct)
