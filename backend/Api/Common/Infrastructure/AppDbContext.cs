@@ -49,14 +49,18 @@ internal sealed class AppDbContext(
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
-        var uncommittedEvents = ChangeTracker.Entries<IBroadcastEvents>()
-            .ToArray() // prevent ef error
-            .SelectMany(x => x.Entity.GetUncommittedEvents());
+        var aggregateRoots = ChangeTracker
+            .Entries<IAggregateRoot>()
+            .ToArray(); // prevent ef error
 
-        // execute synchronously to avoid db context concurrency errors
-        foreach (var @event in uncommittedEvents)
+        // iterates through each aggregate at a time to process each aggregate's events in order
+        foreach (var aggregateRoot in aggregateRoots)
         {
-            await publisher.Publish(@event, cancellationToken);
+            // execute synchronously to avoid db context concurrency errors
+            foreach (var @event in aggregateRoot.Entity.GetUncommittedEvents())
+            {
+                await publisher.Publish(@event, cancellationToken);
+            }
         }
 
         return await base.SaveChangesAsync(cancellationToken);

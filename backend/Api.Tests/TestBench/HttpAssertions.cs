@@ -1,9 +1,22 @@
 using System.Net;
+using System.Net.Http.Json;
 
 namespace Api.Tests.TestBench;
 
 internal static class HttpAssertions
 {
+    public static async Task<TResponse> AssertIsSuccessful<TResponse>(
+        this HttpResponseMessage message,
+        CancellationToken cancellationToken = default)
+    {
+        await AssertIsSuccessful(message, cancellationToken);
+
+        var response = await message.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+        Assert.That(response, Is.Not.Null);
+
+        return response;
+    }
+
     public static async Task AssertIsSuccessful(
         this HttpResponseMessage message,
         CancellationToken cancellationToken = default)

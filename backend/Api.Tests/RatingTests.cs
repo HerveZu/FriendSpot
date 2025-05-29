@@ -38,10 +38,8 @@ internal sealed class RatingTests : IntegrationTestsBase
                 }),
             cancellationToken);
 
-        await bookSpot.AssertIsSuccessful(cancellationToken);
-        var bookSpotResponse = await bookSpot.Content.ReadFromJsonAsync<BookSpotResponse>(cancellationToken);
-
-        Assert.That(bookSpotResponse, Is.Not.Null);
+        var bookSpotResponse = await bookSpot.AssertIsSuccessful<BookSpotResponse>(cancellationToken);
+        Assert.That(bookSpotResponse.BookingId, Is.Not.Null);
 
         var cancelSpot = await resident2.PostAsync(
             "/spots/booking/cancel",
@@ -49,7 +47,7 @@ internal sealed class RatingTests : IntegrationTestsBase
                 new CancelBookingRequest
                 {
                     ParkingLotId = Seed.Spots.Resident2,
-                    BookingId = bookSpotResponse!.BookingId!.Value
+                    BookingId = bookSpotResponse.BookingId.Value
                 }),
             cancellationToken);
 
@@ -59,10 +57,8 @@ internal sealed class RatingTests : IntegrationTestsBase
             "/@me",
             cancellationToken);
 
-        await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.AssertIsSuccessful<MeResponse>(cancellationToken);
 
-        Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Rating, Is.EqualTo(Seed.Users.InitialRating - 0.2m));
     }
 
@@ -96,10 +92,8 @@ internal sealed class RatingTests : IntegrationTestsBase
                 }),
             cancellationToken);
 
-        await bookSpot.AssertIsSuccessful(cancellationToken);
-        var bookSpotResponse = await bookSpot.Content.ReadFromJsonAsync<BookSpotResponse>(cancellationToken);
-
-        Assert.That(bookSpotResponse, Is.Not.Null);
+        var bookSpotResponse = await bookSpot.AssertIsSuccessful<BookSpotResponse>(cancellationToken);
+        Assert.That(bookSpotResponse.BookingId, Is.Not.Null);
 
         var cancelSpot = await resident1.PostAsync(
             "/spots/booking/cancel",
@@ -107,7 +101,7 @@ internal sealed class RatingTests : IntegrationTestsBase
                 new CancelBookingRequest
                 {
                     ParkingLotId = Seed.Spots.Resident2,
-                    BookingId = bookSpotResponse!.BookingId!.Value
+                    BookingId = bookSpotResponse.BookingId.Value
                 }),
             cancellationToken);
 
@@ -117,10 +111,8 @@ internal sealed class RatingTests : IntegrationTestsBase
             "/@me",
             cancellationToken);
 
-        await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.AssertIsSuccessful<MeResponse>(cancellationToken);
 
-        Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Rating, Is.EqualTo(Seed.Users.InitialRating));
     }
 
@@ -165,10 +157,8 @@ internal sealed class RatingTests : IntegrationTestsBase
             "/@me",
             cancellationToken);
 
-        await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.AssertIsSuccessful<MeResponse>(cancellationToken);
 
-        Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Rating, Is.EqualTo(Seed.Users.InitialRating + 0.2m));
     }
 }

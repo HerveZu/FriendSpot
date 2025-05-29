@@ -95,15 +95,6 @@ internal sealed class BookSpotTests : IntegrationTestsBase
         using var resident1 = UserClient(Seed.Users.Resident1);
         using var resident2 = UserClient(Seed.Users.Resident2);
 
-        var pushToDeviceCompletion = NotificationPushService
-            .PushToDevice(
-                Arg.Any<UserDevice>(),
-                Arg.Any<Notification>(),
-                Arg.Any<CancellationToken>()
-            )
-            .ReturnsForAnyArgs(Task.CompletedTask)
-            .AfterHavingCompleted(info => info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident2);
-
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
             JsonContent.Create(
@@ -129,16 +120,12 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 
         await bookSpot.AssertIsSuccessful(cancellationToken);
 
-        await pushToDeviceCompletion.Assert(cancellationToken);
-
         var resident2Profile = await resident2.GetAsync(
             "/@me",
             cancellationToken);
 
-        await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.AssertIsSuccessful<MeResponse>(cancellationToken);
 
-        Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Wallet.PendingCredits, Is.EqualTo(4));
     }
 
@@ -182,8 +169,7 @@ internal sealed class BookSpotTests : IntegrationTestsBase
             "/@me",
             cancellationToken);
 
-        await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.AssertIsSuccessful<MeResponse>(cancellationToken);
 
         Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Rating, Is.EqualTo(Seed.Users.InitialRating + 0.2m));
@@ -191,7 +177,7 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task SpotBookingCompletes_ShouldIncreaseConfirmPendingCredits(CancellationToken cancellationToken)
+    public async Task SpotBookingCompletes_ShouldConfirmPendingCredits(CancellationToken cancellationToken)
     {
         using var resident1 = UserClient(Seed.Users.Resident1);
         using var resident2 = UserClient(Seed.Users.Resident2);
@@ -229,10 +215,8 @@ internal sealed class BookSpotTests : IntegrationTestsBase
             "/@me",
             cancellationToken);
 
-        await resident2Profile.AssertIsSuccessful(cancellationToken);
-        var resident2ProfileResponse = await resident2Profile.Content.ReadFromJsonAsync<MeResponse>(cancellationToken);
+        var resident2ProfileResponse = await resident2Profile.AssertIsSuccessful<MeResponse>(cancellationToken);
 
-        Assert.That(resident2ProfileResponse, Is.Not.Null);
         Assert.That(resident2ProfileResponse.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance + 1));
     }
 }

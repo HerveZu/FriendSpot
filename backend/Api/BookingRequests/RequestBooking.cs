@@ -8,10 +8,10 @@ using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Spots;
+namespace Api.BookingRequests;
 
 [PublicAPI]
-public sealed record RequestSpotRequest
+public sealed record RequestBookingRequest
 {
     public required DateTimeOffset From { get; init; }
     public required DateTimeOffset To { get; init; }
@@ -22,15 +22,15 @@ public sealed record RequestSpotRequest
 }
 
 [PublicAPI]
-public sealed record RequestSpotResponse
+public sealed record RequestBookingResponse
 {
     public Guid? RequestId { get; init; }
     public required decimal UsedCredits { get; init; }
 }
 
-internal sealed class RequestSpotValidator : Validator<RequestSpotRequest>
+internal sealed class RequestBookingValidator : Validator<RequestBookingRequest>
 {
-    public RequestSpotValidator()
+    public RequestBookingValidator()
     {
         RuleFor(x => x.To).GreaterThan(x => x.From);
         RuleFor(x => x.From).GreaterThanOrEqualTo(_ => DateTimeOffset.UtcNow);
@@ -38,39 +38,34 @@ internal sealed class RequestSpotValidator : Validator<RequestSpotRequest>
     }
 }
 
-internal sealed class RequestSpot(AppDbContext dbContext) : Endpoint<RequestSpotRequest, RequestSpotResponse>
+internal sealed class RequestBooking(AppDbContext dbContext) : Endpoint<RequestBookingRequest, RequestBookingResponse>
 {
     public override void Configure()
     {
         Post("/parking/requests");
     }
 
-    public override async Task HandleAsync(RequestSpotRequest req, CancellationToken ct)
+    public override async Task HandleAsync(RequestBookingRequest req, CancellationToken ct)
     {
         var currentUser = HttpContext.ToCurrentUser();
 
-        var usersParkingSpot = await dbContext
-            .Set<ParkingSpot>()
-            .FirstOrDefaultAsync(
-                parkingLot => parkingLot.OwnerId == currentUser.Identity,
-                ct);
+        var usersParking = await (from parking in dbContext.Set<Parking>()
+            join spot in dbContext.Set<ParkingSpot>() on parking.Id equals spot.ParkingId
+            where spot.OwnerId == currentUser.Identity
+            select parking).FirstOrDefaultAsync(ct);
 
-        if (usersParkingSpot is null)
+        if (usersParking is null)
         {
-            ThrowError("You must have a parking lot to request a spot booking.");
+            ThrowError("You must have a parking spot to request a spot booking.");
             return;
         }
 
-        var parking = await dbContext
-            .Set<Parking>()
-            .SingleAsync(parking => parking.Id == usersParkingSpot.ParkingId, ct);
-
-        var request = parking.RequestBooking(currentUser.Identity, req.From, req.To, new Credits(req.Bonus));
+        var request = usersParking.RequestBooking(currentUser.Identity, req.From, req.To, new Credits(req.Bonus));
 
         if (req.Simulation)
         {
             await SendOkAsync(
-                new RequestSpotResponse
+                new RequestBookingResponse
                 {
                     UsedCredits = request.Cost
                 },
@@ -78,11 +73,11 @@ internal sealed class RequestSpot(AppDbContext dbContext) : Endpoint<RequestSpot
             return;
         }
 
-        dbContext.Set<Parking>().Update(parking);
+        dbContext.Set<Parking>().Update(usersParking);
         await dbContext.SaveChangesAsync(ct);
 
         await SendOkAsync(
-            new RequestSpotResponse
+            new RequestBookingResponse
             {
                 RequestId = request.Id,
                 UsedCredits = request.Cost

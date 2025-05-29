@@ -9,7 +9,29 @@ public sealed record ParkingDeleted : IDomainEvent
     public required Guid ParkingId { get; init; }
 }
 
-public sealed class Parking : IBroadcastEvents
+public sealed record BookingRequested : IDomainEvent
+{
+    public required Parking Parking { get; init; }
+    public required ParkingBookingRequest Request { get; init; }
+}
+
+public sealed record BookingRequestExpired : IDomainEvent
+{
+    public required ParkingBookingRequest Request { get; init; }
+}
+
+public sealed record BookingRequestCancelled : IDomainEvent
+{
+    public required string CancelledByUserId { get; init; }
+}
+
+public sealed record BookingRequestAccepted : IDomainEvent
+{
+    public required ParkingBookingRequest Request { get; init; }
+    public required string AcceptedByUserId { get; init; }
+}
+
+public sealed class Parking : IAggregateRoot
 {
     private readonly List<ParkingBookingRequest> _bookingRequests = [];
     private readonly DomainEvents _domainEvents = new();
@@ -61,7 +83,87 @@ public sealed class Parking : IBroadcastEvents
         var request = ParkingBookingRequest.New(requesterId, from, to, bonus);
         _bookingRequests.Add(request);
 
+        _domainEvents.RegisterNext(
+            new BookingRequested
+            {
+                Parking = this,
+                Request = request
+            });
+
         return request;
+    }
+
+    public void AcceptBookingRequest(string userId, Guid requestId)
+    {
+        var request = _bookingRequests.SingleOrDefault(request => request.Id == requestId);
+
+        if (request is null)
+        {
+            throw new BusinessException("Parking.BookingRequestNotFound", "No booking request found.");
+        }
+
+        request.Accept(userId);
+
+        // expires BEFORE being accepted
+        _domainEvents.RegisterNext(
+            new BookingRequestExpired
+            {
+                Request = request
+            });
+
+        _domainEvents.RegisterNext(
+            new BookingRequestAccepted
+            {
+                Request = request,
+                AcceptedByUserId = userId
+            });
+    }
+
+    public void CancelBookingRequest(string userId, Guid requestId)
+    {
+        var request = _bookingRequests.SingleOrDefault(request => request.Id == requestId);
+
+        if (request is null)
+        {
+            throw new BusinessException("Parking.BookingRequestNotFound", "No booking request found.");
+        }
+
+        if (!request.CanCancel(userId))
+        {
+            throw new BusinessException("Parking.CannotCancelBookingRequest", "The request cannot be cancelled.");
+        }
+
+        _bookingRequests.Remove(request);
+
+        _domainEvents.RegisterNext(
+            new BookingRequestCancelled
+            {
+                CancelledByUserId = userId
+            });
+
+        _domainEvents.RegisterNext(
+            new BookingRequestExpired
+            {
+                Request = request
+            });
+    }
+
+    public void MarkBookingRequestExpired(Guid requestId)
+    {
+        var request = _bookingRequests.SingleOrDefault(request => request.Id == requestId);
+
+        if (request is null)
+        {
+            throw new BusinessException("Parking.BookingRequestNotFound", "No booking request found.");
+        }
+
+        _bookingRequests.Remove(request);
+
+        _domainEvents.RegisterNext(
+            new BookingRequestExpired
+            {
+                Request = request
+            });
     }
 
     public void TransferOwnership(string newOwnerId)
@@ -92,7 +194,7 @@ public sealed class Parking : IBroadcastEvents
             throw new BusinessException("Parking.InvalidDeletion", "Only the owner can delete the parking.");
         }
 
-        _domainEvents.Register(new ParkingDeleted { ParkingId = Id });
+        _domainEvents.RegisterNext(new ParkingDeleted { ParkingId = Id });
     }
 }
 
@@ -118,13 +220,22 @@ internal sealed class ParkingConfig : IEntityConfiguration<Parking>
             bookingBuilder =>
             {
                 bookingBuilder.Property(x => x.Id);
-                bookingBuilder.HasOne<User>().WithMany().HasForeignKey(x => x.RequesterId);
                 bookingBuilder.Property(x => x.From);
                 bookingBuilder.Property(x => x.To);
                 bookingBuilder
                     .Property(x => x.Bonus)
                     .HasConversion(x => x.Amount, x => new Credits(x));
                 bookingBuilder.Ignore(x => x.DateRange);
+
+                bookingBuilder
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(x => x.RequesterId);
+
+                bookingBuilder
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(x => x.AcceptedByUserId);
             });
     }
 }

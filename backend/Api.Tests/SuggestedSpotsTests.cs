@@ -59,13 +59,11 @@ internal sealed class SuggestedSpotsTests : IntegrationTestsBase
                 }),
             cancellationToken);
 
-        await suggestedSpotsResponse.AssertIsSuccessful(cancellationToken);
         var suggestedSpots =
-            await suggestedSpotsResponse.Content.ReadFromJsonAsync<GetSuggestedSpotsResponse>(cancellationToken);
+            await suggestedSpotsResponse.AssertIsSuccessful<GetSuggestedSpotsResponse>(cancellationToken);
 
-        Assert.That(suggestedSpots, Is.Not.Null);
-        Assert.That(suggestedSpots.Suggestions, Is.Not.Empty);
         Assert.That(suggestedSpots.Suggestions, Has.Length.EqualTo(2));
+
         Assert.Multiple(
             () =>
             {
@@ -105,12 +103,9 @@ internal sealed class SuggestedSpotsTests : IntegrationTestsBase
                 }),
             cancellationToken);
 
-        await suggestedSpotsResponse.AssertIsSuccessful(cancellationToken);
         var suggestedSpots =
-            await suggestedSpotsResponse.Content.ReadFromJsonAsync<GetSuggestedSpotsResponse>(cancellationToken);
+            await suggestedSpotsResponse.AssertIsSuccessful<GetSuggestedSpotsResponse>(cancellationToken);
 
-        Assert.That(suggestedSpots, Is.Not.Null);
-        Assert.That(suggestedSpots.Suggestions, Is.Not.Empty);
         Assert.That(suggestedSpots.Suggestions, Has.Length.EqualTo(1));
         Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(35)));
     }

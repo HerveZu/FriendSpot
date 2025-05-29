@@ -13,7 +13,7 @@ public sealed record UserMarkedDeleted : IDomainEvent
     public required string UserId { get; init; }
 }
 
-public sealed class User : IBroadcastEvents
+public sealed class User : IAggregateRoot
 {
     private readonly DomainEvents _domainEvents = new();
     private readonly List<UserDevice> _userDevices = [];
@@ -48,7 +48,7 @@ public sealed class User : IBroadcastEvents
             Rating = UserRating.Neutral()
         };
 
-        user._domainEvents.Register(
+        user._domainEvents.RegisterNext(
             new UserRegistered
             {
                 UserId = user.Identity
@@ -104,7 +104,7 @@ public sealed class User : IBroadcastEvents
     public void MarkDeleted()
     {
         IsDeleted = true;
-        _domainEvents.Register(
+        _domainEvents.RegisterNext(
             new UserMarkedDeleted
             {
                 UserId = Identity

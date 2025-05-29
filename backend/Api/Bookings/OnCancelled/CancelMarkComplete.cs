@@ -1,4 +1,3 @@
-using Api.Bookings.Common;
 using Api.Common;
 using Domain.ParkingSpots;
 using Quartz;

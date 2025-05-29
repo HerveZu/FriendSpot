@@ -1,6 +1,6 @@
 using Quartz;
 
-namespace Api.Bookings.Common;
+namespace Api.Bookings;
 
 internal static class BookingJobsKeys
 {
