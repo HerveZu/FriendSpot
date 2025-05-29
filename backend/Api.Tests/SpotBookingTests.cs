@@ -9,7 +9,7 @@ using NSubstitute;
 
 namespace Api.Tests;
 
-internal sealed class BookSpotTests : IntegrationTestsBase
+internal sealed class SpotBookingTests : IntegrationTestsBase
 {
     [Test]
     [CancelAfter(10_000)]
@@ -150,14 +150,15 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 
         await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
 
+        var now = DateTimeOffset.Now;
         var bookSpot = await resident1.PostAsync(
             "/spots/booking",
             JsonContent.Create(
                 new BookSpotRequest
                 {
                     ParkingLotId = Seed.Spots.Resident2,
-                    From = DateTimeOffset.Now.AddSeconds(1),
-                    To = DateTimeOffset.Now.AddSeconds(5),
+                    From = now.AddSeconds(1),
+                    To = now.AddSeconds(2)
                 }),
             cancellationToken);
 
@@ -196,14 +197,15 @@ internal sealed class BookSpotTests : IntegrationTestsBase
 
         await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
 
+        var now = DateTimeOffset.Now;
         var bookSpot = await resident1.PostAsync(
             "/spots/booking",
             JsonContent.Create(
                 new BookSpotRequest
                 {
                     ParkingLotId = Seed.Spots.Resident2,
-                    From = DateTimeOffset.Now.AddSeconds(1),
-                    To = DateTimeOffset.Now.AddSeconds(5),
+                    From = now.AddSeconds(1),
+                    To = now.AddSeconds(2)
                 }),
             cancellationToken);
 
