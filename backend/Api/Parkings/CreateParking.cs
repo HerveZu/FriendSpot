@@ -1,12 +1,12 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Api.Spots.Contracts;
+using Api.Parkings.Contracts;
 using Domain.Parkings;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
 
-namespace Api.Spots;
+namespace Api.Parkings;
 
 [PublicAPI]
 public sealed record CreateParkingRequest

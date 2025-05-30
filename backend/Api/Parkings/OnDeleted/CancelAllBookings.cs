@@ -4,7 +4,7 @@ using Domain.Parkings;
 using Domain.ParkingSpots;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Spots.OnParkingDeleted;
+namespace Api.Parkings.OnDeleted;
 
 internal sealed class CancelAllBookings(
     AppDbContext dbContext,

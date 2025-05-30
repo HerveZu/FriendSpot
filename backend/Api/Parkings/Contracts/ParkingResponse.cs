@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Api.Spots.Contracts;
+namespace Api.Parkings.Contracts;
 
 [PublicAPI]
 public sealed record ParkingResponse

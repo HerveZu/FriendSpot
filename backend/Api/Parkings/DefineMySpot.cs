@@ -7,7 +7,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Spots;
+namespace Api.Parkings;
 
 [PublicAPI]
 public sealed record DefineMySpotRequest

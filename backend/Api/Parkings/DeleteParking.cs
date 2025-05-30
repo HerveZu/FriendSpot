@@ -4,7 +4,7 @@ using Domain.Parkings;
 using FastEndpoints;
 using JetBrains.Annotations;
 
-namespace Api.Spots;
+namespace Api.Parkings;
 
 [PublicAPI]
 public sealed record DeleteParkingRequest
