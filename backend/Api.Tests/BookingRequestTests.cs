@@ -104,8 +104,7 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task RequestBooking_ShouldTransferCreditsForBookingAndBonus_WhenAccepted(
-        CancellationToken cancellationToken)
+    public async Task AcceptRequestBooking_ShouldTransferCreditsForBookingAndBonus(CancellationToken cancellationToken)
     {
         using var resident1 = UserClient(Seed.Users.Resident1);
         using var resident2 = UserClient(Seed.Users.Resident2);
@@ -170,8 +169,7 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task RequestBooking_ShouldIncreaseAcceptingUserReputation_WhenAccepted(
-        CancellationToken cancellationToken)
+    public async Task AcceptRequestBooking_ShouldIncreaseUserReputation(CancellationToken cancellationToken)
     {
         using var resident1 = UserClient(Seed.Users.Resident1);
         using var resident2 = UserClient(Seed.Users.Resident2);
@@ -217,5 +215,62 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
         var profileResident2 = await resident2ProfileResult.AssertIsSuccessful<MeResponse>(cancellationToken);
 
         Assert.That(profileResident2.Rating, Is.EqualTo(Seed.Users.InitialRating + 0.05m));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task AcceptRequestBooking_ShouldBookSpot_WhenSpotIsAvailable(CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
+
+        var makeSpotAvailable = await resident2.PostAsync(
+            "/spots/availabilities",
+            JsonContent.Create(
+                new MakeMySpotAvailableRequest
+                {
+                    From = DateTimeOffset.Now.AddSeconds(1),
+                    To = DateTimeOffset.Now.AddDays(2)
+                }),
+            cancellationToken);
+
+        await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
+
+        var now = DateTimeOffset.Now;
+        var bookingRequestResult = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddHours(3),
+                    To = now.AddHours(7),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        var bookingRequest = await bookingRequestResult.AssertIsSuccessful<RequestBookingResponse>(cancellationToken);
+        Assert.That(bookingRequest.RequestId, Is.Not.Null);
+
+        var acceptRequestResult = await resident2.PostAsync(
+            $"/parking/requests/{bookingRequest.RequestId.Value}/accept",
+            JsonContent.Create(new object()),
+            cancellationToken);
+
+        await acceptRequestResult.AssertIsSuccessful(cancellationToken);
+
+        var resident1BookingResult = await resident1.GetAsync(
+            "/spots/booking",
+            cancellationToken);
+
+        var resident1Booking = await resident1BookingResult.AssertIsSuccessful<GetBookingResponse>(cancellationToken);
+
+        Assert.That(resident1Booking.Bookings, Has.Length.EqualTo(1));
+        Assert.Multiple(
+            () =>
+            {
+                Assert.That(resident1Booking.Bookings[0].From, Is.EqualTo(now.AddHours(3)));
+                Assert.That(resident1Booking.Bookings[0].To, Is.EqualTo(now.AddHours(7)));
+                Assert.That(resident1Booking.Bookings[0].Owner.UserId, Is.EqualTo(Seed.Users.Resident2));
+            });
     }
 }
