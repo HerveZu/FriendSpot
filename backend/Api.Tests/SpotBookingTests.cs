@@ -158,7 +158,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
                 {
                     ParkingLotId = Seed.Spots.Resident2,
                     From = now.AddSeconds(1),
-                    To = now.AddSeconds(2)
+                    To = now.AddSeconds(1).AddMicroseconds(1)
                 }),
             cancellationToken);
 
@@ -205,7 +205,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
                 {
                     ParkingLotId = Seed.Spots.Resident2,
                     From = now.AddSeconds(1),
-                    To = now.AddSeconds(2)
+                    To = now.AddSeconds(1).AddMicroseconds(1)
                 }),
             cancellationToken);
 
