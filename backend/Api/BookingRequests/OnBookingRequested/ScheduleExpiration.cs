@@ -19,7 +19,7 @@ internal sealed class ScheduleExpiration(ISchedulerFactory schedulerFactory)
                 .UsingJobData(MarkBookingRequestExpired.RequestId, notification.Request.Id)
                 .Build(),
             TriggerBuilder.Create()
-                .StartAt(DateExtensions.Max(DateTimeOffset.Now, notification.Request.From.AddHours(-1)))
+                .StartAt(notification.Request.From)
                 .Build(),
             cancellationToken);
     }
