@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using Api.BookingRequests;
 using Api.BookingRequests.OnBookingRequested;
@@ -10,26 +9,6 @@ namespace Api.Tests;
 
 internal sealed class BookingRequestTests : IntegrationTestsBase
 {
-    [Test]
-    [CancelAfter(10_000)]
-    public async Task RequestBooking_ShouldSucceed(CancellationToken cancellationToken)
-    {
-        using var resident1 = UserClient(Seed.Users.Resident1);
-
-        var bookingRequest = await resident1.PostAsync(
-            "/parking/requests",
-            JsonContent.Create(
-                new RequestBookingRequest
-                {
-                    From = DateTimeOffset.Now.AddHours(1),
-                    To = DateTimeOffset.Now.AddHours(6),
-                    Bonus = 50
-                }),
-            cancellationToken);
-
-        await bookingRequest.AssertIs(HttpStatusCode.OK, cancellationToken);
-    }
-
     [Test]
     [CancelAfter(10_000)]
     public async Task RequestBooking_ShouldTakeDeposit(CancellationToken cancellationToken)
@@ -55,12 +34,11 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
 
         var profile = await resident1ProfileResult.AssertIsSuccessful<MeResponse>(cancellationToken);
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(profile.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance - (5 + 50)));
-                Assert.That(profile.Wallet.PendingCredits, Is.EqualTo(0));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(profile.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance - (5 + 50)));
+            Assert.That(profile.Wallet.PendingCredits, Is.EqualTo(0));
+        });
     }
 
     [Test]
@@ -85,7 +63,7 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
             cancellationToken);
 
         await bookingRequestResult.AssertIsSuccessful(cancellationToken);
-        await cancelBookingRequestCompletion.Assert(cancellationToken);
+        await cancelBookingRequestCompletion.Wait(cancellationToken);
 
         var resident1ProfileResult = await resident1.GetAsync(
             "/@me",
@@ -93,13 +71,12 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
 
         var profile = await resident1ProfileResult.AssertIsSuccessful<MeResponse>(cancellationToken);
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(profile.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance));
-                Assert.That(profile.Wallet.PendingCredits, Is.EqualTo(0));
-                Assert.That(profile.Rating, Is.EqualTo(Seed.Users.InitialRating));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(profile.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance));
+            Assert.That(profile.Wallet.PendingCredits, Is.EqualTo(0));
+            Assert.That(profile.Rating, Is.EqualTo(Seed.Users.InitialRating));
+        });
     }
 
     [Test]
@@ -156,15 +133,14 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
 
         const int cost = 50 + 5;
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(profileResident1.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance - cost));
-                Assert.That(profileResident1.Wallet.PendingCredits, Is.EqualTo(0));
+        Assert.Multiple(() =>
+        {
+            Assert.That(profileResident1.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance - cost));
+            Assert.That(profileResident1.Wallet.PendingCredits, Is.EqualTo(0));
 
-                Assert.That(profileResident2.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance));
-                Assert.That(profileResident2.Wallet.PendingCredits, Is.EqualTo(cost));
-            });
+            Assert.That(profileResident2.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance));
+            Assert.That(profileResident2.Wallet.PendingCredits, Is.EqualTo(cost));
+        });
     }
 
     [Test]
@@ -265,12 +241,131 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
         var resident1Booking = await resident1BookingResult.AssertIsSuccessful<GetBookingResponse>(cancellationToken);
 
         Assert.That(resident1Booking.Bookings, Has.Length.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(resident1Booking.Bookings[0].From, Is.EqualTo(now.AddHours(3)));
-                Assert.That(resident1Booking.Bookings[0].To, Is.EqualTo(now.AddHours(7)));
-                Assert.That(resident1Booking.Bookings[0].Owner.UserId, Is.EqualTo(Seed.Users.Resident2));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(resident1Booking.Bookings[0].From, Is.EqualTo(now.AddHours(3)));
+            Assert.That(resident1Booking.Bookings[0].To, Is.EqualTo(now.AddHours(7)));
+            Assert.That(resident1Booking.Bookings[0].Owner.UserId, Is.EqualTo(Seed.Users.Resident2));
+        });
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task CancelBookingRequest_ShouldNotImpactCredits(CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+
+        var now = DateTimeOffset.Now;
+        var bookingRequestResult = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddHours(1),
+                    To = now.AddHours(2),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        var request = await bookingRequestResult.AssertIsSuccessful<RequestBookingResponse>(cancellationToken);
+        var cancelRequestResult = await resident1
+            .DeleteAsync($"/parking/requests/{request.RequestId}/cancel", cancellationToken);
+
+        await cancelRequestResult.AssertIsSuccessful(cancellationToken);
+
+        var resident1ProfileResult = await resident1.GetAsync(
+            "/@me",
+            cancellationToken);
+
+        var profile = await resident1ProfileResult.AssertIsSuccessful<MeResponse>(cancellationToken);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(profile.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance));
+            Assert.That(profile.Wallet.PendingCredits, Is.EqualTo(0));
+        });
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task CancelBookingRequest_ShouldDecreaseReputation(CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+
+        var now = DateTimeOffset.Now;
+        var bookingRequestResult = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddHours(1),
+                    To = now.AddHours(2),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        var request = await bookingRequestResult.AssertIsSuccessful<RequestBookingResponse>(cancellationToken);
+        var cancelRequestResult = await resident1
+            .DeleteAsync($"/parking/requests/{request.RequestId}/cancel", cancellationToken);
+
+        await cancelRequestResult.AssertIsSuccessful(cancellationToken);
+
+        var resident1ProfileResult = await resident1.GetAsync(
+            "/@me",
+            cancellationToken);
+
+        var profile = await resident1ProfileResult.AssertIsSuccessful<MeResponse>(cancellationToken);
+
+        Assert.That(profile.Rating, Is.EqualTo(Seed.Users.InitialRating - 0.2m));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task GetMyBookingRequest_ShouldReturnMyRequest_WhenNotExpired(CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+
+        var requestExpiredCompletion = JobListener.WaitForJob<MarkBookingRequestExpired>();
+
+        var now = DateTimeOffset.Now;
+        var bookingRequest1Result = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddSeconds(1),
+                    To = now.AddSeconds(1).AddMicroseconds(1),
+                    Bonus = 10
+                }),
+            cancellationToken);
+        var bookingRequest2Result = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddHours(1),
+                    To = now.AddHours(2),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        await bookingRequest1Result.AssertIsSuccessful(cancellationToken);
+        await bookingRequest2Result.AssertIsSuccessful(cancellationToken);
+
+        await requestExpiredCompletion.Wait(cancellationToken);
+
+        var getMyRequestsResult = await resident1
+            .GetAsync("/parking/requests", cancellationToken);
+
+        var myBookingRequests =
+            await getMyRequestsResult.AssertIsSuccessful<GetMyBookingRequestsResponse>(cancellationToken);
+
+        Assert.That(myBookingRequests.Requests, Has.Length.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(myBookingRequests.Requests[0].From, Is.EqualTo(now.AddHours(1)));
+            Assert.That(myBookingRequests.Requests[0].To, Is.EqualTo(now.AddHours(2)));
+            Assert.That(myBookingRequests.Requests[0].Bonus, Is.EqualTo(50));
+        });
     }
 }

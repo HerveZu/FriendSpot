@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using Api.Me;
 using Api.Tests.TestBench;
@@ -10,15 +9,26 @@ internal sealed class UserTests : IntegrationTestsBase
 {
     [Test]
     [CancelAfter(10_000)]
-    public async Task ViewMe_ShouldSucceed(CancellationToken cancellationToken)
+    public async Task ViewMe_ShouldReturnCurrentUser(CancellationToken cancellationToken)
     {
         using var client = UserClient(Seed.Users.Resident1);
 
-        var me = await client.GetAsync(
+        var meResult = await client.GetAsync(
             "/@me",
             cancellationToken);
 
-        await me.AssertIs(HttpStatusCode.OK, cancellationToken);
+        var me = await meResult.AssertIsSuccessful<MeResponse>(cancellationToken);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(me.Id, Is.EqualTo(Seed.Users.Resident1));
+            Assert.That(me.Rating, Is.EqualTo(Seed.Users.InitialRating));
+            Assert.That(me.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance));
+            Assert.That(me.Wallet.PendingCredits, Is.EqualTo(0));
+        });
+
+        Assert.That(me.Spot, Is.Not.Null);
+        Assert.Multiple(() => { Assert.That(me.Spot.Id, Is.EqualTo(Seed.Spots.Resident1)); });
     }
 
     [Test]

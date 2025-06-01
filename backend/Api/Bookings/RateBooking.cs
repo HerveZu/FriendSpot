@@ -3,6 +3,7 @@ using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
 using FastEndpoints;
+using FluentValidation;
 using JetBrains.Annotations;
 
 namespace Api.Bookings;
@@ -17,16 +18,25 @@ public sealed record RateBookingRequest
         Good
     }
 
-    public required Guid ParkingLotId { get; init; }
-    public required Guid BookingId { get; init; }
+    public Guid ParkingLotId { get; init; } // required makes deserialization fail
+    public Guid BookingId { get; init; } // required makes deserialization fail
     public required Rating UserRating { get; init; }
+}
+
+internal sealed class RateBookingValidator : Validator<RateBookingRequest>
+{
+    public RateBookingValidator()
+    {
+        RuleFor(x => x.BookingId).NotEmpty();
+        RuleFor(x => x.BookingId).NotEmpty();
+    }
 }
 
 internal sealed class RateBooking(AppDbContext dbContext) : Endpoint<RateBookingRequest>
 {
     public override void Configure()
     {
-        Post("/spots/booking/rate");
+        Post("/spots/{ParkingLotId:guid}/booking/{BookingId:guid}/rate");
     }
 
     public override async Task HandleAsync(RateBookingRequest req, CancellationToken ct)

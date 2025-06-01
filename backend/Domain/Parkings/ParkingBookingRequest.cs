@@ -21,6 +21,7 @@ public sealed class ParkingBookingRequest
     public DateTimeOffsetRange DateRange { get; }
     public DateTimeOffset From => DateRange.From;
     public DateTimeOffset To => DateRange.To;
+    public TimeSpan Duration => DateRange.Duration;
     public Credits Bonus { get; }
     public string RequesterId { get; }
     public string? AcceptedByUserId { get; private set; }

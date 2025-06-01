@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using Api.Bookings;
 using Api.Bookings.OnBooked;
@@ -11,39 +10,6 @@ namespace Api.Tests;
 
 internal sealed class SpotBookingTests : IntegrationTestsBase
 {
-    [Test]
-    [CancelAfter(10_000)]
-    public async Task BookSpot_ShouldReturnOk(CancellationToken cancellationToken)
-    {
-        using var resident1 = UserClient(Seed.Users.Resident1);
-        using var resident2 = UserClient(Seed.Users.Resident2);
-
-        var makeSpotAvailable = await resident2.PostAsync(
-            "/spots/availabilities",
-            JsonContent.Create(
-                new MakeMySpotAvailableRequest
-                {
-                    From = DateTimeOffset.Now.AddHours(1),
-                    To = DateTimeOffset.Now.AddDays(2)
-                }),
-            cancellationToken);
-
-        await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
-
-        var bookSpot = await resident1.PostAsync(
-            "/spots/booking",
-            JsonContent.Create(
-                new BookSpotRequest
-                {
-                    ParkingLotId = Seed.Spots.Resident2,
-                    From = DateTimeOffset.Now.AddHours(2),
-                    To = DateTimeOffset.Now.AddHours(6)
-                }),
-            cancellationToken);
-
-        await bookSpot.AssertIs(HttpStatusCode.OK, cancellationToken);
-    }
-
     [Test]
     [CancelAfter(10_000)]
     public async Task BookSpot_ShouldSendNotificationToOwner_WhenUserBooked(CancellationToken cancellationToken)
@@ -73,11 +39,10 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
         await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
 
         var bookSpot = await resident1.PostAsync(
-            "/spots/booking",
+            $"/spots/{Seed.Spots.Resident2}/booking",
             JsonContent.Create(
                 new BookSpotRequest
                 {
-                    ParkingLotId = Seed.Spots.Resident2,
                     From = DateTimeOffset.Now.AddHours(2),
                     To = DateTimeOffset.Now.AddHours(6)
                 }),
@@ -85,7 +50,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
 
         await bookSpot.AssertIsSuccessful(cancellationToken);
 
-        await pushToDeviceCompletion.Assert(cancellationToken);
+        await pushToDeviceCompletion.Wait(cancellationToken);
     }
 
     [Test]
@@ -108,11 +73,10 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
         await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
 
         var bookSpot = await resident1.PostAsync(
-            "/spots/booking",
+            $"/spots/{Seed.Spots.Resident2}/booking",
             JsonContent.Create(
                 new BookSpotRequest
                 {
-                    ParkingLotId = Seed.Spots.Resident2,
                     From = DateTimeOffset.Now.AddHours(2),
                     To = DateTimeOffset.Now.AddHours(6)
                 }),
@@ -152,11 +116,10 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
 
         var now = DateTimeOffset.Now;
         var bookSpot = await resident1.PostAsync(
-            "/spots/booking",
+            $"/spots/{Seed.Spots.Resident2}/booking",
             JsonContent.Create(
                 new BookSpotRequest
                 {
-                    ParkingLotId = Seed.Spots.Resident2,
                     From = now.AddSeconds(1),
                     To = now.AddSeconds(1).AddMicroseconds(1)
                 }),
@@ -164,7 +127,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
 
         await bookSpot.AssertIsSuccessful(cancellationToken);
 
-        await bookingCompleteCompletion.Assert(cancellationToken);
+        await bookingCompleteCompletion.Wait(cancellationToken);
 
         var resident2Profile = await resident2.GetAsync(
             "/@me",
@@ -199,11 +162,10 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
 
         var now = DateTimeOffset.Now;
         var bookSpot = await resident1.PostAsync(
-            "/spots/booking",
+            $"/spots/{Seed.Spots.Resident2}/booking",
             JsonContent.Create(
                 new BookSpotRequest
                 {
-                    ParkingLotId = Seed.Spots.Resident2,
                     From = now.AddSeconds(1),
                     To = now.AddSeconds(1).AddMicroseconds(1)
                 }),
@@ -211,7 +173,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
 
         await bookSpot.AssertIsSuccessful(cancellationToken);
 
-        await bookingCompleteCompletion.Assert(cancellationToken);
+        await bookingCompleteCompletion.Wait(cancellationToken);
 
         var resident2Profile = await resident2.GetAsync(
             "/@me",

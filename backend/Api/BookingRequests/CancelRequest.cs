@@ -12,7 +12,7 @@ namespace Api.BookingRequests;
 [PublicAPI]
 public sealed record CancelRequestRequest
 {
-    public Guid RequestId { get; init; } // required makes deserialization fail
+    public required Guid RequestId { get; init; }
 }
 
 internal sealed class CancelRequestValidator : Validator<CancelRequestRequest>
@@ -28,7 +28,7 @@ internal sealed class CancelRequest(AppDbContext dbContext, ILogger<CancelReques
 {
     public override void Configure()
     {
-        Post("/parking/requests/{RequestId:guid}");
+        Delete("/parking/requests/{RequestId:guid}/cancel");
     }
 
     public override async Task HandleAsync(CancelRequestRequest req, CancellationToken ct)
