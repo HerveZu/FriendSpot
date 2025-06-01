@@ -323,10 +323,9 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
       <BottomSheetView>
         <ContentSheetView className="h-full flex-col justify-between">
           <List>
-            <View className="flex-row items-center gap-4">
-              <ThemedIcon name="calendar" size={22} />
-              <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
-            </View>
+            <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
+              {capitalize(formatRelative(from, now))}
+            </SheetTitle>
             <View className="flex-row items-center gap-4">
               <ThemedIcon component={FontAwesome6} name="clock" size={18} />
               <Text variant="title3">

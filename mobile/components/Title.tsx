@@ -1,8 +1,9 @@
 import { TextProps, View } from 'react-native';
 
-import { Text } from '~/components/nativewindui/Text';
+import { Text, textVariants } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { ReactNode } from 'react';
+import { VariantProps } from 'class-variance-authority';
 
 export function Title({
   primary,
@@ -21,10 +22,25 @@ export function Title({
   );
 }
 
-export function SheetTitle(props: TextProps) {
-  return (
-    <Text variant="title1" className={cn('font-bold', 'text-2xl')}>
-      {props.children}
+export function SheetTitle({
+  className,
+  icon,
+  children,
+  variant,
+  ...props
+}: { icon?: ReactNode } & TextProps & VariantProps<typeof textVariants>) {
+  const title = (
+    <Text variant={variant ?? 'title1'} className={cn('font-bold', className)} {...props}>
+      {children}
     </Text>
+  );
+
+  return icon ? (
+    <View className="flex-row items-center gap-4">
+      {icon}
+      {title}
+    </View>
+  ) : (
+    title
   );
 }

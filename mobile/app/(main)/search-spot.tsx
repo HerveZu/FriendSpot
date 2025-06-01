@@ -1,7 +1,6 @@
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Slider } from '~/components/nativewindui/Slider';
-import QuestionIllustration from 'assets/question.svg';
 import {
   addHours,
   addMinutes,
@@ -55,6 +54,8 @@ import SuccessIllustration from '~/assets/success.svg';
 import { BlinkingDot } from '~/components/BlinkingDot';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabArea, TabsProvider, TabsSelector } from '~/components/TabsSelector';
+import { ButtonSelect } from '~/components/ButtonSelect';
+import { useRequestSpotBooking } from '~/endpoints/requestBooking/request-spot-booking';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -360,14 +361,19 @@ function BookingSheet(props: {
   const INITIAL_FROM_MARGIN_MINUTES = 15;
   const INITIAL_DURATION_HOURS = 2;
 
-  const now = new Date();
+  const now = useActualTime(60_000);
+  const [requestBonusOption, setRequestBonusOption] = useState<number | null>(null);
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
 
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
-  const [book, actionPending] = useLoading(useBookSpot(), {
+  const [book, isBooking] = useLoading(useBookSpot(), {
+    skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
+    beforeMarkingComplete: () => props.onOpen(false),
+  });
+  const [requestBooking, isRequesting] = useLoading(useRequestSpotBooking(), {
     skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
     beforeMarkingComplete: () => props.onOpen(false),
   });
@@ -375,6 +381,21 @@ function BookingSheet(props: {
   const { refreshProfile } = useCurrentUser();
   const [toDebounce] = useDebounce(to, 200);
   const [fromDebounce] = useDebounce(from, 200);
+
+  const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
+
+  const [availableSpots] = useFetch(
+    () => getAvailableSpots(fromDebounce, toDebounce),
+    [fromDebounce, toDebounce]
+  );
+
+  const spots: AvailableSpot[] =
+    availableSpots?.availableSpots.filter(
+      (spot) =>
+        !props.selectedSuggestion || spot.parkingLotId === props.selectedSuggestion.parkingLotId
+    ) ?? [];
+
+  const shouldRequestSpot = spots.length === 0;
 
   const [bookingSimulation, setBookingSimulation] = useFetch(
     () =>
@@ -390,11 +411,18 @@ function BookingSheet(props: {
     [selectedSpot, fromDebounce, toDebounce]
   );
 
-  const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
-
-  const [availableSpots] = useFetch(
-    () => getAvailableSpots(fromDebounce, toDebounce),
-    [fromDebounce, toDebounce]
+  const [requestSimulation, setRequestSimulation] = useFetch(
+    () =>
+      shouldRequestSpot &&
+      requestBooking(
+        {
+          from: fromDebounce,
+          to: toDebounce,
+          bonus: requestBonusOption ?? undefined,
+        },
+        true
+      ),
+    [requestBonusOption, fromDebounce, toDebounce, shouldRequestSpot]
   );
 
   useEffect(() => {
@@ -403,6 +431,7 @@ function BookingSheet(props: {
     } else {
       setSelectedSpot(undefined);
       setBookingSimulation(undefined);
+      setRequestSimulation(undefined);
       ref.current?.dismiss();
     }
   }, [ref.current, props.open]);
@@ -431,7 +460,7 @@ function BookingSheet(props: {
     return addHours(from, MIN_DURATION_HOURS);
   }
 
-  const triggerModal = useMemo(() => {
+  const openInfoModal = useMemo(() => {
     return () => {
       setTimeout(() => {
         props.setInfoModalOpen && props.setInfoModalOpen(true);
@@ -439,23 +468,27 @@ function BookingSheet(props: {
     };
   }, [props.setInfoModalOpen]);
 
-  function bookSpot(from: Date, to: Date, parkingLotId: string) {
-    book({
-      from,
-      to,
-      parkingLotId,
-    })
-      .then(refreshProfile)
-      .then(() => {
-        triggerModal();
-      });
+  function actuallyBookSpot() {
+    selectedSpot &&
+      book({
+        from,
+        to,
+        parkingLotId: selectedSpot.parkingLotId,
+      })
+        .then(refreshProfile)
+        .then(() => {
+          openInfoModal();
+        });
   }
 
-  const spots: AvailableSpot[] =
-    availableSpots?.availableSpots.filter(
-      (spot) =>
-        !props.selectedSuggestion || spot.parkingLotId === props.selectedSuggestion.parkingLotId
-    ) ?? [];
+  function actuallyRequestBooking() {
+    requestBooking({
+      from,
+      to,
+      bonus: requestBonusOption ?? undefined,
+    }).then(refreshProfile);
+  }
+
   const justAfterNow = addMinutes(now, 5);
 
   return (
@@ -467,19 +500,11 @@ function BookingSheet(props: {
       <BottomSheetView>
         <ContentSheetView className="h-full flex-col gap-8">
           <View className="grow flex-col gap-6">
-            <View className="flex-row items-center gap-4">
-              <ThemedIcon name="calendar" size={22} />
-              <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
-            </View>
+            <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
+              {capitalize(formatRelative(from, now))}
+            </SheetTitle>
 
-            {spots.length === 0 ? (
-              <View className="my-auto flex-col items-center gap-4">
-                <QuestionIllustration width={150} height={150} />
-                <Text variant="body" className="text-center text-primary">
-                  {t('booking.noSpotsAvailable')}
-                </Text>
-              </View>
-            ) : (
+            {!shouldRequestSpot && (
               <CardContainer className={'max-h-60'}>
                 {spots
                   .sort((a, b) => a.owner.rating - b.owner.rating)
@@ -550,20 +575,75 @@ function BookingSheet(props: {
               }
             />
           </View>
-          <Button
-            variant="primary"
-            size="lg"
-            disabled={
-              !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
-            }
-            onPress={() => selectedSpot && bookSpot(from, to, selectedSpot.parkingLotId)}>
-            {actionPending && <ActivityIndicator color={colors.foreground} />}
-            <Text>
-              {bookingSimulation
-                ? t('booking.reserveForCredits', { credits: bookingSimulation.usedCredits })
-                : t('booking.reserve')}
-            </Text>
-          </Button>
+
+          {/*putting this here visually breaks the layout, this is intentional to make*/}
+          {/*sure to user is aware that he's not booking a spot but request a booking*/}
+          {shouldRequestSpot && (
+            <View className={'gap-4'}>
+              <SheetTitle variant={'title2'}>{t('booking.requestBooking.title')}</SheetTitle>
+              <Text variant={'body'}>{t('booking.requestBooking.details')}</Text>
+
+              <Text
+                className={cn(
+                  'font-semibold',
+                  Platform.select({ ios: 'text-lg', android: 'text-md' })
+                )}>
+                {t('booking.requestBooking.bonus')}
+              </Text>
+              <ButtonSelect
+                selectedOption={requestBonusOption}
+                setSelectedOption={setRequestBonusOption}
+                options={[
+                  {
+                    key: 1,
+                    label: '+1',
+                  },
+                  {
+                    key: 5,
+                    label: '+5',
+                  },
+                  {
+                    key: 10,
+                    label: '+10',
+                  },
+                ]}
+              />
+            </View>
+          )}
+
+          {shouldRequestSpot ? (
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={
+                !requestSimulation || requestSimulation?.usedCredits > userProfile.wallet.credits
+              }
+              onPress={actuallyRequestBooking}>
+              {isRequesting && <ActivityIndicator color={colors.foreground} />}
+              <Text>
+                {requestSimulation
+                  ? t('booking.requestBooking.requestForCredits', {
+                      credits: requestSimulation.usedCredits,
+                    })
+                  : t('booking.requestBooking.request')}
+              </Text>
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={
+                !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
+              }
+              onPress={actuallyBookSpot}>
+              {isBooking && <ActivityIndicator color={colors.foreground} />}
+              <Text>
+                {bookingSimulation
+                  ? t('booking.reserveForCredits', { credits: bookingSimulation.usedCredits })
+                  : t('booking.reserve')}
+              </Text>
+            </Button>
+          )}
         </ContentSheetView>
       </BottomSheetView>
     </Sheet>

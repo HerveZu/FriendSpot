@@ -9,7 +9,7 @@ type BookSpotRequest = {
 };
 
 export type BookSpotResponse = {
-  readonly bookingId: null;
+  readonly bookingId: string | null;
   readonly usedCredits: number;
 };
 
