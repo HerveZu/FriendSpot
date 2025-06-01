@@ -156,8 +156,11 @@
       "title": "Besoin d’une place ?",
       "details": "Aucune place n’est disponible pour le moment. Faites savoir que vous cherchez. Et pourquoi pas offrir un bonus pour mettre toutes les chances de votre côté !",
       "bonus": "Ajouter un bonus",
-      "requestForCredits": "Envoyer une demande pour {{credits}} crédits",
-      "request": "Envoyer une demande"
+      "requestForCredits": "Demander un spot pour {{credits}} crédits",
+      "request": "Demander un spot",
+      "card": {
+        "title": "Demande de spot"
+      }
     },
     "tabs": {
       "onGoingBookings": "En cours ({{count}})",

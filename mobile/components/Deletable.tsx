@@ -21,7 +21,7 @@ export function Deletable({
   onDelete,
   className,
   ...props
-}: { disabled?: boolean; canDelete: boolean; onDelete: () => Promise<void> } & ViewProps) {
+}: { disabled?: boolean; canDelete: boolean; onDelete: () => Promise<unknown> } & ViewProps) {
   const shakeAnimation = new Animated.Value(0);
   const [deleted, setDeleted] = useState(false);
   const swipeableRef = useRef<SwipeableMethods>(null);
@@ -83,13 +83,13 @@ export function DeletableStatus(props: { fallback: ReactNode }) {
   const { canDelete } = useContext(DeletableContext);
 
   return !canDelete ? (
-    <ThemedIcon size={18} color={colors.primary} className="absolute right-0 top-1/2" name="lock" />
+    <ThemedIcon color={colors.primary} className="absolute right-0 top-1/2" name="lock" />
   ) : (
     props.fallback
   );
 }
 
-export function DeleteTrigger(props: { fallback?: ReactNode }) {
+export function DeleteTrigger() {
   const { colors } = useColorScheme();
   const { canDelete, triggerDelete } = useContext(DeletableContext);
 
@@ -100,7 +100,7 @@ export function DeleteTrigger(props: { fallback?: ReactNode }) {
       size={'sm'}
       className={'bg-destructive/30 border border-destructive'}
       onPress={triggerDelete}>
-      <ThemedIcon name={'trash'} size={18} color={colors.destructive} />
+      <ThemedIcon name={'trash'} color={colors.destructive} />
     </Button>
   ) : (
     <></>

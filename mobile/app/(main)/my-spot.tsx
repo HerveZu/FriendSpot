@@ -45,7 +45,7 @@ import {
 import { LendSpotResponse, useLendSpot } from '~/endpoints/booking/lend-spot';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch, useLoading } from '~/lib/useFetch';
+import { useFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
 import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
@@ -106,13 +106,8 @@ export default function MySpotScreen() {
 
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
-  const { refreshProfile } = useCurrentUser();
   const { t } = useTranslation();
-  const cancelAvailability = useCancelAvailability();
-
-  async function cancel() {
-    await cancelAvailability({ availabilityId: props.availability.id }).then(refreshProfile);
-  }
+  const cancelAvailability = useRefreshOnSuccess(useCancelAvailability());
 
   const uniqueBookingUsers = [
     ...props.availability.bookings
@@ -124,7 +119,10 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
   ];
 
   return (
-    <Deletable className={'rounded-xl'} canDelete={props.availability.canCancel} onDelete={cancel}>
+    <Deletable
+      className={'rounded-xl'}
+      canDelete={props.availability.canCancel}
+      onDelete={() => cancelAvailability(props.availability.id)}>
       <Card>
         <View className="flex-col justify-between gap-2">
           <View className="flex-row items-start justify-between gap-4">
@@ -159,9 +157,8 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
   );
 
   function BookingCard(props: { spotId: string; booking: AvailabilityBooking }) {
-    const { refreshProfile } = useCurrentUser();
     const now = useActualTime(30_000);
-    const cancelBooking = useCancelBooking();
+    const cancelBooking = useRefreshOnSuccess(useCancelBooking());
 
     const isCurrently = useMemo(() => {
       return isWithinInterval(now, {
@@ -219,12 +216,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
       <Deletable
         className="rounded-xl"
         canDelete={props.booking.canCancel}
-        onDelete={() =>
-          cancelBooking({
-            bookingId: props.booking.id,
-            parkingLotId: props.spotId,
-          }).then(refreshProfile)
-        }>
+        onDelete={() => cancelBooking(props.spotId, props.booking.id)}>
         <Card className="bg-background">
           <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
             <View className={'flex-col gap-4'}>
@@ -235,7 +227,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
               {isCurrently && (
                 <View>
                   <View className="flex-row items-center gap-2">
-                    <BlinkingDot color={colors.destructive} />
+                    <BlinkingDot />
                     <Text className="text-xs">{t('lending.currentlyUsingSpot')}</Text>
                   </View>
                 </View>
@@ -327,7 +319,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
               {capitalize(formatRelative(from, now))}
             </SheetTitle>
             <View className="flex-row items-center gap-4">
-              <ThemedIcon component={FontAwesome6} name="clock" size={18} />
+              <ThemedIcon component={FontAwesome6} name="clock" />
               <Text variant="title3">
                 {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
               </Text>

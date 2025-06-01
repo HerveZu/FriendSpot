@@ -2,12 +2,13 @@ import { useCallback } from 'react';
 
 import { useApiRequest } from '~/endpoints/use-api-request';
 
-export function useCancelAvailability() {
+export function useCancelBookingRequest() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
-    (availabilityId: string) =>
-      apiRequest(`/spots/availabilities/${availabilityId}/cancel`, 'DELETE'),
+    (requestId: string) => {
+      return apiRequest(`/parking/requests/${requestId}/cancel`, 'DELETE');
+    },
     [apiRequest]
   );
 }

@@ -6,9 +6,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { useColorScheme } from '~/lib/useColorScheme';
 
-export function BlinkingDot(props: { color: string; className?: string }) {
+export function BlinkingDot(props: { color?: string; className?: string }) {
   const opacity = useSharedValue(0.8);
+  const { colors } = useColorScheme();
 
   const startAnimation = () => {
     opacity.value = withRepeat(withTiming(0.3, { duration: 1200 }), -1, true);
@@ -36,7 +38,7 @@ export function BlinkingDot(props: { color: string; className?: string }) {
           width: 10,
           height: 10,
           borderRadius: 10,
-          backgroundColor: props.color,
+          backgroundColor: props.color ?? colors.destructive,
           alignSelf: 'center',
         },
         animatedStyle,

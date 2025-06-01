@@ -16,7 +16,7 @@ import {
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/spot-count-down';
@@ -32,7 +32,7 @@ import { Rating } from '~/components/Rating';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { Tag } from '~/components/Tag';
 import { ThemedIcon } from '~/components/ThemedIcon';
-import { SheetTitle, Title } from '~/components/Title';
+import { SheetHeading, SheetTitle, Title } from '~/components/Title';
 import { User } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
@@ -46,7 +46,7 @@ import { SpotSuggestion, useGetSuggestedSpots } from '~/endpoints/booking/get-su
 import { cn } from '~/lib/cn';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch, useLoading } from '~/lib/useFetch';
+import { useFetch, useHookFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
 import { capitalize, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
@@ -56,13 +56,18 @@ import { useTranslation } from 'react-i18next';
 import { Tab, TabArea, TabsProvider, TabsSelector } from '~/components/TabsSelector';
 import { ButtonSelect } from '~/components/ButtonSelect';
 import { useRequestSpotBooking } from '~/endpoints/requestBooking/request-spot-booking';
+import { LogoCard } from '~/components/Logo';
+import {
+  BookingRequestResponse,
+  useGetMyBookingRequests,
+} from '~/endpoints/requestBooking/get-my-parking-requests';
+import { useCancelBookingRequest } from '~/endpoints/requestBooking/cancel-spot-booking-request';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
   const { userProfile } = useCurrentUser();
 
   const { colors } = useColorScheme();
-  const getBooking = useGetBooking();
   const getSuggestedSpots = useGetSuggestedSpots();
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
   const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
@@ -70,11 +75,12 @@ export default function SearchSpotScreen() {
   const [selectedSuggestion, setSelectedSuggestion] = useState<SpotSuggestion>();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
 
-  const now = useActualTime(5000);
-  const [booking] = useFetch(() => getBooking(), []);
+  const now = useActualTime(15_000);
+  const [booking] = useHookFetch(useGetBooking, []);
+  const [bookingRequests] = useHookFetch(useGetMyBookingRequests, []);
   const [suggestedSpots] = useFetch(
     () => !!userProfile.spot && getSuggestedSpots(now, addHours(now, 12)),
-    [!!userProfile.spot]
+    [!!userProfile.spot, now]
   );
 
   const activeBookings = useMemo(
@@ -115,7 +121,7 @@ export default function SearchSpotScreen() {
             setSelectedSuggestion(undefined);
             setBookSheetOpen(true);
           }}>
-          <ThemedIcon name="search" size={18} color={COLORS.white} />
+          <ThemedIcon name="search" color={COLORS.white} />
           <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
@@ -136,7 +142,7 @@ export default function SearchSpotScreen() {
             <Text>{t('booking.tabs.suggestedSpots')}</Text>
           </Tab>
           <Tab index={1}>
-            <BlinkingDot color={colors.destructive} />
+            <BlinkingDot />
             <Text>{t('booking.tabs.onGoingBookings', { count: activeBookings.length })}</Text>
           </Tab>
         </TabsSelector>
@@ -195,6 +201,12 @@ export default function SearchSpotScreen() {
             <MessageInfo info={t('booking.reserveNow')} />
           )}
 
+          <List>
+            {bookingRequests?.requests.map((request) => (
+              <BookingRequestCard key={request.id} request={request} />
+            ))}
+          </List>
+
           <View className="flex-col">
             {!suggestedSpots ? (
               <ActivityIndicator />
@@ -228,7 +240,7 @@ export default function SearchSpotScreen() {
                     setBookingListSheetOpen(false);
                     setBookSheetOpen(true);
                   }}>
-                  <ThemedIcon name="search" size={18} color={COLORS.white} />
+                  <ThemedIcon name="search" color={COLORS.white} />
                   <Text>{t('booking.reserveSpot')}</Text>
                 </Button>
               )
@@ -266,8 +278,7 @@ function BookingCard(props: {
   const router = useRouter();
   const { colors } = useColorScheme();
   const now = useActualTime(30_000);
-  const { refreshProfile } = useCurrentUser();
-  const cancelBooking = useCancelBooking();
+  const cancelBooking = useRefreshOnSuccess(useCancelBooking());
   const { t } = useTranslation();
 
   const canDelete = !!props.deletable && props.booking.canCancel;
@@ -279,12 +290,7 @@ function BookingCard(props: {
         disabled={!props.deletable}
         canDelete={canDelete}
         className={'rounded-xl'}
-        onDelete={() =>
-          cancelBooking({
-            bookingId: props.booking.id,
-            parkingLotId: props.booking.parkingLot.id,
-          }).then(refreshProfile)
-        }>
+        onDelete={() => cancelBooking(props.booking.parkingLot.id, props.booking.id)}>
         <Pressable
           onPress={() =>
             props.countdownOnTap &&
@@ -301,10 +307,10 @@ function BookingCard(props: {
               <View className="flex-row items-center gap-2">
                 {props.deletable ? (
                   <DeletableStatus
-                    fallback={<ThemedIcon name={'ticket'} size={18} color={colors.primary} />}
+                    fallback={<ThemedIcon name={'ticket'} color={colors.primary} />}
                   />
                 ) : (
-                  <ThemedIcon name={'ticket'} size={18} color={colors.primary} />
+                  <ThemedIcon name={'ticket'} color={colors.primary} />
                 )}
                 <Text variant="heading" className="font-bold">
                   {capitalize(formatRelative(props.booking.from, now))}
@@ -345,6 +351,43 @@ function BookingCard(props: {
   );
 }
 
+function BookingRequestCard(props: { request: BookingRequestResponse }) {
+  const { t } = useTranslation();
+  const { colors } = useColorScheme();
+  const cancelRequest = useRefreshOnSuccess(useCancelBookingRequest());
+
+  return (
+    <Deletable
+      className={'rounded-xl'}
+      canDelete={true}
+      onDelete={async () => await cancelRequest(props.request.id)}>
+      <Pressable>
+        <Card>
+          <View className={'flex-row items-center justify-between'}>
+            <View className={'flex-row items-center gap-2'}>
+              <BlinkingDot />
+              <Text variant={'heading'}>{t('booking.requestBooking.card.title')}</Text>
+            </View>
+            <DeleteTrigger />
+          </View>
+
+          <View className={'flex-row items-center justify-between'}>
+            <DateRange from={props.request.from} to={props.request.to} />
+
+            {props.request.bonus > 0 && (
+              <View className={'flex-row items-center gap-2'}>
+                <ThemedIcon color={colors.primary} component={FontAwesome6} name="arrow-trend-up" />
+
+                <Text className={'font-bold text-primary'}>+{props.request.bonus}</Text>
+              </View>
+            )}
+          </View>
+        </Card>
+      </Pressable>
+    </Deletable>
+  );
+}
+
 function BookingSheet(props: {
   selectedSuggestion: SpotSuggestion | undefined;
   open: boolean;
@@ -370,7 +413,7 @@ function BookingSheet(props: {
   const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
   const [book, isBooking] = useLoading(useBookSpot(), {
-    skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
+    skiLoadingWhen: (_body, _parkingLotId, simulation?: boolean) => !!simulation,
     beforeMarkingComplete: () => props.onOpen(false),
   });
   const [requestBooking, isRequesting] = useLoading(useRequestSpotBooking(), {
@@ -404,8 +447,8 @@ function BookingSheet(props: {
         {
           from: fromDebounce,
           to: toDebounce,
-          parkingLotId: selectedSpot.parkingLotId,
         },
+        selectedSpot.parkingLotId,
         true
       ),
     [selectedSpot, fromDebounce, toDebounce]
@@ -432,6 +475,7 @@ function BookingSheet(props: {
       setSelectedSpot(undefined);
       setBookingSimulation(undefined);
       setRequestSimulation(undefined);
+      setRequestBonusOption(null);
       ref.current?.dismiss();
     }
   }, [ref.current, props.open]);
@@ -470,11 +514,13 @@ function BookingSheet(props: {
 
   function actuallyBookSpot() {
     selectedSpot &&
-      book({
-        from,
-        to,
-        parkingLotId: selectedSpot.parkingLotId,
-      })
+      book(
+        {
+          from,
+          to,
+        },
+        selectedSpot.parkingLotId
+      )
         .then(refreshProfile)
         .then(() => {
           openInfoModal();
@@ -491,12 +537,24 @@ function BookingSheet(props: {
 
   const justAfterNow = addMinutes(now, 5);
 
+  function bonusOption(bonus: number) {
+    return {
+      key: bonus,
+      label: (selected: boolean) => (
+        <>
+          <Text>+{bonus}</Text>
+          <LogoCard className={cn('h-4 w-2.5 rounded', selected && 'bg-foreground')} primary />
+        </>
+      ),
+    };
+  }
+
   return (
     <Sheet
       ref={ref}
       enableDynamicSizing={false}
       onDismiss={() => props.onOpen(false)}
-      snapPoints={['80%']}>
+      snapPoints={[700]}>
       <BottomSheetView>
         <ContentSheetView className="h-full flex-col gap-8">
           <View className="grow flex-col gap-6">
@@ -504,7 +562,22 @@ function BookingSheet(props: {
               {capitalize(formatRelative(from, now))}
             </SheetTitle>
 
-            {!shouldRequestSpot && (
+            {shouldRequestSpot ? (
+              <View className={'gap-6'}>
+                <Card>
+                  <Text variant={'body'}>{t('booking.requestBooking.details')}</Text>
+                </Card>
+
+                <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="arrow-trend-up" />}>
+                  {t('booking.requestBooking.bonus')}
+                </SheetHeading>
+                <ButtonSelect
+                  selectedOption={requestBonusOption}
+                  setSelectedOption={setRequestBonusOption}
+                  options={[bonusOption(5), bonusOption(10), bonusOption(50)]}
+                />
+              </View>
+            ) : (
               <CardContainer className={'max-h-60'}>
                 {spots
                   .sort((a, b) => a.owner.rating - b.owner.rating)
@@ -554,18 +627,9 @@ function BookingSheet(props: {
           </View>
           <View className="flex-col justify-between gap-2">
             <View className="flex-row items-center gap-2">
-              <ThemedIcon
-                component={FontAwesome6}
-                name="clock"
-                size={Platform.select({ ios: 18, android: 14 })}
-              />
-              <Text
-                className={cn(
-                  'font-semibold',
-                  Platform.select({ ios: 'text-lg', android: 'text-md' })
-                )}>
+              <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="clock" />}>
                 {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
-              </Text>
+              </SheetHeading>
             </View>
             <Slider
               step={STEP_HOURS / MAX_DURATION_HOURS}
@@ -575,41 +639,6 @@ function BookingSheet(props: {
               }
             />
           </View>
-
-          {/*putting this here visually breaks the layout, this is intentional to make*/}
-          {/*sure to user is aware that he's not booking a spot but request a booking*/}
-          {shouldRequestSpot && (
-            <View className={'gap-4'}>
-              <SheetTitle variant={'title2'}>{t('booking.requestBooking.title')}</SheetTitle>
-              <Text variant={'body'}>{t('booking.requestBooking.details')}</Text>
-
-              <Text
-                className={cn(
-                  'font-semibold',
-                  Platform.select({ ios: 'text-lg', android: 'text-md' })
-                )}>
-                {t('booking.requestBooking.bonus')}
-              </Text>
-              <ButtonSelect
-                selectedOption={requestBonusOption}
-                setSelectedOption={setRequestBonusOption}
-                options={[
-                  {
-                    key: 1,
-                    label: '+1',
-                  },
-                  {
-                    key: 5,
-                    label: '+5',
-                  },
-                  {
-                    key: 10,
-                    label: '+10',
-                  },
-                ]}
-              />
-            </View>
-          )}
 
           {shouldRequestSpot ? (
             <Button
@@ -648,32 +677,29 @@ function BookingSheet(props: {
       </BottomSheetView>
     </Sheet>
   );
+}
 
-  function AvailableSpotCard(props: {
-    spot: AvailableSpot;
-    selectedSpot: AvailableSpot | undefined;
-    onSelect: () => void;
-  }) {
-    const { colors } = useColorScheme();
-    const selected = props.selectedSpot?.parkingLotId === props.spot.parkingLotId;
+function AvailableSpotCard(props: {
+  spot: AvailableSpot;
+  selectedSpot: AvailableSpot | undefined;
+  onSelect: () => void;
+}) {
+  const { colors } = useColorScheme();
+  const selected = props.selectedSpot?.parkingLotId === props.spot.parkingLotId;
 
-    return (
-      <Pressable onPress={props.onSelect}>
-        <Card highlight={selected} className={'flex-row items-center justify-between'}>
-          <User
-            displayName={props.spot.owner.displayName}
-            pictureUrl={props.spot.owner.pictureUrl}
-          />
-          <Rating
-            rating={props.spot.owner.rating}
-            stars={3}
-            className="grow-0"
-            color={colors.primary}
-          />
-        </Card>
-      </Pressable>
-    );
-  }
+  return (
+    <Pressable onPress={props.onSelect}>
+      <Card highlight={selected} className={'flex-row items-center justify-between'}>
+        <User displayName={props.spot.owner.displayName} pictureUrl={props.spot.owner.pictureUrl} />
+        <Rating
+          rating={props.spot.owner.rating}
+          stars={3}
+          className="grow-0"
+          color={colors.primary}
+        />
+      </Card>
+    </Pressable>
+  );
 }
 
 function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
@@ -685,7 +711,7 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
     <Card>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <ThemedIcon component={FontAwesome6} name="calendar" color={colors.primary} size={18} />
+          <ThemedIcon component={FontAwesome6} name="calendar" color={colors.primary} />
           <Text variant="heading" className="font-bold">
             {differenceInSeconds(props.suggestion.from, now) > 0
               ? capitalize(formatRelative(props.suggestion.from, now))

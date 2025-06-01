@@ -157,7 +157,10 @@
       "details": "Looks like nothing's free right now. Let others know you're looking — and hey, you can even offer a little bonus to boost your chances!",
       "bonus": "Add a bonus",
       "requestForCredits": "Send a request for {{credits}} credits",
-      "request": "Send a request"
+      "request": "Send a request",
+      "card": {
+        "title": "Requesting a spot"
+      }
     },
     "tabs": {
       "onGoingBookings": "Occupying ({{count}})",

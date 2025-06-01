@@ -44,3 +44,26 @@ export function SheetTitle({
     title
   );
 }
+
+export function SheetHeading({
+  className,
+  icon,
+  children,
+  variant,
+  ...props
+}: { icon?: ReactNode } & TextProps & VariantProps<typeof textVariants>) {
+  const title = (
+    <Text variant={variant ?? 'heading'} className={cn('font-semibold', className)} {...props}>
+      {children}
+    </Text>
+  );
+
+  return icon ? (
+    <View className="flex-row items-center gap-2">
+      {icon}
+      {title}
+    </View>
+  ) : (
+    title
+  );
+}

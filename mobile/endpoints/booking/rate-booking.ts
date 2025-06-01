@@ -3,8 +3,6 @@ import { useCallback } from 'react';
 import { useApiRequest } from '~/endpoints/use-api-request';
 
 type RateBookingRequest = {
-  readonly parkingLotId: string;
-  readonly bookingId: string;
   readonly userRating: UserRating;
 };
 
@@ -14,8 +12,12 @@ export function useRateBooking() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
-    (body: RateBookingRequest) =>
-      apiRequest<RateBookingRequest>('/spots/booking/rate', 'POST', body),
+    (body: RateBookingRequest, parkingLotId: string, bookingId: string) =>
+      apiRequest<RateBookingRequest>(
+        `/spots/${parkingLotId}/booking/${bookingId}/rate`,
+        'POST',
+        body
+      ),
     [apiRequest]
   );
 }

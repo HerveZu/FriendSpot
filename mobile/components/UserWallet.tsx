@@ -61,7 +61,7 @@ export function Credits({
   return (
     <View className={cn('flex-row items-center gap-2', className)} {...props}>
       <LogoCard primary={!pending} className="h-5 w-3.5 rounded" />
-      {displayCredit && <Text className="text-lg font-semibold">{Math.round(credits)}</Text>}
+      {displayCredit && <Text className="text-lg font-semibold">{credits}</Text>}
     </View>
   );
 }

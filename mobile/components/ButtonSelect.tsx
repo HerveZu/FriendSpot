@@ -1,11 +1,11 @@
 import { View } from 'react-native';
 import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
+import { ReactNode } from 'react';
 
 export function ButtonSelect<TOption>(props: {
   selectedOption: TOption | null;
   setSelectedOption: (option: TOption | null) => void;
-  options: { key: TOption; label: string }[];
+  options: { key: TOption; label: (selected: boolean) => ReactNode }[];
 }) {
   return (
     <View className={'flex-row justify-between gap-2'}>
@@ -19,7 +19,7 @@ export function ButtonSelect<TOption>(props: {
             onPress={() =>
               isSelected ? props.setSelectedOption(null) : props.setSelectedOption(option.key)
             }>
-            <Text>{option.label}</Text>
+            {option.label(isSelected)}
           </Button>
         );
       })}
