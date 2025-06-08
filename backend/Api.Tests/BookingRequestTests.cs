@@ -430,6 +430,7 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
             Assert.That(myBookingRequests.Requests[0].From, Is.EqualTo(now.AddHours(1)));
             Assert.That(myBookingRequests.Requests[0].To, Is.EqualTo(now.AddHours(2)));
             Assert.That(myBookingRequests.Requests[0].Bonus, Is.EqualTo(50));
+            Assert.That(myBookingRequests.Requests[0].Requester.UserId, Is.EqualTo(Seed.Users.Resident1));
         });
     }
 }
