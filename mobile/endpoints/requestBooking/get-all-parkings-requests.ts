@@ -12,13 +12,20 @@ export type BookingRequestResponse = {
   readonly to: string;
   readonly duration: string;
   readonly bonus: number;
+  readonly requester: Requester
 };
 
-export function useGetMyBookingRequests() {
+export type Requester = {
+  displayName: string
+  pictureUrl?: string
+  rating: number
+}
+
+export function useGetAllBookingRequests() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
-    () => apiRequest<BookingRequestsResponse>(`/parking/requests/@me`, 'GET'),
+    () => apiRequest<BookingRequestsResponse>(`/parking/requests`, 'GET'),
     [apiRequest]
   );
 }
