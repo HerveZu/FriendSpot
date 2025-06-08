@@ -29,7 +29,7 @@ internal sealed class GetMyBookingRequests(AppDbContext dbContext, ILogger<GetMy
 {
     public override void Configure()
     {
-        Get("/parking/requests");
+        Get("/parking/requests/@me");
     }
 
     public override async Task HandleAsync(CancellationToken ct)
