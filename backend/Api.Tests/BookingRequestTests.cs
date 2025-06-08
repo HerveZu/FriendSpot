@@ -355,10 +355,74 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
         await requestExpiredCompletion.Wait(cancellationToken);
 
         var getMyRequestsResult = await resident1
-            .GetAsync("/parking/requests", cancellationToken);
+            .GetAsync("/parking/requests/@me", cancellationToken);
 
         var myBookingRequests =
             await getMyRequestsResult.AssertIsSuccessful<GetMyBookingRequestsResponse>(cancellationToken);
+
+        Assert.That(myBookingRequests.Requests, Has.Length.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(myBookingRequests.Requests[0].From, Is.EqualTo(now.AddHours(1)));
+            Assert.That(myBookingRequests.Requests[0].To, Is.EqualTo(now.AddHours(2)));
+            Assert.That(myBookingRequests.Requests[0].Bonus, Is.EqualTo(50));
+        });
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task GetAllBookingRequests_ShouldReturnOnlyOthersRequests_WhenNotExpired(
+        CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
+
+        var requestExpiredCompletion = JobListener.WaitForJob<MarkBookingRequestExpired>();
+
+        var now = DateTimeOffset.Now;
+        var otherBookingRequest1Result = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddSeconds(1),
+                    To = now.AddSeconds(1).AddMicroseconds(1),
+                    Bonus = 10
+                }),
+            cancellationToken);
+        var otherBookingRequest2Result = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddHours(1),
+                    To = now.AddHours(2),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        var myBookingRequestResult = await resident2.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddHours(4),
+                    To = now.AddHours(9),
+                    Bonus = 10
+                }),
+            cancellationToken);
+
+        await otherBookingRequest1Result.AssertIsSuccessful(cancellationToken);
+        await otherBookingRequest2Result.AssertIsSuccessful(cancellationToken);
+        await myBookingRequestResult.AssertIsSuccessful(cancellationToken);
+
+        await requestExpiredCompletion.Wait(cancellationToken);
+
+        var getAllRequests = await resident2
+            .GetAsync("/parking/requests", cancellationToken);
+
+        var myBookingRequests =
+            await getAllRequests.AssertIsSuccessful<GetAllBookingRequestsResponse>(cancellationToken);
 
         Assert.That(myBookingRequests.Requests, Has.Length.EqualTo(1));
         Assert.Multiple(() =>
