@@ -163,8 +163,9 @@
       }
     },
     "tabs": {
-      "onGoingBookings": "Поточні ({{count}})",
-      "suggestedSpots": "Рекомендовані"
+      "onGoingBookings": "Поточні",
+      "suggestedSpots": "Рекомендовані",
+      "requests": "Запити"
     }
   },
   "lending": {

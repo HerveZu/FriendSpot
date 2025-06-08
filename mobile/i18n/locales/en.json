@@ -163,8 +163,9 @@
       }
     },
     "tabs": {
-      "onGoingBookings": "Occupying ({{count}})",
-      "suggestedSpots": "Suggested"
+      "onGoingBookings": "Occupying",
+      "suggestedSpots": "Suggested",
+      "requests": "Requests"
     }
   },
   "lending": {

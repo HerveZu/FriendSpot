@@ -1,4 +1,4 @@
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Slider } from '~/components/nativewindui/Slider';
 import {
@@ -15,7 +15,7 @@ import {
   min,
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
@@ -27,7 +27,6 @@ import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
-import { ListSheet } from '~/components/ListSheet';
 import { Rating } from '~/components/Rating';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { Tag } from '~/components/Tag';
@@ -53,7 +52,7 @@ import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import { BlinkingDot } from '~/components/BlinkingDot';
 import { useTranslation } from 'react-i18next';
-import { Tab, TabArea, TabsProvider, TabsSelector } from '~/components/TabsSelector';
+import { Tab, TabArea, TabPreview, TabsProvider, TabsSelector } from '~/components/TabsSelector';
 import { ButtonSelect } from '~/components/ButtonSelect';
 import { useRequestSpotBooking } from '~/endpoints/requestBooking/request-spot-booking';
 import { LogoCard } from '~/components/Logo';
@@ -70,10 +69,9 @@ export default function SearchSpotScreen() {
   const { colors } = useColorScheme();
   const getSuggestedSpots = useGetSuggestedSpots();
   const [bookSheetOpen, setBookSheetOpen] = useState(false);
-  const [bookingListSheetOpen, setBookingListSheetOpen] = useState(false);
-  const [nextReservedSpot, setNextReservedSpot] = useState<boolean>(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState<SpotSuggestion>();
-  const [infoModalOpen, setInfoModalOpen] = React.useState(false);
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('suggested');
 
   const now = useActualTime(15_000);
   const [booking] = useHookFetch(useGetBooking, []);
@@ -97,7 +95,7 @@ export default function SearchSpotScreen() {
   );
 
   useEffect(() => {
-    (!booking || booking.bookings.length === 0) && setBookingListSheetOpen(false);
+    setSelectedTab(booking?.bookings?.length ? 'booking' : 'suggested');
   }, [booking]);
 
   useEffect(() => {
@@ -125,25 +123,36 @@ export default function SearchSpotScreen() {
           <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
-      <TabsProvider defaultTabIndex={1} disabled={activeBookings.length === 0}>
-        <ScreenTitle title={t('booking.reserveSpot')}>
-          <Button
-            className={'h-[60px]'}
-            variant={'primary'}
-            disabled={!booking || booking.bookings.length === 0}
-            onPress={() => setBookingListSheetOpen(true)}>
-            <ThemedIcon name="car" color={colors.foreground} />
-            <Text>{booking?.bookings.length ?? 0}</Text>
-          </Button>
-        </ScreenTitle>
+      <TabsProvider selectedTab={selectedTab} setSelectedTab={setSelectedTab}>
+        <ScreenTitle title={t('booking.reserveSpot')} />
 
-        <TabsSelector>
-          <Tab index={0}>
+        <TabsSelector className={'mt-0'}>
+          <Tab
+            index={'suggested'}
+            preview={<TabPreview icon={<ThemedIcon name={'lightbulb-o'} />} count={null} />}>
             <Text>{t('booking.tabs.suggestedSpots')}</Text>
           </Tab>
-          <Tab index={1}>
-            <BlinkingDot />
-            <Text>{t('booking.tabs.onGoingBookings', { count: activeBookings.length })}</Text>
+          <Tab
+            index={'requests'}
+            disabled={!bookingRequests?.requests?.length}
+            preview={
+              <TabPreview
+                icon={<ThemedIcon name={'person-search'} component={MaterialIcons} />}
+                count={bookingRequests?.requests?.length}
+              />
+            }>
+            <Text>{t('booking.tabs.requests')}</Text>
+          </Tab>
+          <Tab
+            index={'booking'}
+            disabled={!booking?.bookings?.length}
+            preview={
+              <TabPreview
+                icon={<BlinkingDot disabled={!booking?.bookings?.length} />}
+                count={booking?.bookings?.length}
+              />
+            }>
+            <Text>{t('booking.tabs.onGoingBookings')}</Text>
           </Tab>
         </TabsSelector>
 
@@ -157,14 +166,14 @@ export default function SearchSpotScreen() {
               variant="primary"
               onPress={() => {
                 setInfoModalOpen(false);
-                setBookingListSheetOpen(true);
+                setSelectedTab('booking');
               }}>
               <Text>{t('booking.newSpot.viewReservations')}</Text>
             </Button>
           </Modal>
         )}
 
-        <TabArea tabIndex={1}>
+        <TabArea tabIndex={'booking'}>
           {!booking ? (
             <ActivityIndicator />
           ) : (
@@ -179,33 +188,34 @@ export default function SearchSpotScreen() {
                   </Title>
                 </View>
                 {activeBookings.map((booking) => (
-                  <BookingCard key={booking.id} booking={booking} countdownOnTap />
+                  <BookingCard key={booking.id} booking={booking} countdownOnTap deletable />
                 ))}
               </View>
             )
           )}
         </TabArea>
 
-        <TabArea tabIndex={0} displayOnDisable>
+        <TabArea tabIndex={'requests'}>
+          <List>
+            {bookingRequests?.requests.map((request) => (
+              <BookingRequestCard key={request.id} request={request} />
+            ))}
+          </List>
+        </TabArea>
+
+        <TabArea tabIndex={'suggested'} isFallbackArea>
           {notStartedBookings.length > 0 ? (
             <MessageInfo
               info={t('booking.nextReservation', {
                 time: formatDistance(now, notStartedBookings[0].from),
               })}
               action={() => {
-                setBookingListSheetOpen(true);
-                setNextReservedSpot(true);
+                setSelectedTab('booking');
               }}
             />
           ) : (
             <MessageInfo info={t('booking.reserveNow')} />
           )}
-
-          <List>
-            {bookingRequests?.requests.map((request) => (
-              <BookingRequestCard key={request.id} request={request} />
-            ))}
-          </List>
 
           <View className="flex-col">
             {!suggestedSpots ? (
@@ -227,37 +237,6 @@ export default function SearchSpotScreen() {
           </View>
         </TabArea>
 
-        {booking && (
-          <ListSheet
-            title={nextReservedSpot ? t('booking.nextReservationTitle') : t('booking.reservations')}
-            setNextReservedSpot={setNextReservedSpot}
-            action={
-              !nextReservedSpot && (
-                <Button
-                  size="lg"
-                  variant="primary"
-                  onPress={() => {
-                    setBookingListSheetOpen(false);
-                    setBookSheetOpen(true);
-                  }}>
-                  <ThemedIcon name="search" color={COLORS.white} />
-                  <Text>{t('booking.reserveSpot')}</Text>
-                </Button>
-              )
-            }
-            open={bookingListSheetOpen}
-            onOpen={setBookingListSheetOpen}>
-            {nextReservedSpot && booking.bookings.length > 0 ? (
-              <BookingCard booking={booking.bookings[0]} deletable={true} />
-            ) : (
-              booking.bookings
-                .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
-                .map((booking) => (
-                  <BookingCard key={booking.id} booking={booking} deletable={true} />
-                ))
-            )}
-          </ListSheet>
-        )}
         <BookingSheet
           selectedSuggestion={selectedSuggestion}
           open={bookSheetOpen}
@@ -365,7 +344,7 @@ function BookingRequestCard(props: { request: BookingRequestResponse }) {
         <Card>
           <View className={'flex-row items-center justify-between'}>
             <View className={'flex-row items-center gap-2'}>
-              <BlinkingDot />
+              <BlinkingDot color={colors.primary} />
               <Text variant={'heading'}>{t('booking.requestBooking.card.title')}</Text>
             </View>
             <DeleteTrigger />

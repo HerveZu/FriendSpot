@@ -8,8 +8,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useColorScheme } from '~/lib/useColorScheme';
 
-export function BlinkingDot(props: { color?: string; className?: string }) {
-  const opacity = useSharedValue(0.8);
+export function BlinkingDot(props: { color?: string; className?: string; disabled?: boolean }) {
+  const opacity = useSharedValue(0.3);
   const { colors } = useColorScheme();
 
   const startAnimation = () => {
@@ -18,12 +18,12 @@ export function BlinkingDot(props: { color?: string; className?: string }) {
 
   useFocusEffect(
     useCallback(() => {
-      startAnimation();
+      !props.disabled && startAnimation();
 
       return () => {
         opacity.value = 0.8;
       };
-    }, [])
+    }, [props.disabled])
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
