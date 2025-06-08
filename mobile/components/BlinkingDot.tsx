@@ -13,7 +13,7 @@ export function BlinkingDot(props: { color?: string; className?: string; disable
   const { colors } = useColorScheme();
 
   const startAnimation = () => {
-    opacity.value = withRepeat(withTiming(0.3, { duration: 1200 }), -1, true);
+    opacity.value = withRepeat(withTiming(0.8, { duration: 1200 }), -1, true);
   };
 
   useFocusEffect(
