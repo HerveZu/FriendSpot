@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.BookingRequests.OnAccepted;
 
-internal sealed class BookSpot(AppDbContext dbContext, ILogger<BookSpot> logger)
+internal sealed class MakeSpotAvailableAndBook(AppDbContext dbContext, ILogger<MakeSpotAvailableAndBook> logger)
     : IDomainEventHandler<BookingRequestAccepted>
 {
     public async Task Handle(BookingRequestAccepted notification, CancellationToken cancellationToken)
@@ -22,6 +22,10 @@ internal sealed class BookSpot(AppDbContext dbContext, ILogger<BookSpot> logger)
             notification.AcceptedByUserId,
             request.Id);
 
+        logger.LogDebug("Making spot available");
+        acceptedSpot.MakeAvailable(request.From, request.To);
+
+        logger.LogDebug("Booking spot");
         acceptedSpot.Book(request.RequesterId, request.From, request.DateRange.Duration, request.Bonus);
 
         dbContext.Set<ParkingSpot>().Update(acceptedSpot);

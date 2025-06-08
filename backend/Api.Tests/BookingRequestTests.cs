@@ -195,22 +195,10 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
-    public async Task AcceptRequestBooking_ShouldBookSpot_WhenSpotIsAvailable(CancellationToken cancellationToken)
+    public async Task AcceptRequestBooking_ShouldBookSpot_WhenSpotIsNotYetAvailable(CancellationToken cancellationToken)
     {
         using var resident1 = UserClient(Seed.Users.Resident1);
         using var resident2 = UserClient(Seed.Users.Resident2);
-
-        var makeSpotAvailable = await resident2.PostAsync(
-            "/spots/availabilities",
-            JsonContent.Create(
-                new MakeMySpotAvailableRequest
-                {
-                    From = DateTimeOffset.Now.AddSeconds(1),
-                    To = DateTimeOffset.Now.AddDays(2)
-                }),
-            cancellationToken);
-
-        await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
 
         var now = DateTimeOffset.Now;
         var bookingRequestResult = await resident1.PostAsync(
