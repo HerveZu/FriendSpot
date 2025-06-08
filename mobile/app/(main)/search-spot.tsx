@@ -75,6 +75,7 @@ export default function SearchSpotScreen() {
 
   const now = useActualTime(15_000);
   const [booking] = useHookFetch(useGetBooking, []);
+  const [initialTabChanged, setInitialTabChanged] = useState(false);
   const [bookingRequests] = useHookFetch(useGetMyBookingRequests, []);
   const [suggestedSpots] = useFetch(
     () => !!userProfile.spot && getSuggestedSpots(now, addHours(now, 12)),
@@ -95,7 +96,12 @@ export default function SearchSpotScreen() {
   );
 
   useEffect(() => {
+    if (initialTabChanged) {
+      return;
+    }
+
     setSelectedTab(booking?.bookings?.length ? 'booking' : 'suggested');
+    setInitialTabChanged(true);
   }, [booking]);
 
   useEffect(() => {
