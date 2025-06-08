@@ -30,6 +30,7 @@ public sealed record GetAllBookingRequestsResponse
             public required string UserId { get; init; }
             public required string DisplayName { get; init; }
             public required string? PictureUrl { get; init; }
+            public required decimal Rating { get; init; }
         }
     }
 }
@@ -69,7 +70,8 @@ internal sealed class GetAllBookingRequests(AppDbContext dbContext, ILogger<GetA
                                 {
                                     UserId = owner.Identity,
                                     DisplayName = owner.DisplayName,
-                                    PictureUrl = owner.PictureUrl
+                                    PictureUrl = owner.PictureUrl,
+                                    Rating = owner.Rating.Rating
                                 })
                                 .First()
                         }))
