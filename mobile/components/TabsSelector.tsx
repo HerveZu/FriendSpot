@@ -1,4 +1,11 @@
-import React, { createContext, PropsWithChildren, ReactNode, useContext } from 'react';
+import React, {
+  createContext,
+  PropsWithChildren,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+} from 'react';
 import { Card } from './Card';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
@@ -9,21 +16,29 @@ const TabsSelectorContext = createContext<{
   disabled: boolean;
   selectedTab: string;
   setSelectedTab: (index: string) => void;
+  switchToDefaultTab: () => void;
 }>(null!);
 
 export function TabsProvider(
   props: PropsWithChildren<{
+    defaultTab: string;
     selectedTab: string;
     setSelectedTab: (tab: string) => void;
     disabled?: boolean;
   }>
 ) {
+  const switchToDefaultTab = useCallback(
+    () => props.setSelectedTab(props.defaultTab),
+    [props.setSelectedTab, props.defaultTab]
+  );
+
   return (
     <TabsSelectorContext.Provider
       value={{
         selectedTab: props.selectedTab,
         setSelectedTab: props.setSelectedTab,
         disabled: !!props.disabled,
+        switchToDefaultTab,
       }}>
       {props.children}
     </TabsSelectorContext.Provider>
@@ -51,9 +66,13 @@ const TabContext = createContext<{
 export function Tab(
   props: PropsWithChildren<{ index: string; disabled?: boolean; preview: ReactNode }>
 ) {
-  const { selectedTab, setSelectedTab } = useContext(TabsSelectorContext);
+  const { selectedTab, setSelectedTab, switchToDefaultTab } = useContext(TabsSelectorContext);
 
   const isFocused = selectedTab === props.index;
+
+  useEffect(() => {
+    props.disabled && isFocused && switchToDefaultTab();
+  }, [props.disabled, isFocused, switchToDefaultTab]);
 
   return (
     <TabContext.Provider value={{ isFocused }}>
