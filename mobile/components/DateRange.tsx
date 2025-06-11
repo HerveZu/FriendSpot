@@ -50,7 +50,7 @@ export function DateRange({
 }
 
 export function DateRangeOnly(props: { from: Date | string; to: Date | string; short?: boolean }) {
-  const dateFormat = props.short ? 'dd.MM HH:mm' : 'dd MMMM HH:mm';
+  const dateFormat = props.short ? 'dd.MM HH:mm' : 'dd MMM HH:mm';
 
   return (
     <View className="flex-row items-center gap-2">

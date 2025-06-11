@@ -12,14 +12,15 @@ export type BookingRequestResponse = {
   readonly to: string;
   readonly duration: string;
   readonly bonus: number;
-  readonly requester: Requester
+  readonly credits: number;
+  readonly requester: Requester;
 };
 
 export type Requester = {
-  displayName: string
-  pictureUrl?: string
-  rating: number
-}
+  displayName: string;
+  pictureUrl?: string;
+  rating: number;
+};
 
 export function useGetAllBookingRequests() {
   const { apiRequest } = useApiRequest();

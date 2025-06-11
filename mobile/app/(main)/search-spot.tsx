@@ -96,13 +96,13 @@ export default function SearchSpotScreen() {
   );
 
   useEffect(() => {
-    if (initialTabChanged) {
+    if (!activeBookings.length || initialTabChanged) {
       return;
     }
 
-    setSelectedTab(booking?.bookings?.length ? 'booking' : 'suggested');
+    setSelectedTab('booking');
     setInitialTabChanged(true);
-  }, [booking]);
+  }, [activeBookings]);
 
   useEffect(() => {
     !bookSheetOpen && setSelectedSuggestion(undefined);
@@ -129,7 +129,10 @@ export default function SearchSpotScreen() {
           <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
-      <TabsProvider selectedTab={selectedTab} setSelectedTab={setSelectedTab}>
+      <TabsProvider
+        defaultTab={'suggested'}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}>
         <ScreenTitle title={t('booking.reserveSpot')} />
 
         <TabsSelector className={'mt-0'}>
@@ -154,11 +157,17 @@ export default function SearchSpotScreen() {
             disabled={!booking?.bookings?.length}
             preview={
               <TabPreview
-                icon={<BlinkingDot disabled={!booking?.bookings?.length} />}
+                icon={
+                  activeBookings.length ? (
+                    <BlinkingDot disabled={!booking?.bookings?.length} />
+                  ) : (
+                    <ThemedIcon name={'ticket'} color={colors.primary} />
+                  )
+                }
                 count={booking?.bookings?.length}
               />
             }>
-            <Text>{t('booking.tabs.onGoingBookings')}</Text>
+            <Text>{t('booking.tabs.bookings')}</Text>
           </Tab>
         </TabsSelector>
 
@@ -183,21 +192,42 @@ export default function SearchSpotScreen() {
           {!booking ? (
             <ActivityIndicator />
           ) : (
-            activeBookings.length > 0 && (
-              <View>
-                <View className="flex-row items-center gap-2">
-                  <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
-                  <Title>
-                    {activeBookings.length > 1
-                      ? t('booking.occupyingSpots', { count: activeBookings.length })
-                      : t('booking.occupyingSpot')}
-                  </Title>
+            <>
+              {activeBookings.length ? (
+                <View>
+                  <View className="flex-row items-center gap-2">
+                    <BlinkingDot className={'-top-[5]'} color={colors.destructive} />
+                    <Title>
+                      {activeBookings.length > 1
+                        ? t('booking.occupyingSpots', { count: activeBookings.length })
+                        : t('booking.occupyingSpot')}
+                    </Title>
+                  </View>
+                  <List>
+                    {activeBookings.map((booking) => (
+                      <BookingCard key={booking.id} booking={booking} countdownOnTap />
+                    ))}
+                  </List>
                 </View>
-                {activeBookings.map((booking) => (
-                  <BookingCard key={booking.id} booking={booking} countdownOnTap deletable />
-                ))}
-              </View>
-            )
+              ) : null}
+
+              {notStartedBookings.length ? (
+                <View>
+                  <View className="flex-row items-center gap-2">
+                    <Title>
+                      {notStartedBookings.length > 1
+                        ? t('booking.bookedSpots', { count: notStartedBookings.length })
+                        : t('booking.bookedSpot')}
+                    </Title>
+                  </View>
+                  <List>
+                    {notStartedBookings.map((booking) => (
+                      <BookingCard key={booking.id} booking={booking} countdownOnTap deletable />
+                    ))}
+                  </List>
+                </View>
+              ) : null}
+            </>
           )}
         </TabArea>
 
@@ -356,17 +386,15 @@ function BookingRequestCard(props: { request: BookingRequestResponse }) {
             <DeleteTrigger />
           </View>
 
-          <View className={'flex-row items-center justify-between'}>
-            <DateRange from={props.request.from} to={props.request.to} />
+          {props.request.bonus > 0 && (
+            <View className={'flex-row items-center gap-2'}>
+              <ThemedIcon color={colors.primary} component={FontAwesome6} name="arrow-trend-up" />
 
-            {props.request.bonus > 0 && (
-              <View className={'flex-row items-center gap-2'}>
-                <ThemedIcon color={colors.primary} component={FontAwesome6} name="arrow-trend-up" />
+              <Text className={'font-bold text-primary'}>+{props.request.bonus}</Text>
+            </View>
+          )}
 
-                <Text className={'font-bold text-primary'}>+{props.request.bonus}</Text>
-              </View>
-            )}
-          </View>
+          <DateRange from={props.request.from} to={props.request.to} />
         </Card>
       </Pressable>
     </Deletable>

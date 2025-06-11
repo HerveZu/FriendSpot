@@ -133,6 +133,8 @@
     "now": "Maintenant",
     "occupyingSpot": "Tu occupes ce spot",
     "occupyingSpots": "Tu occupes ces {{count}} spots",
+    "bookedSpot": "Tu as réservé ce spot",
+    "bookedSpots": "Tu as réservé ces {{count}} spots",
     "spot": {
       "locked": "Spot verouillé",
       "lockedDescription": "Le numéro du spot sera révélé au début de la réservation."
@@ -163,7 +165,7 @@
       }
     },
     "tabs": {
-      "onGoingBookings": "En cours",
+      "bookings": "Réservations",
       "suggestedSpots": "Suggérés",
       "requests": "Demandes"
     }
@@ -177,7 +179,15 @@
     "spotAlreadyShared": "Ta place est déjà partagée,\nsa disponibilité s'étend si tu ajoutes des créneaux.",
     "lendFrom": "Prêter du",
     "lendUntil": "Jusqu'au",
-    "lendAndEarnCredits": "Prêter et gagner jusqu'à {{credits}} crédits"
+    "lendAndEarnCredits": "Prêter et gagner jusqu'à {{credits}} crédits",
+    "tabs": {
+      "myLendings": "Mes prêts",
+      "neighboursRequests": "Demandes de spot"
+    },
+    "acceptRequest": {
+      "description": "En acceptant, votre spot sera prêté à {{requester}} du {{from}} au {{to}}.",
+      "accept": "Accepter pour {{credits}} crédits"
+    }
   },
   "wallet": {
     "howItWorks": "Comment ça marche ?",
