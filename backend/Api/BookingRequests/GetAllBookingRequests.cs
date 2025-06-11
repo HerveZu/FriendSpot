@@ -22,6 +22,7 @@ public sealed record GetAllBookingRequestsResponse
         public required DateTimeOffset To { get; init; }
         public required TimeSpan Duration { get; init; }
         public required decimal Bonus { get; init; }
+        public required decimal Credits { get; init; }
         public required BookingRequester Requester { get; init; }
 
         [PublicAPI]
@@ -64,6 +65,7 @@ internal sealed class GetAllBookingRequests(AppDbContext dbContext, ILogger<GetA
                             To = request.To,
                             Duration = request.Duration,
                             Bonus = request.Bonus,
+                            Credits = request.Cost,
                             Requester = dbContext.Set<User>()
                                 .Where(user => user.Identity == request.RequesterId)
                                 .Select(owner => new GetAllBookingRequestsResponse.BookingRequest.BookingRequester
