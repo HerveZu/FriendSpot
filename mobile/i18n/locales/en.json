@@ -137,7 +137,8 @@
     "bookedSpots": "You booked these {{count}} spots",
     "spot": {
       "locked": "Locked spot",
-      "lockedDescription": "The spot number will be revealed at the beginning of the reservation."
+      "lockedDescription": "The spot number will be revealed at the beginning of the reservation.",
+      "onGoingTitle": "{{remaining}} remaining"
     },
     "newSpot": {
       "title": "New spot reserved!",

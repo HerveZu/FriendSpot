@@ -137,7 +137,8 @@
     "bookedSpots": "Tu as réservé ces {{count}} spots",
     "spot": {
       "locked": "Spot verouillé",
-      "lockedDescription": "Le numéro du spot sera révélé au début de la réservation."
+      "lockedDescription": "Le numéro du spot sera révélé au début de la réservation.",
+      "onGoingTitle": "Encore {{remaining}}"
     },
     "newSpot": {
       "title": "Nouveau spot réservé !",

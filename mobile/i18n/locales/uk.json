@@ -137,7 +137,8 @@
     "bookedSpots": "Ви забронювали ці {{count}} місця",
     "spot": {
       "locked": "Приховане місце",
-      "lockedDescription": "Номер місця стане відомим на початку бронювання."
+      "lockedDescription": "Номер місця стане відомим на початку бронювання.",
+      "onGoingTitle": "Ще {{remaining}}"
     },
     "newSpot": {
       "title": "Нове місце заброньовано!",

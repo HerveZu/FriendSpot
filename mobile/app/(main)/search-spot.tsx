@@ -10,6 +10,7 @@ import {
   formatDuration,
   formatRelative,
   intervalToDuration,
+  isAfter,
   isWithinInterval,
   max,
   min,
@@ -328,7 +329,13 @@ function BookingCard(props: {
                   <ThemedIcon name={'ticket'} color={colors.primary} />
                 )}
                 <Text variant="heading" className="font-bold">
-                  {capitalize(formatRelative(props.booking.from, now))}
+                  {capitalize(
+                    isAfter(props.booking.from, now)
+                      ? formatRelative(props.booking.from, now)
+                      : t('booking.spot.onGoingTitle', {
+                          remaining: formatDistance(props.booking.to, now),
+                        })
+                  )}
                 </Text>
               </View>
               <DeleteTrigger />
