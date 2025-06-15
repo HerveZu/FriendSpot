@@ -6,13 +6,16 @@
     <data name="PushNotification.Booking.Body" xml:space="preserve">
         <value>{0} a réservé votre spot le {1}.</value>
     </data>
-    <data name="PushNotification.Cancelled.Title" xml:space="preserve">
+    <data name="PushNotification.Cancelled.ByUser.Title" xml:space="preserve">
+        <value>Réservation annulée</value>
+    </data>
+    <data name="PushNotification.Cancelled.ByUser.Body" xml:space="preserve">
+        <value>{0} a annulé une réservation de ton spot le {1}.</value>
+    </data>
+    <data name="PushNotification.Cancelled.ByOwner.Title" xml:space="preserve">
         <value>Réservation annulée</value>
     </data>
     <data name="PushNotification.Cancelled.ByOwner.Body" xml:space="preserve">
         <value>Le spot de {0} n'est plus disponible le {1}.</value>
-    </data>
-    <data name="PushNotification.Cancelled.ByUser.Body" xml:space="preserve">
-        <value>{0} a annulé une réservation de ton spot le {1}.</value>
     </data>
 </root>

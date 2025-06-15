@@ -4,6 +4,8 @@ using Api.BookingRequests.OnBookingRequested;
 using Api.Bookings;
 using Api.Me;
 using Api.Tests.TestBench;
+using Domain.Users;
+using NSubstitute;
 
 namespace Api.Tests;
 

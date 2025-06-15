@@ -23,7 +23,9 @@ internal sealed class CancelBookingTests : IntegrationTestsBase
                 Arg.Any<CancellationToken>()
             )
             .ReturnsForAnyArgs(Task.CompletedTask)
-            .AfterHavingCompleted(info => info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident2);
+            .AfterHavingCompleted(info =>
+                info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident2
+                && info.Arg<Notification>().Title.Key == "PushNotification.Cancelled.ByUser.Title");
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
@@ -57,6 +59,7 @@ internal sealed class CancelBookingTests : IntegrationTestsBase
         await cancelSpot.AssertIsSuccessful(cancellationToken);
 
         await pushToDeviceCompletion.Wait(cancellationToken);
+        Assert.Pass();
     }
 
     [Test]
@@ -73,7 +76,9 @@ internal sealed class CancelBookingTests : IntegrationTestsBase
                 Arg.Any<CancellationToken>()
             )
             .ReturnsForAnyArgs(Task.CompletedTask)
-            .AfterHavingCompleted(info => info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident1);
+            .AfterHavingCompleted(info =>
+                info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident1
+                && info.Arg<Notification>().Title.Key == "PushNotification.Cancelled.ByOwner.Title");
 
         var makeSpotAvailable = await resident2.PostAsync(
             "/spots/availabilities",
@@ -108,6 +113,7 @@ internal sealed class CancelBookingTests : IntegrationTestsBase
         await cancelSpot.AssertIsSuccessful(cancellationToken);
 
         await pushToDeviceCompletion.Wait(cancellationToken);
+        Assert.Pass();
     }
 
     [Test]

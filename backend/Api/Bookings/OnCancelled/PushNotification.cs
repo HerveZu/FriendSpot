@@ -33,12 +33,11 @@ internal sealed class PushNotification(
         var userMap = (await dbContext
                 .Set<User>()
                 .Where(user => userIdsToFetch.Contains(user.Identity))
-                .Select(
-                    user => new
-                    {
-                        UserId = user.Identity,
-                        user
-                    })
+                .Select(user => new
+                {
+                    UserId = user.Identity,
+                    user
+                })
                 .ToArrayAsync(cancellationToken))
             .ToDictionary(user => user.UserId, user => user.user);
 
@@ -56,7 +55,9 @@ internal sealed class PushNotification(
             notificationPushService,
             new Notification
             {
-                Title = new LocalizedString("PushNotification.Cancelled.Title"),
+                Title = cancelledByOwner
+                    ? new LocalizedString("PushNotification.Cancelled.ByOwner.Title")
+                    : new LocalizedString("PushNotification.Cancelled.ByUser.Title"),
                 Body = cancelledByOwner
                     ? new LocalizedString(
                         "PushNotification.Cancelled.ByOwner.Body",
