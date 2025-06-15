@@ -24,4 +24,22 @@
     <data name="PushNotification.RequestAccepted.Body" xml:space="preserve">
         <value>{0} has accepted your booking request on {1}.</value>
     </data>
+    <data name="PushNotification.Reminders.OwnerNeedsToShare.Title" xml:space="preserve">
+      <value>Make sure your parking spot is free</value>
+    </data>
+    <data name="PushNotification.Reminders.OwnerNeedsToShare.Body" xml:space="preserve">
+      <value>The reservation starts on {0}. Please vacate your spot in time.</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingStarts.Title" xml:space="preserve">
+      <value>Your reservation is about to start</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingStarts.Body" xml:space="preserve">
+      <value>Your reservation begins on {0}. Get ready!</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingEnds.Title" xml:space="preserve">
+      <value>Your reservation is ending soon</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingEnds.Body" xml:space="preserve">
+      <value>Your reservation ends on {0}. Please wrap up if needed.</value>
+    </data>
 </root>

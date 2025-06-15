@@ -24,4 +24,22 @@
     <data name="PushNotification.RequestAccepted.Body" xml:space="preserve">
         <value>{0} прийняв ваш запит на бронювання на {1}.</value>
     </data>
+    <data name="PushNotification.Reminders.OwnerNeedsToShare.Title" xml:space="preserve">
+      <value>Звільніть своє паркувальне місце</value>
+    </data>
+    <data name="PushNotification.Reminders.OwnerNeedsToShare.Body" xml:space="preserve">
+      <value>Резервація починається {0}. Будь ласка, звільніть місце вчасно.</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingStarts.Title" xml:space="preserve">
+      <value>Ваша резервація скоро почнеться</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingStarts.Body" xml:space="preserve">
+      <value>Ваша резервація починається {0}. Підготуйтеся!</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingEnds.Title" xml:space="preserve">
+      <value>Ваша резервація майже завершилась</value>
+    </data>
+    <data name="PushNotification.Reminders.UsersBookingEnds.Body" xml:space="preserve">
+      <value>Резервація завершується {0}. Завершіть усе необхідне.</value>
+    </data>
 </root>

@@ -33,7 +33,7 @@ internal sealed class PushNotification(
                     "PushNotification.Booking.Body",
                     [
                         LocalizedArg.String(user.DisplayName),
-                        LocalizedArg.Date(@event.BookedAt),
+                        LocalizedArg.Date(@event.Date.From),
                     ]),
             },
             cancellationToken);

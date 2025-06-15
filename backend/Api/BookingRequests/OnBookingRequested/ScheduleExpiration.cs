@@ -14,12 +14,12 @@ internal sealed class ScheduleExpiration(ISchedulerFactory schedulerFactory)
 
         await scheduler.ScheduleJob(
             JobBuilder.Create<MarkBookingRequestExpired>()
-                .WithIdentity(BookingRequestJobsKeys.MarkRequestExpired(notification.RequestId))
+                .WithIdentity(new JobKey("schedule-expiration", notification.RequestId.ToString()))
                 .UsingJobData(MarkBookingRequestExpired.ParkingId, notification.ParkingId)
                 .UsingJobData(MarkBookingRequestExpired.RequestId, notification.RequestId)
                 .Build(),
             TriggerBuilder.Create()
-                .StartAt(notification.Date.From)
+                .StartAtOrNow(notification.Date.From)
                 .Build(),
             cancellationToken);
     }
@@ -48,10 +48,10 @@ internal sealed class MarkBookingRequestExpired(
             return;
         }
 
-        logger.LogInformation("Marking booking request expired {RequestId}", requestId);
-        parking.MarkBookingRequestExpired(requestId);
+        logger.LogInformation("Trying to mark booking request expired {RequestId}", requestId);
+        parking.TryMarkBookingRequestExpired(requestId);
 
         dbContext.Set<Parking>().Update(parking);
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(context.CancellationToken);
     }
 }

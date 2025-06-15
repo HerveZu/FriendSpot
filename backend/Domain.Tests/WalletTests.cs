@@ -15,14 +15,13 @@ public sealed class WalletTests
         // Act
         var wallet = Wallet.Create(userId);
 
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(wallet.UserId, Is.EqualTo(userId));
-                Assert.That(wallet.Id, Is.Not.EqualTo(Guid.Empty));
-                Assert.That(wallet.Transactions, Is.Empty);
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(wallet.UserId, Is.EqualTo(userId));
+            Assert.That(wallet.Id, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(wallet.Transactions, Is.Empty);
+        });
     }
 
     [Test]
@@ -35,14 +34,13 @@ public sealed class WalletTests
         // Act
         wallet.Charge("ref2", new Credits(50));
 
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(wallet.Credits.Amount, Is.EqualTo(50));
-                Assert.That(wallet.Transactions, Has.Count.EqualTo(2));
-                Assert.That(wallet.Transactions.Any(t => t is { Reference: "ref2", Credits.Amount: -50 }), Is.True);
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(wallet.Credits.Amount, Is.EqualTo(50));
+            Assert.That(wallet.Transactions, Has.Count.EqualTo(2));
+            Assert.That(wallet.Transactions.Any(t => t is { Reference: "ref2", Credits.Amount: -50 }), Is.True);
+        });
     }
 
     [Test]
@@ -80,12 +78,11 @@ public sealed class WalletTests
         // Assert
         Assert.That(wallet.Transactions, Has.Count.EqualTo(1));
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(wallet.Credits.Amount, Is.EqualTo(100));
-                Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Confirmed));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(wallet.Credits.Amount, Is.EqualTo(100));
+            Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Confirmed));
+        });
     }
 
     [Test]
@@ -98,14 +95,13 @@ public sealed class WalletTests
         wallet.CreditPending("ref1", new Credits(100));
 
         Assert.That(wallet.Transactions, Has.Count.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(wallet.Credits.Amount, Is.EqualTo(0));
-                Assert.That(wallet.PendingCredits.Amount, Is.EqualTo(100));
-                Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Pending));
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(wallet.Credits.Amount, Is.EqualTo(0));
+            Assert.That(wallet.PendingCredits.Amount, Is.EqualTo(100));
+            Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Pending));
+        });
     }
 
     [Test]
@@ -119,14 +115,13 @@ public sealed class WalletTests
         wallet.ConfirmPending("ref1");
 
         Assert.That(wallet.Transactions, Has.Count.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(wallet.Credits.Amount, Is.EqualTo(100));
-                Assert.That(wallet.PendingCredits.Amount, Is.EqualTo(0));
-                Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Confirmed));
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(wallet.Credits.Amount, Is.EqualTo(100));
+            Assert.That(wallet.PendingCredits.Amount, Is.EqualTo(0));
+            Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Confirmed));
+        });
     }
 
     [Test]
@@ -148,8 +143,7 @@ public sealed class WalletTests
         var wallet = Wallet.Create(Guid.NewGuid().ToString());
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() => wallet.ConfirmPending("non-existent-ref"));
-        Assert.That(exception.Message, Does.Contain("Sequence contains no matching element"));
+        Assert.Throws<BusinessException>(() => wallet.ConfirmPending("non-existent-ref"));
     }
 
     [Test]
@@ -162,13 +156,12 @@ public sealed class WalletTests
         // Act
         wallet.Cancel("ref1");
 
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(wallet.Transactions, Is.Empty);
-                Assert.That(wallet.Credits.Amount, Is.EqualTo(0));
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(wallet.Transactions, Is.Empty);
+            Assert.That(wallet.Credits.Amount, Is.EqualTo(0));
+        });
     }
 
     [Test]
@@ -178,8 +171,7 @@ public sealed class WalletTests
         var wallet = Wallet.Create(Guid.NewGuid().ToString());
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() => wallet.Cancel("non-existent-ref"));
-        Assert.That(exception.Message, Does.Contain("Sequence contains no matching element"));
+        var exception = Assert.Throws<BusinessException>(() => wallet.Cancel("non-existent-ref"));
     }
 
     [Test]
@@ -191,13 +183,12 @@ public sealed class WalletTests
         // Act
         wallet.CreditConfirmed("ref1", new Credits(100));
 
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(wallet.Transactions, Has.Count.EqualTo(1));
-                Assert.That(wallet.Credits.Amount, Is.EqualTo(100));
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(wallet.Transactions, Has.Count.EqualTo(1));
+            Assert.That(wallet.Credits.Amount, Is.EqualTo(100));
+        });
     }
 
     [Test]
@@ -210,14 +201,13 @@ public sealed class WalletTests
         // Act
         wallet.CreditPending("ref1", new Credits(200));
 
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(wallet.Transactions, Has.Count.EqualTo(1));
-                Assert.That(wallet.Credits.Amount, Is.EqualTo(0));
-                Assert.That(wallet.PendingCredits.Amount, Is.EqualTo(200));
-                Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Pending));
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(wallet.Transactions, Has.Count.EqualTo(1));
+            Assert.That(wallet.Credits.Amount, Is.EqualTo(0));
+            Assert.That(wallet.PendingCredits.Amount, Is.EqualTo(200));
+            Assert.That(wallet.Transactions[0].State, Is.EqualTo(TransactionState.Pending));
+        });
     }
 }

@@ -9,8 +9,7 @@ public sealed record ParkingSpotBooked : IDomainEvent
     public required Guid SpotId { get; init; }
     public required Guid BookingId { get; init; }
     public required Credits Cost { get; init; }
-    public required DateTimeOffset BookedAt { get; init; }
-    public required DateTimeOffset BookedUntil { get; init; }
+    public required DateTimeOffsetRange Date { get; init; }
     public required string OwnerId { get; init; }
     public required string UserId { get; init; }
 }
@@ -153,8 +152,7 @@ public sealed class ParkingSpot : IAggregateRoot
                 SpotId = Id,
                 BookingId = newBooking.Id,
                 Cost = cost,
-                BookedAt = newBooking.From,
-                BookedUntil = newBooking.To,
+                Date = newBooking.DateRange,
                 UserId = newBooking.BookingUserId,
                 OwnerId = OwnerId
             });

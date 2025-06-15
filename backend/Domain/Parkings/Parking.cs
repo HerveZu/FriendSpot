@@ -163,13 +163,18 @@ public sealed class Parking : IAggregateRoot
             });
     }
 
-    public void MarkBookingRequestExpired(Guid requestId)
+    public bool TryMarkBookingRequestExpired(Guid requestId)
     {
         var request = _bookingRequests.SingleOrDefault(request => request.Id == requestId);
 
         if (request is null)
         {
             throw new BusinessException("Parking.BookingRequestNotFound", "No booking request found.");
+        }
+
+        if (request.Accepted)
+        {
+            return false;
         }
 
         _bookingRequests.Remove(request);
@@ -180,6 +185,8 @@ public sealed class Parking : IAggregateRoot
                 RequestId = request.Id,
                 RequesterId = request.RequesterId,
             });
+
+        return true;
     }
 
     public void TransferOwnership(string newOwnerId)
