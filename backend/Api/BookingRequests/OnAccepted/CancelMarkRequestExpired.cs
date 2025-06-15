@@ -16,7 +16,7 @@ internal sealed class CancelMarkRequestExpired(
 
         var scheduler = await schedulerFactory.GetScheduler(cancellationToken);
         await scheduler.DeleteJob(
-            BookingRequestJobsKeys.MarkRequestExpired(notification.Request.Id),
+            BookingRequestJobsKeys.MarkRequestExpired(notification.RequestId),
             cancellationToken);
     }
 }

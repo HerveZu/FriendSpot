@@ -11,13 +11,17 @@ public sealed record ParkingDeleted : IDomainEvent
 
 public sealed record BookingRequested : IDomainEvent
 {
-    public required Parking Parking { get; init; }
-    public required ParkingBookingRequest Request { get; init; }
+    public required Guid ParkingId { get; init; }
+    public required Guid RequestId { get; init; }
+    public required string RequesterId { get; init; }
+    public required Credits Cost { get; init; }
+    public required DateTimeOffsetRange Date { get; init; }
 }
 
 public sealed record BookingRequestExpired : IDomainEvent
 {
-    public required ParkingBookingRequest Request { get; init; }
+    public required Guid RequestId { get; init; }
+    public required string RequesterId { get; init; }
 }
 
 public sealed record BookingRequestCancelled : IDomainEvent
@@ -27,8 +31,11 @@ public sealed record BookingRequestCancelled : IDomainEvent
 
 public sealed record BookingRequestAccepted : IDomainEvent
 {
-    public required ParkingBookingRequest Request { get; init; }
+    public required Guid RequestId { get; init; }
+    public required string RequesterId { get; init; }
     public required string AcceptedByUserId { get; init; }
+    public required DateTimeOffsetRange Date { get; init; }
+    public required Credits Bonus { get; init; }
 }
 
 public sealed class Parking : IAggregateRoot
@@ -86,8 +93,11 @@ public sealed class Parking : IAggregateRoot
         _domainEvents.RegisterNext(
             new BookingRequested
             {
-                Parking = this,
-                Request = request
+                ParkingId = Id,
+                RequestId = request.Id,
+                RequesterId = requesterId,
+                Cost = request.Cost,
+                Date = request.DateRange
             });
 
         return request;
@@ -108,14 +118,18 @@ public sealed class Parking : IAggregateRoot
         _domainEvents.RegisterNext(
             new BookingRequestExpired
             {
-                Request = request
+                RequestId = request.Id,
+                RequesterId = request.RequesterId,
             });
 
         _domainEvents.RegisterNext(
             new BookingRequestAccepted
             {
-                Request = request,
-                AcceptedByUserId = userId
+                AcceptedByUserId = userId,
+                RequesterId = request.RequesterId,
+                RequestId = request.Id,
+                Date = request.DateRange,
+                Bonus = request.Bonus
             });
     }
 
@@ -144,7 +158,8 @@ public sealed class Parking : IAggregateRoot
         _domainEvents.RegisterNext(
             new BookingRequestExpired
             {
-                Request = request
+                RequestId = request.Id,
+                RequesterId = request.RequesterId,
             });
     }
 
@@ -162,7 +177,8 @@ public sealed class Parking : IAggregateRoot
         _domainEvents.RegisterNext(
             new BookingRequestExpired
             {
-                Request = request
+                RequestId = request.Id,
+                RequesterId = request.RequesterId,
             });
     }
 

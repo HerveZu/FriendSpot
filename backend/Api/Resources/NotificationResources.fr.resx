@@ -18,4 +18,10 @@
     <data name="PushNotification.Cancelled.ByOwner.Body" xml:space="preserve">
         <value>Le spot de {0} n'est plus disponible le {1}.</value>
     </data>
+    <data name="PushNotification.RequestAccepted.Title" xml:space="preserve">
+        <value>Demande de réservation acceptée</value>
+    </data>
+    <data name="PushNotification.RequestAccepted.Body" xml:space="preserve">
+        <value>{0} a accepté votre demande de réservation le {1}.</value>
+    </data>
 </root>

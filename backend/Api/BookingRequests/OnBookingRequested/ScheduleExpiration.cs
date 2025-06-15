@@ -14,12 +14,12 @@ internal sealed class ScheduleExpiration(ISchedulerFactory schedulerFactory)
 
         await scheduler.ScheduleJob(
             JobBuilder.Create<MarkBookingRequestExpired>()
-                .WithIdentity(BookingRequestJobsKeys.MarkRequestExpired(notification.Request.Id))
-                .UsingJobData(MarkBookingRequestExpired.ParkingId, notification.Parking.Id)
-                .UsingJobData(MarkBookingRequestExpired.RequestId, notification.Request.Id)
+                .WithIdentity(BookingRequestJobsKeys.MarkRequestExpired(notification.RequestId))
+                .UsingJobData(MarkBookingRequestExpired.ParkingId, notification.ParkingId)
+                .UsingJobData(MarkBookingRequestExpired.RequestId, notification.RequestId)
                 .Build(),
             TriggerBuilder.Create()
-                .StartAt(notification.Request.From)
+                .StartAt(notification.Date.From)
                 .Build(),
             cancellationToken);
     }

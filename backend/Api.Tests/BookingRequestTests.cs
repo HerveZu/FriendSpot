@@ -241,6 +241,50 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
 
     [Test]
     [CancelAfter(10_000)]
+    public async Task AcceptRequestBooking_ShouldNotifyRequester(CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
+
+        var pushToDeviceCompletion = NotificationPushService
+            .PushToDevice(
+                Arg.Any<UserDevice>(),
+                Arg.Any<Notification>(),
+                Arg.Any<CancellationToken>()
+            )
+            .ReturnsForAnyArgs(Task.CompletedTask)
+            .AfterHavingCompleted(info =>
+                info.Arg<UserDevice>().DeviceId == Seed.Devices.Resident1
+                && info.Arg<Notification>().Title.Key == "PushNotification.RequestAccepted.Title");
+
+        var now = DateTimeOffset.Now;
+        var bookingRequestResult = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = now.AddHours(3),
+                    To = now.AddHours(7),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        var bookingRequest = await bookingRequestResult.AssertIsSuccessful<RequestBookingResponse>(cancellationToken);
+        Assert.That(bookingRequest.RequestId, Is.Not.Null);
+
+        var acceptRequestResult = await resident2.PostAsync(
+            $"/parking/requests/{bookingRequest.RequestId.Value}/accept",
+            JsonContent.Create(new object()),
+            cancellationToken);
+
+        await acceptRequestResult.AssertIsSuccessful(cancellationToken);
+
+        await pushToDeviceCompletion.Wait(cancellationToken);
+        Assert.Pass();
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
     public async Task CancelBookingRequest_ShouldNotImpactCredits(CancellationToken cancellationToken)
     {
         using var resident1 = UserClient(Seed.Users.Resident1);

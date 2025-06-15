@@ -9,20 +9,18 @@ namespace Api.BookingRequests.OnBookingRequested;
 internal sealed class TakeDeposit(AppDbContext dbContext, ILogger<TakeDeposit> logger)
     : IDomainEventHandler<BookingRequested>
 {
-    public async Task Handle(BookingRequested notification, CancellationToken cancellationToken)
+    public async Task Handle(BookingRequested @event, CancellationToken cancellationToken)
     {
-        var request = notification.Request;
-
         var requesterWallet = await dbContext
             .Set<Wallet>()
-            .FirstAsync(wallet => wallet.UserId == request.RequesterId, cancellationToken);
+            .FirstAsync(wallet => wallet.UserId == @event.RequesterId, cancellationToken);
 
         logger.LogInformation(
             "Taking a deposit from user {UserId} of {Amount} credits for the booking request",
-            request.RequesterId,
-            request.Cost);
+            @event.RequesterId,
+            @event.Cost);
 
-        requesterWallet.Charge(request.Id.ToString(), request.Cost);
+        requesterWallet.Charge(@event.RequestId.ToString(), @event.Cost);
 
         dbContext.Set<Wallet>().Update(requesterWallet);
         await dbContext.SaveChangesAsync(cancellationToken);

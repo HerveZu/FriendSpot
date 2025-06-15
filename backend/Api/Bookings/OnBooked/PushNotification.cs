@@ -7,12 +7,12 @@ using Quartz;
 
 namespace Api.Bookings.OnBooked;
 
-internal sealed class PushNotificationToOwner(
+internal sealed class PushNotification(
     ISchedulerFactory schedulerFactory,
     AppDbContext dbContext,
     INotificationPushService notificationPushService
 )
-    : IntegrationEventHandler<PushNotificationToOwner, ParkingSpotBooked>(schedulerFactory)
+    : IntegrationEventHandler<PushNotification, ParkingSpotBooked>(schedulerFactory)
 {
     protected override async Task HandleOutbox(ParkingSpotBooked @event, CancellationToken cancellationToken)
     {
