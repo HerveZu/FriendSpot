@@ -124,7 +124,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
                 new BookSpotRequest
                 {
                     From = now.AddSeconds(1),
-                    To = now.AddSeconds(1).AddMicroseconds(1)
+                    To = now.AddSeconds(1) + MinSafeDelta
                 }),
             cancellationToken);
 
@@ -170,7 +170,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
                 new BookSpotRequest
                 {
                     From = now.AddSeconds(1),
-                    To = now.AddSeconds(1).AddMicroseconds(1)
+                    To = now.AddSeconds(1) + MinSafeDelta
                 }),
             cancellationToken);
 

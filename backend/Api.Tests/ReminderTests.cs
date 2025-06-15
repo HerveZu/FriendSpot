@@ -140,7 +140,7 @@ internal sealed class ReminderTests : IntegrationTestsBase
                 new BookSpotRequest
                 {
                     From = DateTimeOffset.Now.AddSeconds(1),
-                    To = DateTimeOffset.Now.AddSeconds(1).AddMicroseconds(1)
+                    To = DateTimeOffset.Now.AddSeconds(1) + MinSafeDelta
                 }),
             cancellationToken);
 

@@ -157,6 +157,9 @@ internal abstract class IntegrationTestsBase
     private Respawner _respawn;
     private WebApplicationFactory<Program> _applicationFactory;
 
+    // pg has a precision of 1 microsecond
+    protected readonly TimeSpan MinSafeDelta = TimeSpan.FromMicroseconds(2);
+
     protected HttpClient UserClient(string userId)
     {
         var client = _applicationFactory.CreateClient();

@@ -59,7 +59,7 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
                 new RequestBookingRequest
                 {
                     From = now.AddSeconds(1),
-                    To = now.AddSeconds(1).AddMicroseconds(1),
+                    To = now.AddSeconds(1) + MinSafeDelta,
                     Bonus = 50
                 }),
             cancellationToken);
@@ -368,7 +368,7 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
                 new RequestBookingRequest
                 {
                     From = now.AddSeconds(1),
-                    To = now.AddSeconds(1).AddMicroseconds(1),
+                    To = now.AddSeconds(1) + MinSafeDelta,
                     Bonus = 10
                 }),
             cancellationToken);
@@ -420,7 +420,7 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
                 new RequestBookingRequest
                 {
                     From = now.AddSeconds(1),
-                    To = now.AddSeconds(1).AddMicroseconds(1),
+                    To = now.AddSeconds(1) + MinSafeDelta,
                     Bonus = 10
                 }),
             cancellationToken);
