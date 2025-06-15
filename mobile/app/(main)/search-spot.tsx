@@ -513,6 +513,12 @@ function BookingSheet(props: {
     setSelectedSpot(props.selectedSuggestion);
   }, [props.selectedSuggestion]);
 
+  useEffect(() => {
+    if (shouldRequestSpot) {
+      setSelectedSpot(undefined);
+    }
+  }, [shouldRequestSpot]);
+
   function minTo(from: Date): Date {
     return addHours(from, MIN_DURATION_HOURS);
   }
