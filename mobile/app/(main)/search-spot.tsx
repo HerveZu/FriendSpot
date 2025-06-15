@@ -455,6 +455,7 @@ function BookingSheet(props: {
 
   const [bookingSimulation, setBookingSimulation] = useFetch(
     () =>
+      props.open &&
       selectedSpot &&
       book(
         {
@@ -464,11 +465,12 @@ function BookingSheet(props: {
         selectedSpot.parkingLotId,
         true
       ),
-    [selectedSpot, fromDebounce, toDebounce]
+    [props.open, selectedSpot, fromDebounce, toDebounce]
   );
 
   const [requestSimulation, setRequestSimulation] = useFetch(
     () =>
+      props.open &&
       shouldRequestSpot &&
       requestBooking(
         {
@@ -478,7 +480,7 @@ function BookingSheet(props: {
         },
         true
       ),
-    [requestBonusOption, fromDebounce, toDebounce, shouldRequestSpot]
+    [props.open, requestBonusOption, fromDebounce, toDebounce, shouldRequestSpot]
   );
 
   useEffect(() => {
