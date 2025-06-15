@@ -9,8 +9,12 @@ internal static class QuartzExtensions
         DateTimeOffset startAt,
         DateTimeOffset? endAt = null)
     {
-        return startAt <= DateTimeOffset.Now
-            ? builder.StartNow().EndAt(DateTimeOffset.Now.AddSeconds(1))
-            : builder.StartAt(startAt).EndAt(endAt);
+        if (startAt > DateTimeOffset.Now)
+        {
+            return builder.StartAt(startAt).EndAt(endAt);
+        }
+
+        var safeNow = DateTimeOffset.Now.AddMinutes(1);
+        return builder.StartNow().EndAt(endAt > safeNow ? endAt : safeNow);
     }
 }

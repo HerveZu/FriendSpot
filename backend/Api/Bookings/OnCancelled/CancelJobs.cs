@@ -15,6 +15,9 @@ internal sealed class CancelJobs(ILogger<CancelJobs> logger, ISchedulerFactory s
         var scheduler = await schedulerFactory.GetScheduler(cancellationToken);
         var bookingJobs = await scheduler
             .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(notification.BookingId.ToString()), cancellationToken);
+
+        logger.LogInformation("Cancelling {JobCount} jobs", bookingJobs.Count);
+
         await scheduler.DeleteJobs(bookingJobs, cancellationToken);
     }
 }

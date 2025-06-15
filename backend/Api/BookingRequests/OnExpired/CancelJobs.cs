@@ -13,8 +13,11 @@ internal sealed class CancelJobs(ILogger<CancelJobs> logger, ISchedulerFactory s
         logger.LogInformation("Parking request has expired, cancelling related jobs");
 
         var scheduler = await schedulerFactory.GetScheduler(cancellationToken);
-        var bookingJobs = await scheduler
+        var requestJobs = await scheduler
             .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(notification.RequestId.ToString()), cancellationToken);
-        await scheduler.DeleteJobs(bookingJobs, cancellationToken);
+
+        logger.LogInformation("Cancelling {JobCount} jobs", requestJobs.Count);
+
+        await scheduler.DeleteJobs(requestJobs, cancellationToken);
     }
 }
