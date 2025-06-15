@@ -172,7 +172,7 @@
   },
   "lending": {
     "lendMySpot": "Share my spot",
-    "spotIsAvailable": "Your spot is freely available",
+    "spotIsAvailable": "Your are sharing your spot",
     "notLendingYet": "You're not sharing your spot yet",
     "waitingForBooking": "Waiting for reservation",
     "currentlyUsingSpot": "Currently using your spot",
