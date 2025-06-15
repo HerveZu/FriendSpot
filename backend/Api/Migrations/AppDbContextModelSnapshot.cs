@@ -707,6 +707,55 @@ namespace Api.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsMany("Domain.Parkings.ParkingBookingRequest", "BookingRequests", b1 =>
+                        {
+                            b1.Property<Guid>("ParkingId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("AcceptedByUserId")
+                                .HasColumnType("text");
+
+                            b1.Property<decimal>("Bonus")
+                                .HasColumnType("numeric");
+
+                            b1.Property<DateTimeOffset>("From")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("RequesterId")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<DateTimeOffset>("To")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("ParkingId", "Id");
+
+                            b1.HasIndex("AcceptedByUserId");
+
+                            b1.HasIndex("RequesterId");
+
+                            b1.ToTable("ParkingBookingRequest");
+
+                            b1.HasOne("Domain.Users.User", null)
+                                .WithMany()
+                                .HasForeignKey("AcceptedByUserId");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ParkingId");
+
+                            b1.HasOne("Domain.Users.User", null)
+                                .WithMany()
+                                .HasForeignKey("RequesterId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+                        });
+
+                    b.Navigation("BookingRequests");
                 });
 
             modelBuilder.Entity("Domain.Users.User", b =>

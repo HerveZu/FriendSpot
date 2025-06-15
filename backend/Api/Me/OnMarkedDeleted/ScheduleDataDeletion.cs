@@ -25,8 +25,8 @@ internal sealed class ScheduleDataDeletion(
 
         var now = DateTimeOffset.Now;
 
-        // we will trigger the data deletion only when the last availability
-        // that can't be cancelled right away will be over, as this action should not impact 'frozen' bookings
+        // we will trigger the data deletion only when the last availability that can't be canceled right away is over,
+        // as this action should not impact 'frozen' bookings
         var scheduleDeletionAt = lastNotCancellableAvailability?.To ?? now;
 
         logger.LogInformation("User data will be deleted on the date {DeletionDate}", scheduleDeletionAt);
@@ -38,7 +38,7 @@ internal sealed class ScheduleDataDeletion(
                 .UsingJobData(DeleteUserData.UserId, notification.UserId)
                 .Build(),
             TriggerBuilder.Create()
-                .StartAt(scheduleDeletionAt < now ? now : scheduleDeletionAt)
+                .StartAtOrNow(scheduleDeletionAt)
                 .Build(),
             cancellationToken);
     }
@@ -77,6 +77,6 @@ internal sealed class DeleteUserData(ILogger<DeleteUserData> logger, AppDbContex
         logger.LogInformation("Deleting user with id {UserId}", userId);
 
         dbContext.Set<User>().Remove(user);
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(context.CancellationToken);
     }
 }

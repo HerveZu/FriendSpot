@@ -28,11 +28,13 @@ export function AskUserToRate(props: PropsWithChildren) {
         onOpenChange={(open) =>
           !open &&
           userProfile.bookingToRate &&
-          rate({
-            parkingLotId: userProfile.bookingToRate.parkingLotId,
-            bookingId: userProfile.bookingToRate.id,
-            userRating: 'Neutral',
-          })
+          rate(
+            {
+              userRating: 'Neutral',
+            },
+            userProfile.bookingToRate.parkingLotId,
+            userProfile.bookingToRate.id
+          )
         }>
         <ModalTitle text={t('rating.bookingCompleted.title')} />
         <View className="flex-row justify-between">
@@ -69,11 +71,13 @@ function RateButton(props: {
 
   function rate() {
     props.booking &&
-      rateBooking({
-        parkingLotId: props.booking.parkingLotId,
-        bookingId: props.booking.id,
-        userRating: props.rating,
-      }).finally(() => props.onRated());
+      rateBooking(
+        {
+          userRating: props.rating,
+        },
+        props.booking.parkingLotId,
+        props.booking.id
+      ).finally(() => props.onRated());
   }
 
   return (

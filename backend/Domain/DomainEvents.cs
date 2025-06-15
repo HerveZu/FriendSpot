@@ -4,25 +4,25 @@ namespace Domain;
 
 public interface IDomainEvent : INotification;
 
-public interface IBroadcastEvents
+public interface IAggregateRoot
 {
     IEnumerable<IDomainEvent> GetUncommittedEvents();
 }
 
 public sealed class DomainEvents
 {
-    private readonly List<IDomainEvent> _domainEvents = [];
+    private readonly Queue<IDomainEvent> _domainEvents = [];
 
-    public void Register(IDomainEvent @event)
+    public void RegisterNext(IDomainEvent @event)
     {
-        _domainEvents.Add(@event);
+        _domainEvents.Enqueue(@event);
     }
 
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
     {
-        var events = _domainEvents.ToArray();
-        _domainEvents.Clear();
-
-        return events;
+        while (_domainEvents.Count > 0)
+        {
+            yield return _domainEvents.Dequeue();
+        }
     }
 }

@@ -38,13 +38,7 @@ export function DateRange({
 
   return elapsedMinutes !== null ? (
     <View className={cn('flex-col gap-4', className)} {...props}>
-      <View className="flex-row items-center gap-2">
-        <View className="flex-row items-center gap-2">
-          <Text className="text-sm font-semibold">{format(from, 'dd MMMM HH:mm')}</Text>
-          <ThemedIcon name="arrow-right" />
-          <Text className="text-sm font-semibold">{format(to, 'dd MMMM HH:mm')}</Text>
-        </View>
-      </View>
+      <DateRangeOnly from={from} to={to} />
       <ProgressIndicator
         className="h-4"
         value={Math.round((100 * elapsedMinutes) / toMinutes(realDuration))}
@@ -56,14 +50,14 @@ export function DateRange({
 }
 
 export function DateRangeOnly(props: { from: Date | string; to: Date | string; short?: boolean }) {
-  const dateFormat = props.short ? 'dd.MM HH:mm' : 'dd MMMM HH:mm';
+  const dateFormat = props.short ? 'dd.MM HH:mm' : 'dd MMM HH:mm';
 
   return (
     <View className="flex-row items-center gap-2">
       {!props.short && <ThemedIcon component={FontAwesome6} name="clock" size={12} />}
-      <Text className={'text-xs'}>{format(props.from, dateFormat)}</Text>
+      <Text className={'text-sm'}>{format(props.from, dateFormat)}</Text>
       <ThemedIcon name="arrow-right" size={12} />
-      <Text className={'text-xs'}>{format(props.to, dateFormat)}</Text>
+      <Text className={'text-sm'}>{format(props.to, dateFormat)}</Text>
     </View>
   );
 }

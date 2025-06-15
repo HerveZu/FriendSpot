@@ -11,7 +11,7 @@ namespace Api.Bookings;
 [PublicAPI]
 public sealed record BookSpotRequest
 {
-    public required Guid ParkingLotId { get; init; }
+    public Guid ParkingLotId { get; init; } // required makes deserialization fail
     public required DateTimeOffset From { get; init; }
     public required DateTimeOffset To { get; init; }
 
@@ -30,6 +30,7 @@ internal sealed class BookSpotValidator : Validator<BookSpotRequest>
 {
     public BookSpotValidator()
     {
+        RuleFor(x => x.ParkingLotId).NotEmpty();
         RuleFor(x => x.To).GreaterThan(x => x.From);
         RuleFor(x => x.From).GreaterThanOrEqualTo(_ => DateTimeOffset.UtcNow);
     }
@@ -39,7 +40,7 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
 {
     public override void Configure()
     {
-        Post("/spots/booking");
+        Post("/spots/{ParkingLotId:guid}/booking");
     }
 
     public override async Task HandleAsync(BookSpotRequest req, CancellationToken ct)

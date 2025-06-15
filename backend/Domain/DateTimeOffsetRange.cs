@@ -8,7 +8,7 @@ public readonly struct DateTimeOffsetRange
     {
         if (to <= from)
         {
-            throw new ArgumentException($"{to} must be greater than {From}.");
+            throw new ArgumentException($"{to} must be greater than {from}.");
         }
 
         From = from;

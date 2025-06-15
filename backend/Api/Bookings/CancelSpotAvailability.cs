@@ -17,7 +17,7 @@ internal sealed class CancelSpotAvailability(AppDbContext dbContext) : Endpoint<
 {
     public override void Configure()
     {
-        Post("/spots/availabilities/cancel");
+        Delete("/spots/availabilities/{AvailabilityId:guid}/cancel");
     }
 
     public override async Task HandleAsync(CancelSpotAvailabilityRequest req, CancellationToken ct)

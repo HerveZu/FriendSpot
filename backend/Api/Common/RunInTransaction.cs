@@ -2,7 +2,7 @@ using Api.Common.Infrastructure;
 
 namespace Api.Common;
 
-internal sealed class RunInTransaction(AppDbContext dbContext) : IEndpointFilter
+internal sealed class RunInTransaction(AppDbContext dbContext, ILogger<RunInTransaction> logger) : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
@@ -15,9 +15,11 @@ internal sealed class RunInTransaction(AppDbContext dbContext) : IEndpointFilter
 
             return result;
         }
-        catch
+        catch (Exception exception)
         {
+            logger.LogWarning(exception, "Exception inside transaction scope, rolling back...");
             await dbContext.Database.RollbackTransactionAsync();
+
             throw;
         }
     }

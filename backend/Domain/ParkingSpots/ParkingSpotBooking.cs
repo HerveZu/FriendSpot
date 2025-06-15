@@ -27,6 +27,20 @@ public sealed class ParkingSpotBooking
 
     public static ParkingSpotBooking New(string bookingUserId, DateTimeOffset from, TimeSpan duration)
     {
+        if (from < DateTimeOffset.UtcNow)
+        {
+            throw new BusinessException(
+                "ParkingSpotBooking.Invalid",
+                "Availability date should be in the future.");
+        }
+
+        if (duration <= TimeSpan.Zero)
+        {
+            throw new BusinessException(
+                "ParkingSpotBooking.Invalid",
+                "Booking duration must be greater than zero.");
+        }
+
         return new ParkingSpotBooking(
             Guid.CreateVersion7(from),
             bookingUserId,
@@ -63,12 +77,12 @@ public sealed class ParkingSpotBooking
     {
         if (Rating is not null)
         {
-            throw new BusinessException("ParkingSpot.InvalidRating", "Cannot rate a booking twice");
+            throw new BusinessException("ParkingSpotBooking.InvalidRating", "Cannot rate a booking twice");
         }
 
         if (HasNotExpiredNow)
         {
-            throw new BusinessException("ParkingSpot.InvalidRating", "Cannot rate an ongoing booking");
+            throw new BusinessException("ParkingSpotBooking.InvalidRating", "Cannot rate an ongoing booking");
         }
 
         Rating = rating;

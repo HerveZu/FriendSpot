@@ -104,7 +104,7 @@
   },
   "mySpot": {
     "title": "My Spot",
-    "lendMySpot": "Lend my spot",
+    "lendMySpot": "Share my spot",
     "spotInformation": "Spot information",
     "spotNotShared": "Not currently shared",
     "spotShared": "Shared until {{time}}"
@@ -133,9 +133,12 @@
     "now": "Now",
     "occupyingSpot": "You are occupying this spot",
     "occupyingSpots": "You are occupying these {{count}} spots",
+    "bookedSpot": "You booked this spot",
+    "bookedSpots": "You booked these {{count}} spots",
     "spot": {
       "locked": "Locked spot",
-      "lockedDescription": "The spot number will be revealed at the beginning of the reservation."
+      "lockedDescription": "The spot number will be revealed at the beginning of the reservation.",
+      "onGoingTitle": "{{remaining}} remaining"
     },
     "newSpot": {
       "title": "New spot reserved!",
@@ -152,27 +155,46 @@
       "minutes": "{{minutes}} minutes",
       "spotLocation": "Spot location"
     },
+    "requestBooking": {
+      "title": "Need a spot?",
+      "details": "Looks like nothing's free right now. Let others know you're looking — and hey, you can even offer a little bonus to boost your chances!",
+      "bonus": "Add a bonus",
+      "requestForCredits": "Send a request for {{credits}} credits",
+      "request": "Send a request",
+      "card": {
+        "title": "Requesting a spot"
+      }
+    },
     "tabs": {
-      "onGoingBookings": "Occupying ({{count}})",
-      "suggestedSpots": "Suggested"
+      "bookings": "Bookings",
+      "suggestedSpots": "Suggested",
+      "requests": "Requests"
     }
   },
   "lending": {
-    "lendMySpot": "Lend my spot",
-    "spotIsAvailable": "Your spot is freely available",
-    "notLendingYet": "You're not lending your spot yet",
+    "lendMySpot": "Share my spot",
+    "spotIsAvailable": "Your are sharing your spot",
+    "notLendingYet": "You're not sharing your spot yet",
     "waitingForBooking": "Waiting for reservation",
     "currentlyUsingSpot": "Currently using your spot",
     "spotAlreadyShared": "Your spot is already shared,\nits availability extends when you add timeslots.",
-    "lendFrom": "Lend from",
+    "lendFrom": "Share from",
     "lendUntil": "Until",
-    "lendAndEarnCredits": "Lend and earn up to {{credits}} credits"
+    "lendAndEarnCredits": "Share and earn up to {{credits}} credits",
+    "tabs": {
+      "myLendings": "Sharing",
+      "neighboursRequests": "Spot requests"
+    },
+    "acceptRequest": {
+      "description": "By accepting, your spot will be shared with {{requester}} from the {{from}} to the {{to}}.",
+      "accept": "Accept for {{credits}} credits"
+    }
   },
   "wallet": {
     "howItWorks": "How does it work?",
     "availableCreditsExplanation": "Use these credits to reserve an available spot.",
-    "pendingCreditsExplanation": "Credits that will be added to your current balance once your spot lending is completed.",
-    "creditInfo": "Info: Lending or reserving 1h = 1 credit."
+    "pendingCreditsExplanation": "Credits that will be added to your current balance once your spot sharing is completed.",
+    "creditInfo": "Info: Sharing or reserving 1h = 1 credit."
   },
   "rating": {
     "bookingCompleted": {

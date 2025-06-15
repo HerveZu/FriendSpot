@@ -6,6 +6,7 @@ import {
   addHours,
   addMinutes,
   differenceInSeconds,
+  format,
   formatDuration,
   formatRelative,
   intervalToDuration,
@@ -30,7 +31,7 @@ import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { SheetTitle, Title } from '~/components/Title';
-import { User, Users } from '~/components/UserAvatar';
+import { User, UserAvatar, Users } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
@@ -45,13 +46,21 @@ import {
 import { LendSpotResponse, useLendSpot } from '~/endpoints/booking/lend-spot';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useFetch, useLoading } from '~/lib/useFetch';
+import { useFetch, useHookFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
 import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
 import { useCancelAvailability } from '~/endpoints/booking/cancel-spot-availability';
 import { cn } from '~/lib/cn';
-import { ScrollView } from 'react-native-gesture-handler';
+import { Pressable, ScrollView } from 'react-native-gesture-handler';
+import { Tab, TabArea, TabPreview, TabsProvider, TabsSelector } from '~/components/TabsSelector';
+import {
+  BookingRequestResponse,
+  useGetAllBookingRequests,
+} from '~/endpoints/requestBooking/get-all-parkings-requests';
+import { useAcceptBookingRequest } from '~/endpoints/requestBooking/accept-spot-booking-request';
+import { Modal, ModalProps, ModalTitle } from '~/components/Modal';
+import { Rating } from '~/components/Rating';
 
 export default function MySpotScreen() {
   const { t } = useTranslation();
@@ -62,6 +71,9 @@ export default function MySpotScreen() {
   const now = useActualTime(30_000);
 
   const [availabilities] = useFetch(() => getAvailabilities(now), [now]);
+  const [selectedTab, setSelectedTab] = useState<string>('my-spot');
+
+  const [bookingRequests] = useHookFetch(useGetAllBookingRequests, []);
 
   return !userProfile.spot ? (
     <Redirect href="/user-profile" />
@@ -78,41 +90,137 @@ export default function MySpotScreen() {
         </Button>
       }>
       <ScreenTitle title={t('mySpot.title')} />
-      {!availabilities ? (
-        <ActivityIndicator />
-      ) : availabilities.availabilities.length > 0 ? (
-        <View>
-          <Title>{t('lending.spotIsAvailable')}</Title>
-          <View className={'flex-col gap-4'}>
-            {availabilities.availabilities.map((availability) => (
-              <MySpotAvailabilityCard
-                key={availability.id}
-                spotId={userProfile.spot!.id}
-                availability={availability}
+      <TabsProvider
+        defaultTab={'my-spot'}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}>
+        <TabsSelector className={'mt-0'}>
+          <Tab
+            index={'my-spot'}
+            preview={<TabPreview icon={<ThemedIcon name={'lightbulb-o'} />} count={null} />}>
+            <Text>{t('lending.tabs.myLendings')}</Text>
+          </Tab>
+          <Tab
+            index={'request'}
+            disabled={!bookingRequests?.requests.length}
+            preview={
+              <TabPreview
+                icon={<ThemedIcon name={'person-search'} component={MaterialIcons} />}
+                count={bookingRequests?.requests.length}
               />
-            ))}
-          </View>
-        </View>
-      ) : (
-        <View className="flex-col items-center justify-center gap-10">
-          <MessageInfo info={t('lending.notLendingYet')} />
-          <TreeIllustration width={280} height={280} />
-        </View>
-      )}
+            }>
+            <Text>{t('lending.tabs.neighboursRequests')}</Text>
+          </Tab>
+        </TabsSelector>
+        <TabArea tabIndex={'my-spot'}>
+          {!availabilities ? (
+            <ActivityIndicator />
+          ) : availabilities.availabilities.length > 0 ? (
+            <View>
+              <Title>{t('lending.spotIsAvailable')}</Title>
+              <View className={'flex-col gap-4'}>
+                {availabilities.availabilities.map((availability) => (
+                  <MySpotAvailabilityCard
+                    key={availability.id}
+                    spotId={userProfile.spot!.id}
+                    availability={availability}
+                  />
+                ))}
+              </View>
+            </View>
+          ) : (
+            <View className="flex-col items-center justify-center gap-10">
+              <MessageInfo info={t('lending.notLendingYet')} />
+              <TreeIllustration width={280} height={280} />
+            </View>
+          )}
+        </TabArea>
+        <TabArea tabIndex={'request'}>
+          {!bookingRequests ? (
+            <ActivityIndicator />
+          ) : (
+            bookingRequests.requests.length > 0 && (
+              <List>
+                {bookingRequests?.requests.map((request) => (
+                  <OthersBookingRequestCard key={request.id} request={request} />
+                ))}
+              </List>
+            )
+          )}
+        </TabArea>
+      </TabsProvider>
       <LendSpotSheet open={lendSheetOpen} onOpen={setLendSheetOpen} />
     </ScreenWithHeader>
   );
 }
 
+function AcceptRequestModal({
+  request,
+  ...props
+}: ModalProps & { request: BookingRequestResponse }) {
+  const [acceptRequest, isAccepting] = useLoading(useRefreshOnSuccess(useAcceptBookingRequest()), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
+  const { t } = useTranslation();
+
+  return (
+    <Modal {...props}>
+      <ModalTitle text="Accepter la demande" />
+      <View className="mt-2 w-full flex-col justify-between gap-6">
+        <Text>
+          {t('lending.acceptRequest.description', {
+            requester: request.requester.displayName,
+            from: format(request.from, 'PPpp'),
+            to: format(request.to, 'PPpp'),
+          })}
+        </Text>
+        <Button disabled={isAccepting} onPress={() => acceptRequest(request.id)}>
+          {isAccepting && <ActivityIndicator />}
+          <Text>{t('lending.acceptRequest.accept', { credits: request.credits })}</Text>
+        </Button>
+      </View>
+    </Modal>
+  );
+}
+
+function OthersBookingRequestCard(props: { request: BookingRequestResponse }) {
+  const { t } = useTranslation();
+  const { colors } = useColorScheme();
+  const [openModal, setModalOpen] = useState<boolean>(false);
+
+  return (
+    <>
+      <Pressable onPress={() => setModalOpen(true)}>
+        <Card>
+          <View className={'flex-row items-center justify-between'}>
+            <View className={'flex-row items-center gap-2'}>
+              <Text variant={'heading'}>{t('booking.requestBooking.card.title')}</Text>
+            </View>
+            <UserAvatar {...props.request.requester} />
+          </View>
+
+          <View className={'flex-row justify-between'}>
+            <Rating color={colors.primary} rating={props.request.requester.rating} stars={3} />
+            {props.request.bonus > 0 && (
+              <View className={'flex-row items-center gap-2'}>
+                <ThemedIcon color={colors.primary} component={FontAwesome6} name="arrow-trend-up" />
+                <Text className={'font-bold text-primary'}>+{props.request.bonus}</Text>
+              </View>
+            )}
+          </View>
+
+          <DateRange from={props.request.from} to={props.request.to} />
+        </Card>
+      </Pressable>
+      <AcceptRequestModal open={openModal} onOpenChange={setModalOpen} request={props.request} />
+    </>
+  );
+}
+
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
-  const { refreshProfile } = useCurrentUser();
   const { t } = useTranslation();
-  const cancelAvailability = useCancelAvailability();
-
-  async function cancel() {
-    await cancelAvailability({ availabilityId: props.availability.id }).then(refreshProfile);
-  }
+  const cancelAvailability = useRefreshOnSuccess(useCancelAvailability());
 
   const uniqueBookingUsers = [
     ...props.availability.bookings
@@ -124,7 +232,10 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
   ];
 
   return (
-    <Deletable className={'rounded-xl'} canDelete={props.availability.canCancel} onDelete={cancel}>
+    <Deletable
+      className={'rounded-xl'}
+      canDelete={props.availability.canCancel}
+      onDelete={() => cancelAvailability(props.availability.id)}>
       <Card>
         <View className="flex-col justify-between gap-2">
           <View className="flex-row items-start justify-between gap-4">
@@ -159,9 +270,8 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
   );
 
   function BookingCard(props: { spotId: string; booking: AvailabilityBooking }) {
-    const { refreshProfile } = useCurrentUser();
     const now = useActualTime(30_000);
-    const cancelBooking = useCancelBooking();
+    const cancelBooking = useRefreshOnSuccess(useCancelBooking());
 
     const isCurrently = useMemo(() => {
       return isWithinInterval(now, {
@@ -219,12 +329,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
       <Deletable
         className="rounded-xl"
         canDelete={props.booking.canCancel}
-        onDelete={() =>
-          cancelBooking({
-            bookingId: props.booking.id,
-            parkingLotId: props.spotId,
-          }).then(refreshProfile)
-        }>
+        onDelete={() => cancelBooking(props.spotId, props.booking.id)}>
         <Card className="bg-background">
           <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
             <View className={'flex-col gap-4'}>
@@ -235,7 +340,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
               {isCurrently && (
                 <View>
                   <View className="flex-row items-center gap-2">
-                    <BlinkingDot color={colors.destructive} />
+                    <BlinkingDot />
                     <Text className="text-xs">{t('lending.currentlyUsingSpot')}</Text>
                   </View>
                 </View>
@@ -323,12 +428,11 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
       <BottomSheetView>
         <ContentSheetView className="h-full flex-col justify-between">
           <List>
+            <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
+              {capitalize(formatRelative(from, now))}
+            </SheetTitle>
             <View className="flex-row items-center gap-4">
-              <ThemedIcon name="calendar" size={22} />
-              <SheetTitle>{capitalize(formatRelative(from, now))}</SheetTitle>
-            </View>
-            <View className="flex-row items-center gap-4">
-              <ThemedIcon component={FontAwesome6} name="clock" size={18} />
+              <ThemedIcon component={FontAwesome6} name="clock" />
               <Text variant="title3">
                 {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
               </Text>
