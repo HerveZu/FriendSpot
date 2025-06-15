@@ -157,7 +157,11 @@ internal abstract class IntegrationTestsBase
     private Respawner _respawn;
     private WebApplicationFactory<Program> _applicationFactory;
 
-    // pg has a precision of 1 microsecond
+    /// <summary>
+    ///     Represents the minimum safe time delta used in tests to account for timing precision differences across multiple
+    ///     systems.
+    ///     Ensures that edge case validations and time-sensitive operations in tests are conducted reliably.
+    /// </summary>
     protected readonly TimeSpan MinSafeDelta = TimeSpan.FromMilliseconds(1);
 
     protected HttpClient UserClient(string userId)

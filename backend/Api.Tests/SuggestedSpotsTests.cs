@@ -46,7 +46,7 @@ internal sealed class SuggestedSpotsTests : IntegrationTestsBase
             await suggestedSpotsResponse.AssertIsSuccessful<GetSuggestedSpotsResponse>(cancellationToken);
 
         Assert.That(suggestedSpots.Suggestions, Has.Length.EqualTo(1));
-        Assert.That(suggestedSpots.Suggestions[0].From, Is.EqualTo(nowWhenRequesting));
+        Assert.That(suggestedSpots.Suggestions[0].From, Is.EqualTo(nowWhenRequesting).Within(MinSafeDelta));
     }
 
     [Test]
@@ -146,8 +146,8 @@ internal sealed class SuggestedSpotsTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(1)));
-            Assert.That(suggestedSpots.Suggestions[1].Duration, Is.EqualTo(TimeSpan.FromHours(3)));
+            Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(1)).Within(MinSafeDelta));
+            Assert.That(suggestedSpots.Suggestions[1].Duration, Is.EqualTo(TimeSpan.FromHours(3)).Within(MinSafeDelta));
         });
     }
 
@@ -186,6 +186,6 @@ internal sealed class SuggestedSpotsTests : IntegrationTestsBase
             await suggestedSpotsResponse.AssertIsSuccessful<GetSuggestedSpotsResponse>(cancellationToken);
 
         Assert.That(suggestedSpots.Suggestions, Has.Length.EqualTo(1));
-        Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(35)));
+        Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(35)).Within(MinSafeDelta));
     }
 }

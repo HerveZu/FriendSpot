@@ -233,8 +233,8 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
         Assert.That(resident1Booking.Bookings, Has.Length.EqualTo(1));
         Assert.Multiple(() =>
         {
-            Assert.That(resident1Booking.Bookings[0].From, Is.EqualTo(now.AddHours(3)));
-            Assert.That(resident1Booking.Bookings[0].To, Is.EqualTo(now.AddHours(7)));
+            Assert.That(resident1Booking.Bookings[0].From, Is.EqualTo(now.AddHours(3)).Within(MinSafeDelta));
+            Assert.That(resident1Booking.Bookings[0].To, Is.EqualTo(now.AddHours(7)).Within(MinSafeDelta));
             Assert.That(resident1Booking.Bookings[0].Owner.UserId, Is.EqualTo(Seed.Users.Resident2));
         });
     }
@@ -397,8 +397,8 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
         Assert.That(myBookingRequests.Requests, Has.Length.EqualTo(1));
         Assert.Multiple(() =>
         {
-            Assert.That(myBookingRequests.Requests[0].From, Is.EqualTo(now.AddHours(1)));
-            Assert.That(myBookingRequests.Requests[0].To, Is.EqualTo(now.AddHours(2)));
+            Assert.That(myBookingRequests.Requests[0].From, Is.EqualTo(now.AddHours(1)).Within(MinSafeDelta));
+            Assert.That(myBookingRequests.Requests[0].To, Is.EqualTo(now.AddHours(2)).Within(MinSafeDelta));
             Assert.That(myBookingRequests.Requests[0].Bonus, Is.EqualTo(50));
         });
     }
@@ -461,8 +461,8 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
         Assert.That(myBookingRequests.Requests, Has.Length.EqualTo(1));
         Assert.Multiple(() =>
         {
-            Assert.That(myBookingRequests.Requests[0].From, Is.EqualTo(now.AddHours(1)));
-            Assert.That(myBookingRequests.Requests[0].To, Is.EqualTo(now.AddHours(2)));
+            Assert.That(myBookingRequests.Requests[0].From, Is.EqualTo(now.AddHours(1)).Within(MinSafeDelta));
+            Assert.That(myBookingRequests.Requests[0].To, Is.EqualTo(now.AddHours(2)).Within(MinSafeDelta));
             Assert.That(myBookingRequests.Requests[0].Bonus, Is.EqualTo(50));
             Assert.That(myBookingRequests.Requests[0].Requester.UserId, Is.EqualTo(Seed.Users.Resident1));
         });
