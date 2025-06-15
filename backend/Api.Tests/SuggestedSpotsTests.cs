@@ -9,6 +9,86 @@ internal sealed class SuggestedSpotsTests : IntegrationTestsBase
 {
     [Test]
     [CancelAfter(10_000)]
+    public async Task GetSuggestedSpots_ShouldTrimStartOfSpotAvailabilities_WhenOverlappingBeforeLookupWindow(
+        CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
+
+        var now = DateTimeOffset.Now;
+
+        await (await resident1.PostAsync(
+                "/spots/availabilities",
+                JsonContent.Create(
+                    new MakeMySpotAvailableRequest
+                    {
+                        From = now.AddSeconds(1),
+                        To = now.AddHours(36)
+                    }),
+                cancellationToken))
+            .AssertIsSuccessful(cancellationToken);
+
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+
+        var nowWhenRequesting = DateTimeOffset.Now;
+
+        var suggestedSpotsResponse = await resident2.GetAsync(
+            QueryHelpers.AddQueryString(
+                "/spots/suggested",
+                new Dictionary<string, string?>
+                {
+                    { "from", nowWhenRequesting.ToString("O") },
+                    { "to", nowWhenRequesting.AddDays(1).ToString("O") }
+                }),
+            cancellationToken);
+
+        var suggestedSpots =
+            await suggestedSpotsResponse.AssertIsSuccessful<GetSuggestedSpotsResponse>(cancellationToken);
+
+        Assert.That(suggestedSpots.Suggestions, Has.Length.EqualTo(1));
+        Assert.That(suggestedSpots.Suggestions[0].From, Is.EqualTo(nowWhenRequesting));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task GetSuggestedSpots_ShouldReturnSpot_WhenInOrOverlappingAfterLookupWindow(
+        CancellationToken cancellationToken)
+    {
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
+
+        var now = DateTimeOffset.Now;
+
+        await (await resident1.PostAsync(
+                "/spots/availabilities",
+                JsonContent.Create(
+                    new MakeMySpotAvailableRequest
+                    {
+                        From = now.AddHours(1),
+                        To = now.AddHours(36)
+                    }),
+                cancellationToken))
+            .AssertIsSuccessful(cancellationToken);
+
+        var suggestedSpotsResponse = await resident2.GetAsync(
+            QueryHelpers.AddQueryString(
+                "/spots/suggested",
+                new Dictionary<string, string?>
+                {
+                    { "from", DateTimeOffset.Now.ToString("O") },
+                    { "to", DateTimeOffset.Now.AddDays(1).ToString("O") }
+                }),
+            cancellationToken);
+
+        var suggestedSpots =
+            await suggestedSpotsResponse.AssertIsSuccessful<GetSuggestedSpotsResponse>(cancellationToken);
+
+        Assert.That(suggestedSpots.Suggestions, Has.Length.EqualTo(1));
+        Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(35)));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
     public async Task GetSuggestedSpots_ShouldReturnAllAvailableSpots_WhenDurationIsMoreThanAnHour(
         CancellationToken cancellationToken)
     {
@@ -64,12 +144,11 @@ internal sealed class SuggestedSpotsTests : IntegrationTestsBase
 
         Assert.That(suggestedSpots.Suggestions, Has.Length.EqualTo(2));
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(1)));
-                Assert.That(suggestedSpots.Suggestions[1].Duration, Is.EqualTo(TimeSpan.FromHours(3)));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(suggestedSpots.Suggestions[0].Duration, Is.EqualTo(TimeSpan.FromHours(1)));
+            Assert.That(suggestedSpots.Suggestions[1].Duration, Is.EqualTo(TimeSpan.FromHours(3)));
+        });
     }
 
     [Test]
