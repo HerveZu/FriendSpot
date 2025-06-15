@@ -16,7 +16,6 @@ internal sealed class ReturnBusinessErrors : IGlobalPostProcessor
 
         if (!context.ExceptionDispatchInfo.SourceException.GetType().IsAssignableTo(typeof(BusinessException)))
         {
-            context.ExceptionDispatchInfo.Throw();
             return;
         }
 
