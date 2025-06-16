@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using Api.Common.Infrastructure;
 using Api.Common.Options;
 using Domain.Users;
 using Microsoft.AspNetCore.Authentication;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -74,8 +76,11 @@ internal abstract class IntegrationTestsBase
                         .Build());
             });
 
-        // runs the app to trigger migrations
-        using var _ = _applicationFactory.CreateClient();
+        await using (var scope = _applicationFactory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.MigrateAsync();
+        }
 
         await using var conn = new NpgsqlConnection(GetConnectionString());
         await conn.OpenAsync();
