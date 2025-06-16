@@ -17,7 +17,7 @@ internal sealed class CancelBooking(AppDbContext dbContext) : Endpoint<CancelBoo
 {
     public override void Configure()
     {
-        Post("/spots/booking/cancel");
+        Delete("/spots/{ParkingLotId:guid}/booking/{BookingId:guid}/cancel");
     }
 
     public override async Task HandleAsync(CancelBookingRequest req, CancellationToken ct)

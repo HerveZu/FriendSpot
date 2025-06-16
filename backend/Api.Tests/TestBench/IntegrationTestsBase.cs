@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using Api.Common.Infrastructure;
 using Api.Common.Options;
 using Domain.Users;
 using Microsoft.AspNetCore.Authentication;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -18,7 +20,7 @@ using Testcontainers.PostgreSql;
 namespace Api.Tests.TestBench;
 
 [TestFixture]
-[Parallelizable(ParallelScope.Fixtures)]
+[Parallelizable(ParallelScope.None)]
 internal abstract class IntegrationTestsBase
 {
     [OneTimeSetUp]
@@ -43,45 +45,48 @@ internal abstract class IntegrationTestsBase
         };
 
         _applicationFactory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(
-                builder =>
+            .WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
                 {
-                    builder.ConfigureTestServices(
-                        services =>
-                        {
-                            services.AddSingleton(NotificationPushService);
-                            services.AddSingleton(JobListener);
-                            services.Decorate<ISchedulerFactory, SchedulerFactoryProxy>();
-                        });
-
-                    builder.ConfigureServices(
-                        services =>
-                        {
-                            services
-                                .AddAuthentication(TestAuthHandler.TestScheme)
-                                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                                    TestAuthHandler.TestScheme,
-                                    _ => { });
-                            services
-                                .AddAuthorizationBuilder()
-                                .SetDefaultPolicy(
-                                    new AuthorizationPolicyBuilder()
-                                        .AddAuthenticationSchemes(TestAuthHandler.TestScheme)
-                                        .RequireAuthenticatedUser()
-                                        .Build());
-                        });
-                    builder.UseConfiguration(
-                        new ConfigurationBuilder()
-                            .AddInMemoryCollection(inMemorySettings)
-                            .Build());
+                    services.AddSingleton(NotificationPushService);
+                    services.AddQuartz(x => { x.InterruptJobsOnShutdown = true; });
+                    services.AddSingleton<ITestJobListener[]>([JobListener]);
+                    services.Decorate<ISchedulerFactory, CustomListenersSchedulerFactory>();
                 });
 
-        // runs the app to trigger migrations
-        using var _ = _applicationFactory.CreateClient();
+                builder.ConfigureServices(services =>
+                {
+                    services
+                        .AddAuthentication(TestAuthHandler.TestScheme)
+                        .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                            TestAuthHandler.TestScheme,
+                            _ => { });
+                    services
+                        .AddAuthorizationBuilder()
+                        .SetDefaultPolicy(
+                            new AuthorizationPolicyBuilder()
+                                .AddAuthenticationSchemes(TestAuthHandler.TestScheme)
+                                .RequireAuthenticatedUser()
+                                .Build());
+                });
+                builder.UseConfiguration(
+                    new ConfigurationBuilder()
+                        .AddInMemoryCollection(inMemorySettings)
+                        .Build());
+            });
+
+        await using (var scope = _applicationFactory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.MigrateAsync();
+        }
 
         await using var conn = new NpgsqlConnection(GetConnectionString());
         await conn.OpenAsync();
-        _respawn = await Respawner.CreateAsync(conn, new RespawnerOptions { DbAdapter = DbAdapter.Postgres });
+        _respawn = await Respawner.CreateAsync(
+            conn,
+            new RespawnerOptions { DbAdapter = DbAdapter.Postgres, SchemasToInclude = ["public"] });
     }
 
     [SetUp]
@@ -137,11 +142,10 @@ internal abstract class IntegrationTestsBase
     [TearDown]
     public async Task TearDown()
     {
-        JobListener.Reset();
+        var schedulerFactory =
+            (CustomListenersSchedulerFactory)_applicationFactory.Services.GetRequiredService<ISchedulerFactory>();
+        await schedulerFactory.Reset();
         NotificationPushService.ClearSubstitute();
-
-        // this is a dirty workaround that prevents deadlocks
-        await Task.Delay(100);
     }
 
     [OneTimeTearDown]
@@ -152,11 +156,18 @@ internal abstract class IntegrationTestsBase
     }
 
     protected readonly INotificationPushService NotificationPushService = Substitute.For<INotificationPushService>();
-    protected QuartzJobTrackListener JobListener { get; } = new();
+    protected QuartzJobListener JobListener { get; } = new();
 
     protected PostgreSqlContainer PgContainer { get; private set; }
-    private Respawner _respawn = null!;
-    private WebApplicationFactory<Program> _applicationFactory = null!;
+    private Respawner _respawn;
+    private WebApplicationFactory<Program> _applicationFactory;
+
+    /// <summary>
+    ///     Represents the minimum safe time delta used in tests to account for timing precision differences across multiple
+    ///     systems.
+    ///     Ensures that edge case validations and time-sensitive operations in tests are conducted reliably.
+    /// </summary>
+    protected readonly TimeSpan MinSafeDelta = TimeSpan.FromMilliseconds(1);
 
     protected HttpClient UserClient(string userId)
     {

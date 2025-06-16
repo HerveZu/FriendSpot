@@ -1,4 +1,3 @@
-using Api.Bookings.Common;
 using Api.Common;
 using Api.Common.Infrastructure;
 using Domain.ParkingSpots;
@@ -15,12 +14,12 @@ internal sealed class ScheduleMarkComplete(ISchedulerFactory schedulerFactory)
 
         await scheduler.ScheduleJob(
             JobBuilder.Create<MarkBookingComplete>()
-                .WithIdentity(BookingJobsKeys.MarkComplete(notification.BookingId))
+                .WithIdentity(new JobKey("mark-booking-complete", notification.BookingId.ToString()))
                 .UsingJobData(MarkBookingComplete.SpotId, notification.SpotId)
                 .UsingJobData(MarkBookingComplete.BookingId, notification.BookingId)
                 .Build(),
             TriggerBuilder.Create()
-                .StartAt(notification.BookedUntil)
+                .StartAtOrNow(notification.Date.To)
                 .Build(),
             cancellationToken);
     }
@@ -50,6 +49,6 @@ internal sealed class MarkBookingComplete(ILogger<MarkBookingComplete> logger, A
         spot.MarkBookingComplete(bookingId);
 
         dbContext.Set<ParkingSpot>().Update(spot);
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(context.CancellationToken);
     }
 }

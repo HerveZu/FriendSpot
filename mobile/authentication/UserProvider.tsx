@@ -37,7 +37,7 @@ export function useCurrentUser() {
 export function UserProvider(props: PropsWithChildren) {
   const { firebaseUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>();
-  const [refreshTrigger, setRefreshTrigger] = useState({});
+  const [refreshTrigger, setRefreshTrigger] = useState(new Date());
   const registerUser = useRegisterUser();
   const getProfile = useGetProfile();
   const stateTrigger = useListenOnAppStateChange('background');
@@ -82,7 +82,7 @@ export function UserProvider(props: PropsWithChildren) {
               id: deviceId,
               expoPushToken: expoPushToken,
               uniquenessNotGuaranteed: uniquenessNotGuaranteed,
-              locale: deviceLocale.languageTag
+              locale: deviceLocale.languageTag,
             },
           });
           return;
@@ -118,7 +118,7 @@ export function UserProvider(props: PropsWithChildren) {
   const refreshProfile = useCallback(async () => {
     await getProfile()
       .then(setUserProfile)
-      .then(() => setRefreshTrigger({}));
+      .then(() => setRefreshTrigger(new Date()));
   }, [getProfile, setUserProfile]);
 
   useEffect(() => {

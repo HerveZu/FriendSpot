@@ -23,7 +23,7 @@ public sealed class ParkingSpotAvailability
         if (from >= to)
         {
             throw new BusinessException(
-                "ParkingSpot.InvalidAvailabilities",
+                "ParkingSpotAvailability.Invalid",
                 "Availability end date should be after its start date.");
         }
 
@@ -35,7 +35,7 @@ public sealed class ParkingSpotAvailability
         if (from < DateTimeOffset.UtcNow)
         {
             throw new BusinessException(
-                "ParkingSpot.InvalidAvailabilities",
+                "ParkingSpotAvailability.Invalid",
                 "Availability date should be in the future.");
         }
 
@@ -47,7 +47,7 @@ public sealed class ParkingSpotAvailability
         if (!existing.DateRange.Overlaps(@new.DateRange))
         {
             throw new BusinessException(
-                "ParkingSpot.InvalidAvailabilities",
+                "ParkingSpotAvailability.Invalid",
                 "Cannot merge non overlapping availabilities.");
         }
 

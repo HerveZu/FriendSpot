@@ -10,7 +10,7 @@ export function BackButton(props: ButtonProps) {
 
   return (
     <Button onPress={() => router.back()} variant="plain" {...props}>
-      <ThemedIcon component={FontAwesome6} name="chevron-left" size={18} />
+      <ThemedIcon component={FontAwesome6} name="chevron-left" />
     </Button>
   );
 }

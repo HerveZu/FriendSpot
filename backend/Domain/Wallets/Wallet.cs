@@ -52,7 +52,10 @@ public sealed class Wallet
 
     public void Cancel(string reference)
     {
-        var transaction = _transactions.Single(transaction => transaction.Reference == reference);
+        var transaction = _transactions.SingleOrDefault(transaction => transaction.Reference == reference)
+                          ?? throw new BusinessException(
+                              "Wallet.CannotCancel",
+                              $"This transaction '{reference}' does not exist.");
         _transactions.Remove(transaction);
     }
 
@@ -68,7 +71,10 @@ public sealed class Wallet
 
     public void ConfirmPending(string reference)
     {
-        var transaction = _transactions.Single(transaction => transaction.Reference == reference);
+        var transaction = _transactions.SingleOrDefault(transaction => transaction.Reference == reference)
+                          ?? throw new BusinessException(
+                              "Wallet.CannotConfirmPending",
+                              $"This transaction '{reference}' does not exist.");
 
         if (transaction.State is not TransactionState.Pending)
         {

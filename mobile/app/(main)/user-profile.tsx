@@ -120,7 +120,7 @@ export default function UserProfileScreen() {
           <TextInput
             icon={{
               position: 'right',
-              element: <ThemedIcon size={18} name={'pencil'} />,
+              element: <ThemedIcon name={'pencil'} />,
             }}
             maxLength={30}
             value={currentDisplayName}
@@ -145,10 +145,10 @@ export default function UserProfileScreen() {
                         })
                       : t('user.profile.noParkingDefined')}
                   </Text>
-                  <ThemedIcon name={'pencil'} size={18} />
+                  <ThemedIcon name={'pencil'} />
                 </View>
                 <View className="w-full max-w-full flex-row items-center gap-4 break-words">
-                  <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
+                  <ThemedIcon name={'location-dot'} component={FontAwesome6} />
                   <Text className="text-md w-10/12">
                     {userProfile.spot
                       ? userProfile.spot?.parking.address
@@ -178,7 +178,6 @@ export default function UserProfileScreen() {
               <ThemedIcon
                 name={'lightbulb-on-outline'}
                 component={MaterialCommunityIcons}
-                size={18}
                 color={colors.primary}
               />
               <Text>{t('user.profile.sendFeedback')}</Text>
@@ -193,22 +192,12 @@ export default function UserProfileScreen() {
           onPress={() => setConfirmLogout(true)}
           size={'lg'}
           className={'bg-destructive/15'}>
-          <ThemedIcon
-            name={'logout'}
-            component={MaterialIcons}
-            size={18}
-            color={colors.destructive}
-          />
+          <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
           <Text className={'text-destructive'}>{t('common.logout')}</Text>
         </Button>
 
         <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
-          <ThemedIcon
-            name={'no-accounts'}
-            component={MaterialIcons}
-            size={18}
-            color={colors.destructive}
-          />
+          <ThemedIcon name={'no-accounts'} component={MaterialIcons} color={colors.destructive} />
           <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
         </Button>
 
@@ -274,7 +263,7 @@ export function AccountDeletionConfirmationModal({
       <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20'}>
         <ModalTitle
           text={t('user.profile.deleteAccountTitle')}
-          icon={<ThemedIcon name={'warning'} size={18} />}
+          icon={<ThemedIcon name={'warning'} />}
         />
 
         <View className={'mt-4 flex-col gap-8'}>
@@ -315,7 +304,6 @@ export function AccountDeletionConfirmationModal({
               <ThemedIcon
                 name={'no-accounts'}
                 component={MaterialIcons}
-                size={18}
                 color={colors.destructive}
               />
             )}
@@ -356,10 +344,7 @@ export function LogoutConfirmationModal({
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
-        <ModalTitle
-          text={t('account.logoutConfirmation')}
-          icon={<ThemedIcon name={'warning'} size={18} />}
-        />
+        <ModalTitle text={t('account.logoutConfirmation')} icon={<ThemedIcon name={'warning'} />} />
         <View className="mt-4 w-full flex-row justify-between gap-4">
           <Button
             className={'grow'}
@@ -372,12 +357,7 @@ export function LogoutConfirmationModal({
             {loggingOut ? (
               <ActivityIndicator color={colors.destructive} />
             ) : (
-              <ThemedIcon
-                name={'logout'}
-                component={MaterialIcons}
-                size={18}
-                color={colors.destructive}
-              />
+              <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
             )}
             <Text className={'text-destructive'}>{t('common.logout')}</Text>
           </Button>
@@ -493,7 +473,7 @@ function DefineSpotSheet(props: {
           <TextInput
             icon={{
               position: 'left',
-              element: <ThemedIcon size={18} name={'search'} />,
+              element: <ThemedIcon name={'search'} />,
             }}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
@@ -544,7 +524,7 @@ function DefineSpotSheet(props: {
                 className={'w-40'}
                 icon={{
                   position: 'right',
-                  element: <ThemedIcon size={18} name={'pencil'} />,
+                  element: <ThemedIcon name={'pencil'} />,
                 }}
                 value={currentSpotName}
                 editable={true}
@@ -597,7 +577,7 @@ function ParkingCard(props: {
                   e.stopPropagation();
                   props.onEdit();
                 }}>
-                <ThemedIcon name={'pencil'} size={18} color={colors.foreground} />
+                <ThemedIcon name={'pencil'} color={colors.foreground} />
               </Button>
             )}
           </View>
@@ -612,10 +592,10 @@ function ParkingCard(props: {
         </View>
         <View className="flex-row items-center justify-between gap-4">
           <View className={'w-4/5 flex-row items-center gap-4'}>
-            <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />
+            <ThemedIcon name={'location-dot'} component={FontAwesome6} />
             <Text className="shrink text-sm">{props.parking.address}</Text>
           </View>
-          {props.isSelected && <ThemedIcon name={'check'} size={18} color={colors.primary} />}
+          {props.isSelected && <ThemedIcon name={'check'} color={colors.primary} />}
         </View>
       </Card>
     </Pressable>
@@ -707,7 +687,7 @@ function ParkingModal(props: {
           placeholder={t('user.parking.parkingAddress')}
           maxLength={100}
           icon={{
-            element: <ThemedIcon name={'location-dot'} component={FontAwesome6} size={18} />,
+            element: <ThemedIcon name={'location-dot'} component={FontAwesome6} />,
             position: 'left',
           }}
         />
@@ -727,7 +707,7 @@ function ParkingModal(props: {
               onChangeText={setConfirmedParkingName}
               icon={{
                 position: 'right',
-                element: <ThemedIcon name={'trash'} color={colors.destructive} size={18} />,
+                element: <ThemedIcon name={'trash'} color={colors.destructive} />,
               }}
             />
           )}

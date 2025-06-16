@@ -9,8 +9,7 @@ public sealed record ParkingSpotBooked : IDomainEvent
     public required Guid SpotId { get; init; }
     public required Guid BookingId { get; init; }
     public required Credits Cost { get; init; }
-    public required DateTimeOffset BookedAt { get; init; }
-    public required DateTimeOffset BookedUntil { get; init; }
+    public required DateTimeOffsetRange Date { get; init; }
     public required string OwnerId { get; init; }
     public required string UserId { get; init; }
 }
@@ -36,18 +35,38 @@ public sealed record ParkingSpotBookingCompleted : IDomainEvent
     public required string OwnerId { get; init; }
 }
 
-public sealed class ParkingSpot : IBroadcastEvents
+public sealed class ParkingSpot : IAggregateRoot
 {
     private readonly List<ParkingSpotAvailability> _availabilities = [];
     private readonly List<ParkingSpotBooking> _bookings = [];
     private readonly DomainEvents _domainEvents = new();
 
-    private ParkingSpot(Guid id, string ownerId, Guid parkingId, SpotName spotName)
+    private ParkingSpot(
+        Guid id,
+        string ownerId,
+        Guid parkingId,
+        SpotName spotName)
     {
         Id = id;
         OwnerId = ownerId;
         ParkingId = parkingId;
         SpotName = spotName;
+    }
+
+    private ParkingSpot(
+        Guid id,
+        string ownerId,
+        Guid parkingId,
+        SpotName spotName,
+        List<ParkingSpotBooking>? bookings = null,
+        List<ParkingSpotAvailability>? availabilities = null)
+    {
+        Id = id;
+        OwnerId = ownerId;
+        ParkingId = parkingId;
+        SpotName = spotName;
+        _bookings = bookings ?? [];
+        _availabilities = availabilities ?? [];
     }
 
     public Guid Id { get; init; }
@@ -77,7 +96,8 @@ public sealed class ParkingSpot : IBroadcastEvents
     public (ParkingSpotBooking Booking, Credits cost) Book(
         string bookingUserId,
         DateTimeOffset from,
-        TimeSpan duration)
+        TimeSpan duration,
+        Credits? bonus = null)
     {
         if (Disabled)
         {
@@ -87,16 +107,6 @@ public sealed class ParkingSpot : IBroadcastEvents
         if (bookingUserId == OwnerId)
         {
             throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book your own spot.");
-        }
-
-        if (from < DateTimeOffset.UtcNow)
-        {
-            throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book spot in the past.");
-        }
-
-        if (duration <= TimeSpan.Zero)
-        {
-            throw new BusinessException("ParkingSpot.InvalidBooking", "Booking duration must be positive.");
         }
 
         var until = from + duration;
@@ -134,16 +144,15 @@ public sealed class ParkingSpot : IBroadcastEvents
         _bookings.Add(newBooking);
 
         var alreadyBookedCost = new Credits(overlappingBookings.Sum(booking => booking.Cost));
-        var cost = newBooking.Cost - alreadyBookedCost;
+        var cost = newBooking.Cost - alreadyBookedCost + (bonus ?? new Credits(0));
 
-        _domainEvents.Register(
+        _domainEvents.RegisterNext(
             new ParkingSpotBooked
             {
                 SpotId = Id,
                 BookingId = newBooking.Id,
                 Cost = cost,
-                BookedAt = newBooking.From,
-                BookedUntil = newBooking.To,
+                Date = newBooking.DateRange,
                 UserId = newBooking.BookingUserId,
                 OwnerId = OwnerId
             });
@@ -202,7 +211,7 @@ public sealed class ParkingSpot : IBroadcastEvents
 
         booking.Rate(rating);
 
-        _domainEvents.Register(
+        _domainEvents.RegisterNext(
             new ParkingSpotBookingRated
             {
                 OwnerId = OwnerId,
@@ -265,7 +274,7 @@ public sealed class ParkingSpot : IBroadcastEvents
         }
 
         _bookings.Remove(booking);
-        _domainEvents.Register(
+        _domainEvents.RegisterNext(
             new ParkingSpotBookingCancelled
             {
                 CancellingUserId = cancelingUserId,
@@ -285,7 +294,7 @@ public sealed class ParkingSpot : IBroadcastEvents
         foreach (var booking in activeBookings)
         {
             _bookings.Remove(booking);
-            _domainEvents.Register(
+            _domainEvents.RegisterNext(
                 new ParkingSpotBookingCancelled
                 {
                     CancellingUserId = OwnerId,
@@ -306,7 +315,7 @@ public sealed class ParkingSpot : IBroadcastEvents
             throw new BusinessException("ParkingSpot.BookingNotFound", "Booking not found");
         }
 
-        _domainEvents.Register(
+        _domainEvents.RegisterNext(
             new ParkingSpotBookingCompleted
             {
                 BookingId = booking.Id,

@@ -78,22 +78,21 @@ internal sealed class GetSuggestedSpots(AppDbContext dbContext)
                 join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity
                 select parkingLot.Availabilities
                     .Where(availability => req.From <= availability.To && availability.From <= req.To)
-                    .Select(
-                        availability => new
+                    .Select(availability => new
+                    {
+                        Owner = new GetSuggestedSpotsResponse.SpotSuggestion.SpotOwner
                         {
-                            Owner = new GetSuggestedSpotsResponse.SpotSuggestion.SpotOwner
-                            {
-                                DisplayName = owner.DisplayName,
-                                PictureUrl = owner.PictureUrl,
-                                Rating = owner.Rating.Rating
-                            },
-                            OrderedBookings = parkingLot.Bookings
-                                .Where(booking => booking.From <= availability.To && availability.From <= booking.To)
-                                .OrderBy(booking => booking.From)
-                                .ToArray(),
-                            ParkingLotId = parkingLot.Id,
-                            Availability = availability
-                        }))
+                            DisplayName = owner.DisplayName,
+                            PictureUrl = owner.PictureUrl,
+                            Rating = owner.Rating.Rating
+                        },
+                        OrderedBookings = parkingLot.Bookings
+                            .Where(booking => booking.From <= availability.To && availability.From <= booking.To)
+                            .OrderBy(booking => booking.From)
+                            .ToArray(),
+                        ParkingLotId = parkingLot.Id,
+                        Availability = availability
+                    }))
             .SelectMany(availabilities => availabilities)
             .AsNoTracking()
             .ToArrayAsync(ct);
@@ -101,16 +100,14 @@ internal sealed class GetSuggestedSpots(AppDbContext dbContext)
         var interestingSuggestionMinDuration = TimeSpan.FromHours(1);
 
         var suggestions = availabilities
-            .SelectMany(
-                x => x.Availability.SplitNonOverlapping(x.OrderedBookings)
-                    .Select(
-                        slice => new GetSuggestedSpotsResponse.SpotSuggestion
-                        {
-                            From = slice.From,
-                            To = slice.To,
-                            Owner = x.Owner,
-                            ParkingLotId = x.ParkingLotId
-                        }))
+            .SelectMany(x => x.Availability.SplitNonOverlapping(x.OrderedBookings)
+                .Select(slice => new GetSuggestedSpotsResponse.SpotSuggestion
+                {
+                    From = slice.From > req.From ? slice.From : req.From,
+                    To = slice.To,
+                    Owner = x.Owner,
+                    ParkingLotId = x.ParkingLotId
+                }))
             .Where(suggestion => suggestion.To >= req.From && suggestion.From <= req.To)
             .Where(suggestion => suggestion.Duration >= interestingSuggestionMinDuration)
             .OrderByDescending(suggestion => suggestion.Owner.Rating)
