@@ -20,7 +20,7 @@ using Testcontainers.PostgreSql;
 namespace Api.Tests.TestBench;
 
 [TestFixture]
-[Parallelizable(ParallelScope.Fixtures)]
+[Parallelizable(ParallelScope.None)]
 internal abstract class IntegrationTestsBase
 {
     [OneTimeSetUp]
