@@ -3,9 +3,8 @@ import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'expo-localization';
 import enTrad from './locales/en.json';
 import frTrad from './locales/fr.json';
-import ukTrad from './locales/uk.json';
 import { setDefaultOptions } from 'date-fns';
-import { enGB, enUS, fr, Locale, uk } from 'date-fns/locale';
+import { enGB, enUS, fr, Locale } from 'date-fns/locale';
 
 const resources = {
   en: {
@@ -13,9 +12,6 @@ const resources = {
   },
   fr: {
     translation: frTrad,
-  },
-  uk: {
-    translation: ukTrad,
   },
 };
 
@@ -35,7 +31,6 @@ const dateFnsLocales: Record<string, Locale> = {
   'en-US': enUS,
   'en-GB': enGB,
   fr: fr,
-  uk: uk,
 };
 
 export function getDateFnsLocale() {
