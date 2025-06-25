@@ -40,6 +40,6 @@
       <value>Your reservation is ending soon</value>
     </data>
     <data name="PushNotification.Reminders.UsersBookingEnds.Body" xml:space="preserve">
-      <value>Your reservation ends on {0}. Please wrap up if needed.</value>
+      <value>You're reaching the end of your reservation. Please vacate before {0}.</value>
     </data>
 </root>

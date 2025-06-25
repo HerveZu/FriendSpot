@@ -40,6 +40,6 @@
       <value>Votre réservation se termine bientôt</value>
     </data>
     <data name="PushNotification.Reminders.UsersBookingEnds.Body" xml:space="preserve">
-      <value>Votre réservation se termine le {0}. Pensez à conclure.</value>
+      <value>Vous arrivez à bout de votre réservation. Libérez la place avant le {0}.</value>
     </data>
 </root>
