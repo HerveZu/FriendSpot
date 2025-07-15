@@ -1,4 +1,3 @@
-import React from 'react';
 import { Star, Quote } from 'lucide-react';
 
 const testimonials = [
@@ -31,7 +30,7 @@ export function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Ils nous font 
+            Ils nous font
             <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"> confiance</span>
           </h2>
           <p className="text-xl text-gray-600">
@@ -41,7 +40,7 @@ export function Testimonials() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <div 
+            <div
               key={index}
               className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
@@ -50,14 +49,14 @@ export function Testimonials() {
                   <Star key={i} size={16} className="text-yellow-400 fill-current" />
                 ))}
               </div>
-              
+
               <Quote size={24} className="text-blue-500 mb-4" />
-              
+
               <p className="text-gray-700 mb-6 italic">"{testimonial.content}"</p>
-              
+
               <div className="flex items-center">
-                <img 
-                  src={testimonial.image} 
+                <img
+                  src={testimonial.image}
                   alt={testimonial.name}
                   className="w-12 h-12 rounded-full object-cover mr-4"
                 />
@@ -74,9 +73,9 @@ export function Testimonials() {
           <div className="inline-flex items-center space-x-4 bg-white/60 backdrop-blur-sm px-6 py-3 rounded-full border border-gray-200">
             <div className="flex -space-x-2">
               {testimonials.map((testimonial, index) => (
-                <img 
+                <img
                   key={index}
-                  src={testimonial.image} 
+                  src={testimonial.image}
                   alt=""
                   className="w-8 h-8 rounded-full border-2 border-white object-cover"
                 />

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowRight, MapPin } from 'lucide-react';
 
 export function Hero() {

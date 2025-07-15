@@ -1,4 +1,3 @@
-import React from 'react';
 import { Car, Mail, MapPin, ArrowRight } from 'lucide-react';
 
 export function Footer() {
@@ -14,7 +13,7 @@ export function Footer() {
             Rejoignez les quartiers pilotes et découvrez une nouvelle façon de partager entre voisins
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a 
+            <a
               href="mailto:friendspot.app@gmail.com"
               className="group bg-white text-[#046eda] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center space-x-2"
             >
@@ -40,7 +39,7 @@ export function Footer() {
                 <span className="ml-3 text-2xl font-bold">FriendSpot</span>
               </div>
               <p className="text-gray-400 dark:text-gray-500 mb-6 max-w-md">
-                La première application mobile qui révolutionne le stationnement résidentiel 
+                La première application mobile qui révolutionne le stationnement résidentiel
                 en permettant aux voisins de s'échanger leurs places de parking de manière équitable.
               </p>
               <div className="space-y-2">

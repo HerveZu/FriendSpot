@@ -1,4 +1,3 @@
-import React from 'react';
 import { Leaf, Heart, Zap, Shield, Smartphone, TrendingUp } from 'lucide-react';
 
 const benefits = [
@@ -46,7 +45,7 @@ export function Benefits() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Pourquoi choisir 
+            Pourquoi choisir
             <span className="bg-gradient-to-r from-[#046eda] to-[#7288d8] bg-clip-text text-transparent"> FriendSpot ?</span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
@@ -56,7 +55,7 @@ export function Benefits() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => (
-            <div 
+            <div
               key={index}
               className="group p-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-[#046eda]/20 dark:hover:border-[#7288d8]/30 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
@@ -75,7 +74,7 @@ export function Benefits() {
               Première application de ce type en France
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              FriendSpot est pionnier dans le partage de places de parking entre voisins. 
+              FriendSpot est pionnier dans le partage de places de parking entre voisins.
               Rejoignez l'innovation et simplifiez le stationnement dans votre résidence.
             </p>
             <button className="bg-gradient-to-r from-[#046eda] to-[#7288d8] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#035bb8] hover:to-[#6177c4] transition-all duration-300 transform hover:scale-105 shadow-lg">

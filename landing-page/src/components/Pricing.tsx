@@ -1,4 +1,3 @@
-import React from 'react';
 import { Check, ArrowRight, Zap } from 'lucide-react';
 
 const plans = [
@@ -56,13 +55,13 @@ export function Pricing() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Tarifs 
+            Tarifs
             <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"> transparents</span>
           </h2>
           <p className="text-xl text-gray-600 mb-8">
             Choisissez le plan qui correspond à vos besoins
           </p>
-          
+
           <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
             <Zap size={16} className="mr-2" />
             Économisez 20% avec l'abonnement annuel
@@ -71,7 +70,7 @@ export function Pricing() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <div 
+            <div
               key={index}
               className={`relative p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
                 plan.popular 
@@ -86,7 +85,7 @@ export function Pricing() {
                   </div>
                 </div>
               )}
-              
+
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                 <p className="text-gray-600 mb-4">{plan.description}</p>
@@ -105,7 +104,7 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <button 
+              <button
                 className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
                   plan.popular
                     ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
@@ -121,7 +120,7 @@ export function Pricing() {
 
         <div className="text-center mt-12">
           <p className="text-gray-600 mb-4">
-            Besoin d'une solution sur mesure ? 
+            Besoin d'une solution sur mesure ?
           </p>
           <button className="text-blue-600 hover:text-blue-700 font-semibold">
             Parlons de vos besoins →

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Building, Users, Home, MapPin } from 'lucide-react';
 
 const audiences = [
@@ -34,7 +33,7 @@ export function TargetAudience() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Pour 
+            Pour
             <span className="bg-gradient-to-r from-[#046eda] to-[#7288d8] bg-clip-text text-transparent"> qui ?</span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
@@ -44,7 +43,7 @@ export function TargetAudience() {
 
         <div className="grid md:grid-cols-2 gap-8">
           {audiences.map((audience, index) => (
-            <div 
+            <div
               key={index}
               className="group p-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-[#046eda]/20 dark:hover:border-[#7288d8]/30 hover:shadow-xl transition-all duration-300"
             >
@@ -75,7 +74,7 @@ export function TargetAudience() {
               Votre profil ne correspond pas exactement ?
             </h3>
             <p className="text-blue-100 dark:text-blue-200 mb-6 max-w-2xl mx-auto">
-              Contactez-nous pour discuter de votre situation spécifique. 
+              Contactez-nous pour discuter de votre situation spécifique.
               Nous adaptons FriendSpot à vos besoins particuliers.
             </p>
             <button className="bg-white text-[#046eda] px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">

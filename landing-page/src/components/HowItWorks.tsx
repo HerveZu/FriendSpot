@@ -1,4 +1,3 @@
-import React from 'react';
 import { Car, Users, CreditCard, CheckCircle } from 'lucide-react';
 
 const steps = [
@@ -34,7 +33,7 @@ export function HowItWorks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Comment ça 
+            Comment ça
             <span className="bg-gradient-to-r from-[#046eda] to-[#7288d8] bg-clip-text text-transparent"> marche ?</span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
@@ -44,7 +43,7 @@ export function HowItWorks() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => (
-            <div 
+            <div
               key={index}
               className="group text-center"
             >
@@ -97,7 +96,7 @@ export function HowItWorks() {
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-              Un système d'entraide où chacun contribue selon ses possibilités et bénéficie selon ses besoins. 
+              Un système d'entraide où chacun contribue selon ses possibilités et bénéficie selon ses besoins.
               Plus vous aidez vos voisins, plus vous avez accès aux places disponibles !
             </p>
             <button className="bg-gradient-to-r from-[#046eda] to-[#7288d8] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#035bb8] hover:to-[#6177c4] transition-all duration-300 transform hover:scale-105 shadow-lg">
