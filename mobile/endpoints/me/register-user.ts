@@ -18,17 +18,7 @@ export function useRegisterUser() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
-    (body: {
-      device: {
-        expoPushToken: string | null;
-        id: string;
-        locale: string;
-        timezone: string | null;
-        uniquenessNotGuaranteed: boolean;
-      };
-      displayName: string;
-      pictureUrl: string | null;
-    }) => apiRequest('/@me/register', 'POST', body),
+    (body: RegisterUserRequest) => apiRequest('/@me/register', 'POST', body),
     [apiRequest]
   );
 }

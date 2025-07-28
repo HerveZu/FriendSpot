@@ -83,7 +83,7 @@ export function UserProvider(props: PropsWithChildren) {
               expoPushToken: expoPushToken,
               uniquenessNotGuaranteed: uniquenessNotGuaranteed,
               locale: deviceLocale.languageTag,
-              timezone: deviceCalendar.timeZone
+              timezone: deviceCalendar.timeZone,
             },
           });
           return;
