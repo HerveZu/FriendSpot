@@ -19,16 +19,15 @@ public sealed class UserTests
         var user = User.Register(identity, displayName);
 
         // Assert
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(user.Identity, Is.EqualTo(identity));
-                Assert.That(user.DisplayName, Is.EqualTo(displayName));
-                Assert.That(user.PictureUrl, Is.Null);
-                Assert.That(user.Rating.Rating, Is.EqualTo(UserRating.Neutral().Rating));
-                Assert.That(user.IsDeleted, Is.False);
-                Assert.That(user.UserDevices, Is.Empty);
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(user.Identity, Is.EqualTo(identity));
+            Assert.That(user.DisplayName, Is.EqualTo(displayName));
+            Assert.That(user.PictureUrl, Is.Null);
+            Assert.That(user.Rating.Rating, Is.EqualTo(UserRating.Neutral().Rating));
+            Assert.That(user.IsDeleted, Is.False);
+            Assert.That(user.UserDevices, Is.Empty);
+        });
     }
 
     [Test]
@@ -52,13 +51,12 @@ public sealed class UserTests
         // Act
         user.UpdateInfo(newDisplayName, newPictureUrl);
 
-        Assert.Multiple(
-            () =>
-            {
-                // Assert
-                Assert.That(user.DisplayName, Is.EqualTo(newDisplayName));
-                Assert.That(user.PictureUrl, Is.EqualTo(newPictureUrl));
-            });
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(user.DisplayName, Is.EqualTo(newDisplayName));
+            Assert.That(user.PictureUrl, Is.EqualTo(newPictureUrl));
+        });
     }
 
     [Test]
@@ -82,17 +80,16 @@ public sealed class UserTests
         var user = User.Register("user123", new UserDisplayName("InitialName"));
 
         // Act
-        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"), TimeZoneInfo.Utc);
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
-                Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token1"));
-                Assert.That(user.UserDevices[0].Locale, Is.EqualTo(new CultureInfo("en")));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
+            Assert.That(user.UserDevices[0].ExpoPushToken, Is.EqualTo("token1"));
+            Assert.That(user.UserDevices[0].Locale, Is.EqualTo(new CultureInfo("en")));
+        });
     }
 
     [Test]
@@ -100,10 +97,10 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"), TimeZoneInfo.Utc);
 
         // Act
-        user.AcknowledgeDevice("device1", "token2", false, new CultureInfo("fr"));
+        user.AcknowledgeDevice("device1", "token2", false, new CultureInfo("fr"), TimeZoneInfo.Utc);
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(1));
@@ -116,20 +113,19 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
-        user.AcknowledgeDevice("device2", "token2", true, new CultureInfo("fr"));
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"), TimeZoneInfo.Utc);
+        user.AcknowledgeDevice("device2", "token2", true, new CultureInfo("fr"), TimeZoneInfo.Utc);
 
         // Act
-        user.AcknowledgeDevice("device3", "token3", true, new CultureInfo("de"));
+        user.AcknowledgeDevice("device3", "token3", true, new CultureInfo("de"), TimeZoneInfo.Utc);
 
         // Assert
         Assert.That(user.UserDevices, Has.Count.EqualTo(2));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
-                Assert.That(user.UserDevices[1].DeviceId, Is.EqualTo("device3"));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(user.UserDevices[0].DeviceId, Is.EqualTo("device1"));
+            Assert.That(user.UserDevices[1].DeviceId, Is.EqualTo("device3"));
+        });
     }
 
     [Test]
@@ -137,7 +133,7 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"), TimeZoneInfo.Utc);
 
         // Act
         user.RemoveDevice("device1");
@@ -151,8 +147,8 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("InitialName"));
-        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
-        user.AcknowledgeDevice("device2", "token2", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"), TimeZoneInfo.Utc);
+        user.AcknowledgeDevice("device2", "token2", false, new CultureInfo("en"), TimeZoneInfo.Utc);
 
         // Act
         user.RemoveAllDevices();
@@ -179,8 +175,8 @@ public sealed class UserTests
     {
         // Arrange
         var user = User.Register("user123", new UserDisplayName("ValidName"));
-        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"));
-        user.AcknowledgeDevice("device2", "token2", false, new CultureInfo("en"));
+        user.AcknowledgeDevice("device1", "token1", false, new CultureInfo("en"), TimeZoneInfo.Utc);
+        user.AcknowledgeDevice("device2", "token2", false, new CultureInfo("en"), TimeZoneInfo.Utc);
         var notificationService = Substitute.For<INotificationPushService>();
 
         // Act

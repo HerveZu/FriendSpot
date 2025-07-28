@@ -68,13 +68,18 @@ public sealed class User : IAggregateRoot
         PictureUrl = pictureUrl;
     }
 
-    public void AcknowledgeDevice(string id, string? expoToken, bool uniquenessNotGuaranteed, CultureInfo locale)
+    public void AcknowledgeDevice(
+        string id,
+        string? expoToken,
+        bool uniquenessNotGuaranteed,
+        CultureInfo locale,
+        TimeZoneInfo timezone)
     {
         var device = _userDevices.FirstOrDefault(device => device.DeviceId == id);
 
         if (device is not null)
         {
-            device.UpdateInfo(expoToken, locale);
+            device.UpdateInfo(expoToken, locale, timezone);
             return;
         }
 
@@ -88,7 +93,7 @@ public sealed class User : IAggregateRoot
             _userDevices.RemoveAll(exitingDevice => exitingDevice.UniquenessNotGuaranteed);
         }
 
-        _userDevices.Add(new UserDevice(id, expoToken, uniquenessNotGuaranteed, locale));
+        _userDevices.Add(new UserDevice(id, expoToken, uniquenessNotGuaranteed, locale, timezone));
     }
 
     public void RemoveDevice(string deviceId)
@@ -117,8 +122,8 @@ public sealed class User : IAggregateRoot
         CancellationToken cancellationToken)
     {
         await Task.WhenAll(
-            UserDevices.Select(
-                device => notificationPushService.PushToDevice(device, notification, cancellationToken)));
+            UserDevices.Select(device =>
+                notificationPushService.PushToDevice(device, notification, cancellationToken)));
     }
 }
 
@@ -142,6 +147,9 @@ internal sealed class UserConfig : IEntityConfiguration<User>
                 deviceBuilder
                     .Property(x => x.Locale)
                     .HasConversion(x => x.Name, x => new CultureInfo(x));
+                deviceBuilder
+                    .Property(x => x.TimeZone)
+                    .HasConversion(x => x.Id, x => TimeZoneInfo.FindSystemTimeZoneById(x));
             });
         builder.OwnsOne(
             x => x.Rating,
