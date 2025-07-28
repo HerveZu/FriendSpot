@@ -32,12 +32,11 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            matchingParking = matchingParking.Where(
-                parking =>
-                    // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
-                    EF.Functions.ILike(parking.Name, $"%{search}%")
-                    // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
-                    || EF.Functions.ILike(parking.Address, $"%{search}%"));
+            matchingParking = matchingParking.Where(parking =>
+                // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
+                EF.Functions.ILike(parking.Name, $"%{search}%")
+                // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
+                || EF.Functions.ILike(parking.Address, $"%{search}%"));
         }
 
         if (req.OwnedOnly)
@@ -46,17 +45,17 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
         }
 
         var availableParking = await matchingParking
-            .Select(
-                parking => new ParkingResponse
-                {
-                    Id = parking.Id,
-                    Name = parking.Name,
-                    Address = parking.Address,
-                    SpotsCount = dbContext
-                        .Set<ParkingSpot>()
-                        .Count(spot => spot.ParkingId == parking.Id),
-                    OwnerId = parking.OwnerId
-                })
+            .Select(parking => new ParkingResponse
+            {
+                Id = parking.Id,
+                Name = parking.Name,
+                Code = parking.Code.Value,
+                Address = parking.Address,
+                SpotsCount = dbContext
+                    .Set<ParkingSpot>()
+                    .Count(spot => spot.ParkingId == parking.Id),
+                OwnerId = parking.OwnerId
+            })
             .OrderByDescending(parking => parking.SpotsCount)
             .ToArrayAsync(ct);
 

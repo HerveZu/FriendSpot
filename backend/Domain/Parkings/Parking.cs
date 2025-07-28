@@ -43,12 +43,13 @@ public sealed class Parking : IAggregateRoot
     private readonly List<ParkingBookingRequest> _bookingRequests = [];
     private readonly DomainEvents _domainEvents = new();
 
-    private Parking(Guid id, string ownerId, ParkingName name, ParkingAddress address)
+    private Parking(Guid id, string ownerId, ParkingName name, ParkingAddress address, ParkingCode code)
     {
         Id = id;
         OwnerId = ownerId;
         Name = name;
         Address = address;
+        Code = code;
     }
 
     private Parking(
@@ -56,16 +57,19 @@ public sealed class Parking : IAggregateRoot
         string ownerId,
         ParkingName name,
         ParkingAddress address,
+        ParkingCode code,
         List<ParkingBookingRequest>? bookingRequests = null)
     {
         Id = id;
         OwnerId = ownerId;
         Name = name;
         Address = address;
+        Code = code;
         _bookingRequests = bookingRequests ?? [];
     }
 
     public Guid Id { get; }
+    public ParkingCode Code { get; }
     public string OwnerId { get; private set; }
     public ParkingName Name { get; private set; }
     public ParkingAddress Address { get; private set; }
@@ -78,7 +82,12 @@ public sealed class Parking : IAggregateRoot
 
     public static Parking Create(string ownerId, string name, string address)
     {
-        return new Parking(Guid.CreateVersion7(), ownerId, new ParkingName(name), new ParkingAddress(address));
+        return new Parking(
+            Guid.CreateVersion7(),
+            ownerId,
+            new ParkingName(name),
+            new ParkingAddress(address),
+            ParkingCode.NewRandom(6));
     }
 
     public ParkingBookingRequest RequestBooking(
@@ -227,6 +236,12 @@ internal sealed class ParkingConfig : IEntityConfiguration<Parking>
     {
         builder.HasKey(x => x.Id);
         builder.HasOne<User>().WithMany().HasForeignKey(x => x.OwnerId);
+
+        builder
+            .Property(x => x.Code)
+            .HasConversion(x => x.Value, x => new ParkingCode(x));
+
+        builder.HasIndex(x => x.Code).IsUnique();
 
         builder
             .Property(x => x.Name)
