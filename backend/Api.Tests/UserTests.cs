@@ -48,7 +48,8 @@ internal sealed class UserTests : IntegrationTestsBase
                     {
                         Id = "device-id",
                         ExpoPushToken = null,
-                        Locale = "fr"
+                        Locale = "fr",
+                        Timezone = "Europe/Paris"
                     },
                     DisplayName = "resident1",
                     PictureUrl = null

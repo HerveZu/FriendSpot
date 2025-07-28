@@ -22,6 +22,7 @@ public sealed record RegisterUserRequest
         public required string Id { get; init; }
         public required string? ExpoPushToken { get; init; }
         public string Locale { get; init; } = "fr";
+        public string Timezone { get; init; } = "Europe/London";
 
         // true by default to avoid any non-up-to-date client to pass non-unique device id
         public bool UniquenessNotGuaranteed { get; init; } = true;
@@ -43,6 +44,7 @@ internal sealed class RegisterUserValidator : Validator<RegisterUserRequest>
             .MaximumLength(UserDisplayName.MaxLength);
 
         RuleFor(x => x.Device.Id).NotEmpty();
+        RuleFor(x => x.Device.Timezone).NotEmpty();
         RuleFor(x => x.Device.Locale).NotEmpty();
     }
 }
@@ -101,11 +103,19 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
             req.Device.UniquenessNotGuaranteed,
             req.Device.ExpoPushToken);
 
+        var culture = new CultureInfo(req.Device.Locale);
+        var timezone = TimeZoneInfo.TryFindSystemTimeZoneById(req.Device.Timezone, out var timeZone)
+            ? timeZone
+            : TimeZoneInfo.Utc;
+
+        logger.LogDebug("User localization {Locale} {Tz}", culture, timeZone);
+
         user.AcknowledgeDevice(
             req.Device.Id,
             req.Device.ExpoPushToken,
             req.Device.UniquenessNotGuaranteed,
-            new CultureInfo(req.Device.Locale));
+            culture,
+            timezone);
 
         if (newUser)
         {

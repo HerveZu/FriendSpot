@@ -45,8 +45,8 @@ internal sealed class ExpoPushNotificationService
                 {
                     To = device.ExpoPushToken,
                     Sound = "default",
-                    Title = notification.Title.Translate(_resourceManager, device.Locale),
-                    Body = notification.Body.Translate(_resourceManager, device.Locale)
+                    Title = notification.Title.Translate(_resourceManager, device.Locale, device.TimeZone),
+                    Body = notification.Body.Translate(_resourceManager, device.Locale, device.TimeZone)
                 },
                 cancellationToken);
         }
