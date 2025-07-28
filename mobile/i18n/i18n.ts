@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { getLocales } from 'expo-localization';
+import { getCalendars, getLocales } from 'expo-localization';
 import enTrad from './locales/en.json';
 import frTrad from './locales/fr.json';
 import { setDefaultOptions } from 'date-fns';
@@ -16,6 +16,7 @@ const resources = {
 };
 
 export const deviceLocale = getLocales()[0];
+export const deviceCalendar = getCalendars()[0];
 
 i18n.use(initReactI18next).init({
   resources,

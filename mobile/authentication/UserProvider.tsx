@@ -16,7 +16,7 @@ import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { useNotification } from '~/notification/NotificationContext';
 import { useDeviceId } from '~/lib/use-device-id';
 import { SplashScreen } from 'expo-router';
-import { deviceLocale } from '~/i18n/i18n';
+import { deviceLocale, deviceCalendar } from '~/i18n/i18n';
 
 type UserProfileContext = {
   readonly userProfile: UserProfile;
@@ -83,6 +83,7 @@ export function UserProvider(props: PropsWithChildren) {
               expoPushToken: expoPushToken,
               uniquenessNotGuaranteed: uniquenessNotGuaranteed,
               locale: deviceLocale.languageTag,
+              timezone: deviceCalendar.timeZone
             },
           });
           return;

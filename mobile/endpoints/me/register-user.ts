@@ -9,7 +9,8 @@ type RegisterUserRequest = {
     readonly id: string;
     readonly expoPushToken: string | null;
     readonly uniquenessNotGuaranteed?: boolean;
-    readonly locale: string
+    readonly locale: string;
+    readonly timezone: string;
   };
 };
 
@@ -17,7 +18,17 @@ export function useRegisterUser() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
-    (body: RegisterUserRequest) => apiRequest('/@me/register', 'POST', body),
+    (body: {
+      device: {
+        expoPushToken: string | null;
+        id: string;
+        locale: string;
+        timezone: string | null;
+        uniquenessNotGuaranteed: boolean;
+      };
+      displayName: string;
+      pictureUrl: string | null;
+    }) => apiRequest('/@me/register', 'POST', body),
     [apiRequest]
   );
 }
