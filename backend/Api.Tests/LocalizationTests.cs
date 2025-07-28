@@ -12,7 +12,7 @@ public sealed class LocalizationTests
     [TestCase("Europe/Zurich", 1)]
     [TestCase("Australia/Sydney", 10)]
     [TestCase("Europe/London", 0)]
-    public void Translate_DateArg_ShouldUseRegionLocalTimezone(string tz, int offsetWinterTime)
+    public void Translate_DateArg_ShouldUseTimezoneOffset(string tz, int offsetWinterTime)
     {
         var culture = CultureInfo.InvariantCulture;
         var resourceManager = Substitute.For<ResourceManager>();
