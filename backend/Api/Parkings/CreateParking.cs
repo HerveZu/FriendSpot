@@ -47,7 +47,7 @@ internal sealed class CreateParking(ILogger<CreateParking> logger, AppDbContext 
             {
                 Id = parking.Id,
                 Name = parking.Name,
-                Code = parking.Code.Value,
+                Code = parking.Code,
                 Address = parking.Address,
                 SpotsCount = 0,
                 OwnerId = parking.OwnerId

@@ -60,7 +60,7 @@ internal sealed class EditParkingInfo(ILogger<EditParkingInfo> logger, AppDbCont
             {
                 Id = parking.Id,
                 Name = parking.Name,
-                Code = parking.Code.Value,
+                Code = parking.Code,
                 Address = parking.Address,
                 SpotsCount = dbContext
                     .Set<ParkingSpot>()

@@ -14,4 +14,9 @@ public sealed record ParkingCode(string Value)
 
         return new ParkingCode($"{Prefix}-{code.ToUpperInvariant()}");
     }
+
+    public static implicit operator string(ParkingCode code)
+    {
+        return code.Value;
+    }
 }

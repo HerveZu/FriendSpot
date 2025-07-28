@@ -36,7 +36,10 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
                 // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
                 EF.Functions.ILike(parking.Name, $"%{search}%")
                 // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
-                || EF.Functions.ILike(parking.Address, $"%{search}%"));
+                || EF.Functions.ILike(parking.Address, $"%{search}%")
+#pragma warning disable CA1862
+                || parking.Code == search.ToUpperInvariant());
+#pragma warning restore CA1862
         }
 
         if (req.OwnedOnly)
@@ -49,7 +52,7 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
             {
                 Id = parking.Id,
                 Name = parking.Name,
-                Code = parking.Code.Value,
+                Code = parking.Code,
                 Address = parking.Address,
                 SpotsCount = dbContext
                     .Set<ParkingSpot>()
