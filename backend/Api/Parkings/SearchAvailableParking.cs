@@ -32,12 +32,14 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            matchingParking = matchingParking.Where(
-                parking =>
-                    // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
-                    EF.Functions.ILike(parking.Name, $"%{search}%")
-                    // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
-                    || EF.Functions.ILike(parking.Address, $"%{search}%"));
+            matchingParking = matchingParking.Where(parking =>
+                // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
+                EF.Functions.ILike(parking.Name, $"%{search}%")
+                // ReSharper disable once EntityFramework.ClientSideDbFunctionCall
+                || EF.Functions.ILike(parking.Address, $"%{search}%")
+#pragma warning disable CA1862
+                || parking.Code == search.ToUpperInvariant());
+#pragma warning restore CA1862
         }
 
         if (req.OwnedOnly)
@@ -46,17 +48,17 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
         }
 
         var availableParking = await matchingParking
-            .Select(
-                parking => new ParkingResponse
-                {
-                    Id = parking.Id,
-                    Name = parking.Name,
-                    Address = parking.Address,
-                    SpotsCount = dbContext
-                        .Set<ParkingSpot>()
-                        .Count(spot => spot.ParkingId == parking.Id),
-                    OwnerId = parking.OwnerId
-                })
+            .Select(parking => new ParkingResponse
+            {
+                Id = parking.Id,
+                Name = parking.Name,
+                Code = parking.Code,
+                Address = parking.Address,
+                SpotsCount = dbContext
+                    .Set<ParkingSpot>()
+                    .Count(spot => spot.ParkingId == parking.Id),
+                OwnerId = parking.OwnerId
+            })
             .OrderByDescending(parking => parking.SpotsCount)
             .ToArrayAsync(ct);
 
