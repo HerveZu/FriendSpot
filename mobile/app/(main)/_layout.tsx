@@ -24,7 +24,9 @@ export default function MainLayout() {
               headerShown: false,
               tabBarShowLabel: false,
               sceneStyle: { backgroundColor: 'transparent' },
-              tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent', justifyContent: 'space-between' },
+              tabBarStyle: {
+                paddingTop: 5, backgroundColor: 'transparent',
+              },
             }}>
             <Tabs.Screen
               name="my-spot"
@@ -41,7 +43,7 @@ export default function MainLayout() {
                 tabBarIcon: ({ focused }) => (
                   <TabIcon
                     name="magnifying-glass"
-                    component={FontAwesome6} n
+                    component={FontAwesome6}
                     size={24}
                     focused={focused}
                     info='Réserver'
@@ -56,7 +58,7 @@ export default function MainLayout() {
                 tabBarIcon: ({ focused }) => (
                   <>
                     <MeAvatar
-                      className={cn('aspect-square h-7', focused && 'h-8 border-2 border-primary')}
+                      className={cn('aspect-square h-7', focused && 'border-2 border-primary')}
                       info='profile'
                     />
                   </>
@@ -65,7 +67,6 @@ export default function MainLayout() {
               }}
             />
           </Tabs>
-          {/*</AskUserToRate>*/}
         </BottomSheetModalProvider>
       </UserProvider>
     </AuthProvider>
@@ -81,9 +82,9 @@ function TabIcon<TGlyph extends string>({
   const { userProfile } = useCurrentUser();
 
   return (
-    <View className='flex-1 items-center justify-center'>
+    <View className='flex-1 items-center'>
       <ThemedIcon
-        color={!userProfile.spot ? colors.grey6 : focused ? colors.foreground : colors.grey}
+        color={!userProfile.spot ? colors.grey6 : focused ? colors.primary : colors.grey}
         size={24}
         {...props}
       />

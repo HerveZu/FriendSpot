@@ -31,9 +31,9 @@ export function UserWallet({ className, ...props }: ViewProps) {
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
-        <Card className={cn(`w-40 flex-row justify-between gap-4`, className)}>
+        <Card className={cn(`flex-row  items-center justify-center mt-2`, className)}>
+          <Text className='text-sm'>Mes points :</Text>
           <Credits pending={false} credits={userProfile.wallet.credits} />
-          <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>

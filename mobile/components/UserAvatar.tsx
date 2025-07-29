@@ -99,7 +99,7 @@ export function MeAvatar(props: Omit<UserAvatarProps, 'displayName'> & { info?: 
   const { userProfile } = useCurrentUser();
 
   return (
-    <View>
+    <View className='h-full items-center'>
       <UserAvatar
         {...props}
         displayName={userProfile.displayName}
