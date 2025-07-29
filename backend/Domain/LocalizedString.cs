@@ -12,7 +12,7 @@ public sealed class LocalizedArg(Func<LocalizationInfo, string> getString)
     {
         return new LocalizedArg(x => date
             // convert to timezone local time for user intuitive dates
-            .ToOffset(x.timeZone.BaseUtcOffset)
+            .ToOffset(x.timeZone.GetUtcOffset(date))
             .ToString("f", x.culture));
     }
 

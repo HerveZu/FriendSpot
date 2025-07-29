@@ -10,9 +10,9 @@ namespace Api.Tests;
 public sealed class LocalizationTests
 {
     [TestCase("Europe/Zurich", 1)]
-    [TestCase("Australia/Sydney", 10)]
+    [TestCase("Australia/Sydney", 11)]
     [TestCase("Europe/London", 0)]
-    public void Translate_DateArg_ShouldUseTimezoneOffset(string tz, int offsetWinterTime)
+    public void TranslateDateArg_WinterTime_ShouldUseTimezoneOffset(string tz, int offsetWinterTime)
     {
         var culture = CultureInfo.InvariantCulture;
         var resourceManager = Substitute.For<ResourceManager>();
@@ -26,5 +26,24 @@ public sealed class LocalizationTests
         var localizedDate = localizedString.Translate(resourceManager, culture, timeZoneInfo);
 
         Assert.That((DateTime.Parse(localizedDate) - timeInWinterUtc).TotalHours, Is.EqualTo(offsetWinterTime));
+    }
+
+    [TestCase("Europe/Zurich", 2)]
+    [TestCase("Australia/Sydney", 10)]
+    [TestCase("Europe/London", 1)]
+    public void TranslateDateArg_SummerTime_ShouldUseTimezoneOffset(string tz, int offsetSummerTime)
+    {
+        var culture = CultureInfo.InvariantCulture;
+        var resourceManager = Substitute.For<ResourceManager>();
+        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
+
+        resourceManager.GetString(Arg.Any<string>(), culture).Returns(null as string);
+
+        var timeInWinterUtc = new DateTime(2025, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var localizedString = new LocalizedString("{0}", [LocalizedArg.Date(timeInWinterUtc)]);
+        var localizedDate = localizedString.Translate(resourceManager, culture, timeZoneInfo);
+
+        Assert.That((DateTime.Parse(localizedDate) - timeInWinterUtc).TotalHours, Is.EqualTo(offsetSummerTime));
     }
 }
