@@ -8,6 +8,8 @@ import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Pressable, PressableProps } from 'react-native';
+import { Text } from '~/components/nativewindui/Text';
+import { View } from 'react-native';
 
 export default function MainLayout() {
   return (
@@ -22,13 +24,15 @@ export default function MainLayout() {
               headerShown: false,
               tabBarShowLabel: false,
               sceneStyle: { backgroundColor: 'transparent' },
-              tabBarStyle: { paddingTop: 5, backgroundColor: 'transparent' },
+              tabBarStyle: {
+                paddingTop: 5, backgroundColor: 'transparent',
+              },
             }}>
             <Tabs.Screen
               name="my-spot"
               options={{
                 tabBarIcon: ({ focused }) => (
-                  <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} />
+                  <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} info='Prêter' />
                 ),
                 tabBarButton: NoRipple,
               }}
@@ -42,6 +46,7 @@ export default function MainLayout() {
                     component={FontAwesome6}
                     size={24}
                     focused={focused}
+                    info='Réserver'
                   />
                 ),
                 tabBarButton: NoRipple,
@@ -51,15 +56,17 @@ export default function MainLayout() {
               name="user-profile"
               options={{
                 tabBarIcon: ({ focused }) => (
-                  <MeAvatar
-                    className={cn('aspect-square h-7', focused && 'h-8 border-2 border-primary')}
-                  />
+                  <>
+                    <MeAvatar
+                      className={cn('aspect-square h-7', focused && 'border-2 border-primary')}
+                      info='profile'
+                    />
+                  </>
                 ),
                 tabBarButton: NoRipple,
               }}
             />
           </Tabs>
-          {/*</AskUserToRate>*/}
         </BottomSheetModalProvider>
       </UserProvider>
     </AuthProvider>
@@ -68,17 +75,21 @@ export default function MainLayout() {
 
 function TabIcon<TGlyph extends string>({
   focused,
+  info,
   ...props
-}: { focused?: boolean } & ThemedIconProps<TGlyph>) {
+}: { focused?: boolean, info?: string } & ThemedIconProps<TGlyph>) {
   const { colors } = useColorScheme();
   const { userProfile } = useCurrentUser();
 
   return (
-    <ThemedIcon
-      color={!userProfile.spot ? colors.grey6 : focused ? colors.foreground : colors.grey}
-      size={24}
-      {...props}
-    />
+    <View className='flex-1 items-center'>
+      <ThemedIcon
+        color={!userProfile.spot ? colors.grey6 : focused ? colors.primary : colors.grey}
+        size={24}
+        {...props}
+      />
+      <Text className='text-xs text-center mt-2 w-full'>{info}</Text>
+    </View>
   );
 }
 

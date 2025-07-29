@@ -11,7 +11,6 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { deleteUser, getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
-import { Rating } from '~/components/Rating';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -19,13 +18,13 @@ import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
-import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
+import { ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
-import { Entypo, FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { Card, CardContainer } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
@@ -61,7 +60,6 @@ export default function UserProfileScreen() {
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
-  const sendReview = useSendReview();
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -100,21 +98,12 @@ export default function UserProfileScreen() {
   return (
     <>
       <ScreenWithHeader>
-        <View className="flex-row justify-between gap-6">
-          <Pressable className={'relative h-28'} onPress={pickImageAsync}>
-            <View
-              className="absolute bottom-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-              accessibilityLabel={t('user.profile.editAvatar')}>
-              <ThemedIcon name={'pencil'} size={14} />
-            </View>
-            <MeAvatar className="h-28 w-28" fontSize={32} />
-          </Pressable>
-          <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
-              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
-            </ScreenTitle>
+        <Pressable className={'relative h-28 items-center mx-auto'} onPress={pickImageAsync}>
+          <View className="absolute z-10 bottom-0 right-0 rounded-full border border-white w-6 h-6 flex items-center justify-center shadow-md">
+            <ThemedIcon name={'pencil'} size={16} />
           </View>
-        </View>
+          <MeAvatar className="h-28 w-28" fontSize={32} />
+        </Pressable>
 
         <View className={'gap-2'}>
           <TextInput
@@ -140,9 +129,9 @@ export default function UserProfileScreen() {
                   <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
                       ? t('common.spot.name', {
-                          parking: userProfile.spot.parking.name,
-                          number: userProfile.spot.name,
-                        })
+                        parking: userProfile.spot.parking.name,
+                        number: userProfile.spot.name,
+                      })
                       : t('user.profile.noParkingDefined')}
                   </Text>
                   <ThemedIcon name={'pencil'} />
@@ -157,31 +146,6 @@ export default function UserProfileScreen() {
                 </View>
               </Card>
             </Pressable>
-          </View>
-        </View>
-        <View className={'flex-col'}>
-          <Title>{t('common.other')}</Title>
-          <View className={'flex-col gap-2'}>
-            <TextInput
-              value={review}
-              onChangeText={setReview}
-              className={'w-full'}
-              placeholder={t('user.profile.provideFeedback')}
-            />
-            <Button
-              disabled={!review}
-              variant={'tonal'}
-              onPress={() => {
-                review && sendReview(review);
-                setReview(undefined);
-              }}>
-              <ThemedIcon
-                name={'lightbulb-on-outline'}
-                component={MaterialCommunityIcons}
-                color={colors.primary}
-              />
-              <Text>{t('user.profile.sendFeedback')}</Text>
-            </Button>
           </View>
         </View>
 
@@ -202,9 +166,9 @@ export default function UserProfileScreen() {
         </Button>
 
         <BigSeparator />
-
         <AppVersionInfo />
       </ScreenWithHeader>
+
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
       <AccountDeletionConfirmationModal
         visible={confirmAccountDeletion}
@@ -227,8 +191,8 @@ function AppVersionInfo() {
       <Text variant={'caption2'}>
         {Updates.createdAt
           ? t('app.otaPatch', {
-              time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
-            })
+            time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
+          })
           : t('app.noOtaPatch')}
       </Text>
     </View>
