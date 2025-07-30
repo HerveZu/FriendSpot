@@ -10,7 +10,7 @@ type RegisterUserRequest = {
     readonly expoPushToken: string | null;
     readonly uniquenessNotGuaranteed?: boolean;
     readonly locale: string;
-    readonly timezone: string;
+    readonly timezone: string | null;
   };
 };
 
