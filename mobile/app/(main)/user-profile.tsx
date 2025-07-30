@@ -18,7 +18,7 @@ import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
-import { ScreenWithHeader } from '~/components/Screen';
+import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
@@ -46,6 +46,7 @@ import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
 import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
 import { formatDistance } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { Rating } from '~/components/Rating';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -96,12 +97,20 @@ export default function UserProfileScreen() {
   return (
     <>
       <ScreenWithHeader>
-        <Pressable className={'relative mx-auto h-28 items-center'} onPress={pickImageAsync}>
-          <View className="absolute bottom-0 right-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white shadow-md">
-            <ThemedIcon name={'pencil'} size={16} />
+        <View className="flex-row justify-between gap-6">
+          <Pressable className={'relative mx-auto h-28 items-center'} onPress={pickImageAsync}>
+            <View className="absolute bottom-0 right-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white shadow-md">
+              <ThemedIcon name={'pencil'} size={16} />
+            </View>
+            <MeAvatar className="h-28 w-28" fontSize={32} />
+          </Pressable>
+
+          <View className="w-3/5 shrink gap-4">
+            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
+              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
+            </ScreenTitle>
           </View>
-          <MeAvatar className="h-28 w-28" fontSize={32} />
-        </Pressable>
+        </View>
 
         <View className={'gap-2'}>
           <TextInput
@@ -183,19 +192,10 @@ function ShareSpot() {
   const { userProfile } = useCurrentUser();
 
   async function shareSpot(code: string) {
-    const result = await Share.share({
+    await Share.share({
       title: t('user.parking.share.title'),
       message: t('user.parking.share.message', { code: code }),
     });
-    if (result.action !== Share.sharedAction) {
-      return;
-    }
-
-    if (result.activityType) {
-      // shared with activity type of result.activityType
-    } else {
-      // shared
-    }
   }
 
   return (

@@ -7,11 +7,13 @@ import { ThemedIcon, ThemedIconProps } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Pressable, PressableProps } from 'react-native';
+import { Pressable, PressableProps, View } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
-import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 export default function MainLayout() {
+  const { t } = useTranslation();
+
   return (
     <AuthProvider>
       <UserProvider>
@@ -25,14 +27,21 @@ export default function MainLayout() {
               tabBarShowLabel: false,
               sceneStyle: { backgroundColor: 'transparent' },
               tabBarStyle: {
-                paddingTop: 5, backgroundColor: 'transparent',
+                paddingTop: 5,
+                backgroundColor: 'transparent',
               },
             }}>
             <Tabs.Screen
               name="my-spot"
               options={{
                 tabBarIcon: ({ focused }) => (
-                  <TabIcon name="house" component={FontAwesome6} size={22} focused={focused} info='Prêter' />
+                  <TabIcon
+                    name="house"
+                    component={FontAwesome6}
+                    size={22}
+                    focused={focused}
+                    info={t('tabs.mySpot')}
+                  />
                 ),
                 tabBarButton: NoRipple,
               }}
@@ -46,7 +55,7 @@ export default function MainLayout() {
                     component={FontAwesome6}
                     size={24}
                     focused={focused}
-                    info='Réserver'
+                    info={t('tabs.search')}
                   />
                 ),
                 tabBarButton: NoRipple,
@@ -59,7 +68,7 @@ export default function MainLayout() {
                   <>
                     <MeAvatar
                       className={cn('aspect-square h-7', focused && 'border-2 border-primary')}
-                      info='profile'
+                      info={t('tabs.profile')}
                     />
                   </>
                 ),
@@ -77,18 +86,18 @@ function TabIcon<TGlyph extends string>({
   focused,
   info,
   ...props
-}: { focused?: boolean, info?: string } & ThemedIconProps<TGlyph>) {
+}: { focused?: boolean; info?: string } & ThemedIconProps<TGlyph>) {
   const { colors } = useColorScheme();
   const { userProfile } = useCurrentUser();
 
   return (
-    <View className='flex-1 items-center'>
+    <View className="flex-1 items-center">
       <ThemedIcon
         color={!userProfile.spot ? colors.grey6 : focused ? colors.primary : colors.grey}
         size={24}
         {...props}
       />
-      <Text className='text-xs text-center mt-2 w-full'>{info}</Text>
+      <Text className="mt-2 w-full text-center text-xs">{info}</Text>
     </View>
   );
 }

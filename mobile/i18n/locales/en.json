@@ -67,14 +67,18 @@
       "numberLabel": "Spot #"
     }
   },
+  "tabs": {
+    "mySpot": "My spot",
+    "search": "Book",
+    "profile": "Profile"
+  },
   "welcome": {
     "welcomeTo": "Welcome to"
   },
   "user": {
     "profile": {
       "noAddressDefined": "No parking address defined",
-      "title": "My Profile",
-      "mySpot": "My Spot",
+      "mySpot": "My parking",
       "noParkingDefined": "No parking name defined",
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
@@ -133,7 +137,7 @@
     "reserveFrom": "Reserve from",
     "reserveUntil": "Until",
     "reserve": "Reserve",
-    "reserveForCredits": "Reserve for {{credits}} credits",
+    "reserveForCredits": "Reserve for {{credits}} points",
     "now": "Now",
     "occupyingSpot": "You are occupying this spot",
     "occupyingSpots": "You are occupying these {{count}} spots",
@@ -163,7 +167,7 @@
       "title": "Need a spot?",
       "details": "Looks like nothing's free right now. Let others know you're looking — and hey, you can even offer a little bonus to boost your chances!",
       "bonus": "Add a bonus",
-      "requestForCredits": "Send a request for {{credits}} credits",
+      "requestForCredits": "Send a request for {{credits}} points",
       "request": "Send a request",
       "card": {
         "title": "Requesting a spot"
@@ -184,21 +188,21 @@
     "spotAlreadyShared": "Your spot is already shared,\nits availability extends when you add timeslots.",
     "lendFrom": "Share from",
     "lendUntil": "Until",
-    "lendAndEarnCredits": "Share and earn up to {{credits}} credits",
+    "lendAndEarnCredits": "Share and earn up to {{credits}} points",
     "tabs": {
       "myLendings": "Sharing",
       "neighboursRequests": "Spot requests"
     },
     "acceptRequest": {
       "description": "By accepting, your spot will be shared with {{requester}} from the {{from}} to the {{to}}.",
-      "accept": "Accept for {{credits}} credits"
+      "accept": "Accept for {{credits}} points"
     }
   },
   "wallet": {
-    "howItWorks": "How does it work?",
-    "availableCreditsExplanation": "Use these credits to reserve an available spot.",
-    "pendingCreditsExplanation": "Credits that will be added to your current balance once your spot sharing is completed.",
-    "creditInfo": "Info: Sharing or reserving 1h = 1 credit."
+    "title": "My points",
+    "availableCreditsExplanation": "Use these points to reserve an available spot.",
+    "pendingCreditsExplanation": "The points that will be added to your current balance once your spot sharing is completed.",
+    "creditInfo": "Info: Sharing or reserving 1h = 1 point."
   },
   "rating": {
     "bookingCompleted": {

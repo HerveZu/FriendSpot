@@ -7,37 +7,31 @@ import { cn } from '~/lib/cn';
 import { Modal, ModalFooter, ModalTitle } from '~/components/Modal';
 import { Card } from '~/components/Card';
 import { useTranslation } from 'react-i18next';
+import { ThemedIcon } from '~/components/ThemedIcon';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { Ionicons } from '@expo/vector-icons';
 
 export function UserWallet({ className, ...props }: ViewProps) {
   const { t } = useTranslation();
   const { userProfile } = useCurrentUser();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
-
-  function CreditsExplanation(props: { pending: boolean; explanation: string }) {
-    return (
-      <View className={'w-full flex-row items-center justify-between gap-6 p-2.5'}>
-        <Credits
-          pending={props.pending}
-          credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
-          displayCredit={false}
-        />
-        <View className={'max-w-60'}>
-          <Text className={'min-w-60 text-start'}>{props.explanation}</Text>
-        </View>
-      </View>
-    );
-  }
+  const { colors } = useColorScheme();
 
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
-        <Card className={cn(`flex-row  items-center justify-center mt-2`, className)}>
-          <Text className='text-sm'>Mes points :</Text>
+        <Card className={cn('mt-2 flex-row items-center justify-center', className)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
+          <ThemedIcon
+            name="information-circle-outline"
+            size={22}
+            component={Ionicons}
+            color={colors.primary}
+          />
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-        <ModalTitle text={t('wallet.howItWorks')} />
+        <ModalTitle text={t('wallet.title')} />
         <View className="w-full">
           <CreditsExplanation
             pending={false}
@@ -48,6 +42,23 @@ export function UserWallet({ className, ...props }: ViewProps) {
         <ModalFooter text={t('wallet.creditInfo')} className="bg-primary/20 rounded-lg py-2" />
       </Modal>
     </>
+  );
+}
+
+function CreditsExplanation(props: { pending: boolean; explanation: string }) {
+  const { userProfile } = useCurrentUser();
+
+  return (
+    <View className={'w-full flex-row items-center justify-between gap-6 p-2.5'}>
+      <Credits
+        pending={props.pending}
+        credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
+        displayCredit={false}
+      />
+      <View className={'max-w-60'}>
+        <Text className={'min-w-60 text-start'}>{props.explanation}</Text>
+      </View>
+    </View>
   );
 }
 
