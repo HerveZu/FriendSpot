@@ -26,6 +26,7 @@ export type UserSpot = {
     readonly id: string;
     readonly name: string;
     readonly address: string;
+    readonly code: string;
   };
   readonly currentlyUsedBy?: {
     readonly id: string;
