@@ -1,4 +1,4 @@
-import { getIdToken } from '@firebase/auth';
+import { getIdToken } from 'firebase/auth';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { useAuth } from '~/authentication/AuthProvider';

@@ -7,9 +7,8 @@ import { ThemedIcon, ThemedIconProps } from '~/components/ThemedIcon';
 import { MeAvatar } from '~/components/UserAvatar';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Pressable, PressableProps } from 'react-native';
+import { Pressable, PressableProps, View } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
-import { View } from 'react-native';
 import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
 
 export default function MainLayout() {

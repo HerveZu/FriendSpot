@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, Share, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { deleteUser, getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -18,13 +18,13 @@ import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
-import { ScreenWithHeader } from '~/components/Screen';
+import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
-import { Entypo, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, Feather, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { Card, CardContainer } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
@@ -46,6 +46,7 @@ import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
 import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
 import { formatDistance } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { Rating } from '~/components/Rating';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -96,12 +97,20 @@ export default function UserProfileScreen() {
   return (
     <>
       <ScreenWithHeader>
-        <Pressable className={'relative h-28 items-center mx-auto'} onPress={pickImageAsync}>
-          <View className="absolute z-10 bottom-0 right-0 rounded-full border border-white w-6 h-6 flex items-center justify-center shadow-md">
-            <ThemedIcon name={'pencil'} size={16} />
+        <View className="flex-row justify-between gap-6">
+          <Pressable className={'relative mx-auto h-28 items-center'} onPress={pickImageAsync}>
+            <View className="absolute bottom-0 right-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white shadow-md">
+              <ThemedIcon name={'pencil'} size={16} />
+            </View>
+            <MeAvatar className="h-28 w-28" fontSize={32} />
+          </Pressable>
+
+          <View className="w-3/5 shrink gap-4">
+            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
+              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
+            </ScreenTitle>
           </View>
-          <MeAvatar className="h-28 w-28" fontSize={32} />
-        </Pressable>
+        </View>
 
         <View className={'gap-2'}>
           <TextInput
@@ -119,7 +128,8 @@ export default function UserProfileScreen() {
         </View>
 
         <View className={'flex-col'}>
-          <Title>{t('user.profile.mySpot')}</Title>
+          <Title action={<ShareSpot />}>{t('user.profile.mySpot')}</Title>
+
           <View className={'flex-col gap-2'}>
             <Pressable onPress={() => setBottomSheet(true)}>
               <Card className="flex-col items-start gap-3">
@@ -127,9 +137,9 @@ export default function UserProfileScreen() {
                   <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
                       ? t('common.spot.name', {
-                        parking: userProfile.spot.parking.name,
-                        number: userProfile.spot.name,
-                      })
+                          parking: userProfile.spot.parking.name,
+                          number: userProfile.spot.name,
+                        })
                       : t('user.profile.noParkingDefined')}
                   </Text>
                   <ThemedIcon name={'pencil'} />
@@ -177,6 +187,32 @@ export default function UserProfileScreen() {
   );
 }
 
+function ShareSpot() {
+  const { t } = useTranslation();
+  const { userProfile } = useCurrentUser();
+
+  async function shareSpot(code: string) {
+    await Share.share(
+      {
+        title: t('user.parking.share.title'),
+        message: t('user.parking.share.message', { code: code }),
+      },
+      { dialogTitle: t('user.parking.share.title') }
+    );
+  }
+
+  return (
+    <Button
+      variant={'primary'}
+      size={'sm'}
+      disabled={!userProfile.spot}
+      onPress={() => userProfile.spot && shareSpot(userProfile.spot.parking.code)}>
+      <ThemedIcon name={'share-2'} component={Feather} />
+      <Text>{t('user.parking.share.button')}</Text>
+    </Button>
+  );
+}
+
 const BigSeparator = () => <View className={'mt-10'} />;
 
 function AppVersionInfo() {
@@ -189,8 +225,8 @@ function AppVersionInfo() {
       <Text variant={'caption2'}>
         {Updates.createdAt
           ? t('app.otaPatch', {
-            time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
-          })
+              time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
+            })
           : t('app.noOtaPatch')}
       </Text>
     </View>

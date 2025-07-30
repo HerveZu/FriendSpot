@@ -20,5 +20,6 @@ const createConfig = () => {
 };
 
 const config = createConfig();
+config.resolver.unstable_enablePackageExports = false;
 
 module.exports = withNativeWind(config, { input: './global.css', inlineRem: 16 });
