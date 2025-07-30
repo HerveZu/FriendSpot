@@ -53,6 +53,7 @@ public sealed record MeResponse
             public required Guid Id { get; init; }
             public required string Name { get; init; }
             public required string Address { get; init; }
+            public required string Code { get; init; }
         }
 
         [PublicAPI]
@@ -88,85 +89,79 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                     PictureUrl = user.PictureUrl,
                     Rating = user.Rating.Rating,
                     BookingToRate = dbContext.Set<ParkingSpot>()
-                        .SelectMany(
-                            spot => spot.Bookings
-                                .Where(booking => booking.BookingUserId == user.Identity)
-                                .Where(booking => booking.To < now)
-                                .Select(booking => new { booking, spotId = spot.Id }))
+                        .SelectMany(spot => spot.Bookings
+                            .Where(booking => booking.BookingUserId == user.Identity)
+                            .Where(booking => booking.To < now)
+                            .Select(booking => new { booking, spotId = spot.Id }))
                         .OrderByDescending(x => x.booking.To)
                         .Take(1)
                         .Where(x => x.booking.Rating == null)
-                        .Select(
-                            x => new MeResponse.Booking
-                            {
-                                Id = x.booking.Id,
-                                ParkingLotId = x.spotId
-                            })
+                        .Select(x => new MeResponse.Booking
+                        {
+                            Id = x.booking.Id,
+                            ParkingLotId = x.spotId
+                        })
                         .FirstOrDefault(),
                     Spot = dbContext.Set<ParkingSpot>()
                         .Where(spot => spot.OwnerId == user.Identity)
-                        .Select(
-                            spot => new MeResponse.SpotStatus
-                            {
-                                Id = spot.Id,
-                                CurrentlyUsedBy = spot.Bookings
-                                    .Where(booking => now >= booking.From && booking.To >= now)
-                                    .Select(
-                                        booking => new
-                                        {
-                                            Booking = booking,
-                                            User = dbContext
-                                                .Set<User>()
-                                                .First(bookingUser => bookingUser.Identity == booking.BookingUserId)
-                                        })
-                                    .Select(
-                                        x => new MeResponse.SpotStatus.SpotUser
-                                        {
-                                            Id = x.User.Identity,
-                                            DisplayName = x.User.DisplayName,
-                                            PictureUrl = x.User.PictureUrl,
-                                            UsingSince = x.Booking.From,
-                                            UsingUntil = x.Booking.To
-                                        })
-                                    .FirstOrDefault(),
-                                CurrentlyAvailable = spot.Availabilities
-                                    .Any(availability => now >= availability.From && availability.To >= now),
-                                NextAvailability = spot.Availabilities
-                                    .Where(availability => availability.From > now)
-                                    .Select(availability => availability.From)
-                                    .Order()
-                                    .FirstOrDefault(),
-                                LastUse = spot.Bookings
-                                    .Where(booking => booking.To < now)
-                                    .Select(booking => booking.To)
-                                    .OrderDescending()
-                                    .FirstOrDefault(),
-                                NextUse = spot.Bookings
-                                    .Where(booking => booking.From > now)
-                                    .Select(booking => booking.From)
-                                    .Order()
-                                    .FirstOrDefault(),
-                                Name = spot.SpotName,
-                                Parking = dbContext.Set<Parking>()
-                                    .Where(parking => parking.Id == spot.ParkingId)
-                                    .Select(
-                                        parking => new MeResponse.SpotStatus.SpotParking
-                                        {
-                                            Id = parking.Id,
-                                            Name = parking.Name,
-                                            Address = parking.Address
-                                        })
-                                    .First()
-                            })
+                        .Select(spot => new MeResponse.SpotStatus
+                        {
+                            Id = spot.Id,
+                            CurrentlyUsedBy = spot.Bookings
+                                .Where(booking => now >= booking.From && booking.To >= now)
+                                .Select(booking => new
+                                {
+                                    Booking = booking,
+                                    User = dbContext
+                                        .Set<User>()
+                                        .First(bookingUser => bookingUser.Identity == booking.BookingUserId)
+                                })
+                                .Select(x => new MeResponse.SpotStatus.SpotUser
+                                {
+                                    Id = x.User.Identity,
+                                    DisplayName = x.User.DisplayName,
+                                    PictureUrl = x.User.PictureUrl,
+                                    UsingSince = x.Booking.From,
+                                    UsingUntil = x.Booking.To
+                                })
+                                .FirstOrDefault(),
+                            CurrentlyAvailable = spot.Availabilities
+                                .Any(availability => now >= availability.From && availability.To >= now),
+                            NextAvailability = spot.Availabilities
+                                .Where(availability => availability.From > now)
+                                .Select(availability => availability.From)
+                                .Order()
+                                .FirstOrDefault(),
+                            LastUse = spot.Bookings
+                                .Where(booking => booking.To < now)
+                                .Select(booking => booking.To)
+                                .OrderDescending()
+                                .FirstOrDefault(),
+                            NextUse = spot.Bookings
+                                .Where(booking => booking.From > now)
+                                .Select(booking => booking.From)
+                                .Order()
+                                .FirstOrDefault(),
+                            Name = spot.SpotName,
+                            Parking = dbContext.Set<Parking>()
+                                .Where(parking => parking.Id == spot.ParkingId)
+                                .Select(parking => new MeResponse.SpotStatus.SpotParking
+                                {
+                                    Id = parking.Id,
+                                    Name = parking.Name,
+                                    Address = parking.Address,
+                                    Code = parking.Code
+                                })
+                                .First()
+                        })
                         .FirstOrDefault(),
                     Wallet = dbContext.Set<Wallet>()
                         .Where(wallet => wallet.UserId == currentUser.Identity)
-                        .Select(
-                            wallet => new MeResponse.WalletStatus
-                            {
-                                Credits = wallet.Credits,
-                                PendingCredits = wallet.PendingCredits
-                            })
+                        .Select(wallet => new MeResponse.WalletStatus
+                        {
+                            Credits = wallet.Credits,
+                            PendingCredits = wallet.PendingCredits
+                        })
                         .First()
                 })
             .AsNoTracking()
