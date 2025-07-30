@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, Share, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { deleteUser, getAuth, signOut } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
@@ -24,12 +24,11 @@ import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
-import { Entypo, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, Feather, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { Card, CardContainer } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
-import { useSendReview } from '~/endpoints/me/send-review';
 import { Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/me/logout';
 import { ContentSheetView } from '~/components/ContentView';
@@ -55,7 +54,6 @@ export default function UserProfileScreen() {
   const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
-  const [review, setReview] = useState<string>();
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
@@ -98,8 +96,8 @@ export default function UserProfileScreen() {
   return (
     <>
       <ScreenWithHeader>
-        <Pressable className={'relative h-28 items-center mx-auto'} onPress={pickImageAsync}>
-          <View className="absolute z-10 bottom-0 right-0 rounded-full border border-white w-6 h-6 flex items-center justify-center shadow-md">
+        <Pressable className={'relative mx-auto h-28 items-center'} onPress={pickImageAsync}>
+          <View className="absolute bottom-0 right-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white shadow-md">
             <ThemedIcon name={'pencil'} size={16} />
           </View>
           <MeAvatar className="h-28 w-28" fontSize={32} />
@@ -121,7 +119,8 @@ export default function UserProfileScreen() {
         </View>
 
         <View className={'flex-col'}>
-          <Title>{t('user.profile.mySpot')}</Title>
+          <Title action={<ShareSpot />}>{t('user.profile.mySpot')}</Title>
+
           <View className={'flex-col gap-2'}>
             <Pressable onPress={() => setBottomSheet(true)}>
               <Card className="flex-col items-start gap-3">
@@ -129,9 +128,9 @@ export default function UserProfileScreen() {
                   <Text className="-mt-1 text-lg font-semibold text-foreground">
                     {userProfile.spot
                       ? t('common.spot.name', {
-                        parking: userProfile.spot.parking.name,
-                        number: userProfile.spot.name,
-                      })
+                          parking: userProfile.spot.parking.name,
+                          number: userProfile.spot.name,
+                        })
                       : t('user.profile.noParkingDefined')}
                   </Text>
                   <ThemedIcon name={'pencil'} />
@@ -179,6 +178,38 @@ export default function UserProfileScreen() {
   );
 }
 
+function ShareSpot() {
+  const { t } = useTranslation();
+  const { userProfile } = useCurrentUser();
+
+  async function shareSpot(code: string) {
+    const result = await Share.share({
+      title: t('user.parking.share.title'),
+      message: t('user.parking.share.message', { code: code }),
+    });
+    if (result.action !== Share.sharedAction) {
+      return;
+    }
+
+    if (result.activityType) {
+      // shared with activity type of result.activityType
+    } else {
+      // shared
+    }
+  }
+
+  return (
+    <Button
+      variant={'primary'}
+      size={'sm'}
+      disabled={!userProfile.spot}
+      onPress={() => userProfile.spot && shareSpot(userProfile.spot.parking.code)}>
+      <ThemedIcon name={'share-2'} component={Feather} />
+      <Text>{t('user.parking.share.button')}</Text>
+    </Button>
+  );
+}
+
 const BigSeparator = () => <View className={'mt-10'} />;
 
 function AppVersionInfo() {
@@ -191,8 +222,8 @@ function AppVersionInfo() {
       <Text variant={'caption2'}>
         {Updates.createdAt
           ? t('app.otaPatch', {
-            time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
-          })
+              time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
+            })
           : t('app.noOtaPatch')}
       </Text>
     </View>

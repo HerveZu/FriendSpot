@@ -99,7 +99,11 @@
       "save": "Save",
       "cars": "cars",
       "confirmDelete": "Delete",
-      "cancelDelete": "Cancel"
+      "cancelDelete": "Cancel",
+      "share": {
+        "button": "Share",
+        "message": "Hi! Join our neighbor parking group on FriendSpot. Use the code {{code}}."
+      }
     }
   },
   "mySpot": {

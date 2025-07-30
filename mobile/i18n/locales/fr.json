@@ -99,7 +99,11 @@
       "save": "Enregistrer",
       "cars": "voitures",
       "confirmDelete": "Supprimer",
-      "cancelDelete": "Annuler"
+      "cancelDelete": "Annuler",
+      "share": {
+        "button": "Partager",
+        "message": "Salut ! Rejoins notre groupe de stationnement entre voisins sur FriendSpot. Utilise le code {{code}}."
+      }
     }
   },
   "mySpot": {
