@@ -5,7 +5,6 @@ import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 type CreateParkingRequest = {
   readonly name: string;
   readonly address: string;
-  readonly code: string;
 };
 
 export function useCreateParking() {

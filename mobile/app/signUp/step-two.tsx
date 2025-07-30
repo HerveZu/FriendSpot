@@ -55,12 +55,14 @@ export default function StepTwoScreen() {
     return <Redirect href="/signUp/step-one" />;
   }
 
-  function redirect() {
-    setIsModalVisible(false);
-    router.push({
-      pathname: '/signIn/login',
-      params: { email, password },
-    });
+  async function checkIfEmailIsVerified() {
+    await firebaseAuth.currentUser?.reload();
+    if (firebaseAuth.currentUser?.emailVerified) {
+      router.push({ pathname: '/welcome' });
+    } else {
+      setError(t('auth.signUp.errors.emailNotVerified'));
+      console.log('email not verified');
+    }
   }
 
   return (
@@ -76,7 +78,7 @@ export default function StepTwoScreen() {
             <Text className="text-base text-foreground">
               {t('auth.signUp.checkEmailAndConfirm')}
             </Text>
-            <Button size={'lg'} onPress={() => redirect()}>
+            <Button size={'lg'} onPress={() => checkIfEmailIsVerified()}>
               <Text className="text-foreground">{t('auth.signUp.done')}</Text>
             </Button>
           </View>

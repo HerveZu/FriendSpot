@@ -29,7 +29,6 @@ import { useAuth } from '~/authentication/AuthProvider';
 import { Card, CardContainer } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
-import { useSendReview } from '~/endpoints/me/send-review';
 import { Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/me/logout';
 import { ContentSheetView } from '~/components/ContentView';
@@ -55,7 +54,6 @@ export default function UserProfileScreen() {
   const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
-  const [review, setReview] = useState<string>();
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 

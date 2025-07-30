@@ -4,4 +4,5 @@ export type ParkingResponse = {
   name: string;
   spotsCount: number;
   ownerId: string;
+  code: string
 };

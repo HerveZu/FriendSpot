@@ -57,7 +57,6 @@ export default function LoginScreen() {
       return;
     }
 
-    router.push('/my-spot');
     setError(undefined);
     setIsPendingMailModalOpen(false);
     setIsResetPasswordModalOpen(false);
