@@ -1,4 +1,4 @@
-import { User } from '@firebase/auth';
+import { User } from 'firebase/auth';
 import { createContext, PropsWithChildren, useContext } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 

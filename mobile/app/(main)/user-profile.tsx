@@ -192,10 +192,13 @@ function ShareSpot() {
   const { userProfile } = useCurrentUser();
 
   async function shareSpot(code: string) {
-    await Share.share({
-      title: t('user.parking.share.title'),
-      message: t('user.parking.share.message', { code: code }),
-    });
+    await Share.share(
+      {
+        title: t('user.parking.share.title'),
+        message: t('user.parking.share.message', { code: code }),
+      },
+      { dialogTitle: t('user.parking.share.title') }
+    );
   }
 
   return (

@@ -106,6 +106,7 @@
       "cancelDelete": "Annuler",
       "share": {
         "button": "Partager",
+        "title": "Partage ton groupe de stationnement FriendSpot avec tes voisins",
         "message": "Salut ! Rejoins notre groupe de stationnement entre voisins sur FriendSpot. Utilise le code {{code}}."
       }
     }

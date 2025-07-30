@@ -106,6 +106,7 @@
       "cancelDelete": "Cancel",
       "share": {
         "button": "Share",
+        "title": "Share your FriendSpot parking group with your neighbors",
         "message": "Hi! Join our neighbor parking group on FriendSpot. Use the code {{code}}."
       }
     }

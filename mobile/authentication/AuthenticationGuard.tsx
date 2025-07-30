@@ -1,4 +1,4 @@
-import { SplashScreen, useRootNavigationState, useRouter } from 'expo-router';
+import { SplashScreen, useRouter } from 'expo-router';
 import { PropsWithChildren, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -8,7 +8,6 @@ import { Loader } from '~/components/Loader';
 export function AuthenticationGuard(props: PropsWithChildren) {
   const [firebaseUser, isLoading] = useAuthState(firebaseAuth);
   const router = useRouter();
-  const rootNavigationState = useRootNavigationState();
 
   const isAuthenticated = !!firebaseUser && firebaseUser.emailVerified;
 
@@ -17,12 +16,12 @@ export function AuthenticationGuard(props: PropsWithChildren) {
   }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
-    if (!rootNavigationState?.key) {
+    if (isLoading) {
       return;
     }
 
     router.navigate(isAuthenticated ? '/my-spot' : '/welcome');
-  }, [isAuthenticated, rootNavigationState?.key]);
+  }, [isLoading, isAuthenticated]);
 
   return isLoading ? <Loader /> : props.children;
 }
