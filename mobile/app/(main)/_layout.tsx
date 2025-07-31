@@ -9,10 +9,11 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Pressable, PressableProps, View } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
+import { useTranslation } from 'react-i18next';
 import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
 
 export default function MainLayout() {
-  const user = useCurrentUser();
+  const { t } = useTranslation();
 
   return (
     <AuthProvider>
@@ -22,6 +23,7 @@ export default function MainLayout() {
           <BottomSheetModalProvider>
             {/*<AskUserToRate>*/}
             <Tabs
+              initialRouteName="my-spot"
               screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: false,
@@ -40,7 +42,7 @@ export default function MainLayout() {
                       component={FontAwesome6}
                       size={22}
                       focused={focused}
-                      info="Prêter"
+                      info={t('tabs.mySpot')}
                     />
                   ),
                   tabBarButton: NoRipple,
@@ -55,7 +57,7 @@ export default function MainLayout() {
                       component={FontAwesome6}
                       size={24}
                       focused={focused}
-                      info="Réserver"
+                      info={t('tabs.search')}
                     />
                   ),
                   tabBarButton: NoRipple,
@@ -68,7 +70,7 @@ export default function MainLayout() {
                     <>
                       <MeAvatar
                         className={cn('aspect-square h-7', focused && 'border-2 border-primary')}
-                        info="profile"
+                        info={t('tabs.profile')}
                       />
                     </>
                   ),
