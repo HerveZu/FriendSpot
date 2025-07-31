@@ -17,7 +17,7 @@ public sealed class DeeplinkRedirect(ILogger<DeeplinkRedirect> logger) : Endpoin
         AllowAnonymous();
     }
 
-    public override Task HandleAsync(DeeplinkRequest req, CancellationToken ct)
+    public override async Task HandleAsync(DeeplinkRequest req, CancellationToken ct)
     {
         var path = string.IsNullOrWhiteSpace(req.Target) ? "" : req.Target;
         var deeplink = $"friendspot://{path}";
@@ -25,8 +25,6 @@ public sealed class DeeplinkRedirect(ILogger<DeeplinkRedirect> logger) : Endpoin
         logger.LogInformation("Redirecting to deeplink {Deeplink}", deeplink);
 
         // permanent to allow the browser to cache the redirection
-        HttpContext.Response.Redirect(deeplink, true);
-
-        return Task.CompletedTask;
+        await SendRedirectAsync(deeplink, true, true);
     }
 }
