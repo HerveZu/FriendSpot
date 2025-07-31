@@ -58,7 +58,7 @@ export default function StepTwoScreen() {
   async function checkIfEmailIsVerified() {
     await firebaseAuth.currentUser?.reload();
     if (firebaseAuth.currentUser?.emailVerified) {
-      router.push({ pathname: '/welcome' });
+      setIsModalVisible(false);
     } else {
       setError(t('auth.signUp.errors.emailNotVerified'));
       console.log('email not verified');
