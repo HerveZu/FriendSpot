@@ -141,7 +141,11 @@ internal sealed class UserConfig : IEntityConfiguration<User>
             x => x.UserDevices,
             deviceBuilder =>
             {
-                deviceBuilder.HasKey(x => x.DeviceId);
+                // not a pk as the device might be deleted and created again in the same transaction
+                // when transferring the device to someone else
+                deviceBuilder.Property(x => x.DeviceId);
+                deviceBuilder.HasIndex(x => x.DeviceId).IsUnique();
+
                 deviceBuilder.Property(x => x.UniquenessNotGuaranteed);
                 deviceBuilder.Property(x => x.ExpoPushToken);
                 deviceBuilder
