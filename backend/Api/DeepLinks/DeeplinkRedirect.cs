@@ -1,5 +1,7 @@
+using Api.Common.Options;
 using FastEndpoints;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Options;
 
 namespace Api.DeepLinks;
 
@@ -9,7 +11,8 @@ public class DeeplinkRequest
     public string? Target { get; set; }
 }
 
-public sealed class DeeplinkRedirect(ILogger<DeeplinkRedirect> logger) : Endpoint<DeeplinkRequest>
+internal sealed class DeeplinkRedirect(IOptions<DeeplinkOptions> options, ILogger<DeeplinkRedirect> logger)
+    : Endpoint<DeeplinkRequest>
 {
     public override void Configure()
     {
@@ -20,7 +23,7 @@ public sealed class DeeplinkRedirect(ILogger<DeeplinkRedirect> logger) : Endpoin
     public override async Task HandleAsync(DeeplinkRequest req, CancellationToken ct)
     {
         var path = string.IsNullOrWhiteSpace(req.Target) ? "" : req.Target;
-        var deeplink = $"friendspot://{path}";
+        var deeplink = $"${options.Value.TargetScheme}://{path}";
 
         logger.LogInformation("Redirecting to deeplink {Deeplink}", deeplink);
 
