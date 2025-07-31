@@ -23,7 +23,7 @@ internal sealed class DeeplinkRedirect(IOptions<DeeplinkOptions> options, ILogge
     public override async Task HandleAsync(DeeplinkRequest req, CancellationToken ct)
     {
         var path = string.IsNullOrWhiteSpace(req.Target) ? "" : req.Target;
-        var deeplink = $"${options.Value.TargetScheme}://{path}";
+        var deeplink = $"{options.Value.TargetScheme}://{path}";
 
         logger.LogInformation("Redirecting to deeplink {Deeplink}", deeplink);
 
