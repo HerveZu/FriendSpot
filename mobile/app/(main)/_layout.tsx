@@ -14,7 +14,6 @@ import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
 export default function MainLayout() {
   const user = useCurrentUser();
 
-  console.log(user?.userProfile);
   return (
     <AuthProvider>
       <UserProvider>
