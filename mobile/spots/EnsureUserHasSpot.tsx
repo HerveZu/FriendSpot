@@ -1,17 +1,20 @@
 import { useCurrentUser } from '~/authentication/UserProvider';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
 
 import { useRouter } from 'expo-router';
+import { PropsWithChildren } from 'react';
 
 export function EnsureUserHasSpot({ children }: PropsWithChildren) {
   const router = useRouter();
   const user = useCurrentUser();
   const userHasParking = user.userProfile?.spot?.parking;
 
-  if (!userHasParking) {
+  if (userHasParking) {
+    return;
+  } else {
     router.push({
-      pathname: '/join-parking',
+      pathname: '/(main)/join-parking',
     });
   }
-  return;
+
+  return userHasParking ? children : '';
 }
