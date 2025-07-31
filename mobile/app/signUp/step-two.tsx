@@ -1,6 +1,7 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   createUserWithEmailAndPassword,
+  getAuth,
   sendEmailVerification,
   updateProfile,
   UserCredential,
@@ -56,9 +57,15 @@ export default function StepTwoScreen() {
   }
 
   async function checkIfEmailIsVerified() {
-    await firebaseAuth.currentUser?.reload();
-    if (firebaseAuth.currentUser?.emailVerified) {
+    const user = getAuth().currentUser;
+    console.log(user);
+
+    await user?.reload();
+    if (user?.emailVerified) {
       setIsModalVisible(false);
+      router.push({
+        pathname: '/my-spot',
+      });
     } else {
       setError(t('auth.signUp.errors.emailNotVerified'));
       console.log('email not verified');
