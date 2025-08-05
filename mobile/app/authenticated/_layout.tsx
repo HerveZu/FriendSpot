@@ -1,6 +1,6 @@
 import React from 'react';
-import '../global.css';
-import '../i18n/i18n';
+import '../../global.css';
+import '../../i18n/i18n';
 
 import 'expo-dev-client';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
@@ -14,6 +14,8 @@ import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 import { NotificationProvider } from '~/notification/NotificationContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider } from '~/authentication/AuthProvider';
+import { UserProvider } from '~/authentication/UserProvider';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -37,13 +39,17 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavThemeProvider value={NAV_THEME[colorScheme]}>
             <AuthenticationGuard>
-              <Stack
-                initialRouteName="welcome"
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'ios_from_right',
-                }}
-              />
+              <AuthProvider>
+                <UserProvider>
+                  <Stack
+                    initialRouteName="welcome"
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'ios_from_right',
+                    }}
+                  />
+                </UserProvider>
+              </AuthProvider>
             </AuthenticationGuard>
           </NavThemeProvider>
         </GestureHandlerRootView>

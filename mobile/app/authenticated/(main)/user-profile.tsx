@@ -98,34 +98,36 @@ export default function UserProfileScreen() {
   return (
     <>
       <ScreenWithHeader>
-        <View className="flex-row justify-between gap-6">
+        <View className="item flex">
           <Pressable className={'relative mx-auto h-28 items-center'} onPress={pickImageAsync}>
             <View className="absolute bottom-0 right-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white shadow-md">
               <ThemedIcon name={'pencil'} size={16} />
             </View>
             <MeAvatar className="h-28 w-28" fontSize={32} />
           </Pressable>
-
-          <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
-              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
-            </ScreenTitle>
+          <View className="mt-2 items-start gap-2">
+            <Text className="text-sm">Réputation</Text>
+            <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
           </View>
-        </View>
+          <View className="mt-4 gap-2">
+            <Text className="mt-2 text-sm">Pseudo</Text>
+            <TextInput
+              icon={{
+                position: 'right',
+                element: <ThemedIcon name={'pencil'} />,
+              }}
+              maxLength={30}
+              value={currentDisplayName}
+              editable={true}
+              onChangeText={(text) => setCurrentDisplayName(text)}
+              onEndEditing={updateDisplayName}
+            />
+          </View>
 
-        <View className={'gap-2'}>
-          <TextInput
-            icon={{
-              position: 'right',
-              element: <ThemedIcon name={'pencil'} />,
-            }}
-            maxLength={30}
-            value={currentDisplayName}
-            editable={true}
-            onChangeText={(text) => setCurrentDisplayName(text)}
-            onEndEditing={updateDisplayName}
-          />
-          <TextInput value={firebaseUser.email ?? ''} readOnly />
+          <View className="mt-4 gap-2">
+            <Text className="text-sm">Email</Text>
+            <TextInput value={firebaseUser.email ?? ''} readOnly />
+          </View>
         </View>
 
         <View className={'flex-col'}>
