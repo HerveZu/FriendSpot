@@ -21,13 +21,13 @@ export function UserWallet({ className, ...props }: ViewProps) {
     <>
       <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
         <Card className={cn('mt-2 flex-row items-center justify-center', className)}>
-          <Credits pending={false} credits={userProfile.wallet.credits} />
           <ThemedIcon
             name="information-circle-outline"
-            size={22}
+            size={20}
             component={Ionicons}
             color={colors.primary}
           />
+          <Credits pending={false} credits={userProfile.wallet.credits} />
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
