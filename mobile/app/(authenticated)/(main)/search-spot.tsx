@@ -114,7 +114,7 @@ export default function SearchSpotScreen() {
   }, [selectedSuggestion]);
 
   return !userProfile.spot ? (
-    <Redirect href="/authenticated/(main)/user-profile" />
+    <Redirect href="/user-profile" />
   ) : (
     <ScreenWithHeader
       stickyBottom={

@@ -18,7 +18,7 @@ import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
-import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
+import { ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';

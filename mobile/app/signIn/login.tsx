@@ -60,6 +60,7 @@ export default function LoginScreen() {
     setError(undefined);
     setIsPendingMailModalOpen(false);
     setIsResetPasswordModalOpen(false);
+    router.navigate('/');
   }
 
   return (

@@ -16,11 +16,11 @@ export function AuthenticationGuard(props: PropsWithChildren) {
   }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading || isAuthenticated) {
       return;
     }
 
-    router.navigate(isAuthenticated ? '/authenticated/(main)/my-spot' : '/welcome');
+    router.navigate('/welcome');
   }, [isLoading, isAuthenticated]);
 
   return isLoading ? <Loader /> : props.children;

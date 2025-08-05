@@ -76,7 +76,7 @@ export default function MySpotScreen() {
   const [bookingRequests] = useHookFetch(useGetAllBookingRequests, []);
 
   return !userProfile.spot ? (
-    <Redirect href="/authenticated/user-profile" />
+    <Redirect href="/user-profile" />
   ) : (
     <ScreenWithHeader
       stickyBottom={

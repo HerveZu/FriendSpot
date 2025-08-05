@@ -63,9 +63,7 @@ export default function StepTwoScreen() {
     await user?.reload();
     if (user?.emailVerified) {
       setIsModalVisible(false);
-      router.push({
-        pathname: '/authenticated/my-spot',
-      });
+      router.navigate('/');
     } else {
       setError(t('auth.signUp.errors.emailNotVerified'));
       console.log('email not verified');
