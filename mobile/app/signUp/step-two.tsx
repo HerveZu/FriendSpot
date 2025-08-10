@@ -58,7 +58,6 @@ export default function StepTwoScreen() {
 
   async function checkIfEmailIsVerified() {
     const user = getAuth().currentUser;
-    console.log(user);
 
     await user?.reload();
     if (user?.emailVerified) {
