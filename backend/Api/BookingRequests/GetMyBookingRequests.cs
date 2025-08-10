@@ -53,13 +53,7 @@ internal sealed class GetMyBookingRequests(AppDbContext dbContext, ILogger<GetMy
                         Duration = request.Duration,
                         Bonus = request.Bonus,
                     })).AsNoTracking()
-            .FirstOrDefaultAsync(ct))?.ToArray();
-
-        if (userBookingRequests is null)
-        {
-            ThrowError("No parking spot defined");
-            return;
-        }
+            .FirstOrDefaultAsync(ct))?.ToArray() ?? [];
 
         logger.LogInformation(
             "Retrieved {Count} booking requests for user {UserId}",
