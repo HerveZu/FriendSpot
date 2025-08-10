@@ -83,6 +83,7 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
 
         var usersHavingTheSameDevice = await dbContext
             .Set<User>()
+            .Where(dbUser => dbUser.Identity != user.Identity)
             .Where(otherUser => otherUser.UserDevices.Any(device => device.DeviceId == req.Device.Id))
             .ToListAsync(ct);
 
