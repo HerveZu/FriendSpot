@@ -11,7 +11,7 @@ export default function EnsureUserHasSpot({ children }: PropsWithChildren) {
   useEffect(() => {
     !userHasParking &&
       router.push({
-        pathname: '/authenticated/joint-parking',
+        pathname: '/join-parking',
       });
   }, [userHasParking]);
 

@@ -3,6 +3,7 @@ import React, {
   Dispatch,
   PropsWithChildren,
   SetStateAction,
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -33,7 +34,6 @@ import { Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/me/logout';
 import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
-import { useDeviceId } from '~/lib/use-device-id';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
@@ -48,6 +48,7 @@ import { formatDistance } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { Rating } from '~/components/Rating';
 import { deeplink } from '~/endpoints/deeplink';
+import { AppContext } from '~/app/_layout';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -327,18 +328,15 @@ export function LogoutConfirmationModal({
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
   const [logout, loggingOut] = useLoading(useLogout());
-  const { deviceId } = useDeviceId();
+  const { userDevice } = useContext(AppContext);
   const auth = getAuth();
   const { colors } = useColorScheme();
   const { t } = useTranslation();
 
   const handleLogout = async () => {
-    if (!deviceId) {
-      return;
-    }
     onVisibleChange(false);
     await logout({
-      deviceId: deviceId,
+      deviceId: userDevice.deviceId,
     });
     await signOut(auth);
   };

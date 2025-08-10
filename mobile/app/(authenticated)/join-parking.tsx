@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { Modal, ModalTitle } from '~/components/Modal';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import {
@@ -13,18 +13,6 @@ import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useFetch } from '~/lib/useFetch';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { TextInput } from 'react-native-gesture-handler';
-import { AuthProvider } from '~/authentication/AuthProvider';
-import { useCurrentUser, UserProvider } from '~/authentication/UserProvider';
-
-function WrapperJointParking({ children }: { children: React.ReactNode }) {
-  const user = useCurrentUser();
-
-  return (
-    <AuthProvider>
-      <UserProvider>{children}</UserProvider>
-    </AuthProvider>
-  );
-}
 
 export default function JoinParking() {
   const CELL_COUNT = 6;
@@ -82,10 +70,8 @@ export default function JoinParking() {
     setOpenModal(false);
   }
 
-  // C40890
-
   return (
-    <WrapperJointParking>
+    <>
       <Modal open={openModal} onOpenChange={setOpenModal} vibration={true}>
         {selectedContentModal === 1 ? (
           <>
@@ -171,6 +157,6 @@ export default function JoinParking() {
           />
         </View>
       </View>
-    </WrapperJointParking>
+    </>
   );
 }

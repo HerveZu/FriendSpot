@@ -14,9 +14,9 @@ import { useGetProfile, UserProfile } from '~/endpoints/me/get-profile';
 import { useRegisterUser } from '~/endpoints/me/register-user';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { useNotification } from '~/notification/NotificationContext';
-import { useDeviceId } from '~/lib/use-device-id';
 import { SplashScreen } from 'expo-router';
-import { deviceLocale, deviceCalendar } from '~/i18n/i18n';
+import { deviceCalendar, deviceLocale } from '~/i18n/i18n';
+import { AppContext } from '~/app/_layout';
 
 type UserProfileContext = {
   readonly userProfile: UserProfile;
@@ -42,9 +42,9 @@ export function UserProvider(props: PropsWithChildren) {
   const getProfile = useGetProfile();
   const stateTrigger = useListenOnAppStateChange('background');
   const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
+  const { userDevice } = useContext(AppContext);
 
   const { expoPushToken } = useNotification();
-  const { deviceId, uniquenessNotGuaranteed } = useDeviceId();
 
   const updateInternalProfile = useCallback(
     async (photoURL: string | null | undefined, displayName: string) => {
@@ -71,17 +71,16 @@ export function UserProvider(props: PropsWithChildren) {
   }, []);
 
   const registerWithRetries = useCallback(
-    async (internalFirebaseUser: User, deviceId: string) => {
+    async (user: User) => {
       for (let attempt = 1; attempt <= 5; attempt++) {
         try {
           await registerUser({
-            displayName:
-              internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? 'Unknown User',
-            pictureUrl: internalFirebaseUser.photoURL,
+            displayName: user.displayName ?? user.email ?? 'Unknown User',
+            pictureUrl: user.photoURL,
             device: {
-              id: deviceId,
+              id: userDevice.deviceId,
               expoPushToken: expoPushToken,
-              uniquenessNotGuaranteed: uniquenessNotGuaranteed,
+              uniquenessNotGuaranteed: userDevice.uniquenessNotGuaranteed,
               locale: deviceLocale.languageTag,
               timezone: deviceCalendar.timeZone,
             },
@@ -96,19 +95,19 @@ export function UserProvider(props: PropsWithChildren) {
 
       throw new Error('Max register attempt count reach');
     },
-    [internalFirebaseUser, expoPushToken, deviceId, uniquenessNotGuaranteed]
+    [expoPushToken, userDevice]
   );
 
   useEffect(() => {
     // discarding when no displayName, because it takes one more render to be actually populated.
-    if (!deviceId || !internalFirebaseUser.displayName) {
+    if (!internalFirebaseUser.displayName) {
       return;
     }
 
-    registerWithRetries(internalFirebaseUser, deviceId)
+    registerWithRetries(internalFirebaseUser)
       .catch(() => signOut(getAuth()))
       .then(() => getProfile().then(setUserProfile));
-  }, [registerWithRetries, internalFirebaseUser, deviceId]);
+  }, [registerWithRetries, internalFirebaseUser]);
 
   useEffect(() => {
     if (userProfile) {
