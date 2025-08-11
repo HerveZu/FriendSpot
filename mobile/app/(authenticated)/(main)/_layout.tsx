@@ -9,13 +9,12 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { Pressable, PressableProps, View } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { useTranslation } from 'react-i18next';
-import EnsureUserHasSpot from '~/spots/EnsureUserHasSpot';
 
 export default function MainLayout() {
   const { t } = useTranslation();
 
   return (
-    <EnsureUserHasSpot>
+    <>
       {/*BottomSheetModalProvider children need to have access to the currentUser*/}
       <BottomSheetModalProvider>
         {/*<AskUserToRate>*/}
@@ -76,7 +75,7 @@ export default function MainLayout() {
           />
         </Tabs>
       </BottomSheetModalProvider>
-    </EnsureUserHasSpot>
+    </>
   );
 }
 
@@ -87,15 +86,18 @@ function TabIcon<TGlyph extends string>({
 }: { focused?: boolean; info?: string } & ThemedIconProps<TGlyph>) {
   const { colors } = useColorScheme();
   const { userProfile } = useCurrentUser();
+  const disabled = !userProfile.spot;
 
   return (
     <View className="flex-1 items-center">
       <ThemedIcon
-        color={!userProfile.spot ? colors.grey6 : focused ? colors.primary : colors.grey}
+        color={disabled ? colors.grey6 : focused ? colors.primary : colors.grey}
         size={24}
         {...props}
       />
-      <Text className="mt-2 w-full text-center text-xs">{info}</Text>
+      <Text className={cn('mt-2 w-full text-center text-xs', disabled && 'text-gray-600')}>
+        {info}
+      </Text>
     </View>
   );
 }

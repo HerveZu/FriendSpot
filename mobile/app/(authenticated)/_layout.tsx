@@ -8,17 +8,20 @@ import { Stack } from 'expo-router';
 import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
 import { AuthProvider } from '~/authentication/AuthProvider';
 import { UserProvider } from '~/authentication/UserProvider';
+import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
 
 export default function AuthenticatedLayout() {
   return (
     <AuthenticationGuard>
       <AuthProvider>
         <UserProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          />
+          <EnsureUserHasSpot>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            />
+          </EnsureUserHasSpot>
         </UserProvider>
       </AuthProvider>
     </AuthenticationGuard>
