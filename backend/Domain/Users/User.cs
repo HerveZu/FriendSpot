@@ -83,9 +83,8 @@ public sealed class User : IAggregateRoot
             return;
         }
 
-        // as the device id is not guaranteed to be unique,
-        // there's a risk that an existing device whose id is neither
-        // guaranteed to be unique and represents the same physical device
+        // as many device ids can represent the same physical device,
+        // we have to delete all devices that might conflict (when: uniquenessNotGuaranteed)
 
         // To prevent duplicate devices, we need to remove all potential duplicated devices
         if (uniquenessNotGuaranteed)
