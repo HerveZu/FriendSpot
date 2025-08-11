@@ -19,7 +19,7 @@ import { TextInput } from '~/components/TextInput';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
-import { ScreenWithHeader } from '~/components/Screen';
+import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
@@ -99,36 +99,34 @@ export default function UserProfileScreen() {
   return (
     <>
       <ScreenWithHeader>
-        <View className="item flex">
+        <View className="flex-row justify-between gap-6">
           <Pressable className={'relative mx-auto h-28 items-center'} onPress={pickImageAsync}>
             <View className="absolute bottom-0 right-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white shadow-md">
               <ThemedIcon name={'pencil'} size={16} />
             </View>
             <MeAvatar className="h-28 w-28" fontSize={32} />
           </Pressable>
-          <View className="mt-2 items-start gap-2">
-            <Text className="text-sm">Réputation</Text>
-            <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
-          </View>
-          <View className="mt-4 gap-2">
-            <Text className="mt-2 text-sm">Pseudo</Text>
-            <TextInput
-              icon={{
-                position: 'right',
-                element: <ThemedIcon name={'pencil'} />,
-              }}
-              maxLength={30}
-              value={currentDisplayName}
-              editable={true}
-              onChangeText={(text) => setCurrentDisplayName(text)}
-              onEndEditing={updateDisplayName}
-            />
-          </View>
 
-          <View className="mt-4 gap-2">
-            <Text className="text-sm">Email</Text>
-            <TextInput value={firebaseUser.email ?? ''} readOnly />
+          <View className="w-3/5 shrink gap-4">
+            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
+              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
+            </ScreenTitle>
           </View>
+        </View>
+
+        <View className={'gap-2'}>
+          <TextInput
+            icon={{
+              position: 'right',
+              element: <ThemedIcon name={'pencil'} />,
+            }}
+            maxLength={30}
+            value={currentDisplayName}
+            editable={true}
+            onChangeText={(text) => setCurrentDisplayName(text)}
+            onEndEditing={updateDisplayName}
+          />
+          <TextInput value={firebaseUser.email ?? ''} readOnly />
         </View>
 
         <View className={'flex-col'}>
