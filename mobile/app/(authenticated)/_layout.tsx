@@ -9,6 +9,7 @@ import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
 import { AuthProvider } from '~/authentication/AuthProvider';
 import { UserProvider } from '~/authentication/UserProvider';
 import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
+import { DisplayTimerWidgetOnBooking } from '~/live-timer/DisplayTimerWidgetOnBooking';
 
 export default function AuthenticatedLayout() {
   return (
@@ -16,11 +17,13 @@ export default function AuthenticatedLayout() {
       <AuthProvider>
         <UserProvider>
           <EnsureUserHasSpot>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            />
+            <DisplayTimerWidgetOnBooking>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+              />
+            </DisplayTimerWidgetOnBooking>
           </EnsureUserHasSpot>
         </UserProvider>
       </AuthProvider>

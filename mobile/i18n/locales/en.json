@@ -223,5 +223,11 @@
   "account": {
     "logout": "Logout",
     "logoutConfirmation": "Logout"
+  },
+  "widget": {
+    "liveTimer": {
+      "ended": "This reservation has ended",
+      "title": "You're using the spot #{{spotName}}."
+    }
   }
 }

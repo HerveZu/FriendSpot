@@ -223,5 +223,11 @@
   "account": {
     "logout": "Se déconnecter",
     "logoutConfirmation": "Se déconnecter"
+  },
+  "widget": {
+    "liveTimer": {
+      "ended": "Cette réservation est terminée",
+      "title": "Vous utilisez le spot n° {{spotName}}."
+    }
   }
 }

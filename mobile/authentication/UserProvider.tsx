@@ -20,9 +20,9 @@ import { AppContext } from '~/app/_layout';
 
 type UserProfileContext = {
   readonly userProfile: UserProfile;
-  refreshProfile: () => Promise<void>;
-  refreshTrigger: unknown;
-  updateInternalProfile: (
+  readonly refreshProfile: () => Promise<void>;
+  readonly refreshTrigger: unknown;
+  readonly updateInternalProfile: (
     photoURL: string | null | undefined,
     displayName: string
   ) => Promise<void>;
