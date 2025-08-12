@@ -9,7 +9,7 @@ import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
 import { AuthProvider } from '~/authentication/AuthProvider';
 import { UserProvider } from '~/authentication/UserProvider';
 import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
-import { DisplayTimerWidgetOnBooking } from '~/live-timer/DisplayTimerWidgetOnBooking';
+import { DisplayTimerWidgetOnBooking } from '~/notification/DisplayTimerWidgetOnBooking';
 
 export default function AuthenticatedLayout() {
   return (
