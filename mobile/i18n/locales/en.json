@@ -227,7 +227,8 @@
   "widget": {
     "liveTimer": {
       "ended": "This reservation has ended",
-      "title": "You're using the spot #{{spotName}}."
+      "title": "{{owner}}'s spot",
+      "description": "You're using the spot #{{spotName}}."
     }
   }
 }

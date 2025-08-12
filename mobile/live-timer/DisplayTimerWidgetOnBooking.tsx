@@ -50,7 +50,8 @@ export function DisplayTimerWidgetOnBooking(props: PropsWithChildren) {
   useEffect(() => {
     liveBookings.forEach((booking) => {
       const state: LiveActivity.LiveActivityState = {
-        title: t('widget.liveTimer.title', { spotName: booking.parkingLot?.name }),
+        title: t('widget.liveTimer.title', { owner: booking.owner.displayName }),
+        subtitle: t('widget.liveTimer.description', { spotName: booking.parkingLot?.name }),
         imageName: 'icon',
         dynamicIslandImageName: 'icon',
         date: new Date(booking.to).getTime(),
