@@ -27,8 +27,8 @@ public sealed record AasaResponse
         [PublicAPI]
         public sealed record DetailResponse
         {
-            [JsonPropertyName("appIDs")]
-            public required string[] AppIds { get; init; }
+            [JsonPropertyName("appID")]
+            public required string AppId { get; init; }
 
             public required string[] Paths { get; init; }
         }
@@ -67,14 +67,13 @@ internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWit
                 AppLinks = new AasaResponse.ApplinksResponse
                 {
                     Apps = [],
-                    Details =
-                    [
-                        new AasaResponse.ApplinksResponse.DetailResponse
+                    Details = appIds
+                        .Select(appId => new AasaResponse.ApplinksResponse.DetailResponse
                         {
-                            AppIds = appIds,
+                            AppId = appId,
                             Paths = DownloadAppRedirect.OpenPaths
-                        }
-                    ]
+                        })
+                        .ToArray()
                 },
                 ActivityContinuation = new AasaResponse.ActivityContinuationResponse
                 {
