@@ -47,7 +47,7 @@ import { LendSpotResponse, useLendSpot } from '~/endpoints/booking/lend-spot';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch, useHookFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
-import { capitalize, parseDuration, rgbToHex } from '~/lib/utils';
+import { capitalize, formatTime, parseDuration, rgbToHex } from '~/lib/utils';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { toSeconds } from 'duration-fns';
 import { useCancelAvailability } from '~/endpoints/booking/cancel-spot-availability';
@@ -303,23 +303,28 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             duration={durationSeconds}
             colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
             colorsTime={[0.25 * durationSeconds, 0.75 * durationSeconds]}>
-            {({ remainingTime, color }) => {
-              const remaining = intervalToDuration({
-                start: 0,
-                end: new Date(secondsToMilliseconds(remainingTime)),
-              });
-
-              return (
-                <Text
-                  className={'text-xs font-bold'}
-                  style={{
-                    color,
-                  }}>
-                  {remaining.hours?.toString().padStart(2, '0') ?? '00'}h
-                  {remaining.minutes?.toString().padStart(2, '0') ?? '00'}
-                </Text>
-              );
-            }}
+            {({ remainingTime, color }) => (
+              <Text
+                className={'text-xs font-bold'}
+                style={{
+                  color,
+                }}>
+                {formatTime(
+                  t,
+                  secondsToMilliseconds(remainingTime),
+                  [
+                    {
+                      unit: 'hours',
+                    },
+                    {
+                      unit: 'minutes',
+                      hideSuffix: true,
+                    },
+                  ],
+                  { separator: '' }
+                )}
+              </Text>
+            )}
           </CountdownCircleTimer>
         </View>
       );

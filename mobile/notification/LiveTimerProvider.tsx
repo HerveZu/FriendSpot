@@ -1,17 +1,22 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useEffect, useMemo } from 'react';
 import { useFetch } from '~/lib/useFetch';
-import { useGetBooking } from '~/endpoints/booking/get-booking';
+import { BookingResponse, useGetBooking } from '~/endpoints/booking/get-booking';
 import * as LiveActivity from 'expo-live-activity';
 import { useActualTime } from '~/lib/useActualTime';
-import { isWithinInterval, milliseconds } from 'date-fns';
+import { format, isWithinInterval, milliseconds } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { deepEqual } from '@firebase/util';
+import { usePersistentState } from '~/lib/usePersistentState';
 
-export function DisplayTimerWidgetOnBooking(props: PropsWithChildren) {
+export const LiveTimerContext = createContext<{
+  registerLiveActivityTimer: (booking: BookingResponse) => void;
+}>(null!);
+
+export function LiveTimerProvider(props: PropsWithChildren) {
   const [booking] = useFetch(useGetBooking(), []);
-  const [liveActivityIdMap, setLiveActivityIdMap] = useState<{
+  const [liveActivityIdMap, setLiveActivityIdMap] = usePersistentState<{
     [bookingId: string]: { activityId: string; state: LiveActivity.LiveActivityState };
-  }>({});
+  }>('DisplayTimerWidgetActivityIdsMap', {});
   const now = useActualTime(milliseconds({ seconds: 10 }));
   const { t } = useTranslation();
 
@@ -37,6 +42,23 @@ export function DisplayTimerWidgetOnBooking(props: PropsWithChildren) {
     [liveActivityIdMap, liveBookings]
   );
 
+  const stateForBooking = useCallback(
+    (booking: BookingResponse) =>
+      ({
+        title: t('widget.liveTimer.title', {
+          spotName: booking.parkingLot?.name,
+          owner: booking.owner.displayName,
+        }),
+        subtitle: t('widget.liveTimer.description', {
+          endDate: format(new Date(booking.to), 'd MMM, p'),
+        }),
+        imageName: 'icon',
+        dynamicIslandImageName: 'icon',
+        date: new Date(booking.to).getTime(),
+      }) as LiveActivity.LiveActivityState,
+    [t]
+  );
+
   useEffect(() => {
     endedActivityIds.forEach(({ activityId }) =>
       LiveActivity?.stopActivity(activityId, {
@@ -49,14 +71,7 @@ export function DisplayTimerWidgetOnBooking(props: PropsWithChildren) {
 
   useEffect(() => {
     liveBookings.forEach((booking) => {
-      const state: LiveActivity.LiveActivityState = {
-        title: t('widget.liveTimer.title', { owner: booking.owner.displayName }),
-        subtitle: t('widget.liveTimer.description', { spotName: booking.parkingLot?.name }),
-        imageName: 'icon',
-        dynamicIslandImageName: 'icon',
-        date: new Date(booking.to).getTime(),
-      };
-
+      const state = stateForBooking(booking);
       const existingActivity = liveActivityIdMap[booking.id];
       if (existingActivity) {
         if (deepEqual(existingActivity.state, state)) {
@@ -90,7 +105,32 @@ export function DisplayTimerWidgetOnBooking(props: PropsWithChildren) {
           [booking.id]: { activityId: createdActivityId, state },
         }));
     });
-  }, [liveBookings, liveActivityIdMap, widgetConfig]);
+  }, [liveBookings, liveActivityIdMap, widgetConfig, stateForBooking]);
 
-  return props.children;
+  const registerLiveActivityTimer = useCallback(
+    (booking: BookingResponse) => {
+      const state = stateForBooking(booking);
+      console.log('Manual live activity registration activity for booking ', {
+        bookingId: booking.id,
+        state: state,
+        widgetConfig: widgetConfig,
+      });
+      const possibleActivityId = liveActivityIdMap[booking.id]?.activityId;
+      let activityId = LiveActivity?.updateActivity(possibleActivityId, state);
+
+      if (!activityId) {
+        activityId = LiveActivity?.startActivity(state, widgetConfig);
+      }
+
+      activityId &&
+        setLiveActivityIdMap((map) => ({ ...map, [booking.id]: { activityId, state } }));
+    },
+    [liveActivityIdMap, stateForBooking, widgetConfig, setLiveActivityIdMap]
+  );
+
+  return (
+    <LiveTimerContext.Provider value={{ registerLiveActivityTimer }}>
+      {props.children}
+    </LiveTimerContext.Provider>
+  );
 }

@@ -65,6 +65,12 @@
       "name": "{{parking}} [#{{number}}]",
       "number": "Spot #{{number}}",
       "numberLabel": "Spot #"
+    },
+    "timeSuffixes": {
+      "days": "d",
+      "hours": "h",
+      "minutes": "m",
+      "seconds": "s"
     }
   },
   "tabs": {
@@ -227,8 +233,8 @@
   "widget": {
     "liveTimer": {
       "ended": "This reservation has ended",
-      "title": "{{owner}}'s spot",
-      "description": "You're using the spot #{{spotName}}."
+      "title": "Spot #{{spotName}} from {{owner}}",
+      "description": "Ends on {{endDate}}."
     }
   }
 }
