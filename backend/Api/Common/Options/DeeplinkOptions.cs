@@ -5,8 +5,16 @@ namespace Api.Common.Options;
 internal sealed record DeeplinkOptions : IOptions
 {
     [Required]
-    [ConfigurationKeyName("TARGET_SCHEME")]
-    public required string TargetScheme { get; init; }
+    [ConfigurationKeyName("APPLE_APP_ID")]
+    public required string AppleAppId { get; init; }
+
+    [Required]
+    [ConfigurationKeyName("APPLE_TEAM_ID")]
+    public required string AppleTeamId { get; init; }
+
+    [Required]
+    [ConfigurationKeyName("BUNDLE_ID")]
+    public required string BundleId { get; init; }
 
     public static string Section => "DEEPLINK";
 }
