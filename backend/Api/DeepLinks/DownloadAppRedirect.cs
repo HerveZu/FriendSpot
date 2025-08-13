@@ -32,7 +32,7 @@ internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILo
         if (androidPatterns.Any(pattern =>
                 userAgent.Contains(pattern, StringComparison.InvariantCultureIgnoreCase)))
         {
-            appUrl = $"https://play.google.com/store/apps/details?id={options.Value.BundleId}";
+            appUrl = $"https://play.google.com/store/apps/details?id={options.Value.BundleIds.First()}";
         }
 
         if (appUrl is null)

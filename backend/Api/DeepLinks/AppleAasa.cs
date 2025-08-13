@@ -27,8 +27,8 @@ public sealed record AasaResponse
         [PublicAPI]
         public sealed record DetailResponse
         {
-            [JsonPropertyName("appID")]
-            public required string AppId { get; init; }
+            [JsonPropertyName("appIDs")]
+            public required string[] AppIds { get; init; }
 
             public required string[] Paths { get; init; }
         }
@@ -57,7 +57,9 @@ internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWit
 
     public override Task<AasaResponse> ExecuteAsync(CancellationToken ct)
     {
-        var appId = $"{options.Value.AppleTeamId}.{options.Value.BundleId}";
+        var appIds = options.Value.BundleIds
+            .Select(bundleId => $"{options.Value.AppleTeamId}.{bundleId}")
+            .ToArray();
 
         return Task.FromResult(
             new AasaResponse
@@ -69,18 +71,18 @@ internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWit
                     [
                         new AasaResponse.ApplinksResponse.DetailResponse
                         {
-                            AppId = appId,
+                            AppIds = appIds,
                             Paths = DownloadAppRedirect.OpenPaths
                         }
                     ]
                 },
                 ActivityContinuation = new AasaResponse.ActivityContinuationResponse
                 {
-                    Apps = [appId]
+                    Apps = appIds
                 },
                 WebCredentials = new AasaResponse.WebCredentialsResponse
                 {
-                    Apps = [appId]
+                    Apps = appIds
                 }
             });
     }

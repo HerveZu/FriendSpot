@@ -14,7 +14,9 @@ internal sealed record DeeplinkOptions : IOptions
 
     [Required]
     [ConfigurationKeyName("BUNDLE_ID")]
-    public required string BundleId { get; init; }
+    public required string BundleIdRaw { get; init; }
+
+    public string[] BundleIds => BundleIdRaw.Split(",");
 
     public static string Section => "DEEPLINK";
 }
