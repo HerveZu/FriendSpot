@@ -1,7 +1,7 @@
 const APP_VARIANT = process.env.APP_VARIANT;
 const backendDomain = process.env.EXPO_PUBLIC_BACKEND_API_URL.replace(
   /^https?:\/\/([^:\/]+)[:\/]?/,
-  ''
+  '$1'
 );
 
 const getUniqueIdentifier = () => {
