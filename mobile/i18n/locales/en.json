@@ -108,6 +108,26 @@
         "button": "Share",
         "title": "Share your FriendSpot parking group with your neighbors",
         "message": "Hi! Join our neighbor parking group on FriendSpot. Use the code {{code}}."
+      },
+      "joinParking": {
+        "title": "Group found!",
+        "description": "Join an existing parking group using an invitation code.",
+        "enterCode": "Enter the invitation code",
+        "join": "Join",
+        "joining": "Joining...",
+        "success": "You have successfully joined the group!",
+        "error": {
+          "invalidCode": "The invitation code is invalid.",
+          "generic": "An error occurred. Please try again."
+        },
+        "spot": {
+          "title": "Set your spot name",
+          "description": "Enter the number or name of your spot in this group."
+        }
+      },
+      "parkingCode": {
+        "title": "Enter a group code",
+        "dismissCheck": "I don't have a group code"
       }
     }
   },
