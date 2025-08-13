@@ -9,6 +9,8 @@ namespace Api.DeepLinks;
 public sealed record AasaResponse
 {
     public required SiteApplinks Applinks { get; init; }
+    public required ActivityContinuation Activitycontinuation { get; init; }
+    public required WebCredentials Webcredentials { get; init; }
 
     [PublicAPI]
     public sealed record SiteApplinks
@@ -23,6 +25,18 @@ public sealed record AasaResponse
             public required string[] Paths { get; init; }
         }
     }
+
+    [PublicAPI]
+    public sealed record ActivityContinuation
+    {
+        public required string[] Apps { get; init; }
+    }
+
+    [PublicAPI]
+    public sealed record WebCredentials
+    {
+        public required string[] Apps { get; init; }
+    }
 }
 
 internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWithoutRequest<AasaResponse>
@@ -35,6 +49,8 @@ internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWit
 
     public override Task<AasaResponse> ExecuteAsync(CancellationToken ct)
     {
+        var appId = $"{options.Value.AppleTeamId}.{options.Value.BundleId}";
+
         return Task.FromResult(
             new AasaResponse
             {
@@ -45,10 +61,18 @@ internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWit
                     [
                         new AasaResponse.SiteApplinks.Detail
                         {
-                            AppId = $"{options.Value.AppleTeamId}.{options.Value.BundleId}",
+                            AppId = appId,
                             Paths = DownloadAppRedirect.OpenPaths
                         }
                     ]
+                },
+                Activitycontinuation = new AasaResponse.ActivityContinuation
+                {
+                    Apps = [appId]
+                },
+                Webcredentials = new AasaResponse.WebCredentials
+                {
+                    Apps = [appId]
                 }
             });
     }
