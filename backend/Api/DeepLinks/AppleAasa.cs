@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Api.Common.Options;
 using FastEndpoints;
 using JetBrains.Annotations;
@@ -8,32 +9,39 @@ namespace Api.DeepLinks;
 [PublicAPI]
 public sealed record AasaResponse
 {
-    public required SiteApplinks Applinks { get; init; }
-    public required ActivityContinuation Activitycontinuation { get; init; }
-    public required WebCredentials Webcredentials { get; init; }
+    [JsonPropertyName("applinks")]
+    public required ApplinksResponse AppLinks { get; init; }
+
+    [JsonPropertyName("activitycontinuation")]
+    public required ActivityContinuationResponse ActivityContinuation { get; init; }
+
+    [JsonPropertyName("webcredentials")]
+    public required WebCredentialsResponse WebCredentials { get; init; }
 
     [PublicAPI]
-    public sealed record SiteApplinks
+    public sealed record ApplinksResponse
     {
         public required string[] Apps { get; init; }
-        public required Detail[] Details { get; init; }
+        public required DetailResponse[] Details { get; init; }
 
         [PublicAPI]
-        public sealed record Detail
+        public sealed record DetailResponse
         {
+            [JsonPropertyName("appID")]
             public required string AppId { get; init; }
+
             public required string[] Paths { get; init; }
         }
     }
 
     [PublicAPI]
-    public sealed record ActivityContinuation
+    public sealed record ActivityContinuationResponse
     {
         public required string[] Apps { get; init; }
     }
 
     [PublicAPI]
-    public sealed record WebCredentials
+    public sealed record WebCredentialsResponse
     {
         public required string[] Apps { get; init; }
     }
@@ -54,23 +62,23 @@ internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWit
         return Task.FromResult(
             new AasaResponse
             {
-                Applinks = new AasaResponse.SiteApplinks
+                AppLinks = new AasaResponse.ApplinksResponse
                 {
                     Apps = [],
                     Details =
                     [
-                        new AasaResponse.SiteApplinks.Detail
+                        new AasaResponse.ApplinksResponse.DetailResponse
                         {
                             AppId = appId,
                             Paths = DownloadAppRedirect.OpenPaths
                         }
                     ]
                 },
-                Activitycontinuation = new AasaResponse.ActivityContinuation
+                ActivityContinuation = new AasaResponse.ActivityContinuationResponse
                 {
                     Apps = [appId]
                 },
-                Webcredentials = new AasaResponse.WebCredentials
+                WebCredentials = new AasaResponse.WebCredentialsResponse
                 {
                     Apps = [appId]
                 }
