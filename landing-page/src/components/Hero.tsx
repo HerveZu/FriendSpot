@@ -22,7 +22,10 @@ function DownloadButton(props: {
 
 export const Hero = () => {
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center relative overflow-hidden">
+    <section
+      id="hero"
+      className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center relative overflow-hidden"
+    >
       {/* Background Animation */}
 
       <div className="absolute inset-0 opacity-10">

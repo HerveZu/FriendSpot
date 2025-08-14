@@ -100,10 +100,57 @@ function App() {
     });
 
     return () => {
-      links.forEach((link) => {
-        link.removeEventListener("click", handleSmoothScroll);
-      });
+      links.forEach((link) =>
+        link.removeEventListener("click", handleSmoothScroll),
+      );
       document.head.removeChild(style);
+    };
+  }, []);
+
+  useEffect(() => {
+    const scrollToHowItWorks = () => {
+      const el = document.querySelector("#how-it-works");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (window.scrollY === 0 && e.deltaY > 0) {
+        e.preventDefault();
+        scrollToHowItWorks();
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (window.scrollY === 0) {
+        e.preventDefault();
+        scrollToHowItWorks();
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (
+        window.scrollY === 0 &&
+        (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ")
+      ) {
+        e.preventDefault();
+        scrollToHowItWorks();
+      }
+    };
+
+    const addSnapListeners = () => {
+      window.addEventListener("wheel", onWheel, { passive: false });
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      window.addEventListener("keydown", onKeyDown);
+    };
+
+    addSnapListeners();
+
+    return () => {
+      window.removeEventListener("wheel", onWheel as EventListener);
+      window.removeEventListener("touchmove", onTouchMove as EventListener);
+      window.removeEventListener("keydown", onKeyDown as EventListener);
     };
   }, []);
 

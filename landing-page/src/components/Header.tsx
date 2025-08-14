@@ -33,12 +33,16 @@ export const Header = () => {
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-              <Logo />
+          <a href="#hero">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
+                <Logo />
+              </div>
+              <span className="text-xl font-bold text-slate-50">
+                FriendSpot
+              </span>
             </div>
-            <span className="text-xl font-bold text-slate-50">FriendSpot</span>
-          </div>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -51,9 +55,6 @@ export const Header = () => {
                 {item.label}
               </a>
             ))}
-            <button className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105">
-              Download App
-            </button>
           </nav>
 
           {/* Mobile Menu Button */}
