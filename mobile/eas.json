@@ -9,14 +9,14 @@
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "dev",
-        "APP_DOMAIN": "api.preview.friendspot.com"
+        "APP_DOMAIN": "api.preview.friendspot.app"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "preview",
-        "APP_DOMAIN": "api.preview.friendspot.com"
+        "APP_DOMAIN": "api.preview.friendspot.app"
       }
     },
     "production": {
@@ -29,7 +29,7 @@
       },
       "channel": "production",
       "env": {
-        "APP_DOMAIN": "api.friendspot.com"
+        "APP_DOMAIN": "api.friendspot.app"
       }
     }
   },
