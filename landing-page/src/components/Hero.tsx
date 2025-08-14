@@ -1,4 +1,24 @@
 import { ArrowDown, Clock, Gift, Users } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAndroid, faApple } from "@fortawesome/free-brands-svg-icons";
+import { ReactElement } from "react";
+
+function DownloadButton(props: {
+  downloadUrl: string;
+  text: string;
+  icon: ReactElement;
+}) {
+  return (
+    <a href={props.downloadUrl}>
+      <button className="bg-slate-800 border border-slate-700 hover:bg-gradient-to-r hover:from-emerald-400 hover:to-blue-400 text-slate-300 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-slate-700 hover:text-white transition-all duration-300 transform hover:scale-105">
+        <span className={"flex items-center gap-1"}>
+          {props.icon}
+          {props.text}
+        </span>
+      </button>
+    </a>
+  );
+}
 
 export const Hero = () => {
   return (
@@ -50,13 +70,32 @@ export const Hero = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
-              Download for iOS
-            </button>
-
-            <button className="bg-slate-800 border border-slate-700 text-slate-300 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-slate-700 hover:text-white transition-all duration-300 transform hover:scale-105">
-              Download for Android
-            </button>
+            <DownloadButton
+              downloadUrl={
+                "https://apps.apple.com/us/app/friends-spot/id6742799884"
+              }
+              icon={
+                <FontAwesomeIcon
+                  icon={faApple}
+                  size={"xl"}
+                  className={"-mt-1"}
+                />
+              }
+              text={"Download for iOS"}
+            />
+            <DownloadButton
+              downloadUrl={
+                "https://play.google.com/store/apps/details?id=com.friendspot"
+              }
+              icon={
+                <FontAwesomeIcon
+                  icon={faAndroid}
+                  size={"xl"}
+                  className={"mr-1"}
+                />
+              }
+              text={"Download for Android"}
+            />
           </div>
         </div>
 

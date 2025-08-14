@@ -1,5 +1,11 @@
-import { useState, useEffect } from "react";
-import { Menu, X, Smartphone } from "lucide-react";
+import { ImgHTMLAttributes, useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
+
+type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "src">;
+
+export function Logo({ alt = "Main logo", ...imgProps }: Props) {
+  return <img src="/logo.svg" alt={alt} {...imgProps} />;
+}
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +20,7 @@ export const Header = () => {
   }, []);
 
   const navItems = [
-    { label: "Features", href: "#features" },
+    { label: "How it works", href: "#how-it-works" },
     { label: "Pricing", href: "#pricing" },
     { label: "Contact", href: "#contact" },
   ];
@@ -22,16 +28,14 @@ export const Header = () => {
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-slate-900/95 backdrop-blur-sm border-b border-slate-800"
-          : "bg-transparent"
+        isScrolled ? "bg-slate-900/95 backdrop-blur-sm" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-              <Smartphone className="w-5 h-5 text-white" />
+              <Logo />
             </div>
             <span className="text-xl font-bold text-slate-50">FriendSpot</span>
           </div>
