@@ -63,7 +63,7 @@ export const Hero = () => {
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-slate-300 mb-8 leading-relaxed">
+          <p className="text-lg md:text-2xl text-slate-300 mb-8 leading-relaxed">
             Create parking groups with friends and share spots for free.
             <br />
             <strong className="text-primary/80">
