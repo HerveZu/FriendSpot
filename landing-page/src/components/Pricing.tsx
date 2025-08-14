@@ -30,7 +30,7 @@ const plans = [
     ],
     buttonText: "Start Premium",
     buttonClass:
-      "bg-gradient-to-r from-emerald-500 to-blue-500 hover:shadow-xl text-white",
+      "bg-gradient-to-r from-primary to-secondary hover:shadow-xl text-white",
     popular: true,
     oneTime: "Or €10 one-time payment",
   },
@@ -98,14 +98,12 @@ export const Pricing = () => {
               >
                 <div
                   className={`relative bg-slate-800 rounded-2xl p-8 h-full flex flex-col ${
-                    plan.popular
-                      ? "ring-2 ring-emerald-500 ring-opacity-50"
-                      : ""
+                    plan.popular ? "ring-2 ring-primary ring-opacity-50" : ""
                   }`}
                 >
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-6 py-2 rounded-full text-sm font-semibold">
+                      <div className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-sm font-semibold">
                         Most Popular
                       </div>
                     </div>
@@ -115,7 +113,7 @@ export const Pricing = () => {
                     <div
                       className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 ${
                         plan.popular
-                          ? "bg-gradient-to-r from-emerald-500 to-blue-500"
+                          ? "bg-gradient-to-r from-primary to-secondary"
                           : "bg-slate-700"
                       }`}
                     >
@@ -132,7 +130,7 @@ export const Pricing = () => {
                       <span className="text-slate-300">{plan.period}</span>
                     </div>
                     {plan.oneTime && (
-                      <p className="text-sm text-emerald-400">{plan.oneTime}</p>
+                      <p className="text-sm text-primary/80">{plan.oneTime}</p>
                     )}
                   </div>
 
@@ -143,7 +141,7 @@ export const Pricing = () => {
                           key={featureIndex}
                           className="flex items-center space-x-3"
                         >
-                          <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-primary/80 flex-shrink-0" />
                           <span className="text-slate-300">{feature}</span>
                         </li>
                       ))}

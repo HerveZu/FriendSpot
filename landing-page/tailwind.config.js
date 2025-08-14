@@ -14,6 +14,8 @@ export default {
         xs: "475px",
       },
       colors: {
+        primary: "#0385FF",
+        secondary: "#7181e3",
         slate: {
           850: "#1a202c",
         },

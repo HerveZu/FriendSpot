@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./Logo.tsx";
+import { HERO_ID } from "./Hero.tsx";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [, setLastScrollPosition] = useState(0);
+  const [lastScrollPosition, setLastScrollPosition] = useState(0);
   const [lastScroll, setLastScroll] = useState<"top" | "bottom">("top");
 
   useEffect(() => {
@@ -30,11 +31,11 @@ export const Header = () => {
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/95 ${
         lastScroll === "bottom" && "opacity-0 hover:opacity-100"
-      }`}
+      } ${lastScrollPosition === 0 && "bg-transparent"}`}
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <a href="#hero">
+          <a href={`#${HERO_ID}`}>
             <div className="flex items-center space-x-2">
               <Logo />
               <span className="text-xl font-bold text-slate-50">
@@ -83,9 +84,6 @@ export const Header = () => {
                   {item.label}
                 </a>
               ))}
-              <button className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-200 w-full">
-                Download App
-              </button>
             </nav>
           </div>
         )}

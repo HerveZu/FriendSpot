@@ -7,28 +7,24 @@ const steps = [
     title: "Create or Join Groups",
     description:
       "Start by creating a parking group with friends, family, or neighbors. Or join existing groups in your area.",
-    color: "emerald",
   },
   {
     icon: MapPin,
     title: "Share Your Spot",
     description:
       "When you're not using your parking spot, make it available to your group members.",
-    color: "blue",
   },
   {
     icon: Clock,
     title: "Earn Time Credits",
     description:
       "For every hour you share your spot, you earn 1 hour of parking credit to use elsewhere.",
-    color: "violet",
   },
   {
     icon: Repeat,
     title: "Use Others' Spots",
     description:
       "Spend your earned credits to park in other members' spots when you need them.",
-    color: "orange",
   },
 ];
 
@@ -77,9 +73,9 @@ export const HowItWorks = () => {
               >
                 <div className="text-center">
                   <div
-                    className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-emerald-400 to-blue-400 mb-6`}
+                    className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-primary/80 to-secondary/80 mb-6`}
                   >
-                    <Icon className="w-8 h-8 text-white" />
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-50 mb-4">
                     {step.title}
