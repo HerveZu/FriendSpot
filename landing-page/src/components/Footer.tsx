@@ -1,82 +1,89 @@
-import { Car, Mail, MapPin, ArrowRight } from 'lucide-react';
+import { Smartphone, Mail, MapPin, Phone } from "lucide-react";
 
-export function Footer() {
+export const Footer = () => {
+  const footerLinks = {
+    Product: ["How it Works", "Features", "Pricing", "Download"],
+    Company: ["About Us", "Careers", "Press", "Contact"],
+    Support: ["Help Center", "Community", "Safety", "Terms"],
+    Legal: [
+      "Privacy Policy",
+      "Terms of Service",
+      "Cookie Policy",
+      "Disclaimer",
+    ],
+  };
+
   return (
-    <footer className="bg-gray-900 dark:bg-black text-white transition-colors">
-      {/* CTA Final */}
-      <div className="bg-gradient-to-r from-[#046eda] to-[#7288d8] py-16">
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-4xl font-bold mb-4">
-            Transformez le stationnement de votre résidence
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Rejoignez les quartiers pilotes et découvrez une nouvelle façon de partager entre voisins
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="mailto:friendspot.app@gmail.com"
-              className="group bg-white text-[#046eda] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center space-x-2"
-            >
-              <span>Rejoindre les pilotes</span>
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </a>
-            <p className="text-blue-100 dark:text-blue-200 text-sm">
-              Gratuit • Sans engagement • Accompagnement personnalisé
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Content */}
-      <div className="py-16 bg-gray-900 dark:bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="col-span-2">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#046eda] to-[#7288d8] rounded-xl flex items-center justify-center">
-                  <Car className="text-white" size={20} />
-                </div>
-                <span className="ml-3 text-2xl font-bold">FriendSpot</span>
+    <footer id="contact" className="bg-slate-900 border-t border-slate-800">
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+          {/* Brand Section */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <Smartphone className="w-5 h-5 text-white" />
               </div>
-              <p className="text-gray-400 dark:text-gray-500 mb-6 max-w-md">
-                La première application mobile qui révolutionne le stationnement résidentiel
-                en permettant aux voisins de s'échanger leurs places de parking de manière équitable.
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center text-gray-400 dark:text-gray-500">
-                  <Mail size={16} className="mr-2" />
-                  <a href="mailto:friendspot.app@gmail.com" className="hover:text-white dark:hover:text-gray-300 transition-colors">
-                    friendspot.app@gmail.com
-                  </a>
-                </div>
-                <div className="flex items-center text-gray-400 dark:text-gray-500">
-                  <MapPin size={16} className="mr-2" />
-                  <span>France</span>
-                </div>
+              <span className="text-xl font-bold text-slate-50">
+                FriendSpot
+              </span>
+            </div>
+            <p className="text-slate-300 mb-6 leading-relaxed">
+              Revolutionizing urban parking through community-driven sharing.
+              Join thousands of users making parking stress-free and social.
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3 text-slate-300">
+                <Mail className="w-4 h-4 text-emerald-400" />
+                <span>hello@friendspot.app</span>
+              </div>
+              <div className="flex items-center space-x-3 text-slate-300">
+                <Phone className="w-4 h-4 text-emerald-400" />
+                <span>+1 (555) 123-4567</span>
+              </div>
+              <div className="flex items-center space-x-3 text-slate-300">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                <span>San Francisco, CA</span>
               </div>
             </div>
+          </div>
 
-            <div>
-              <h3 className="font-semibold mb-4">Navigation</h3>
-              <ul className="space-y-2 text-gray-400 dark:text-gray-500">
-                <li><a href="#comment-ca-marche" className="hover:text-white dark:hover:text-gray-300 transition-colors">Comment ça marche</a></li>
-                <li><a href="#avantages" className="hover:text-white dark:hover:text-gray-300 transition-colors">Avantages</a></li>
-                <li><a href="#pour-qui" className="hover:text-white dark:hover:text-gray-300 transition-colors">Pour qui</a></li>
-                <li><a href="#contact" className="hover:text-white dark:hover:text-gray-300 transition-colors">Contact</a></li>
+          {/* Links Sections */}
+          {Object.entries(footerLinks).map(([title, links]) => (
+            <div key={title}>
+              <h3 className="text-slate-50 font-semibold mb-4">{title}</h3>
+              <ul className="space-y-3">
+                {links.map((link) => (
+                  <li key={link}>
+                    <a
+                      href="#"
+                      className="text-slate-300 hover:text-emerald-400 transition-colors duration-200"
+                    >
+                      {link}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="border-t border-gray-800 dark:border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 dark:text-gray-500 text-sm">
-              © 2025 FriendSpot. Tous droits réservés.
+        <div className="border-t border-slate-800 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <p className="text-slate-400 text-sm">
+              © 2025 FriendSpot. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 dark:text-gray-500 hover:text-white dark:hover:text-gray-300 transition-colors text-sm">
-                Politique de confidentialité
+              <a
+                href="#"
+                className="text-slate-400 hover:text-emerald-400 transition-colors duration-200"
+              >
+                Privacy Policy
               </a>
-              <a href="#" className="text-gray-400 dark:text-gray-500 hover:text-white dark:hover:text-gray-300 transition-colors text-sm">
-                Conditions d'utilisation
+              <a
+                href="#"
+                className="text-slate-400 hover:text-emerald-400 transition-colors duration-200"
+              >
+                Terms of Service
               </a>
             </div>
           </div>
@@ -84,4 +91,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+};

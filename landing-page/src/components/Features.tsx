@@ -1,79 +1,113 @@
-import { Zap, Shield, Users, Smartphone, BarChart3, Clock } from 'lucide-react';
+import { useEffect, useRef } from "react";
+import { Shield, Zap, Heart, Globe, Calendar, Bell } from "lucide-react";
 
 const features = [
   {
-    icon: Zap,
-    title: "Performance Ultra-Rapide",
-    description: "Une vitesse d'exécution jusqu'à 10x plus rapide que la concurrence",
-    color: "from-yellow-400 to-orange-500"
-  },
-  {
     icon: Shield,
-    title: "Sécurité Enterprise",
-    description: "Chiffrement de niveau bancaire et conformité RGPD garantie",
-    color: "from-green-400 to-green-600"
+    title: "Safe & Secure",
+    description:
+      "Verified users and secure payment processing ensure your safety and peace of mind.",
+    gradient: "from-emerald-500 to-teal-500",
   },
   {
-    icon: Users,
-    title: "Collaboration Temps Réel",
-    description: "Travaillez en équipe sans friction avec la synchronisation instantanée",
-    color: "from-blue-400 to-blue-600"
+    icon: Zap,
+    title: "Instant Notifications",
+    description:
+      "Get real-time updates when spots become available or when someone requests yours.",
+    gradient: "from-blue-500 to-cyan-500",
   },
   {
-    icon: Smartphone,
-    title: "Mobile-First",
-    description: "Application native sur tous vos appareils avec synchronisation complète",
-    color: "from-purple-400 to-purple-600"
+    icon: Heart,
+    title: "Community First",
+    description:
+      "Built on the principle of helping neighbors and creating stronger communities.",
+    gradient: "from-pink-500 to-rose-500",
   },
   {
-    icon: BarChart3,
-    title: "Analytics Avancés",
-    description: "Tableaux de bord intelligents avec insights automatiques",
-    color: "from-indigo-400 to-indigo-600"
+    icon: Globe,
+    title: "Growing Network",
+    description:
+      "Join thousands of users across multiple cities and expand your parking options.",
+    gradient: "from-violet-500 to-purple-500",
   },
   {
-    icon: Clock,
-    title: "Automatisation Smart",
-    description: "IA intégrée qui automatise vos tâches répétitives",
-    color: "from-pink-400 to-pink-600"
-  }
+    icon: Calendar,
+    title: "Flexible Scheduling",
+    description:
+      "Schedule your spot availability in advance and plan your parking needs.",
+    gradient: "from-orange-500 to-amber-500",
+  },
+  {
+    icon: Bell,
+    title: "Smart Reminders",
+    description:
+      "Never forget to move your car with intelligent reminder notifications.",
+    gradient: "from-indigo-500 to-blue-500",
+  },
 ];
 
-export function Features() {
+export const Features = () => {
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-slide-up");
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
+
+    const elements = ref.current?.querySelectorAll(".feature-card");
+    elements?.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="features" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="features" ref={ref} className="py-20 bg-slate-800">
+      <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Tout ce dont vous avez besoin pour
-            <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"> réussir</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-50 mb-4">
+            Why Choose FriendSpot?
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Des fonctionnalités pensées pour maximiser votre productivité et celle de votre équipe
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+            We've built more than just a parking app. We've created a
+            community-driven platform that makes urban parking stress-free and
+            social.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <feature.icon size={24} className="text-white" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={index}
+                className="feature-card opacity-0 transition-all duration-700 transform translate-y-8"
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="bg-slate-700 rounded-2xl p-8 hover:bg-slate-600 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 group">
+                  <div
+                    className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r ${feature.gradient} mb-6 group-hover:scale-110 transition-transform duration-300`}
+                  >
+                    <Icon className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-50 mb-4">
+                    {feature.title}
+                  </h3>
+                  <p className="text-slate-300 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-            Découvrir toutes les fonctionnalités
-          </button>
+            );
+          })}
         </div>
       </div>
     </section>
   );
-}
+};
