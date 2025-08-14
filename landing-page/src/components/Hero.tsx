@@ -3,6 +3,22 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAndroid, faApple } from "@fortawesome/free-brands-svg-icons";
 import { ReactElement } from "react";
 
+type DeviceOs = "Android" | "iOS" | "unknown";
+
+function getMobileOperatingSystem(): DeviceOs {
+  const userAgent = navigator.userAgent;
+
+  if (/android/i.test(userAgent)) {
+    return "Android";
+  }
+
+  if (/iPad|iPhone|iPod/.test(userAgent)) {
+    return "iOS";
+  }
+
+  return "unknown";
+}
+
 function DownloadButton(props: {
   downloadUrl: string;
   text: string;
@@ -76,32 +92,40 @@ export const Hero = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <DownloadButton
-              downloadUrl={
-                "https://apps.apple.com/us/app/friends-spot/id6742799884"
-              }
-              icon={
-                <FontAwesomeIcon
-                  icon={faApple}
-                  size={"xl"}
-                  className={"-mt-1"}
-                />
-              }
-              text={"Download for iOS"}
-            />
-            <DownloadButton
-              downloadUrl={
-                "https://play.google.com/store/apps/details?id=com.friendspot"
-              }
-              icon={
-                <FontAwesomeIcon
-                  icon={faAndroid}
-                  size={"xl"}
-                  className={"mr-1"}
-                />
-              }
-              text={"Download for Android"}
-            />
+            {(["unknown", "iOS"] as DeviceOs[]).includes(
+              getMobileOperatingSystem(),
+            ) && (
+              <DownloadButton
+                downloadUrl={
+                  "https://apps.apple.com/us/app/friends-spot/id6742799884"
+                }
+                icon={
+                  <FontAwesomeIcon
+                    icon={faApple}
+                    size={"xl"}
+                    className={"-mt-1"}
+                  />
+                }
+                text={"Download for iOS"}
+              />
+            )}
+            {(["unknown", "Android"] as DeviceOs[]).includes(
+              getMobileOperatingSystem(),
+            ) && (
+              <DownloadButton
+                downloadUrl={
+                  "https://play.google.com/store/apps/details?id=com.friendspot"
+                }
+                icon={
+                  <FontAwesomeIcon
+                    icon={faAndroid}
+                    size={"xl"}
+                    className={"mr-1"}
+                  />
+                }
+                text={"Download for Android"}
+              />
+            )}
           </div>
         </div>
 
