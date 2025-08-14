@@ -1,8 +1,5 @@
 const APP_VARIANT = process.env.APP_VARIANT;
-const backendDomain = process.env.EXPO_PUBLIC_BACKEND_API_URL.replace(
-  /^https?:\/\/([^:\/]+)[:\/]?/,
-  '$1'
-);
+const appDomain = process.env.APP_DOMAIN;
 
 const getUniqueIdentifier = () => {
   const id = 'com.friendspot';
@@ -28,7 +25,7 @@ export default ({ config }) => ({
   ios: {
     ...config.ios,
     bundleIdentifier: getUniqueIdentifier(),
-    associatedDomains: [`applinks:${backendDomain}`],
+    associatedDomains: [`applinks:${appDomain}`],
   },
   android: {
     ...config.android,
@@ -39,7 +36,7 @@ export default ({ config }) => ({
         data: [
           {
             scheme: 'https',
-            host: backendDomain,
+            host: appDomain,
             pathPrefix: '/_open',
           },
         ],

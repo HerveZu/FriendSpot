@@ -8,13 +8,15 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "APP_VARIANT": "dev"
+        "APP_VARIANT": "dev",
+        "APP_DOMAIN": "api.preview.friendspot.com"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "APP_VARIANT": "preview"
+        "APP_VARIANT": "preview",
+        "APP_DOMAIN": "api.preview.friendspot.com"
       }
     },
     "production": {
@@ -25,7 +27,10 @@
       "ios": {
         "image": "latest"
       },
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "APP_DOMAIN": "api.friendspot.com"
+      }
     }
   },
   "submit": {
