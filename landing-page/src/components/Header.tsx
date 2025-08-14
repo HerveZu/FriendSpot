@@ -1,19 +1,20 @@
-import { ImgHTMLAttributes, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-
-type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "src">;
-
-export function Logo({ alt = "Main logo", ...imgProps }: Props) {
-  return <img src="/logo.svg" alt={alt} {...imgProps} />;
-}
+import { Logo } from "./Logo.tsx";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [, setLastScrollPosition] = useState(0);
+  const [lastScroll, setLastScroll] = useState<"top" | "bottom">("top");
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setLastScrollPosition((lastScrollPosition) => {
+        setLastScroll(
+          lastScrollPosition - window.scrollY < 0 ? "bottom" : "top",
+        );
+        return window.scrollY;
+      });
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -27,17 +28,15 @@ export const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-slate-900/95 backdrop-blur-sm" : "bg-transparent"
+      className={`fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/95 ${
+        lastScroll === "bottom" && "opacity-0 hover:opacity-100"
       }`}
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <a href="#hero">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-                <Logo />
-              </div>
+              <Logo />
               <span className="text-xl font-bold text-slate-50">
                 FriendSpot
               </span>

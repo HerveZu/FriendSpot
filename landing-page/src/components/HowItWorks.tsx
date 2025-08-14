@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { UserPlus, MapPin, Clock, Repeat } from "lucide-react";
+import { Clock, MapPin, Repeat, UserPlus } from "lucide-react";
 
 const steps = [
   {
@@ -77,7 +77,7 @@ export const HowItWorks = () => {
               >
                 <div className="text-center">
                   <div
-                    className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-${step.color}-500 to-${step.color}-600 mb-6`}
+                    className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-emerald-400 to-blue-400 mb-6`}
                   >
                     <Icon className="w-8 h-8 text-white" />
                   </div>
