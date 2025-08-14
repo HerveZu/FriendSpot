@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Check, Star, Crown, Building } from "lucide-react";
+import { Building, Check, Crown, Star } from "lucide-react";
 
 const plans = [
   {
@@ -9,10 +9,8 @@ const plans = [
     icon: Star,
     description: "Perfect for getting started with parking sharing",
     features: [
-      "Unlimited parking creation",
-      "Up to 10 group members",
-      "24-hour time limit per use",
-      "Basic notifications",
+      "Unlimited parking group creation",
+      "24-hour time limit per reservation",
       "Community support",
     ],
     buttonText: "Get Started Free",
@@ -27,11 +25,8 @@ const plans = [
     description: "Unlock unlimited parking potential",
     features: [
       "Everything in Free",
-      "Unlimited time per use",
+      "Unlimited time per reservation",
       "Parking sharing requests",
-      "Priority notifications",
-      "Premium support",
-      "Advanced scheduling",
     ],
     buttonText: "Start Premium",
     buttonClass:
@@ -42,16 +37,13 @@ const plans = [
   {
     name: "Custom Group",
     price: "€5",
-    period: "/user/month",
+    period: "/month per user",
     icon: Building,
-    description: "For large communities and organizations",
+    description: "For larger neighbourhoods and communities",
     features: [
-      "Everything in Premium",
       "Unlimited group members",
-      "Custom group management",
-      "Analytics dashboard",
+      "Advanced group management",
       "Dedicated support",
-      "Custom integrations",
     ],
     buttonText: "Contact Sales",
     buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
