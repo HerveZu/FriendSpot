@@ -1,5 +1,5 @@
 const APP_VARIANT = process.env.APP_VARIANT;
-const appDomain = process.env.APP_DOMAIN;
+const appDomain = process.env.EXPO_PUBLIC_APP_DOMAIN;
 
 const getUniqueIdentifier = () => {
   const id = 'com.friendspot';
