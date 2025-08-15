@@ -10,7 +10,7 @@ type DisplayUser = {
   displayName: string;
   pictureUrl?: string | null;
   fontSize?: number;
-  info?: string
+  info?: string;
 };
 
 const MAX_USERS = 3;
@@ -95,18 +95,15 @@ export function UserAvatar({ displayName, pictureUrl, ...props }: UserAvatarProp
   );
 }
 
-export function MeAvatar(props: Omit<UserAvatarProps, 'displayName'> & { info?: string }) {
+export function MeAvatar(props: Omit<UserAvatarProps, 'displayName'>) {
   const { userProfile } = useCurrentUser();
 
   return (
-    <View className='h-full items-center'>
-      <UserAvatar
-        {...props}
-        displayName={userProfile.displayName}
-        pictureUrl={userProfile.pictureUrl}
-      />
-      {props.info && <Text className='text-xs text-center mt-2 w-full'>{props.info}</Text>}
-    </View>
+    <UserAvatar
+      {...props}
+      displayName={userProfile.displayName}
+      pictureUrl={userProfile.pictureUrl}
+    />
   );
 }
 
