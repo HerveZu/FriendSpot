@@ -26,6 +26,7 @@ import { UserWallet } from '~/components/UserWallet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { BlurView } from '@react-native-community/blur';
+import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
@@ -43,6 +44,7 @@ export function ScreenWithHeader(
   const [scroll, setScroll] = useState(0);
   const { colors, isDarkColorScheme } = useColorScheme();
   const { refreshProfile } = useCurrentUser();
+  const { triggerRefresh } = useContext(RefreshTriggerContext);
 
   const hideHeader = scroll <= HIDE_HEADER_AFTER_SCROLL;
   const fadeOpacity = useAnimatedValue(0);
@@ -59,6 +61,7 @@ export function ScreenWithHeader(
     setRefreshing(true);
 
     refreshProfile().finally(() => setRefreshing(false));
+    triggerRefresh();
   }
 
   return (

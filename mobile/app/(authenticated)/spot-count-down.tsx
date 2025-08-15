@@ -1,7 +1,7 @@
 import { differenceInSeconds, intervalToDuration, secondsToMilliseconds } from 'date-fns';
 import { toSeconds } from 'duration-fns';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 

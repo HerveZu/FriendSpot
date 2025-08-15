@@ -6,7 +6,7 @@ import {
   updateProfile,
   UserCredential,
 } from 'firebase/auth';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import stepTwoIllustration from '~/assets/security.svg';
@@ -19,6 +19,7 @@ import { ExternalLink } from '~/components/ExternalLink';
 import { Checkbox } from '~/components/Checkbox';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
+import { useRedirectToInitialUrl } from '~/authentication/useRedirectToInitialUrl';
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;
@@ -34,6 +35,7 @@ export default function StepTwoScreen() {
   const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
+  const redirectToInitialUrl = useRedirectToInitialUrl();
   const validators = useValidators();
 
   async function createAccount() {
@@ -62,7 +64,7 @@ export default function StepTwoScreen() {
     await user?.reload();
     if (user?.emailVerified) {
       setIsModalVisible(false);
-      router.navigate('/');
+      redirectToInitialUrl('/');
     } else {
       setError(t('auth.signUp.errors.emailNotVerified'));
       console.log('email not verified');

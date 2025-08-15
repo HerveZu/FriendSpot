@@ -1,8 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { Loader } from '~/components/Loader';
 
-export default function All() {
+export default function DynamicOpenRedirect() {
   const router = useRouter();
   const { all, ...params } = useLocalSearchParams();
 
@@ -25,5 +25,5 @@ export default function All() {
     router.replace(redirectUrl as any);
   }, [all, params, router]);
 
-  return <ActivityIndicator />;
+  return <Loader />;
 }

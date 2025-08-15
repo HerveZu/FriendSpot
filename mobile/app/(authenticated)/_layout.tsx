@@ -4,16 +4,15 @@ import '../../i18n/i18n';
 
 import 'expo-dev-client';
 import { Stack } from 'expo-router';
-
-import { AuthenticationGuard } from '~/authentication/AuthenticationGuard';
 import { AuthProvider } from '~/authentication/AuthProvider';
 import { UserProvider } from '~/authentication/UserProvider';
 import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
+import { RefreshTriggerProvider } from '~/authentication/RefreshTriggerProvider';
 
 export default function AuthenticatedLayout() {
   return (
-    <AuthenticationGuard>
-      <AuthProvider>
+    <AuthProvider>
+      <RefreshTriggerProvider refreshIntervalMs={30_000}>
         <UserProvider>
           <EnsureUserHasSpot>
             <Stack
@@ -23,7 +22,7 @@ export default function AuthenticatedLayout() {
             />
           </EnsureUserHasSpot>
         </UserProvider>
-      </AuthProvider>
-    </AuthenticationGuard>
+      </RefreshTriggerProvider>
+    </AuthProvider>
   );
 }

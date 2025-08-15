@@ -23,7 +23,7 @@ import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
-import { useFetch, useLoading } from '~/lib/useFetch';
+import { useFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { Entypo, Feather, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
@@ -53,7 +53,7 @@ import { AppContext } from '~/app/_layout';
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
   const { colors } = useColorScheme();
-  const { userProfile, updateInternalProfile } = useCurrentUser();
+  const { userProfile, updateUserProfile } = useCurrentUser();
   const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
@@ -79,7 +79,11 @@ export default function UserProfileScreen() {
       body: imageBody,
     });
 
-    await updateInternalProfile(`${readonlyUrl}#_n=${Math.random()}`, userProfile.displayName);
+    await updateUserProfile({
+      // make the link change to know it's been updated as the path is unchanged
+      pictureUrl: `${readonlyUrl}#_n=${new Date().toISOString()}`,
+      displayName: userProfile.displayName,
+    });
   };
 
   const [displayNameDebounce] = useDebounce(currentDisplayName, 400);
@@ -89,11 +93,15 @@ export default function UserProfileScreen() {
       return;
     }
 
-    updateInternalProfile(firebaseUser?.photoURL, currentDisplayName).then();
+    updateUserProfile({
+      pictureUrl: firebaseUser?.photoURL,
+      displayName: currentDisplayName,
+    }).then();
   }, [displayNameDebounce]);
 
   function updateDisplayName() {
-    firebaseUser.photoURL && updateInternalProfile(firebaseUser.photoURL, currentDisplayName);
+    firebaseUser.photoURL &&
+      updateUserProfile({ pictureUrl: firebaseUser.photoURL, displayName: currentDisplayName });
   }
 
   return (
@@ -370,7 +378,7 @@ function DefineSpotSheet(props: {
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
-  const { userProfile, refreshProfile } = useCurrentUser();
+  const { userProfile } = useCurrentUser();
   const [currentSpotName, setCurrentSpotName] = useState(userProfile.spot?.name);
 
   const { colors } = useColorScheme();
@@ -380,7 +388,7 @@ function DefineSpotSheet(props: {
   const [search, setSearch] = useState<string>();
   const [searchFocused, setSearchFocused] = useState(false);
   const searchParking = useSearchParking();
-  const [defineSpot, isUpdating] = useLoading(useDefineSpot(), {
+  const [defineSpot, isUpdating] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
 
@@ -419,10 +427,10 @@ function DefineSpotSheet(props: {
       return;
     }
 
-    defineSpot({
+    await defineSpot({
       parkingId: selectedParking.id,
       lotName: currentSpotName,
-    }).then(refreshProfile);
+    });
   }
 
   function selectParking(parking: ParkingResponse) {

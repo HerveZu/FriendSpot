@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import {
   getAuth,
   sendEmailVerification,
@@ -21,6 +21,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useValidators } from '~/form/validators';
 import { FormInfo, FormMessages } from '~/form/FormMessages';
+import { useRedirectToInitialUrl } from '~/authentication/useRedirectToInitialUrl';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ export default function LoginScreen() {
   const [isPendingMailModalOpen, setIsPendingMailModalOpen] = useState(false);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const auth = getAuth();
-  const router = useRouter();
+  const redirectToInitialUrl = useRedirectToInitialUrl();
   const validators = useValidators();
 
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function LoginScreen() {
     setError(undefined);
     setIsPendingMailModalOpen(false);
     setIsResetPasswordModalOpen(false);
-    router.navigate('/');
+    redirectToInitialUrl('/');
   }
 
   return (

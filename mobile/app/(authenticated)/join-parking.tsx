@@ -24,7 +24,7 @@ import { cn } from '~/lib/cn';
 import { UserSpotCheckContext } from '~/spots/EnsureUserHasSpot';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TextInput } from '~/components/TextInput';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import { useCurrentUser } from '~/authentication/UserProvider';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -207,9 +207,10 @@ function ConfirmJoinModal({
   const [step, setStep] = useState<'confirm' | 'spot'>('confirm');
   const [lotName, setLotName] = useState('A12');
   const [defineSpot, isLoading] = useLoading(useDefineSpot());
+  const { refreshProfile } = useCurrentUser();
 
   async function handleJoin() {
-    await defineSpot({ parkingId: parking.id, lotName: lotName });
+    await defineSpot({ parkingId: parking.id, lotName: lotName }).then(refreshProfile);
     onClose();
     onJoin();
   }

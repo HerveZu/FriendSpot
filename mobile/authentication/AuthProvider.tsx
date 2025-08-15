@@ -1,21 +1,40 @@
 import { User } from 'firebase/auth';
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, PropsWithChildren, useContext, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 import { firebaseAuth } from '~/authentication/firebase';
 import { Loader } from '~/components/Loader';
+import { SplashScreen, useRouter } from 'expo-router';
+import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 
-type _AuthContext = {
+const AuthContext = createContext<{
   firebaseUser: User;
-};
-
-const AuthContext = createContext<_AuthContext>(null!);
+  isAuthenticated: boolean;
+}>(null!);
 
 export function AuthProvider(props: PropsWithChildren) {
-  const [firebaseUser] = useAuthState(firebaseAuth);
+  const [firebaseUser, isLoading, error] = useAuthState(firebaseAuth);
+  const router = useRouter();
+  const appActiveTrigger = useListenOnAppStateChange('active');
 
-  return firebaseUser ? (
-    <AuthContext.Provider value={{ firebaseUser }}>{props.children}</AuthContext.Provider>
+  const isAuthenticated = !!firebaseUser && firebaseUser.emailVerified && !error;
+
+  useEffect(() => {
+    !isLoading && !isAuthenticated && SplashScreen.hide();
+  }, [isLoading, isAuthenticated]);
+
+  useEffect(() => {
+    if (isLoading || isAuthenticated) {
+      return;
+    }
+
+    router.navigate('/welcome');
+  }, [isLoading, isAuthenticated, appActiveTrigger]);
+
+  return isAuthenticated && firebaseUser ? (
+    <AuthContext.Provider value={{ isAuthenticated, firebaseUser }}>
+      {props.children}
+    </AuthContext.Provider>
   ) : (
     <Loader />
   );

@@ -16,11 +16,11 @@ import {
   min,
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
-import { SpotCountDownScreenParams } from '~/app/spot-count-down';
+import { SpotCountDownScreenParams } from '~/app/(authenticated)/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
 import { Card, CardContainer } from '~/components/Card';
@@ -62,6 +62,7 @@ import {
   useGetMyBookingRequests,
 } from '~/endpoints/requestBooking/get-my-parking-requests';
 import { useCancelBookingRequest } from '~/endpoints/requestBooking/cancel-spot-booking-request';
+import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -441,7 +442,7 @@ function BookingSheet(props: {
     beforeMarkingComplete: () => props.onOpen(false),
   });
   const getAvailableSpots = useGetAvailableSpots();
-  const { refreshProfile } = useCurrentUser();
+  const { triggerRefresh } = useContext(RefreshTriggerContext);
   const [toDebounce] = useDebounce(to, 200);
   const [fromDebounce] = useDebounce(from, 200);
 
@@ -549,7 +550,7 @@ function BookingSheet(props: {
         },
         selectedSpot.parkingLotId
       )
-        .then(refreshProfile)
+        .then(triggerRefresh)
         .then(() => {
           openInfoModal();
         });
@@ -560,7 +561,7 @@ function BookingSheet(props: {
       from,
       to,
       bonus: requestBonusOption ?? undefined,
-    }).then(refreshProfile);
+    }).then(triggerRefresh);
   }
 
   const justAfterNow = addMinutes(now, 5);

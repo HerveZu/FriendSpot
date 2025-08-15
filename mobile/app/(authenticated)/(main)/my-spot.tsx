@@ -16,7 +16,7 @@ import {
   secondsToMilliseconds,
 } from 'date-fns';
 import { Redirect } from 'expo-router';
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
@@ -61,6 +61,7 @@ import {
 import { useAcceptBookingRequest } from '~/endpoints/requestBooking/accept-spot-booking-request';
 import { Modal, ModalProps, ModalTitle } from '~/components/Modal';
 import { Rating } from '~/components/Rating';
+import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 
 export default function MySpotScreen() {
   const { t } = useTranslation();
@@ -368,7 +369,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   const INITIAL_DURATION_HOURS = 2;
 
   const now = useActualTime(60_000);
-  const { refreshProfile } = useCurrentUser();
+  const { triggerRefresh } = useContext(RefreshTriggerContext);
   const { colors } = useColorScheme();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
@@ -410,7 +411,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
     lend({
       from,
       to,
-    }).then(refreshProfile);
+    }).then(triggerRefresh);
   }
 
   const justAfterNow = addMinutes(now, 5);
