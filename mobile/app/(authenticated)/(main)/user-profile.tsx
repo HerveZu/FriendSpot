@@ -47,7 +47,7 @@ import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
 import { formatDistance } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { Rating } from '~/components/Rating';
-import { deeplink } from '~/endpoints/deeplink';
+import { universalLink } from '~/endpoints/universalLink';
 import { AppContext } from '~/app/_layout';
 
 export default function UserProfileScreen() {
@@ -198,7 +198,7 @@ function ShareSpot() {
       {
         title: t('user.parking.share.title'),
         message: t('user.parking.share.message', { code: code }),
-        url: deeplink(`join-parking?code=${code}`),
+        url: universalLink(`join-parking?code=${code}`),
       },
       { dialogTitle: t('user.parking.share.title') }
     );
