@@ -30,7 +30,10 @@ export const Header = () => {
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/95 ${
-        lastScroll === "bottom" && "opacity-0 hover:opacity-100"
+        lastScroll === "bottom" &&
+        // avoid scroll bouncing issues on mobile
+        lastScrollPosition > 100 &&
+        "opacity-0 hover:opacity-100"
       } ${lastScrollPosition === 0 && "bg-transparent"}`}
     >
       <div className="container mx-auto px-6 py-4">
