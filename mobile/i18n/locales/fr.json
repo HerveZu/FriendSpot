@@ -111,7 +111,9 @@
       },
       "joinParking": {
         "title": "Groupe trouvé !",
-        "description": "Rejoins un groupe de stationnement existant en utilisant un code d'invitation.",
+        "name": "Nom:",
+        "information": "Information:",
+        "spotCount": "Nombre de membre:",
         "enterCode": "Entrer le code d'invitation",
         "join": "Rejoindre",
         "joining": "Rejoindre en cours...",
@@ -126,7 +128,8 @@
         }
       },
       "parkingCode": {
-        "title": "Entre un code de groupe",
+        "title": "Code de groupe",
+        "description": "Rejoins un groupe de stationnement existant en utilisant un code d'invitation.",
         "dismissCheck": "Je n'ai pas de code de groupe"
       }
     }

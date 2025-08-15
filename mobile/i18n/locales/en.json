@@ -111,6 +111,9 @@
       },
       "joinParking": {
         "title": "Group found!",
+        "name": "Name:",
+        "information": "Information:",
+        "spotCount": "Number of members:",
         "description": "Join an existing parking group using an invitation code.",
         "enterCode": "Enter the invitation code",
         "join": "Join",
@@ -126,7 +129,8 @@
         }
       },
       "parkingCode": {
-        "title": "Enter a group code",
+        "title": "Group code",
+        "description": "Join an existing parking group using an invitation code.",
         "dismissCheck": "I don't have a group code"
       }
     }
