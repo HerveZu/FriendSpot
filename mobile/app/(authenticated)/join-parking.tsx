@@ -22,21 +22,33 @@ import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useTranslation } from 'react-i18next';
 import { cn } from '~/lib/cn';
 import { UserSpotCheckContext } from '~/spots/EnsureUserHasSpot';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TextInput } from '~/components/TextInput';
+import { ThemedIcon } from '~/components/ThemedIcon';
 
 export default function JoinParking() {
-  const [code, setCode] = useState('');
+  const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
+  const [code, setCode] = useState(initialCode || '');
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const searchParking = useSearchParking();
   const { dismiss: dismissUserSpotCheck } = useContext(UserSpotCheckContext);
+  const [hasResetCode, setHasResetCode] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!hasResetCode && initialCode && initialCode !== code) {
+      setCode(initialCode);
+    }
+    console.log('code = ', code);
+  }, [initialCode, code, hasResetCode]);
 
   const [parking] = useFetch(
     () => (code ? searchParking(code).then((results) => results[0] ?? null) : null),
     [code]
   );
+
+  const noParking = parking === null;
 
   useEffect(() => {
     if (parking) {
@@ -50,18 +62,26 @@ export default function JoinParking() {
   }
 
   function resetCode() {
+    setHasResetCode(true);
     setCode('');
     setConfirmModalOpen(false);
   }
 
   return (
-    <View className="flex-1 items-center justify-center gap-6 p-4">
-      <Text className="text-xl font-bold">{t('parkingCode.title')}</Text>
-      <CodeEntry code={code} setCode={setCode} error={parking === null} />
+    <View className="justify-top flex-1 items-center justify-around gap-6">
+      {/* <Button onPress={() => router.back()} variant="plain">
+        <ThemedIcon component={FontAwesome6} name="chevron-left" />
+      </Button> */}
+      <View className="flex items-center justify-center gap-6 rounded-xl border border-primary p-4">
+        <Text className="text-2xl font-bold">{t('user.parking.parkingCode.title')}</Text>
+        <Text className="text-center text-sm">{t('user.parking.parkingCode.description')}</Text>
 
-      <Button onPress={dismissCheckAndGo} variant={'plain'}>
-        <Text>{t('parkingCode.dismissCheck')}</Text>
-      </Button>
+        <CodeEntry code={code} setCode={setCode} error={!!noParking} />
+
+        <Button onPress={dismissCheckAndGo} variant={'tonal'}>
+          <Text className="text-xs">{t('user.parking.parkingCode.dismissCheck')}</Text>
+        </Button>
+      </View>
 
       {parking && (
         <ConfirmJoinModal
@@ -88,6 +108,17 @@ function CodeEntry({
   const PARKING_PREFIX = `P${PREFIX_SEPARATOR}`;
   const CELL_COUNT = 6;
   const [internalCode, setInternalCode] = useState(code);
+  const [showError, setShowError] = useState(false);
+
+  useEffect(() => {
+    if (internalCode.length == 0) {
+      setShowError(false);
+    } else if (error) {
+      setShowError(true);
+    } else {
+      setShowError(false);
+    }
+  }, [error, internalCode]);
 
   useEffect(() => {
     if (internalCode.length === CELL_COUNT + PARKING_PREFIX.length) {
@@ -99,10 +130,6 @@ function CodeEntry({
       setCode('');
     }
   }, [internalCode, setCode]);
-
-  useEffect(() => {
-    internalCode !== code && setInternalCode(code);
-  }, [code, setInternalCode]);
 
   const removeCodePrefix = useCallback((code: string) => {
     const separatorIndex = code.lastIndexOf(PREFIX_SEPARATOR);
@@ -153,7 +180,7 @@ function CodeEntry({
                 className={cn(
                   'h-11 w-10 items-center justify-center rounded-lg border',
                   isFocused ? 'bg-primary/10 border-primary' : 'bg-muted/30 border-muted',
-                  error && 'border-destructive'
+                  showError ? 'border-destructive' : ''
                 )}>
                 <Text className="text-2xl font-bold tracking-widest">{symbol}</Text>
               </View>
@@ -191,33 +218,60 @@ function ConfirmJoinModal({
     switch (step) {
       case 'confirm':
         return (
-          <>
-            <ModalTitle text={t('parking.joinModal.confirm.title')} />
-
-            <View className="gap-4">
-              <Text className="text-base font-semibold">{parking.name}</Text>
-
-              <View className="flex-row gap-3">
-                <Button variant="secondary" onPress={onClose}>
-                  <Text>{t('common.cancel')}</Text>
-                </Button>
-                <Button onPress={() => setStep('spot')}>
-                  <Text>{t('common.next')}</Text>
-                </Button>
+          <View className="flex gap-4">
+            <ModalTitle text={t('user.parking.joinParking.title')} />
+            <View className=" gap-2">
+              <View className="">
+                <Text className="text-lg text-primary">{t('user.parking.joinParking.name')}</Text>
+                <Text className="text-base font-semibold">{parking.name}</Text>
+              </View>
+              <View className="">
+                <Text className="text-lg text-primary">
+                  {t('user.parking.joinParking.information')}
+                </Text>
+                <Text className="text-base font-semibold">{parking.address}</Text>
+              </View>
+              <View className="flex">
+                <Text className="text-lg text-primary">
+                  {t('user.parking.joinParking.spotCount')}
+                </Text>
+                <Text className="text-base font-semibold">{parking.spotsCount}</Text>
               </View>
             </View>
-          </>
+
+            <View className="w-full flex-row justify-center gap-4">
+              <Button variant="secondary" onPress={onClose} className="flex-1">
+                <Text>{t('common.cancel')}</Text>
+              </Button>
+              <Button onPress={() => setStep('spot')} className="flex-1">
+                <Text>{t('common.next') + ' ' + '→'}</Text>
+              </Button>
+            </View>
+          </View>
         );
       case 'spot':
         return (
-          <>
-            <ModalTitle text={t('parking.joinModal.spot.title')} />
+          <View className="gap-4">
+            <ModalTitle text={t('user.parking.joinParking.spot.title')} />
 
-            <TextInput value={lotName} onChangeText={setLotName} />
-            <Button variant="primary" disabled={isLoading} onPress={handleJoin}>
-              {isLoading ? <ActivityIndicator /> : <Text>{t('common.confirm')}</Text>}
-            </Button>
-          </>
+            <TextInput value={lotName} onChangeText={setLotName} placeholder="ABC123" />
+            <View className="flex-row gap-4">
+              <Button
+                variant="secondary"
+                disabled={isLoading}
+                onPress={() => setStep('confirm')}
+                className="flex-1">
+                {isLoading ? <ActivityIndicator /> : <Text>{t('common.back')}</Text>}
+              </Button>
+              <Button
+                variant="primary"
+                disabled={isLoading}
+                onPress={handleJoin}
+                className="flex-1">
+                {isLoading ? <ActivityIndicator /> : <Text>{t('common.submit')}</Text>}
+              </Button>
+            </View>
+          </View>
         );
       default:
         return null;
