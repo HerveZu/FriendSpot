@@ -59,7 +59,6 @@ export default function Plans() {
   return (
     <ScreenWithHeader>
       <ScreenTitle title={t('upgrade.title')} wallet={false}>
-        {' '}
         <Tag text={'Coming soon'}></Tag>
       </ScreenTitle>
       <View className={'flex-col gap-6'}>
