@@ -34,7 +34,7 @@ export const Header = () => {
         // avoid scroll bouncing issues on mobile
         lastScrollPosition > 100 &&
         "opacity-0 hover:opacity-100"
-      } ${lastScrollPosition === 0 && "bg-transparent"}`}
+      } ${lastScrollPosition === 0 && !isMenuOpen && "bg-transparent"}`}
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
