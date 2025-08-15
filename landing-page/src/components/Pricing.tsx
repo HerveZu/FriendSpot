@@ -35,17 +35,30 @@ const plans = [
     oneTime: "Or €10 one-time payment",
   },
   {
-    name: "Custom Group",
+    name: "Neighbourhood",
     price: "€5",
     period: "/month per user",
     icon: Building,
     description: "For larger neighbourhoods and communities",
     features: [
-      "Unlimited group members",
+      "Up to 100 group members",
       "Advanced group management",
       "Dedicated support",
     ],
-    buttonText: "Contact Sales",
+    buttonText: "Create group",
+    buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
+    popular: false,
+  },
+  {
+    name: "Custom Group",
+    icon: Building,
+    description: "Tailored to your community and needs.",
+    features: [
+      "Everything in Neighbourhood",
+      "Unlimited group members",
+      "Discuss your parking needs with us",
+    ],
+    buttonText: "Contact us",
     buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
     popular: false,
   },
@@ -149,7 +162,7 @@ export const Pricing = () => {
                   </div>
 
                   <button
-                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${plan.buttonClass}`}
+                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 capitalize transform hover:scale-105 ${plan.buttonClass}`}
                   >
                     {plan.buttonText}
                   </button>
