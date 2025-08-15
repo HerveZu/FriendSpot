@@ -70,7 +70,8 @@
   "tabs": {
     "mySpot": "My spot",
     "search": "Book",
-    "profile": "Profile"
+    "profile": "Profile",
+    "upgrade": "FriendSpot+"
   },
   "welcome": {
     "welcomeTo": "Welcome to"
@@ -217,6 +218,27 @@
     "acceptRequest": {
       "description": "By accepting, your spot will be shared with {{requester}} from the {{from}} to the {{to}}.",
       "accept": "Accept for {{credits}} points"
+    }
+  },
+  "upgrade": {
+    "title": "FriendSpot+",
+    "plans": {
+      "periods": {
+        "monthly": "/month",
+        "perUserMonthly": "/month per user"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Unlock unlimited parking potential.",
+        "features": "Unlimited time per reservation;Parking sharing requests",
+        "upgradeButton": "Upgrade"
+      },
+      "neighbourhood": {
+        "name": "Neighbourhood",
+        "description": "For neighbourhoods and communities.",
+        "features": "Up to 100 group members;Advanced group management;Dedicated support",
+        "upgradeButton": "Create group"
+      }
     }
   },
   "wallet": {

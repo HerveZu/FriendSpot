@@ -70,7 +70,8 @@
   "tabs": {
     "mySpot": "Mon spot",
     "search": "Réserver",
-    "profile": "Profile"
+    "profile": "Profile",
+    "upgrade": "FriendSpot+"
   },
   "welcome": {
     "welcomeTo": "Bienvenue sur"
@@ -217,6 +218,27 @@
     "acceptRequest": {
       "description": "En acceptant, votre spot sera prêté à {{requester}} du {{from}} au {{to}}.",
       "accept": "Accepter pour {{credits}} points"
+    }
+  },
+  "upgrade": {
+    "title": "FriendSpot+",
+    "plans": {
+      "periods": {
+        "monthly": "/mois",
+        "perUserMonthly": "/mois par utilisateur"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Débloquez un potentiel de stationnement illimité.",
+        "features": "Durée illimitée par réservation;Demandes de partage de place de stationnement",
+        "upgradeButton": "Mettre à niveau"
+      },
+      "neighbourhood": {
+        "name": "Quartier",
+        "description": "Pour les quartiers et les communautés.",
+        "features": "Jusqu'à 100 membres par groupe;Gestion de groupe avancée;Support dédié",
+        "upgradeButton": "Créer un groupe"
+      }
     }
   },
   "wallet": {
