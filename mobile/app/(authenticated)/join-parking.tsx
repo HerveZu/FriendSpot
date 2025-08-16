@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Modal, ModalTitle } from '~/components/Modal';
+import { Modal } from '~/components/Modal';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import {
@@ -25,6 +25,12 @@ import { UserSpotCheckContext } from '~/spots/EnsureUserHasSpot';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TextInput } from '~/components/TextInput';
 import { useCurrentUser } from '~/authentication/UserProvider';
+
+import { BottomSheetView } from '@gorhom/bottom-sheet';
+import { ContentSheetView } from '~/components/ContentView';
+import { SheetTitle } from '~/components/Title';
+import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { ThemedIcon } from '~/components/ThemedIcon';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -68,11 +74,8 @@ export default function JoinParking() {
   }
 
   return (
-    <View className="justify-top flex-1 items-center justify-around gap-6">
-      {/* <Button onPress={() => router.back()} variant="plain">
-        <ThemedIcon component={FontAwesome6} name="chevron-left" />
-      </Button> */}
-      <View className="flex items-center justify-center gap-6 rounded-xl border border-primary p-4">
+    <View className="justify-top mt-36 items-center justify-around gap-6">
+      <View className="flex items-center justify-center gap-6 p-4">
         <Text className="text-2xl font-bold">{t('user.parking.parkingCode.title')}</Text>
         <Text className="text-center text-sm">{t('user.parking.parkingCode.description')}</Text>
 
@@ -84,7 +87,7 @@ export default function JoinParking() {
       </View>
 
       {parking && (
-        <ConfirmJoinModal
+        <ConfirmJoinBottomSheet
           open={confirmModalOpen}
           onJoin={dismissCheckAndGo}
           onClose={resetCode}
@@ -192,7 +195,7 @@ function CodeEntry({
   );
 }
 
-function ConfirmJoinModal({
+function ConfirmJoinBottomSheet({
   open,
   onClose,
   onJoin,
@@ -204,10 +207,19 @@ function ConfirmJoinModal({
   parking: ParkingResponse;
 }) {
   const { t } = useTranslation();
-  const [step, setStep] = useState<'confirm' | 'spot'>('confirm');
-  const [lotName, setLotName] = useState('A12');
+  const [step, setStep] = useState<'confirm' | 'spot' | 'error'>('confirm');
+  const [lotName, setLotName] = useState('');
   const [defineSpot, isLoading] = useLoading(useDefineSpot());
   const { refreshProfile } = useCurrentUser();
+  const bottomSheetModalRef = useSheetRef();
+
+  useEffect(() => {
+    if (open) {
+      bottomSheetModalRef.current?.present();
+    } else {
+      bottomSheetModalRef.current?.dismiss();
+    }
+  }, [open]);
 
   async function handleJoin() {
     await defineSpot({ parkingId: parking.id, lotName: lotName }).then(refreshProfile);
@@ -215,64 +227,123 @@ function ConfirmJoinModal({
     onJoin();
   }
 
-  const modalContent = () => {
+  function checkNumberOfMembers() {
+    if (parking.spotsCount >= 10) {
+      setStep('error');
+    }
+    setStep('spot');
+  }
+
+  const bottomSheetContent = () => {
     switch (step) {
       case 'confirm':
         return (
-          <View className="flex gap-4">
-            <ModalTitle text={t('user.parking.joinParking.title')} />
-            <View className=" gap-2">
-              <View className="">
-                <Text className="text-lg text-primary">{t('user.parking.joinParking.name')}</Text>
-                <Text className="text-base font-semibold">{parking.name}</Text>
-              </View>
-              <View className="">
-                <Text className="text-lg text-primary">
-                  {t('user.parking.joinParking.information')}
-                </Text>
-                <Text className="text-base font-semibold">{parking.address}</Text>
-              </View>
-              <View className="flex">
-                <Text className="text-lg text-primary">
-                  {t('user.parking.joinParking.spotCount')}
-                </Text>
-                <Text className="text-base font-semibold">{parking.spotsCount}</Text>
-              </View>
-            </View>
+          <Sheet
+            ref={bottomSheetModalRef}
+            enableDynamicSizing={false}
+            onDismiss={() => onClose}
+            snapPoints={['40%', '50%']}>
+            <BottomSheetView>
+              <ContentSheetView className="h-full flex-col gap-4">
+                <View className="flex-row items-center justify-between">
+                  <SheetTitle className="flex-row items-center">
+                    {t('user.parking.joinParking.title')}
+                  </SheetTitle>
 
-            <View className="w-full flex-row justify-center gap-4">
-              <Button variant="secondary" onPress={onClose} className="flex-1">
-                <Text>{t('common.cancel')}</Text>
-              </Button>
-              <Button onPress={() => setStep('spot')} className="flex-1">
-                <Text>{t('common.next') + ' ' + '→'}</Text>
-              </Button>
-            </View>
-          </View>
+                  <View className="flex-row items-center gap-2">
+                    <ThemedIcon name={'users'} />
+                    <Text className="text-2xl font-semibold text-primary">
+                      {parking.spotsCount} / 10
+                    </Text>
+                  </View>
+                </View>
+
+                <View>
+                  <Text className="text-lg text-primary">{t('user.parking.joinParking.name')}</Text>
+                  <Text className="text-base font-semibold">{parking.name}</Text>
+                </View>
+                <View>
+                  <Text className="text-lg text-primary">
+                    {t('user.parking.joinParking.information')}
+                  </Text>
+                  <Text className="text-base font-semibold">{parking.address}</Text>
+                </View>
+                <View className="relative bottom-0 flex-row items-center justify-between gap-4">
+                  <Button
+                    variant="secondary"
+                    onPress={onClose}
+                    className="w-1/2 flex-1 items-center">
+                    <Text>{t('common.cancel')}</Text>
+                  </Button>
+                  <Button
+                    onPress={() => checkNumberOfMembers}
+                    className="w-1/2 flex-1 items-center">
+                    <Text>{t('common.next') + ' ' + '→'}</Text>
+                  </Button>
+                </View>
+              </ContentSheetView>
+            </BottomSheetView>
+          </Sheet>
         );
       case 'spot':
         return (
-          <View className="gap-4">
-            <ModalTitle text={t('user.parking.joinParking.spot.title')} />
-
-            <TextInput value={lotName} onChangeText={setLotName} placeholder="ABC123" />
-            <View className="flex-row gap-4">
-              <Button
-                variant="secondary"
-                disabled={isLoading}
-                onPress={() => setStep('confirm')}
-                className="flex-1">
-                {isLoading ? <ActivityIndicator /> : <Text>{t('common.back')}</Text>}
-              </Button>
-              <Button
-                variant="primary"
-                disabled={isLoading}
-                onPress={handleJoin}
-                className="flex-1">
-                {isLoading ? <ActivityIndicator /> : <Text>{t('common.submit')}</Text>}
-              </Button>
-            </View>
-          </View>
+          <Sheet
+            ref={bottomSheetModalRef}
+            enableDynamicSizing={false}
+            onDismiss={() => onClose}
+            snapPoints={['40%', '50%']}>
+            <BottomSheetView>
+              <ContentSheetView className="h-full flex-col gap-4">
+                <View className="flex-row items-center justify-between">
+                  <SheetTitle className="flex-row items-center">
+                    {t('user.parking.joinParking.spot.title')}
+                  </SheetTitle>
+                </View>
+                <TextInput value={lotName} onChangeText={setLotName} placeholder="ABC123" />
+                <View className="flex-row gap-4">
+                  <Button
+                    variant="secondary"
+                    disabled={isLoading}
+                    onPress={() => setStep('confirm')}
+                    className="flex-1">
+                    {isLoading ? <ActivityIndicator /> : <Text>{t('common.back')}</Text>}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    disabled={isLoading}
+                    onPress={handleJoin}
+                    className="flex-1">
+                    {isLoading ? <ActivityIndicator /> : <Text>{t('common.submit')}</Text>}
+                  </Button>
+                </View>
+              </ContentSheetView>
+            </BottomSheetView>
+          </Sheet>
+        );
+      case 'error':
+        return (
+          <Sheet
+            ref={bottomSheetModalRef}
+            enableDynamicSizing={false}
+            onDismiss={() => onClose}
+            snapPoints={['40%', '50%']}>
+            <BottomSheetView>
+              <ContentSheetView className="h-full flex-col gap-4">
+                <View className="flex-row items-center justify-between">
+                  <SheetTitle className="flex-row items-center">
+                    {t('user.parking.joinParking.error.title')}
+                  </SheetTitle>
+                  <View className="flex-row items-center gap-2">
+                    <ThemedIcon name={'lock'} />
+                  </View>
+                </View>
+                <Text>{t('user.parking.joinParking.error.description')}</Text>
+                <Button variant="primary" disabled={isLoading} onPress={handleJoin}>
+                  {isLoading ? <ActivityIndicator /> : <Text>{t('common.cancel')}</Text>}
+                </Button>
+              </ContentSheetView>
+            </BottomSheetView>
+          </Sheet>
         );
       default:
         return null;
@@ -281,7 +352,7 @@ function ConfirmJoinModal({
 
   return (
     <Modal open={open} onOpenChange={() => onClose()} vibration>
-      {modalContent()}
+      {bottomSheetContent()}
     </Modal>
   );
 }
