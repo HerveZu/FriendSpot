@@ -78,9 +78,9 @@
   },
   "user": {
     "profile": {
-      "noAddressDefined": "No parking address defined",
-      "mySpot": "My parking",
-      "noParkingDefined": "No parking name defined",
+      "noAddressDefined": "No group information defined",
+      "mySpot": "My group",
+      "noParkingDefined": "No group name defined",
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
       "deleteAccount": "Delete my account",
@@ -90,16 +90,16 @@
       "editAvatar": "Edit Avatar",
       "logout": "Logout",
       "logoutConfirmation": "Logout",
-      "randomParking": "My parking {{number}}"
+      "randomParking": "My group {{number}}"
     },
     "parking": {
-      "cantFindParking": "Can't find your parking? Create it now!",
-      "searchParking": "Search a parking",
-      "noMatchingParking": "No parking matches '{{search}}'.",
-      "createParking": "Create a parking",
-      "editParking": "Edit a parking",
-      "parkingName": "My parking",
-      "parkingAddress": "Parking address",
+      "cantFindParking": "Can't find your group? Create it now!",
+      "searchParking": "Search a group",
+      "noMatchingParking": "No group matches '{{search}}'.",
+      "createParking": "Create a group",
+      "editParking": "Edit a group",
+      "parkingName": "My group",
+      "additionalInformation": "Additional information",
       "create": "Create {{name}}",
       "save": "Save",
       "cars": "cars",
@@ -107,15 +107,10 @@
       "cancelDelete": "Cancel",
       "share": {
         "button": "Share",
-        "title": "Share your FriendSpot parking group with your neighbors",
-        "message": "Hi! Join our neighbor parking group on FriendSpot. Use the code {{code}}."
+        "title": "Share your FriendSpot group with your neighbors",
+        "message": "Hi! Join our neighbor group on FriendSpot. Use the code {{code}}."
       },
       "joinParking": {
-        "title": "Group found!",
-        "name": "Name:",
-        "information": "Information:",
-        "spotCount": "Number of members:",
-        "description": "Join an existing parking group using an invitation code.",
         "enterCode": "Enter the invitation code",
         "join": "Join",
         "joining": "Joining...",
@@ -131,7 +126,7 @@
       },
       "parkingCode": {
         "title": "Group code",
-        "description": "Join an existing parking group using an invitation code.",
+        "description": "Join an existing group group using an invitation code.",
         "dismissCheck": "I don't have a group code"
       }
     }
@@ -233,8 +228,8 @@
       },
       "premium": {
         "name": "Premium",
-        "description": "Unlock unlimited parking potential.",
-        "features": "Unlimited time per reservation;Parking sharing requests",
+        "description": "Unlock unlimited group potential.",
+        "features": "Unlimited time per reservation;Group sharing requests",
         "upgradeButton": "Upgrade"
       },
       "neighbourhood": {

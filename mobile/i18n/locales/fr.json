@@ -78,7 +78,7 @@
   },
   "user": {
     "profile": {
-      "noAddressDefined": "Aucune adresse de groupe définie",
+      "noAddressDefined": "Aucune information de groupe définie",
       "mySpot": "Mon groupe",
       "noParkingDefined": "Aucun nom de groupe de défini",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
@@ -99,7 +99,7 @@
       "createParking": "Créer un groupe",
       "editParking": "Modifier un groupe",
       "parkingName": "Mon groupe",
-      "parkingAddress": "Chemin de mon groupe",
+      "parkingAddress": "Information complémentaire",
       "create": "Créer {{name}}",
       "save": "Enregistrer",
       "cars": "voitures",
@@ -111,10 +111,6 @@
         "message": "Salut ! Rejoins notre groupe de stationnement entre voisins sur FriendSpot. Utilise le code {{code}}."
       },
       "joinParking": {
-        "title": "Groupe trouvé !",
-        "name": "Nom:",
-        "information": "Information:",
-        "spotCount": "Nombre de membre:",
         "enterCode": "Entrer le code d'invitation",
         "join": "Rejoindre",
         "joining": "Rejoindre en cours...",
