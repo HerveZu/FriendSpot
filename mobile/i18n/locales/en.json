@@ -121,8 +121,8 @@
         "joining": "Joining...",
         "success": "You have successfully joined the group!",
         "error": {
-          "invalidCode": "The invitation code is invalid.",
-          "generic": "An error occurred. Please try again."
+          "title": "Oops",
+          "description": "The group is full, please try again with another group."
         },
         "spot": {
           "title": "Set your spot name",

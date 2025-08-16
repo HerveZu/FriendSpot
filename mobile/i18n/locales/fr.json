@@ -120,8 +120,8 @@
         "joining": "Rejoindre en cours...",
         "success": "Tu as rejoint le groupe avec succès !",
         "error": {
-          "invalidCode": "Le code d'invitation est invalide.",
-          "generic": "Une erreur est survenue. Merci de réessayer."
+          "title": "Oups",
+          "description": "Le groupe est complet, merci de réessayer avec un autre groupe."
         },
         "spot": {
           "title": "Défini le nom de ton spot",
