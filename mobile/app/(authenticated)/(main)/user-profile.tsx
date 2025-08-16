@@ -10,7 +10,6 @@ import React, {
 } from 'react';
 import { ActivityIndicator, Pressable, Share, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
-import { deleteUser } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
@@ -261,8 +260,7 @@ export function AccountDeletionConfirmationModal({
 
   async function deleteAccountBackendAndFirebase() {
     await deleteAccount();
-    await deleteUser(firebaseUser);
-    await firebaseAuth.signOut();
+    await firebaseUser.delete();
   }
 
   useEffect(() => {
