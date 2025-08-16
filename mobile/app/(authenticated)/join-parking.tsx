@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Modal } from '~/components/Modal';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import {
@@ -26,7 +25,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TextInput } from '~/components/TextInput';
 import { useCurrentUser } from '~/authentication/UserProvider';
 
-import { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ContentSheetView } from '~/components/ContentView';
 import { SheetTitle } from '~/components/Title';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
@@ -230,8 +229,7 @@ function ConfirmJoinBottomSheet({
   function checkNumberOfMembers() {
     if (parking.spotsCount >= 10) {
       setStep('error');
-    }
-    setStep('spot');
+    } else setStep('spot');
   }
 
   const bottomSheetContent = () => {
@@ -241,44 +239,39 @@ function ConfirmJoinBottomSheet({
           <Sheet
             ref={bottomSheetModalRef}
             enableDynamicSizing={false}
-            onDismiss={() => onClose}
-            snapPoints={['40%', '50%']}>
-            <BottomSheetView>
-              <ContentSheetView className="h-full flex-col gap-4">
-                <View className="flex-row items-center justify-between">
-                  <SheetTitle className="flex-row items-center">
-                    {t('user.parking.joinParking.title')}
-                  </SheetTitle>
-
-                  <View className="flex-row items-center gap-2">
-                    <ThemedIcon name={'users'} />
-                    <Text className="text-2xl font-semibold text-primary">
-                      {parking.spotsCount} / 10
-                    </Text>
+            onDismiss={onClose}
+            snapPoints={['40%', '40%']}
+            keyboardBehavior="interactive"
+            keyboardBlurBehavior="restore">
+            <BottomSheetView className="flex-1">
+              <ContentSheetView className="mx-auto flex-1 flex-col">
+                <BottomSheetScrollView
+                  contentContainerStyle={{ padding: 16, rowGap: 16 }}
+                  keyboardShouldPersistTaps="handled">
+                  <View className="flex-row items-center justify-between">
+                    <SheetTitle className="flex-row items-center text-3xl">
+                      {parking.name}
+                    </SheetTitle>
+                    <View className="flex-row items-center gap-2">
+                      <ThemedIcon name="user" size={22} className="text-primary" />
+                      <Text className="text-lg font-medium text-primary">
+                        <Text className="text-3xl font-bold text-primary">
+                          {parking.spotsCount}{' '}
+                        </Text>
+                        <Text className="text-xl font-semibold text-foreground">/10</Text>
+                      </Text>
+                    </View>
                   </View>
-                </View>
-
-                <View>
-                  <Text className="text-lg text-primary">{t('user.parking.joinParking.name')}</Text>
-                  <Text className="text-base font-semibold">{parking.name}</Text>
-                </View>
-                <View>
-                  <Text className="text-lg text-primary">
-                    {t('user.parking.joinParking.information')}
-                  </Text>
-                  <Text className="text-base font-semibold">{parking.address}</Text>
-                </View>
-                <View className="relative bottom-0 flex-row items-center justify-between gap-4">
-                  <Button
-                    variant="secondary"
-                    onPress={onClose}
-                    className="w-1/2 flex-1 items-center">
+                  <View className="mt-4">
+                    <Text className=" text-xl">{parking.address}</Text>
+                  </View>
+                </BottomSheetScrollView>
+                <View className="border-muted/20 flex-row items-center gap-4 border-t py-3">
+                  <Button variant="tonal" onPress={onClose} className="flex-1 items-center">
                     <Text>{t('common.cancel')}</Text>
                   </Button>
-                  <Button
-                    onPress={() => checkNumberOfMembers}
-                    className="w-1/2 flex-1 items-center">
-                    <Text>{t('common.next') + ' ' + '→'}</Text>
+                  <Button onPress={checkNumberOfMembers} className="flex-1 items-center">
+                    <Text>{t('user.parking.joinParking.join') + ' →'}</Text>
                   </Button>
                 </View>
               </ContentSheetView>
@@ -290,19 +283,26 @@ function ConfirmJoinBottomSheet({
           <Sheet
             ref={bottomSheetModalRef}
             enableDynamicSizing={false}
-            onDismiss={() => onClose}
-            snapPoints={['40%', '50%']}>
-            <BottomSheetView>
-              <ContentSheetView className="h-full flex-col gap-4">
-                <View className="flex-row items-center justify-between">
-                  <SheetTitle className="flex-row items-center">
-                    {t('user.parking.joinParking.spot.title')}
-                  </SheetTitle>
-                </View>
-                <TextInput value={lotName} onChangeText={setLotName} placeholder="ABC123" />
-                <View className="flex-row gap-4">
+            onDismiss={onClose}
+            snapPoints={['40%', '40%']}
+            keyboardBehavior="interactive"
+            keyboardBlurBehavior="restore">
+            <BottomSheetView className="flex-1">
+              <ContentSheetView className="flex-1">
+                <BottomSheetScrollView
+                  contentContainerStyle={{ padding: 16, rowGap: 16 }}
+                  keyboardShouldPersistTaps="handled">
+                  <View className="flex-row items-center justify-between">
+                    <SheetTitle className="flex-row items-center">
+                      {t('user.parking.joinParking.spot.title')}
+                    </SheetTitle>
+                  </View>
+                  <TextInput value={lotName} onChangeText={setLotName} placeholder="Ex : 34" />
+                </BottomSheetScrollView>
+
+                <View className="border-muted/20 flex-row items-center gap-4 border-t py-3">
                   <Button
-                    variant="secondary"
+                    variant="tonal"
                     disabled={isLoading}
                     onPress={() => setStep('confirm')}
                     className="flex-1">
@@ -310,7 +310,7 @@ function ConfirmJoinBottomSheet({
                   </Button>
                   <Button
                     variant="primary"
-                    disabled={isLoading}
+                    disabled={isLoading || lotName.trim() === ''}
                     onPress={handleJoin}
                     className="flex-1">
                     {isLoading ? <ActivityIndicator /> : <Text>{t('common.submit')}</Text>}
@@ -326,21 +326,31 @@ function ConfirmJoinBottomSheet({
             ref={bottomSheetModalRef}
             enableDynamicSizing={false}
             onDismiss={() => onClose}
-            snapPoints={['40%', '50%']}>
-            <BottomSheetView>
+            snapPoints={['40%', '40%']}>
+            <BottomSheetView className="relative">
               <ContentSheetView className="h-full flex-col gap-4">
-                <View className="flex-row items-center justify-between">
-                  <SheetTitle className="flex-row items-center">
-                    {t('user.parking.joinParking.error.title')}
-                  </SheetTitle>
-                  <View className="flex-row items-center gap-2">
-                    <ThemedIcon name={'lock'} />
+                <BottomSheetScrollView
+                  contentContainerStyle={{ padding: 16, rowGap: 16 }}
+                  keyboardShouldPersistTaps="handled">
+                  <View className="flex-row items-center justify-between">
+                    <SheetTitle className="text- flex-row items-center">
+                      {t('user.parking.joinParking.error.title')}
+                    </SheetTitle>
+                    <View className="flex-row items-center gap-2">
+                      <ThemedIcon name={'lock'} size={30} />
+                    </View>
                   </View>
+                  <Text>{t('user.parking.joinParking.error.description')}</Text>
+                </BottomSheetScrollView>
+                <View className="flex-row items-center gap-4 py-3">
+                  <Button
+                    variant="primary"
+                    disabled={isLoading}
+                    onPress={onClose}
+                    className="w-full">
+                    {isLoading ? <ActivityIndicator /> : <Text>{t('common.back')}</Text>}
+                  </Button>
                 </View>
-                <Text>{t('user.parking.joinParking.error.description')}</Text>
-                <Button variant="primary" disabled={isLoading} onPress={handleJoin}>
-                  {isLoading ? <ActivityIndicator /> : <Text>{t('common.cancel')}</Text>}
-                </Button>
               </ContentSheetView>
             </BottomSheetView>
           </Sheet>
@@ -350,9 +360,5 @@ function ConfirmJoinBottomSheet({
     }
   };
 
-  return (
-    <Modal open={open} onOpenChange={() => onClose()} vibration>
-      {bottomSheetContent()}
-    </Modal>
-  );
+  return bottomSheetContent();
 }
