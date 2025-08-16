@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import {
-  getAuth,
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -32,7 +31,6 @@ export default function LoginScreen() {
   const [error, setError] = useState<string>();
   const [isPendingMailModalOpen, setIsPendingMailModalOpen] = useState(false);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
-  const auth = getAuth();
   const redirectToInitialUrl = useRedirectToInitialUrl();
   const validators = useValidators();
 
@@ -47,7 +45,7 @@ export default function LoginScreen() {
   async function signInUser(email: string, password: string) {
     let signIn: UserCredential;
     try {
-      signIn = await signInWithEmailAndPassword(auth, email, password);
+      signIn = await signInWithEmailAndPassword(firebaseAuth, email, password);
     } catch {
       setError(t('auth.login.errors.incorrectCredentials'));
       return;
@@ -167,7 +165,6 @@ function ResetPasswordForm() {
   const { t } = useTranslation();
   const { isValid, handleSubmit, isLoading } = useContext(FormContext);
 
-  const auth = getAuth();
   const { colors } = useColorScheme();
   const validators = useValidators();
 
@@ -177,7 +174,7 @@ function ResetPasswordForm() {
 
   async function resetPassword(email: string) {
     setInfo(t('auth.resetPassword.sending'));
-    await sendPasswordResetEmail(auth, email)
+    await sendPasswordResetEmail(firebaseAuth, email)
       .then(() => setInfo(t('auth.resetPassword.emailSent')))
       .catch((e: Error) => setError(e.message));
   }

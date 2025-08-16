@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 import { ActivityIndicator, Pressable, Share, View } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
-import { deleteUser, getAuth, signOut } from 'firebase/auth';
+import { deleteUser } from 'firebase/auth';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
@@ -49,6 +49,7 @@ import { useTranslation } from 'react-i18next';
 import { Rating } from '~/components/Rating';
 import { universalLink } from '~/endpoints/universalLink';
 import { AppContext } from '~/app/_layout';
+import { firebaseAuth } from '~/authentication/firebase';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -256,11 +257,12 @@ export function AccountDeletionConfirmationModal({
   const { colors } = useColorScheme();
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
   const { firebaseUser } = useAuth();
-  const auth = getAuth();
   const { t } = useTranslation();
 
-  function deleteAccountBackendAndFirebase() {
-    deleteAccount().then(() => deleteUser(firebaseUser).then(() => signOut(auth)));
+  async function deleteAccountBackendAndFirebase() {
+    await deleteAccount();
+    await deleteUser(firebaseUser);
+    await firebaseAuth.signOut();
   }
 
   useEffect(() => {
@@ -335,7 +337,6 @@ export function LogoutConfirmationModal({
 }>) {
   const [logout, loggingOut] = useLoading(useLogout());
   const { userDevice } = useContext(AppContext);
-  const auth = getAuth();
   const { colors } = useColorScheme();
   const { t } = useTranslation();
 
@@ -344,7 +345,7 @@ export function LogoutConfirmationModal({
     await logout({
       deviceId: userDevice.deviceId,
     });
-    await signOut(auth);
+    await firebaseAuth.signOut();
   };
 
   return (

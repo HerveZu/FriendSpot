@@ -1,7 +1,6 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   createUserWithEmailAndPassword,
-  getAuth,
   sendEmailVerification,
   updateProfile,
   UserCredential,
@@ -59,7 +58,7 @@ export default function StepTwoScreen() {
   }
 
   async function checkIfEmailIsVerified() {
-    const user = getAuth().currentUser;
+    const user = firebaseAuth.currentUser;
 
     await user?.reload();
     if (user?.emailVerified) {
