@@ -21,7 +21,7 @@
       }
     },
     "mailConfirmation": {
-      "title": "Check your mailbox!",
+      "title": "Check your mailbox",
       "description": "We need you to confirm your email address to complete your registration.",
       "noEmailReceived": "No email received?",
       "clickHere": "Click here."
@@ -42,7 +42,9 @@
       "errors": {
         "emailAlreadyInUse": "This email address is already in use.",
         "passwordTooShort": "Password must contain at least 6 characters.",
-        "passwordsDoNotMatch": "Passwords do not match."
+        "passwordsDoNotMatch": "Passwords do not match.",
+        "emailNotVerified": "Please verify your email address.\nCheck your spam folder if you can't find our message.",
+        "emailRequestPending": "Your email request is being processed."
       },
       "confirmPrivacyPolicy": {
         "part1": "I confirm that I have read and accept",
@@ -52,6 +54,7 @@
   },
   "common": {
     "submit": "Submit",
+    "done": "C'est fait !",
     "cancel": "Cancel",
     "back": "Back",
     "next": "Next",
@@ -80,7 +83,7 @@
     "profile": {
       "noAddressDefined": "No group information defined",
       "mySpot": "My group",
-      "noParkingDefined": "No group name defined",
+      "noParkingDefined": "Select a group",
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
       "deleteAccount": "Delete my account",
@@ -110,6 +113,11 @@
         "button": "Share",
         "title": "Share your FriendSpot group with your neighbors",
         "message": "Hi! Join our neighbor group on FriendSpot. Use the code {{code}}."
+      },
+      "notify": {
+        "title": "Important",
+        "body": "Join a group to access all the features of the application.",
+        "callToAction": "Got it!"
       },
       "joinParking": {
         "enterCode": "Enter the invitation code",

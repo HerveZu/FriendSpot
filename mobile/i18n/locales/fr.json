@@ -21,7 +21,7 @@
       }
     },
     "mailConfirmation": {
-      "title": "Vérifie ta boîte mail !",
+      "title": "Vérifie ta boîte mail",
       "description": "Nous avons besoin que tu confirmes ton adresse e-mail pour finaliser ton inscription.",
       "noEmailReceived": "Aucun email de reçu ?",
       "clickHere": "Clique ici."
@@ -42,7 +42,9 @@
       "errors": {
         "emailAlreadyInUse": "Cette adresse e-mail est déjà utilisée.",
         "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
-        "passwordsDoNotMatch": "Les mots de passes ne sont pas identiques."
+        "passwordsDoNotMatch": "Les mots de passes ne sont pas identiques.",
+        "emailNotVerified": "Merci de vérifier ton adresse e-mail.\nPense à consulter tes spams si tu ne trouves pas notre message.",
+        "emailRequestPending": "Ta demande d'e-mail est en cours de traitement."
       },
       "confirmPrivacyPolicy": {
         "part1": "Je confirme avoir lu et accepter",
@@ -52,6 +54,7 @@
   },
   "common": {
     "submit": "Valider",
+    "done": "C'est fait !",
     "cancel": "Annuler",
     "back": "Retour",
     "next": "Suivant",
@@ -80,7 +83,7 @@
     "profile": {
       "noAddressDefined": "Aucune information de groupe définie",
       "mySpot": "Mon groupe",
-      "noParkingDefined": "Aucun nom de groupe de défini",
+      "noParkingDefined": "Selectionne un groupe",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
       "deleteAccount": "Supprimer mon compte",
@@ -100,6 +103,7 @@
       "createParking": "Créer un groupe",
       "editParking": "Modifier un groupe",
       "parkingName": "Mon groupe",
+      "memberMaxCount": "{{memberCount}} membres pourront rejoindre votre groupe.",
       "parkingAddress": "Information complémentaire",
       "create": "Créer {{name}}",
       "save": "Enregistrer",
@@ -110,6 +114,11 @@
         "button": "Partager",
         "title": "Partage ton groupe de stationnement FriendSpot avec tes voisins",
         "message": "Salut ! Rejoins notre groupe de stationnement entre voisins sur FriendSpot. Utilise le code {{code}}."
+      },
+      "notify": {
+        "title": "Important",
+        "body": "Rejoins un groupe pour accéder à toutes les fonctionnalités de l'application.",
+        "callToAction": "D'accord !"
       },
       "joinParking": {
         "enterCode": "Entrer le code d'invitation",
