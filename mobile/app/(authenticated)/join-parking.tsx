@@ -45,7 +45,6 @@ export default function JoinParking() {
     if (!hasResetCode && initialCode && initialCode !== code) {
       setCode(initialCode);
     }
-    console.log('code = ', code);
   }, [initialCode, code, hasResetCode]);
 
   const [parking] = useFetch(

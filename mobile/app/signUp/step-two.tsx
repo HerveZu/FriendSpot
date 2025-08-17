@@ -66,7 +66,6 @@ export default function StepTwoScreen() {
       redirectToInitialUrl('/');
     } else {
       setError(t('auth.signUp.errors.emailNotVerified'));
-      console.log('email not verified');
     }
   }
 
