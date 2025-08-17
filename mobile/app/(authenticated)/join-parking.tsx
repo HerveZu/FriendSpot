@@ -73,14 +73,14 @@ export default function JoinParking() {
 
   return (
     <View className="justify-top mt-36 items-center justify-around gap-6">
-      <View className="flex items-center justify-center gap-6 p-4">
-        <Text className="text-2xl font-bold">{t('user.parking.parkingCode.title')}</Text>
-        <Text className="text-center text-sm">{t('user.parking.parkingCode.description')}</Text>
+      <View className="flex items-center justify-center gap-8 p-4">
+        <Text className="text-3xl font-bold">{t('user.parking.parkingCode.title')}</Text>
+        <Text className="text-center text-base">{t('user.parking.parkingCode.description')}</Text>
 
         <CodeEntry code={code} setCode={setCode} error={!!noParking} />
 
         <Button onPress={dismissCheckAndGo} variant={'tonal'}>
-          <Text className="text-xs">{t('user.parking.parkingCode.dismissCheck')}</Text>
+          <Text className="text-md">{t('user.parking.parkingCode.dismissCheck')}</Text>
         </Button>
       </View>
 
@@ -110,6 +110,12 @@ function CodeEntry({
   const CELL_COUNT = 6;
   const [internalCode, setInternalCode] = useState(code);
   const [showError, setShowError] = useState(false);
+
+  useEffect(() => {
+    if (code && code !== internalCode) {
+      setInternalCode(appendCodePrefix(code));
+    }
+  });
 
   useEffect(() => {
     if (internalCode.length == 0) {
@@ -324,7 +330,7 @@ function ConfirmJoinBottomSheet({
           <Sheet
             ref={bottomSheetModalRef}
             enableDynamicSizing={false}
-            onDismiss={() => onClose}
+            onDismiss={onClose}
             snapPoints={['40%', '40%']}>
             <BottomSheetView className="relative">
               <ContentSheetView className="h-full flex-col gap-4">
