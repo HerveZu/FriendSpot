@@ -67,7 +67,7 @@
     "spot": {
       "name": "{{parking}} [#{{number}}]",
       "number": "Spot #{{number}}",
-      "numberLabel": "Spot #"
+      "numberLabel": "My spot number"
     }
   },
   "tabs": {
@@ -83,7 +83,7 @@
     "profile": {
       "noAddressDefined": "No group information defined",
       "mySpot": "My group",
-      "noParkingDefined": "Select a group",
+      "noParkingDefined": "No group selected!",
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
       "deleteAccount": "Delete my account",
@@ -96,11 +96,14 @@
       "randomParking": "My group {{number}}"
     },
     "parking": {
-      "cantFindParking": "Can't find your group? Create it now!",
-      "searchWithCode": "Enter a group code",
-      "searchParking": "Search a group",
+      "cantFindParking": "Create a new group",
+      "button": {
+        "title": "What would you like to do?",
+        "searchGroup": "Search for a group",
+        "joinWithCode": "Use a group code",
+        "createParking": "Create a new group"
+      },
       "noMatchingParking": "No group matches '{{search}}'.",
-      "createParking": "Create a group",
       "editParking": "Edit a group",
       "parkingName": "My group",
       "additionalInformation": "Additional information",

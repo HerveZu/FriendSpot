@@ -67,7 +67,7 @@
     "spot": {
       "name": "{{parking}} [Spot n° {{number}}]",
       "number": "Spot n° {{number}}",
-      "numberLabel": "Spot n°"
+      "numberLabel": "Numéro de mon spot"
     }
   },
   "tabs": {
@@ -83,7 +83,7 @@
     "profile": {
       "noAddressDefined": "Aucune information de groupe définie",
       "mySpot": "Mon groupe",
-      "noParkingDefined": "Selectionne un groupe",
+      "noParkingDefined": "Aucun groupe de sélectionné !",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
       "deleteAccount": "Supprimer mon compte",
@@ -96,11 +96,14 @@
       "randomParking": "Mon groupe {{number}}"
     },
     "parking": {
-      "cantFindParking": "Tu ne trouves pas ton groupe ? Créé le maintenant !",
-      "searchWithCode": "Entre un code de groupe",
-      "searchParking": "Rechercher un groupe",
-      "noMatchingParking": "Aucun groupe ne correspond à «{{search}}».",
-      "createParking": "Créer un groupe",
+      "cantFindParking": "Créer un nouveau groupe",
+      "button": {
+        "title": "Que souhaites-tu faire ?",
+        "searchGroup": "Rechercher un groupe",
+        "joinWithCode": "Utiliser un code de groupe",
+        "createParking": "Créer un nouveau groupe"
+      },
+      "noMatchingParking": "Aucun groupe ne correspond à « {{search}} ».",
       "editParking": "Modifier un groupe",
       "parkingName": "Mon groupe",
       "memberMaxCount": "{{memberCount}} membres pourront rejoindre votre groupe.",
@@ -117,7 +120,7 @@
       },
       "notify": {
         "title": "Important",
-        "body": "Rejoins un groupe pour accéder à toutes les fonctionnalités de l'application.",
+        "body": "Pour utiliser l’application, tu dois rejoindre un groupe existant ou en créer un.",
         "callToAction": "D'accord !"
       },
       "joinParking": {
