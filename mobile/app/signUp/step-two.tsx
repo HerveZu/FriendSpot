@@ -6,7 +6,7 @@ import {
   UserCredential,
 } from 'firebase/auth';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import stepTwoIllustration from '~/assets/security.svg';
 import { Modal, ModalTitle } from '~/components/Modal';
@@ -28,7 +28,7 @@ export default function StepTwoScreen() {
   const { t } = useTranslation();
   const [password, setPassword] = useState<string>();
   const [passwordConfirm, setPasswordConfirm] = useState<string>();
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<string>('');
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
 
   const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
@@ -69,6 +69,19 @@ export default function StepTwoScreen() {
     }
   }
 
+  async function sendEmail() {
+    const currentUser = firebaseAuth.currentUser;
+    if (!currentUser) {
+      return;
+    }
+
+    try {
+      await sendEmailVerification(currentUser);
+    } catch {
+      setError(t('auth.errors.tryAgainLater'));
+    }
+  }
+
   return (
     <>
       {isModalVisible && (
@@ -82,6 +95,15 @@ export default function StepTwoScreen() {
             <Text className="text-base text-foreground">
               {t('auth.signUp.checkEmailAndConfirm')}
             </Text>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-md text-center text-foreground">
+                {t('auth.mailConfirmation.noEmailReceived')}
+              </Text>
+              <Pressable onPress={() => sendEmail()}>
+                <Text className="text-md text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
+              </Pressable>
+            </View>
+            {error && <Text className="text-sm text-destructive">{error}</Text>}
             <Button size={'lg'} onPress={() => checkIfEmailIsVerified()}>
               <Text className="text-foreground">{t('auth.signUp.done')}</Text>
             </Button>

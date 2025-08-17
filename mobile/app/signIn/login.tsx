@@ -67,7 +67,6 @@ export default function LoginScreen() {
       <MailConfirmationPendingModal
         open={isPendingMailModalOpen}
         onOpenChange={setIsPendingMailModalOpen}
-        onError={setError}
       />
       <ResetPasswordModal
         open={isResetPasswordModalOpen}
@@ -108,21 +107,39 @@ export default function LoginScreen() {
   );
 }
 
-function MailConfirmationPendingModal(props: ModalProps & { onError: (error: string) => void }) {
+function MailConfirmationPendingModal(props: ModalProps) {
   const { t } = useTranslation();
+  const [message, setMessage] = useState<string>('');
+
+  useEffect(() => {
+    if (props.open === false) {
+      setMessage('');
+    }
+  }, [props.open]);
 
   async function sendEmail() {
-    props.onOpenChange(false);
-
     const currentUser = firebaseAuth.currentUser;
     if (!currentUser) {
       return;
     }
 
     try {
-      await sendEmailVerification(currentUser);
+      await sendEmailVerification(currentUser).then(() => {
+        setMessage(t('auth.signUp.errors.emailRequestPending'));
+      });
     } catch {
-      props.onError(t('auth.errors.tryAgainLater'));
+      setMessage(t('auth.errors.tryAgainLater'));
+    }
+  }
+
+  async function checkIfEmailIsVerified() {
+    const user = firebaseAuth.currentUser;
+
+    await user?.reload();
+    if (user?.emailVerified) {
+      props.onOpenChange(false);
+    } else {
+      setMessage(t('auth.signUp.errors.emailNotVerified'));
     }
   }
 
@@ -132,13 +149,17 @@ function MailConfirmationPendingModal(props: ModalProps & { onError: (error: str
       <View className="gap-4">
         <Text className="text-base text-foreground">{t('auth.mailConfirmation.description')}</Text>
         <View className="flex-row items-center gap-2">
-          <Text className="text-center text-xs text-foreground">
+          <Text className="text-md text-center text-foreground">
             {t('auth.mailConfirmation.noEmailReceived')}
           </Text>
           <Pressable onPress={() => sendEmail()}>
-            <Text className="text-xs text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
+            <Text className="text-md text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
           </Pressable>
         </View>
+        {message && <Text className="text-md text-destructive">{message}</Text>}
+        <Button variant="primary" className="mt-2" onPress={() => checkIfEmailIsVerified()}>
+          <Text>{t('common.done')}</Text>
+        </Button>
       </View>
     </Modal>
   );
