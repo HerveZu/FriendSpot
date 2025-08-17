@@ -155,14 +155,6 @@ export default function UserProfileScreen() {
                   </Text>
                   <ThemedIcon name={'pencil'} />
                 </View>
-                <View className="w-full max-w-full flex-row items-center gap-4 break-words">
-                  <ThemedIcon name={'location-dot'} component={FontAwesome6} />
-                  <Text className="text-md w-10/12">
-                    {userProfile.spot
-                      ? userProfile.spot?.parking.address
-                      : t('user.profile.noAddressDefined')}
-                  </Text>
-                </View>
               </Card>
             </Pressable>
           </View>
@@ -401,7 +393,9 @@ function DefineSpotSheet(props: {
   const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
   const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
   const [parkingModalOpen, setParkingModalOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
+  const wasOpenRef = React.useRef(false);
 
   const spotNameRef = createRef<ReactTextInput>();
   const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
@@ -410,6 +404,16 @@ function DefineSpotSheet(props: {
   useEffect(() => {
     !userProfile.spot && props.onOpenChange(true);
   }, [userProfile.spot]);
+
+  // Notify the user that they must select a group
+  useEffect(() => {
+    const closingNow = wasOpenRef.current && props.open === false;
+    if (closingNow && !userProfile.spot) {
+      setOpenModal(true);
+    }
+
+    wasOpenRef.current = props.open;
+  }, [userProfile.spot, props.open]);
 
   useEffect(() => {
     if (props.open) {
@@ -461,113 +465,133 @@ function DefineSpotSheet(props: {
     setParkingModalOpen(true);
   }
 
+  // function handleOpenSheet() {
+  //   setOpenModal(false);
+  // }
+
   const maximizeSpace = searchFocused && keyboardVisible;
 
   return (
-    <Sheet
-      ref={bottomSheetModalRef}
-      enableDynamicSizing={false}
-      onDismiss={() => props.onOpenChange(false)}
-      snapPoints={keyboardVisible ? ['95%'] : ['80%']}>
-      <ContentSheetView
-        className={'flex-col justify-between gap-4'}
-        style={
-          keyboardVisible && {
-            paddingBottom: keyboardHeight + 24,
-          }
-        }>
-        <View className="grow flex-col gap-2">
-          <TextInput
-            icon={{
-              position: 'left',
-              element: <ThemedIcon name={'search'} />,
-            }}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            textContentType={'addressCityAndState'}
-            editable={true}
-            value={fullSearch}
-            onChangeText={setSearch}
-            onPress={() => setSearch('')}
-            placeholder={t('user.parking.searchParking')}
-          />
-
-          <CardContainer className={'flex-1'}>
-            {parking && parking.length > 0 ? (
-              parking.map((parking) => (
-                <ParkingCard
-                  key={parking.id}
-                  parking={parking}
-                  isSelected={selectedParking?.id === parking.id}
-                  onSelect={() => selectParking(parking)}
-                  onEdit={() => onParkingEdit(parking)}
-                />
-              ))
-            ) : (
-              <Text className={'top-1/2 mx-auto text-center'}>
-                {t('user.parking.noMatchingParking', { search })}
-              </Text>
-            )}
-          </CardContainer>
-        </View>
-
-        {!maximizeSpace && (
-          <Pressable onPress={initiateParkingCreation}>
-            <Card className={'flex-row items-center justify-between'}>
-              <Text variant={'footnote'} className={'w-2/3'}>
-                {t('user.parking.cantFindParking')}
-              </Text>
-              <ThemedIcon name={'plus'} component={FontAwesome6} size={20} />
-            </Card>
-          </Pressable>
-        )}
-
-        {!maximizeSpace && (
-          <Pressable onPress={() => router.replace('/join-parking')}>
-            <Card className={'flex-row items-center justify-between'}>
-              <Text variant={'footnote'} className={'w-2/3'}>
-                {t('user.parking.searchWithCode')}
-              </Text>
-              <ThemedIcon name={'ticket'} component={FontAwesome6} size={20} />
-            </Card>
-          </Pressable>
-        )}
-
-        {!maximizeSpace && (
-          <View className="flex-col gap-8">
-            <View className="w-full flex-row items-center justify-between">
-              <Text className="text-lg">{t('common.spot.numberLabel')}</Text>
-              <TextInput
-                ref={spotNameRef}
-                className={'w-40'}
-                icon={{
-                  position: 'right',
-                  element: <ThemedIcon name={'pencil'} />,
-                }}
-                value={currentSpotName}
-                editable={true}
-                onChangeText={setCurrentSpotName}
-              />
-            </View>
-            <Button
-              className={`w-full rounded-xl bg-primary`}
-              disabled={!selectedParking || !currentSpotName || isUpdating}
-              onPress={() => updateParking()}
-              size={'lg'}>
-              {isUpdating && <ActivityIndicator color={colors.foreground} />}
-              <Text className="text-white">{t('common.save')}</Text>
+    <>
+      <Modal {...props} open={openModal}>
+        <ModalTitle
+          text={t('user.parking.notify.title')}
+          icon={<ThemedIcon name={'circle-exclamation'} component={FontAwesome6} />}
+        />
+        <View className="gap-4">
+          <Text className="text-base text-foreground">{t('user.parking.notify.body')}</Text>
+          <View className="flex-row items-center gap-2">
+            <Button variant="primary" className="w-full" onPress={() => setOpenModal(false)}>
+              <Text>{t('user.parking.notify.callToAction')}</Text>
             </Button>
           </View>
-        )}
-      </ContentSheetView>
-      <ParkingModal
-        parking={editingParking}
-        open={parkingModalOpen}
-        onOpenChange={setParkingModalOpen}
-        onParking={replaceParkingState}
-        onDelete={deleteParkingState}
-      />
-    </Sheet>
+        </View>
+      </Modal>
+      <Sheet
+        ref={bottomSheetModalRef}
+        enableDynamicSizing={false}
+        onDismiss={() => props.onOpenChange(false)}
+        snapPoints={keyboardVisible ? ['95%'] : ['80%']}>
+        <ContentSheetView
+          className={'flex-col justify-between gap-4'}
+          style={
+            keyboardVisible && {
+              paddingBottom: keyboardHeight + 24,
+            }
+          }>
+          <View className="grow flex-col gap-2">
+            <TextInput
+              icon={{
+                position: 'left',
+                element: <ThemedIcon name={'search'} />,
+              }}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              textContentType={'addressCityAndState'}
+              editable={true}
+              value={fullSearch}
+              onChangeText={setSearch}
+              onPress={() => setSearch('')}
+              placeholder={t('user.parking.searchParking')}
+            />
+
+            <CardContainer className={'flex-1'}>
+              {parking && parking.length > 0 ? (
+                parking.map((parking) => (
+                  <ParkingCard
+                    key={parking.id}
+                    parking={parking}
+                    isSelected={selectedParking?.id === parking.id}
+                    onSelect={() => selectParking(parking)}
+                    onEdit={() => onParkingEdit(parking)}
+                  />
+                ))
+              ) : (
+                <Text className={'top-1/2 mx-auto text-center'}>
+                  {t('user.parking.noMatchingParking', { search })}
+                </Text>
+              )}
+            </CardContainer>
+          </View>
+
+          {!maximizeSpace && (
+            <Pressable onPress={initiateParkingCreation}>
+              <Card className={'flex-row items-center justify-between'}>
+                <Text variant={'footnote'} className={'w-2/3'}>
+                  {t('user.parking.cantFindParking')}
+                </Text>
+                <ThemedIcon name={'plus'} component={FontAwesome6} size={20} />
+              </Card>
+            </Pressable>
+          )}
+
+          {!maximizeSpace && (
+            <Pressable onPress={() => router.replace('/join-parking')}>
+              <Card className={'flex-row items-center justify-between'}>
+                <Text variant={'footnote'} className={'w-2/3'}>
+                  {t('user.parking.searchWithCode')}
+                </Text>
+                <ThemedIcon name={'ticket'} component={FontAwesome6} size={20} />
+              </Card>
+            </Pressable>
+          )}
+
+          {!maximizeSpace && (
+            <View className="flex-col gap-8">
+              <View className="w-full flex-row items-center justify-between">
+                <Text className="text-lg">{t('common.spot.numberLabel')}</Text>
+                <TextInput
+                  ref={spotNameRef}
+                  className={'w-40'}
+                  icon={{
+                    position: 'right',
+                    element: <ThemedIcon name={'pencil'} />,
+                  }}
+                  value={currentSpotName}
+                  editable={true}
+                  onChangeText={setCurrentSpotName}
+                />
+              </View>
+              <Button
+                className={`w-full rounded-xl bg-primary`}
+                disabled={!selectedParking || !currentSpotName || isUpdating}
+                onPress={() => updateParking()}
+                size={'lg'}>
+                {isUpdating && <ActivityIndicator color={colors.foreground} />}
+                <Text className="text-white">{t('common.save')}</Text>
+              </Button>
+            </View>
+          )}
+        </ContentSheetView>
+        <ParkingModal
+          parking={editingParking}
+          open={parkingModalOpen}
+          onOpenChange={setParkingModalOpen}
+          onParking={replaceParkingState}
+          onDelete={deleteParkingState}
+        />
+      </Sheet>
+    </>
   );
 }
 
@@ -605,7 +629,7 @@ function ParkingCard(props: {
               props.parking.spotsCount === 0 && 'opacity-70'
             )}>
             <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
-            <ThemedIcon name={'user'} color={colors.card} />
+            <ThemedIcon name={'user'} />
           </View>
         </View>
         <View className="flex-row items-center justify-between gap-4">
@@ -705,10 +729,13 @@ function ParkingModal(props: {
           placeholder={t('user.parking.parkingAddress')}
           maxLength={100}
           icon={{
-            element: <ThemedIcon name={'location-dot'} component={FontAwesome6} />,
+            element: <ThemedIcon name={'tag'} component={FontAwesome6} />,
             position: 'left',
           }}
         />
+        <Text className="text-md mt-2 text-center text-primary">
+          {t('user.parking.memberMaxCount', { memberCount: 9 })}
+        </Text>
       </View>
 
       {mode === 'edit' && (
