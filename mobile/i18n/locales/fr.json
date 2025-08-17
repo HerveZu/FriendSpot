@@ -94,6 +94,7 @@
     },
     "parking": {
       "cantFindParking": "Tu ne trouves pas ton groupe ? Créé le maintenant !",
+      "searchWithCode": "Entre un code de groupe",
       "searchParking": "Rechercher un groupe",
       "noMatchingParking": "Aucun groupe ne correspond à «{{search}}».",
       "createParking": "Créer un groupe",
