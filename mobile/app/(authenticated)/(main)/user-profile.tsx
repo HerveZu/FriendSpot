@@ -49,6 +49,7 @@ import { Rating } from '~/components/Rating';
 import { universalLink } from '~/endpoints/universalLink';
 import { AppContext } from '~/app/_layout';
 import { firebaseAuth } from '~/authentication/firebase';
+import { useRouter } from 'expo-router';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -400,6 +401,7 @@ function DefineSpotSheet(props: {
   const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
   const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
   const [parkingModalOpen, setParkingModalOpen] = useState(false);
+  const router = useRouter();
 
   const spotNameRef = createRef<ReactTextInput>();
   const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
@@ -468,7 +470,7 @@ function DefineSpotSheet(props: {
       onDismiss={() => props.onOpenChange(false)}
       snapPoints={keyboardVisible ? ['95%'] : ['80%']}>
       <ContentSheetView
-        className={'flex-col justify-between gap-6'}
+        className={'flex-col justify-between gap-4'}
         style={
           keyboardVisible && {
             paddingBottom: keyboardHeight + 24,
@@ -511,11 +513,22 @@ function DefineSpotSheet(props: {
 
         {!maximizeSpace && (
           <Pressable onPress={initiateParkingCreation}>
-            <Card className={'flex-row items-center justify-between gap-4'}>
-              <Text variant={'caption1'} className={'w-2/3'}>
+            <Card className={'flex-row items-center justify-between'}>
+              <Text variant={'footnote'} className={'w-2/3'}>
                 {t('user.parking.cantFindParking')}
               </Text>
-              <ThemedIcon name={'location'} component={Entypo} size={24} />
+              <ThemedIcon name={'plus'} component={FontAwesome6} size={20} />
+            </Card>
+          </Pressable>
+        )}
+
+        {!maximizeSpace && (
+          <Pressable onPress={() => router.replace('/join-parking')}>
+            <Card className={'flex-row items-center justify-between'}>
+              <Text variant={'footnote'} className={'w-2/3'}>
+                {t('user.parking.searchWithCode')}
+              </Text>
+              <ThemedIcon name={'ticket'} component={FontAwesome6} size={20} />
             </Card>
           </Pressable>
         )}
@@ -592,12 +605,12 @@ function ParkingCard(props: {
               props.parking.spotsCount === 0 && 'opacity-70'
             )}>
             <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
-            <ThemedIcon name={'car'} />
+            <ThemedIcon name={'user'} color={colors.card} />
           </View>
         </View>
         <View className="flex-row items-center justify-between gap-4">
           <View className={'w-4/5 flex-row items-center gap-4'}>
-            <ThemedIcon name={'location-dot'} component={FontAwesome6} />
+            <ThemedIcon name={'tag'} component={FontAwesome6} />
             <Text className="shrink text-sm">{props.parking.address}</Text>
           </View>
           {props.isSelected && <ThemedIcon name={'check'} color={colors.primary} />}
