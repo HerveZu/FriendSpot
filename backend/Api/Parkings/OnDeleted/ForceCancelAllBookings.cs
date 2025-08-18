@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Parkings.OnDeleted;
 
-internal sealed class CancelAllBookings(
+internal sealed class ForceCancelAllBookings(
     AppDbContext dbContext,
-    ILogger<CancelAllBookings> logger
+    ILogger<ForceCancelAllBookings> logger
 ) : IDomainEventHandler<ParkingDeleted>
 {
     public async Task Handle(ParkingDeleted notification, CancellationToken cancellationToken)
@@ -17,7 +17,10 @@ internal sealed class CancelAllBookings(
             .Where(spot => spot.ParkingId == notification.ParkingId)
             .ToArrayAsync(cancellationToken);
 
-        logger.LogInformation("Cancelling {SpotsCount} bookings", spots.Length);
+        logger.LogInformation(
+            "Force cancelling {SpotsCount} bookings for parking {ParkingId}",
+            notification.ParkingId,
+            spots.Length);
 
         foreach (var spot in spots)
         {

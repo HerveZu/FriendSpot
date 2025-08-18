@@ -40,8 +40,8 @@ internal sealed class AppDbContext(
             type => type.IsAssignableToGenericType(configurationType)
         );
 
-        modelBuilder.AddQueryFilterOnAllEntities<IUserPrivateResource>(
-            entity => CurrentUserIdentity == null || entity.UserId == CurrentUserIdentity);
+        modelBuilder.AddQueryFilterOnAllEntities<IUserPrivateResource>(entity =>
+            CurrentUserIdentity == null || entity.UserId == CurrentUserIdentity);
 
         modelBuilder.UseUtcDateTimeOffsetConverter();
         modelBuilder.AddQuartz(x => x.UsePostgreSql());
@@ -64,5 +64,19 @@ internal sealed class AppDbContext(
         }
 
         return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<int> DeleteAndSaveWithEventPropagation<TEntity>(
+        TEntity entity,
+        CancellationToken cancellationToken = new())
+        where TEntity : class, IAggregateRoot
+    {
+        // first perform a regular update to add the entity to the change tracker and trigger events by saving it
+        Set<TEntity>().Update(entity);
+        await SaveChangesAsync(cancellationToken);
+
+        // then remove it after the side effects have performed
+        Set<TEntity>().Remove(entity);
+        return await SaveChangesAsync(cancellationToken);
     }
 }
