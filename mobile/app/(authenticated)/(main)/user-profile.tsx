@@ -142,10 +142,10 @@ export default function UserProfileScreen() {
         <View className={'mb-2 flex-col'}>
           <Title action={<ShareSpot />}>{t('user.profile.mySpot')}</Title>
 
-          <View className={'flex-col gap-2'}>
+          <View className={'mt-2 flex-col gap-2'}>
             <Pressable
               onPress={() => setBottomSheet(true)}
-              className={!userProfile.spot ? 'rounded-xl border border-destructive' : ''}>
+              className={`${!userProfile.spot ? ' border-destructive' : ''} rounded-xl border`}>
               <Card className="flex-col items-start gap-3">
                 <View className="w-full flex-row items-center justify-between">
                   {!userProfile.spot ? (
@@ -226,7 +226,7 @@ function ShareSpot() {
       size={'sm'}
       disabled={!userProfile.spot}
       onPress={() => userProfile.spot && shareSpot(userProfile.spot.parking.code)}>
-      <ThemedIcon name={'share-2'} component={Feather} />
+      <ThemedIcon name={'share'} component={FontAwesome6} />
       <Text>{t('user.parking.share.button')}</Text>
     </Button>
   );
@@ -493,7 +493,7 @@ function DefineSpotSheet(props: {
             ref={bottomSheetModalRef}
             enableDynamicSizing={false}
             onDismiss={() => props.onOpenChange(false)}
-            snapPoints={keyboardVisible ? ['38%'] : ['38%']}>
+            snapPoints={keyboardVisible ? ['44%'] : ['44%']}>
             <Text variant={'title1'} className="text-center">
               {t('user.parking.button.title')}
             </Text>
@@ -531,6 +531,14 @@ function DefineSpotSheet(props: {
                   <ThemedIcon name={'plus'} component={FontAwesome6} size={25} />
                   <Text variant={'body'} className={'w-2/3'}>
                     {t('user.parking.button.createParking')}
+                  </Text>
+                </Button>
+                <Button
+                  variant="primary"
+                  className="mt-2 flex-row items-center justify-around"
+                  onPress={() => props.onOpenChange(false)}>
+                  <Text variant={'body'} className={'w-full text-center'}>
+                    {t('common.back')}
                   </Text>
                 </Button>
               </View>
@@ -773,7 +781,7 @@ function ParkingModal(props: {
   return (
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
       <ModalTitle text={titleText[mode]} />
-      <View className="w-full flex-row items-center gap-2">
+      <View className="w-full flex-row items-center gap-2 px-2">
         <ThemedIcon name={'user-plus'} component={FontAwesome6} size={12} />
         <Text className="text-center text-sm">
           {t('user.parking.memberMaxCount', { memberCount: 9 })}
