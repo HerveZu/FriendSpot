@@ -25,11 +25,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TextInput } from '~/components/TextInput';
 import { useCurrentUser } from '~/authentication/UserProvider';
 
-import { BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { ContentSheetView } from '~/components/ContentView';
 import { SheetTitle } from '~/components/Title';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { ThemedIcon } from '~/components/ThemedIcon';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -40,6 +41,7 @@ export default function JoinParking() {
   const [hasResetCode, setHasResetCode] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors } = useColorScheme();
 
   useEffect(() => {
     if (!hasResetCode && initialCode && initialCode !== code) {
@@ -51,8 +53,6 @@ export default function JoinParking() {
     () => (code ? searchParking(code).then((results) => results[0] ?? null) : null),
     [code]
   );
-
-  const noParking = parking === null;
 
   useEffect(() => {
     if (parking) {
@@ -72,17 +72,18 @@ export default function JoinParking() {
   }
 
   return (
-    <View className="justify-top mt-36 items-center justify-around gap-6">
+    <View className="h-full items-center justify-around">
       <View className="flex items-center justify-center gap-8 p-4">
         <Text className="text-3xl font-bold">{t('user.parking.parkingCode.title')}</Text>
         <Text className="text-center text-base">{t('user.parking.parkingCode.description')}</Text>
 
-        <CodeEntry code={code} setCode={setCode} error={!!noParking} />
-
-        <Button onPress={dismissCheckAndGo} variant={'tonal'}>
-          <Text className="text-md">{t('user.parking.parkingCode.dismissCheck')}</Text>
-        </Button>
+        <CodeEntry code={code} setCode={setCode} error={!parking} />
       </View>
+
+      <Button onPress={dismissCheckAndGo} variant={'tonal'} size={'md'}>
+        <Text>{t('user.parking.parkingCode.dismissCheck')}</Text>
+        <ThemedIcon name={'arrow-right'} color={colors.primary} size={14} />
+      </Button>
 
       {parking && (
         <ConfirmJoinBottomSheet
@@ -109,23 +110,12 @@ function CodeEntry({
   const PARKING_PREFIX = `P${PREFIX_SEPARATOR}`;
   const CELL_COUNT = 6;
   const [internalCode, setInternalCode] = useState(code);
-  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
     if (code && code !== internalCode) {
       setInternalCode(appendCodePrefix(code));
     }
   });
-
-  useEffect(() => {
-    if (internalCode.length == 0) {
-      setShowError(false);
-    } else if (error) {
-      setShowError(true);
-    } else {
-      setShowError(false);
-    }
-  }, [error, internalCode]);
 
   useEffect(() => {
     if (internalCode.length === CELL_COUNT + PARKING_PREFIX.length) {
@@ -169,10 +159,9 @@ function CodeEntry({
         <CodeField
           ref={ref as any}
           {...codeFieldProps}
-          // trick to avoid code size limitation when includes the prefix
           value={removeCodePrefix(internalCode)}
           onChangeText={(code) => setInternalCode(appendCodePrefix(code))}
-          cellCount={CELL_COUNT + PARKING_PREFIX.length}
+          cellCount={CELL_COUNT + PARKING_PREFIX.length} // trick to avoid code size limitation when includes the prefix
           keyboardType="default"
           textContentType="oneTimeCode"
           rootStyle={{ gap: 6 }}
@@ -187,7 +176,7 @@ function CodeEntry({
                 className={cn(
                   'h-11 w-10 items-center justify-center rounded-lg border',
                   isFocused ? 'bg-primary/10 border-primary' : 'bg-muted/30 border-muted',
-                  showError ? 'border-destructive' : ''
+                  error ? 'border-destructive' : ''
                 )}>
                 <Text className="text-2xl font-bold tracking-widest">{symbol}</Text>
               </View>
