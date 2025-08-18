@@ -1,12 +1,15 @@
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo } from 'react';
 import { useFetch } from '~/lib/useFetch';
 import { BookingResponse, useGetBooking } from '~/endpoints/booking/get-booking';
-import * as LiveActivity from 'expo-live-activity';
+import * as IosLiveActivity from 'expo-live-activity';
 import { useActualTime } from '~/lib/useActualTime';
 import { format, isWithinInterval, milliseconds } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { deepEqual } from '@firebase/util';
 import { usePersistentState } from '~/lib/usePersistentState';
+import { Platform } from 'react-native';
+
+const LiveActivity = Platform.select({ ios: IosLiveActivity, default: null });
 
 export const LiveTimerContext = createContext<{
   registerLiveActivityTimer: (booking: BookingResponse) => void;
@@ -15,12 +18,12 @@ export const LiveTimerContext = createContext<{
 export function LiveTimerProvider(props: PropsWithChildren) {
   const [booking] = useFetch(useGetBooking(), []);
   const [liveActivityIdMap, setLiveActivityIdMap] = usePersistentState<{
-    [bookingId: string]: { activityId: string; state: LiveActivity.LiveActivityState };
+    [bookingId: string]: { activityId: string; state: IosLiveActivity.LiveActivityState };
   }>('DisplayTimerWidgetActivityIdsMap', {});
   const now = useActualTime(milliseconds({ seconds: 10 }));
   const { t } = useTranslation();
 
-  const widgetConfig: LiveActivity.LiveActivityConfig = useMemo(
+  const widgetConfig: IosLiveActivity.LiveActivityConfig = useMemo(
     () => ({
       timerType: 'digital',
     }),
@@ -55,7 +58,7 @@ export function LiveTimerProvider(props: PropsWithChildren) {
         imageName: 'icon',
         dynamicIslandImageName: 'icon',
         date: new Date(booking.to).getTime(),
-      }) as LiveActivity.LiveActivityState,
+      }) as IosLiveActivity.LiveActivityState,
     [t]
   );
 

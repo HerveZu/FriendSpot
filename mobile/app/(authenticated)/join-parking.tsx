@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import {
@@ -32,6 +32,7 @@ import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
+import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -87,7 +88,11 @@ export default function JoinParking() {
 
       <Button onPress={dismissCheckAndGo} variant={'tonal'} size={'md'}>
         <Text>{t('user.parking.joinParking.dismissCheck')}</Text>
-        <ThemedIcon name={'arrow-right'} color={colors.primary} size={14} />
+        <ThemedIcon
+          name={'arrow-right'}
+          color={Platform.select({ ios: colors.primary })}
+          size={14}
+        />
       </Button>
 
       {parking && (
@@ -256,19 +261,23 @@ function ConfirmJoinBottomSheet({
               </View>
               <Text className="text-xl">{parking.address}</Text>
             </View>
-            <View className="flex-row gap-4">
-              <Button variant="tonal" onPress={onClose} className={'flex-1'}>
-                <Text>{t('common.cancel')}</Text>
-              </Button>
-              <Button onPress={() => setStep('spot')} disabled={groupIsFull} className={'flex-1'}>
-                <Text>{t('user.parking.joinParking.join')}</Text>
-                {groupIsFull ? (
-                  <ThemedIcon name="lock" />
-                ) : (
-                  <ThemedIcon name="arrow-right" size={14} />
-                )}
-              </Button>
-            </View>
+            <ExpandRow>
+              <ExpandItem>
+                <Button variant="tonal" onPress={onClose}>
+                  <Text>{t('common.cancel')}</Text>
+                </Button>
+              </ExpandItem>
+              <ExpandItem>
+                <Button onPress={() => setStep('spot')} disabled={groupIsFull}>
+                  <Text>{t('user.parking.joinParking.join')}</Text>
+                  {groupIsFull ? (
+                    <ThemedIcon name="lock" />
+                  ) : (
+                    <ThemedIcon name="arrow-right" size={14} />
+                  )}
+                </Button>
+              </ExpandItem>
+            </ExpandRow>
           </>
         );
       case 'spot':
@@ -288,19 +297,22 @@ function ConfirmJoinBottomSheet({
               placeholder={t('user.parking.joinParking.spot.placeholder')}
             />
 
-            <View className="flex-row items-center justify-between gap-4">
-              <Button variant="tonal" onPress={() => setStep('confirm')} className="flex-1">
-                <Text>{t('common.back')}</Text>
-              </Button>
-              <Button
-                variant="primary"
-                disabled={isLoading || lotName.trim() === ''}
-                onPress={handleJoin}
-                className="flex-1">
-                {isLoading && <ActivityIndicator color={colors.foreground} />}
-                <Text>{t('common.submit')}</Text>
-              </Button>
-            </View>
+            <ExpandRow>
+              <ExpandItem>
+                <Button variant="tonal" onPress={() => setStep('confirm')}>
+                  <Text>{t('common.back')}</Text>
+                </Button>
+              </ExpandItem>
+              <ExpandItem>
+                <Button
+                  variant="primary"
+                  disabled={isLoading || lotName.trim() === ''}
+                  onPress={handleJoin}>
+                  {isLoading && <ActivityIndicator color={colors.foreground} />}
+                  <Text>{t('common.submit')}</Text>
+                </Button>
+              </ExpandItem>
+            </ExpandRow>
           </>
         );
       default:

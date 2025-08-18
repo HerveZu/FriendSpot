@@ -128,8 +128,7 @@
         "title": "Share your FriendSpot group with your neighbors",
         "message": "Hi! Join our neighbor group on FriendSpot. Use the code {{code}}."
       },
-      "notify": {
-        "title": "Important",
+      "noParkingPopup": {
         "body": "Join a group to access all the features of the application.",
         "callToAction": "Got it!"
       },

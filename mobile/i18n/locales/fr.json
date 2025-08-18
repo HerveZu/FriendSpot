@@ -108,7 +108,7 @@
     "parking": {
       "openOptions": {
         "title": "Que souhaites-tu faire ?",
-        "searchGroup": "Rechercher un groupe",
+        "searchGroup": "Chercher un groupe",
         "joinWithCode": "Code de groupe",
         "createParking": "Nouveau groupe",
         "leave": "Quitter le groupe"
@@ -128,8 +128,7 @@
         "title": "Partage ton groupe de stationnement FriendSpot avec tes voisins",
         "message": "Salut ! Rejoins notre groupe de stationnement entre voisins sur FriendSpot. Utilise le code {{code}}."
       },
-      "notify": {
-        "title": "Important",
+      "noParkingPopup": {
         "body": "Pour utiliser l’application, tu dois rejoindre un groupe existant ou en créer un.",
         "callToAction": "D'accord !"
       },

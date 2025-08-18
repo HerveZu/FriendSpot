@@ -39,7 +39,7 @@ import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
-import { chunk, opacity } from '~/lib/utils';
+import { opacity } from '~/lib/utils';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
@@ -507,6 +507,7 @@ function BottomSheet(props: {
       icon: ReactNode;
       color?: keyof typeof colors;
       isLoading?: boolean;
+      disabled?: boolean;
     }[] = [
       {
         label: t('user.parking.openOptions.searchGroup'),
@@ -531,6 +532,7 @@ function BottomSheet(props: {
         color: 'destructive',
         onPress: leaveSpot,
         isLoading: isLeaving,
+        disabled: !userProfile.spot,
         icon: (
           <ThemedIcon
             name={'car-off'}
@@ -550,19 +552,27 @@ function BottomSheet(props: {
             snapPoints={['34%']}>
             <ContentSheetView className={'flex-col gap-6'}>
               <SheetTitle>{t('user.parking.openOptions.title')}</SheetTitle>
-              <View className={'gap-4'}>
-                {chunk(optionActions, 2).map((chunk, chunkIndex) => (
-                  <View className={'flex-row gap-4'} key={chunkIndex}>
-                    {chunk.map((option, i) => (
-                      <Button
-                        key={i}
-                        variant={option.color ? 'plain' : 'tonal'}
-                        onPress={option.onPress}
-                        className={cn('flex-1 justify-around')}
-                        style={{
-                          backgroundColor: opacity(colors[option.color ?? 'primary'], 0.1),
-                          borderRadius: 15,
-                        }}>
+              <View className={'grid grid-cols-2 flex-row flex-wrap'}>
+                {optionActions.map((option, i) => (
+                  <View
+                    key={i}
+                    // manual gap calculation as the regular gap won't
+                    // work with the w-1/2 trick for force 2 columns
+                    className={cn(
+                      'w-1/2',
+                      i % 2 === 0 && 'pr-2',
+                      i % 2 === 1 && 'pl-2',
+                      i < optionActions.length - 2 ? 'mb-2' : 'mt-2'
+                    )}>
+                    <Button
+                      variant={option.color ? 'plain' : 'tonal'}
+                      onPress={option.onPress}
+                      disabled={option.disabled}
+                      style={{
+                        backgroundColor: opacity(colors[option.color ?? 'primary'], 0.1),
+                        borderRadius: 15,
+                      }}>
+                      <View className={'flex-row items-center justify-between gap-3'}>
                         {option.isLoading ? (
                           <ActivityIndicator color={colors[option.color ?? 'primary']} />
                         ) : (
@@ -575,8 +585,8 @@ function BottomSheet(props: {
                           }}>
                           {option.label}
                         </Text>
-                      </Button>
-                    ))}
+                      </View>
+                    </Button>
                   </View>
                 ))}
               </View>
@@ -725,10 +735,10 @@ function BottomSheet(props: {
         <View className="items-center">
           <CautionIllustration width={250} height={250} />
         </View>
-        <View>
-          <Text className="text-center text-base">{t('user.parking.notify.body')}</Text>
-          <Button variant="primary" className="mt-8 w-full" onPress={() => setOpenModal(false)}>
-            <Text>{t('user.parking.notify.callToAction')}</Text>
+        <View className={'gap-8'}>
+          <Text className="text-center text-base">{t('user.parking.noParkingPopup.body')}</Text>
+          <Button variant="primary" className="w-full" onPress={() => setOpenModal(false)}>
+            <Text>{t('user.parking.noParkingPopup.callToAction')}</Text>
           </Button>
         </View>
       </Modal>
