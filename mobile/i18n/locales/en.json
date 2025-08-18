@@ -132,11 +132,17 @@
         "body": "Join a group to access all the features of the application.",
         "callToAction": "Got it!"
       },
+      "confirmLeaveGroup": {
+        "title": "Leave {{groupName}}",
+        "description": "When leaving this group, all bookings linked to your spot will be deleted.",
+        "confirm": "Leave"
+      },
       "joinParking": {
         "title": "Group code",
         "description": "Join an existing group group using an invitation code.",
         "dismissCheck": "I don't have a group code",
         "join": "Join",
+        "full": "Full",
         "spot": {
           "title": "What's your spot number?",
           "placeholder": "Spot number",
@@ -243,14 +249,20 @@
       "premium": {
         "name": "Premium",
         "description": "Unlock unlimited group potential.",
-        "features": "Unlimited time per reservation;Group sharing requests",
+        "features": "Unlimited time per reservation;Group sharing requests;Basic support",
         "upgradeButton": "Upgrade"
       },
       "neighbourhood": {
         "name": "Neighbourhood",
         "description": "For neighbourhoods and communities.",
-        "features": "Up to 100 group members;Advanced group management;Dedicated support",
+        "features": "Up to 50 group members;Advanced group management;Dedicated support",
         "upgradeButton": "Create group"
+      },
+      "custom": {
+        "name": "Custom",
+        "description": "Get custom features tailored to your needs. Reach out today!",
+        "features": "Everything in Neighbourhood;Unlimited group members;Custom features",
+        "upgradeButton": "Contact us"
       }
     }
   },

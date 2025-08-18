@@ -7,33 +7,33 @@ import { useTranslation } from 'react-i18next';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { ReactElement } from 'react';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 import { Tag } from '~/components/Tag';
 import View = Animated.View;
 
 type Plan = {
   icon: ReactElement;
   name: string;
-  price: string;
-  period: string;
+  price?: string;
+  period?: string;
   upgradeButton: string;
   description: string;
   features: string[];
 };
 
-export default function Plans() {
+export default function FriendspotPlus() {
   const { t } = useTranslation();
 
   function getPlan(
     name: string,
-    price: number,
-    periodType: 'monthly' | 'perUserMonthly',
+    price: number | null,
+    periodType: 'monthly' | 'perUserMonthly' | null,
     icon: ReactElement
   ): Plan {
     return {
       name: t(`upgrade.plans.${name}.name`),
-      price: `€${price}`,
-      period: t(`upgrade.plans.periods.${periodType}`),
+      price: price ? `€${price}` : undefined,
+      period: periodType ? t(`upgrade.plans.periods.${periodType}`) : undefined,
       description: t(`upgrade.plans.${name}.description`),
       features: t(`upgrade.plans.${name}.features`).split(';'),
       upgradeButton: t(`upgrade.plans.${name}.upgradeButton`),
@@ -44,16 +44,17 @@ export default function Plans() {
   const plans: Plan[] = [
     getPlan(
       'premium',
-      2,
+      1.99,
       'monthly',
-      <ThemedIcon name={'crown'} component={MaterialCommunityIcons} size={24} />
+      <ThemedIcon name={'crown'} component={FontAwesome6} size={16} />
     ),
     getPlan(
       'neighbourhood',
-      5,
+      2.99,
       'perUserMonthly',
-      <ThemedIcon name={'groups'} component={MaterialIcons} size={24} />
+      <ThemedIcon name={'user-group'} component={FontAwesome6} size={14} />
     ),
+    getPlan('custom', null, null, <ThemedIcon name={'house'} component={FontAwesome6} size={16} />),
   ];
 
   return (
@@ -75,7 +76,7 @@ function PlanCard({ plan }: { plan: Plan }) {
   return (
     <Card>
       <View className={'flex-row items-center justify-between'}>
-        <View className={'flex-row items-center gap-1'}>
+        <View className={'flex-row items-center gap-2'}>
           {plan.icon}
           <Text variant={'heading'}>{plan.name}</Text>
         </View>

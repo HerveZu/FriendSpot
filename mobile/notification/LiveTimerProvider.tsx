@@ -1,15 +1,13 @@
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo } from 'react';
 import { useFetch } from '~/lib/useFetch';
 import { BookingResponse, useGetBooking } from '~/endpoints/booking/get-booking';
-import * as IosLiveActivity from 'expo-live-activity';
+import * as LiveActivity from 'expo-live-activity';
 import { useActualTime } from '~/lib/useActualTime';
 import { format, isWithinInterval, milliseconds } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { deepEqual } from '@firebase/util';
 import { usePersistentState } from '~/lib/usePersistentState';
 import { Platform } from 'react-native';
-
-const LiveActivity = Platform.select({ ios: IosLiveActivity, default: null });
 
 export const LiveTimerContext = createContext<{
   registerLiveActivityTimer: (booking: BookingResponse) => void;
@@ -18,12 +16,12 @@ export const LiveTimerContext = createContext<{
 export function LiveTimerProvider(props: PropsWithChildren) {
   const [booking] = useFetch(useGetBooking(), []);
   const [liveActivityIdMap, setLiveActivityIdMap] = usePersistentState<{
-    [bookingId: string]: { activityId: string; state: IosLiveActivity.LiveActivityState };
+    [bookingId: string]: { activityId: string; state: LiveActivity.LiveActivityState };
   }>('DisplayTimerWidgetActivityIdsMap', {});
   const now = useActualTime(milliseconds({ seconds: 10 }));
   const { t } = useTranslation();
 
-  const widgetConfig: IosLiveActivity.LiveActivityConfig = useMemo(
+  const widgetConfig: LiveActivity.LiveActivityConfig = useMemo(
     () => ({
       timerType: 'digital',
     }),
@@ -58,11 +56,15 @@ export function LiveTimerProvider(props: PropsWithChildren) {
         imageName: 'icon',
         dynamicIslandImageName: 'icon',
         date: new Date(booking.to).getTime(),
-      }) as IosLiveActivity.LiveActivityState,
+      }) as LiveActivity.LiveActivityState,
     [t]
   );
 
   useEffect(() => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+
     endedActivityIds.forEach(({ activityId }) =>
       LiveActivity?.stopActivity(activityId, {
         imageName: 'icon',
@@ -73,6 +75,10 @@ export function LiveTimerProvider(props: PropsWithChildren) {
   }, [endedActivityIds]);
 
   useEffect(() => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+
     liveBookings.forEach((booking) => {
       const state = stateForBooking(booking);
       const existingActivity = liveActivityIdMap[booking.id];
@@ -102,16 +108,28 @@ export function LiveTimerProvider(props: PropsWithChildren) {
         widgetConfig: widgetConfig,
       });
       const createdActivityId = LiveActivity?.startActivity(state, widgetConfig);
-      createdActivityId &&
-        setLiveActivityIdMap((map) => ({
-          ...map,
-          [booking.id]: { activityId: createdActivityId, state },
-        }));
+
+      if (!createdActivityId) {
+        console.log('Failed to register activity for booking ', {
+          bookingId: booking.id,
+          state,
+        });
+        return;
+      }
+
+      setLiveActivityIdMap((map) => ({
+        ...map,
+        [booking.id]: { activityId: createdActivityId, state },
+      }));
     });
   }, [liveBookings, liveActivityIdMap, widgetConfig, stateForBooking]);
 
   const registerLiveActivityTimer = useCallback(
     (booking: BookingResponse) => {
+      if (Platform.OS !== 'ios') {
+        return;
+      }
+
       const state = stateForBooking(booking);
       console.log('Manual live activity registration activity for booking ', {
         bookingId: booking.id,

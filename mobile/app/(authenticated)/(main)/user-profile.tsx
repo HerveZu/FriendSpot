@@ -1,4 +1,4 @@
-import React, {
+import {
   createRef,
   Dispatch,
   PropsWithChildren,
@@ -9,32 +9,34 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { ActivityIndicator, Pressable, Share, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  Share,
+  TextInput as ReactTextInput,
+  View,
+} from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { TextInput } from '~/components/TextInput';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Sheet } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import * as ImagePicker from 'expo-image-picker';
 import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
-import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
-import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { Card, CardContainer } from '~/components/Card';
-import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
 import { SheetTitle, Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/me/logout';
 import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
-import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import Constants from 'expo-constants';
@@ -53,6 +55,11 @@ import { firebaseAuth } from '~/authentication/firebase';
 import { useRouter } from 'expo-router';
 import CautionIllustration from '~/assets/caution.svg';
 import { useLeaveSpot } from '~/endpoints/parkings/leave-spot';
+import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
+import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
+import { useSearchParking } from '~/endpoints/parkings/search-parking';
+import { MAX_SPOT_PER_GROUP, useDefineSpot } from '~/endpoints/parkings/define-spot';
+import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -60,7 +67,8 @@ export default function UserProfileScreen() {
   const { userProfile, updateUserProfile } = useCurrentUser();
   const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
-  const [bottomSheet, setBottomSheet] = useState(false);
+  const [parkingBottomSheetOpen, setParkingBottomSheetOpen] = useState(false);
+  const [parameterSheetOpen, setParameterSheetOpen] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
 
@@ -89,7 +97,6 @@ export default function UserProfileScreen() {
   };
 
   const [displayNameDebounce] = useDebounce(currentDisplayName, 400);
-  const [step, setStep] = useState<string>('');
 
   useEffect(() => {
     if (displayNameDebounce.length < 2) {
@@ -105,16 +112,6 @@ export default function UserProfileScreen() {
   function updateDisplayName() {
     firebaseUser.photoURL &&
       updateUserProfile({ pictureUrl: firebaseUser.photoURL, displayName: currentDisplayName });
-  }
-
-  function openDefineSpotSheet() {
-    setStep('button');
-    setBottomSheet(true);
-  }
-
-  function openParameterSheet() {
-    setStep('parameter');
-    setBottomSheet(true);
   }
 
   return (
@@ -148,49 +145,45 @@ export default function UserProfileScreen() {
           />
           <TextInput value={firebaseUser.email ?? ''} readOnly />
         </View>
-        <View className={'flex-col'}>
-          <View className="flex-row items-center">
-            <Title
-              action={<ShareSpot />}
-              icon={{
-                element: (
-                  <ThemedIcon name={'user-group'} component={FontAwesome6} color={colors.primary} />
-                ),
-              }}>
-              {t('user.profile.mySpot')}
-            </Title>
-          </View>
-          <View className={'mt-2 flex-col gap-2'}>
-            <Pressable
-              onPress={() => openDefineSpotSheet()}
-              className={`${!userProfile.spot ? 'bg-destructive/60' : ''} rounded-xl border`}>
-              <Card className="flex-col items-start gap-3">
-                <View className="w-full flex-row items-center justify-between">
-                  {!userProfile.spot ? (
-                    <View className="flex flex-row items-center justify-center gap-2">
-                      <ThemedIcon
-                        name="xmark"
-                        component={FontAwesome6}
-                        color={colors.destructive}
-                        size={20}
-                      />
-                      <Text className="text-base font-semibold">
-                        {t('user.profile.noParkingDefined')}
-                      </Text>
-                    </View>
-                  ) : (
-                    <Text>
-                      {t('common.spot.name', {
-                        parking: userProfile.spot.parking.name,
-                        number: userProfile.spot.name,
-                      })}
+        <View className={'flex-col gap-2'}>
+          <Title
+            action={<ShareSpot />}
+            icon={{
+              element: (
+                <ThemedIcon name={'user-group'} component={FontAwesome6} color={colors.primary} />
+              ),
+            }}>
+            {t('user.profile.mySpot')}
+          </Title>
+          <Pressable
+            onPress={() => setParkingBottomSheetOpen(true)}
+            className={cn('rounded-xl border', !userProfile.spot && 'bg-destructive/60')}>
+            <Card className="flex-col items-start gap-3">
+              <View className="w-full flex-row items-center justify-between">
+                {!userProfile.spot ? (
+                  <View className="flex flex-row items-center justify-center gap-2">
+                    <ThemedIcon
+                      name="xmark"
+                      component={FontAwesome6}
+                      color={colors.destructive}
+                      size={20}
+                    />
+                    <Text className="text-base font-semibold">
+                      {t('user.profile.noParkingDefined')}
                     </Text>
-                  )}
-                  <ThemedIcon name={'pencil'} />
-                </View>
-              </Card>
-            </Pressable>
-          </View>
+                  </View>
+                ) : (
+                  <Text>
+                    {t('common.spot.name', {
+                      parking: userProfile.spot.parking.name,
+                      number: userProfile.spot.name,
+                    })}
+                  </Text>
+                )}
+                <ThemedIcon name={'pencil'} />
+              </View>
+            </Card>
+          </Pressable>
         </View>
         <View className={'flex-col'}>
           <Title
@@ -206,7 +199,7 @@ export default function UserProfileScreen() {
             }}>
             {t('user.profile.parameter.title')}
           </Title>
-          <Pressable onPress={() => openParameterSheet()}>
+          <Pressable onPress={() => setParameterSheetOpen(true)}>
             <Card className="flex-col items-start gap-3">
               <View className="w-full flex-row items-center justify-between">
                 <Text>{t('user.profile.parameter.cardTitle')}</Text>
@@ -215,7 +208,8 @@ export default function UserProfileScreen() {
           </Pressable>
         </View>
       </ScreenWithHeader>
-      <BottomSheet open={bottomSheet} onOpenChange={setBottomSheet} step={step} setStep={setStep} />
+      <ParkingBottomSheet open={parkingBottomSheetOpen} onOpenChange={setParkingBottomSheetOpen} />
+      <SettingsBottomSheet open={parameterSheetOpen} onOpenChange={setParameterSheetOpen} />
     </>
   );
 }
@@ -281,7 +275,11 @@ export function AccountDeletionConfirmationModal({
 
   async function deleteAccountBackendAndFirebase() {
     await deleteAccount();
-    await firebaseUser.delete();
+    await firebaseUser.delete().catch((e) => {
+      console.error(e);
+      // we need to do a recent sign-in to be able to delete the account on firebase
+      firebaseAuth.signOut();
+    });
   }
 
   useEffect(() => {
@@ -290,7 +288,7 @@ export function AccountDeletionConfirmationModal({
 
   return (
     <>
-      <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20'}>
+      <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20 gap-4'}>
         <ModalTitle
           text={t('user.profile.deleteAccountTitle')}
           icon={<ThemedIcon name={'warning'} />}
@@ -314,32 +312,31 @@ export function AccountDeletionConfirmationModal({
           </View>
         </View>
 
-        <View className="mt-4 w-full flex-row justify-between gap-4">
-          <Button
-            className={'grow'}
-            size={'lg'}
-            variant="tonal"
-            onPress={() => onVisibleChange(false)}>
-            <Text className={'text-primary'}>{t('common.cancel')}</Text>
-          </Button>
-          <Button
-            disabled={!userHasConfirmed}
-            className={'grow'}
-            variant={'plain'}
-            size={'lg'}
-            onPress={deleteAccountBackendAndFirebase}>
-            {deletingAccount ? (
-              <ActivityIndicator color={colors.destructive} />
-            ) : (
-              <ThemedIcon
-                name={'no-accounts'}
-                component={MaterialIcons}
-                color={colors.destructive}
-              />
-            )}
-            <Text className={'text-destructive'}>{t('common.delete')}</Text>
-          </Button>
-        </View>
+        <ExpandRow className="mt-4">
+          <ExpandItem>
+            <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
+              <Text className={'text-primary'}>{t('common.cancel')}</Text>
+            </Button>
+          </ExpandItem>
+          <ExpandItem>
+            <Button
+              disabled={!userHasConfirmed}
+              variant={'plain'}
+              size={'lg'}
+              onPress={deleteAccountBackendAndFirebase}>
+              {deletingAccount ? (
+                <ActivityIndicator color={colors.destructive} />
+              ) : (
+                <ThemedIcon
+                  name={'no-accounts'}
+                  component={MaterialIcons}
+                  color={colors.destructive}
+                />
+              )}
+              <Text className={'text-destructive'}>{t('common.delete')}</Text>
+            </Button>
+          </ExpandItem>
+        </ExpandRow>
       </Modal>
       {children}
     </>
@@ -394,406 +391,107 @@ export function LogoutConfirmationModal({
   );
 }
 
-function BottomSheet(props: {
-  open: boolean;
-  onOpenChange: Dispatch<SetStateAction<boolean>>;
-  step: string;
-  setStep: Dispatch<SetStateAction<string>>;
-}) {
+export function LeaveGroupConfirmationModal({
+  children,
+  onVisibleChange,
+  visible,
+}: PropsWithChildren<{
+  visible: boolean;
+  onVisibleChange: Dispatch<SetStateAction<boolean>>;
+}>) {
   const { userProfile } = useCurrentUser();
-  const [currentSpotName, setCurrentSpotName] = useState(userProfile.spot?.name);
-
-  const [confirmLogout, setConfirmLogout] = useState(false);
-  const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
-
+  const [leaveGroup, leaving] = useLoading(useRefreshOnSuccess(useLeaveSpot()), {
+    beforeMarkingComplete: () => onVisibleChange(false),
+  });
   const { colors } = useColorScheme();
-  const bottomSheetModalRef = useSheetRef();
   const { t } = useTranslation();
 
-  const [search, setSearch] = useState<string>();
-  const [searchFocused, setSearchFocused] = useState(false);
-  const searchParking = useSearchParking();
-
-  const [defineSpot, isUpdating] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
-  });
-  const [leaveSpot, isLeaving] = useLoading(useRefreshOnSuccess(useLeaveSpot()), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
-  });
-
-  const fullSearch = useMemo(
-    () => search ?? userProfile.spot?.parking.address ?? '',
-    [search, userProfile.spot?.parking.address]
-  );
-  const [searchDebounce] = useDebounce(fullSearch, 200);
-  const [parking, setParking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
-  const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
-  const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
-  const [parkingModalOpen, setParkingModalOpen] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-
-  const router = useRouter();
-
-  const spotNameRef = createRef<ReactTextInput>();
-  const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
-
-  // Notify the user that they must select a group
-  useEffect(() => {
-    if (!userProfile.spot) {
-      setOpenModal(true);
-    }
-  }, [userProfile.spot]);
-
-  useEffect(() => {
-    if (props.open) {
-      parking &&
-        setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
-      bottomSheetModalRef.current?.present();
-    } else {
-      bottomSheetModalRef.current?.dismiss();
-      setSearch(undefined);
-      setCurrentSpotName(userProfile.spot?.name);
-    }
-  }, [props.open]);
-
-  async function updateParking() {
-    if (!selectedParking || !currentSpotName) {
-      return;
-    }
-
-    await defineSpot({
-      parkingId: selectedParking.id,
-      lotName: currentSpotName,
-    });
-  }
-
-  function selectParking(parking: ParkingResponse) {
-    spotNameRef.current?.focus();
-    setSelectedParking(parking);
-    setCurrentSpotName('');
-  }
-
-  function replaceParkingState(parking: ParkingResponse) {
-    setParking((allParking) => [
-      ...(allParking?.filter((p) => p.id !== parking.id) ?? []),
-      parking,
-    ]);
-  }
-
-  function deleteParkingState(parking: ParkingResponse) {
-    setParking((allParking) => [...(allParking?.filter((p) => p.id !== parking.id) ?? [])]);
-  }
-
-  function initiateParkingCreation() {
-    setParkingModalOpen(true);
-    setEditingParking(null);
-  }
-
-  function onParkingEdit(parking: ParkingResponse) {
-    setEditingParking(parking);
-    setParkingModalOpen(true);
-  }
-
-  const maximizeSpace = searchFocused && keyboardVisible;
-
-  function openSearchGroup() {
-    props.setStep('searchGroup');
-  }
-
-  const BottomSheetContent = () => {
-    const optionActions: {
-      label: string;
-      onPress: () => void;
-      icon: ReactNode;
-      color?: keyof typeof colors;
-      isLoading?: boolean;
-      disabled?: boolean;
-    }[] = [
-      {
-        label: t('user.parking.openOptions.searchGroup'),
-        onPress: openSearchGroup,
-        icon: (
-          <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} color={colors.primary} />
-        ),
-      },
-      {
-        label: t('user.parking.openOptions.joinWithCode'),
-        onPress: () => router.replace('/join-parking'),
-        icon: <ThemedIcon name={'ticket'} component={FontAwesome6} color={colors.primary} />,
-      },
-      {
-        label: t('user.parking.openOptions.createParking'),
-        onPress: initiateParkingCreation,
-        color: 'success',
-        icon: <ThemedIcon name={'plus'} component={FontAwesome6} color={colors.success} />,
-      },
-      {
-        label: t('user.parking.openOptions.leave'),
-        color: 'destructive',
-        onPress: leaveSpot,
-        isLoading: isLeaving,
-        disabled: !userProfile.spot,
-        icon: (
-          <ThemedIcon
-            name={'car-off'}
-            component={MaterialCommunityIcons}
-            color={colors.destructive}
-          />
-        ),
-      },
-    ];
-    switch (props.step) {
-      case 'button':
-        return (
-          <Sheet
-            ref={bottomSheetModalRef}
-            enableDynamicSizing={false}
-            onDismiss={() => props.onOpenChange(false)}
-            snapPoints={['34%']}>
-            <ContentSheetView className={'flex-col gap-6'}>
-              <SheetTitle>{t('user.parking.openOptions.title')}</SheetTitle>
-              <View className={'grid grid-cols-2 flex-row flex-wrap'}>
-                {optionActions.map((option, i) => (
-                  <View
-                    key={i}
-                    // manual gap calculation as the regular gap won't
-                    // work with the w-1/2 trick for force 2 columns
-                    className={cn(
-                      'w-1/2',
-                      i % 2 === 0 && 'pr-2',
-                      i % 2 === 1 && 'pl-2',
-                      i < optionActions.length - 2 ? 'mb-2' : 'mt-2'
-                    )}>
-                    <Button
-                      variant={option.color ? 'plain' : 'tonal'}
-                      onPress={option.onPress}
-                      disabled={option.disabled}
-                      style={{
-                        backgroundColor: opacity(colors[option.color ?? 'primary'], 0.1),
-                        borderRadius: 15,
-                      }}>
-                      <View className={'flex-row items-center justify-between gap-3'}>
-                        {option.isLoading ? (
-                          <ActivityIndicator color={colors[option.color ?? 'primary']} />
-                        ) : (
-                          option.icon
-                        )}
-                        <Text
-                          className={'w-2/3'}
-                          style={{
-                            color: colors[option.color ?? 'primary'] ?? colors.foreground,
-                          }}>
-                          {option.label}
-                        </Text>
-                      </View>
-                    </Button>
-                  </View>
-                ))}
-              </View>
-            </ContentSheetView>
-          </Sheet>
-        );
-      case 'searchGroup':
-        return (
-          <Sheet
-            ref={bottomSheetModalRef}
-            enableDynamicSizing={false}
-            onDismiss={() => props.onOpenChange(false)}
-            snapPoints={keyboardVisible ? ['80%'] : ['80%']}>
-            <ContentSheetView
-              className={'flex-col justify-between gap-4'}
-              style={
-                keyboardVisible && {
-                  paddingBottom: keyboardHeight + 24,
-                }
-              }>
-              <View className="grow flex-col gap-2">
-                <TextInput
-                  icon={{
-                    position: 'left',
-                    element: <ThemedIcon name={'search'} />,
-                  }}
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
-                  textContentType={'addressCityAndState'}
-                  editable={true}
-                  value={fullSearch}
-                  onChangeText={setSearch}
-                  onPress={() => setSearch('')}
-                  placeholder={t('user.parking.openOptions.searchGroup')}
-                />
-                <CardContainer className={'flex-1'}>
-                  {parking && parking.length > 0 ? (
-                    parking.map((parking) => (
-                      <ParkingCard
-                        key={parking.id}
-                        parking={parking}
-                        isSelected={selectedParking?.id === parking.id}
-                        onSelect={() => selectParking(parking)}
-                        onEdit={() => onParkingEdit(parking)}
-                      />
-                    ))
-                  ) : (
-                    <Text className={'top-1/2 mx-auto text-center'}>
-                      {t('user.parking.noMatchingParking', { search })}
-                    </Text>
-                  )}
-                </CardContainer>
-              </View>
-              {!maximizeSpace && (
-                <>
-                  <View className="flex-col gap-8">
-                    <View className="w-full flex-row items-center justify-between">
-                      <Text disabled={!selectedParking} className="disabled:opacity-50">
-                        {t('common.spot.numberLabel')}
-                      </Text>
-                      <TextInput
-                        ref={spotNameRef}
-                        className="w-40"
-                        icon={{
-                          position: 'right',
-                          element: <ThemedIcon name={'pencil'} />,
-                        }}
-                        value={currentSpotName}
-                        editable={!!selectedParking}
-                        onChangeText={setCurrentSpotName}
-                      />
-                    </View>
-                  </View>
-                  <Button
-                    className={`w-full rounded-xl bg-primary`}
-                    disabled={!selectedParking || !currentSpotName || isUpdating}
-                    onPress={() => updateParking()}
-                    size={'lg'}>
-                    {isUpdating && <ActivityIndicator color={colors.foreground} />}
-                    <Text className="text-white">{t('common.save')}</Text>
-                  </Button>
-                </>
-              )}
-            </ContentSheetView>
-          </Sheet>
-        );
-      case 'parameter':
-        return (
-          <Sheet
-            ref={bottomSheetModalRef}
-            enableDynamicSizing={false}
-            onDismiss={() => props.onOpenChange(false)}
-            snapPoints={keyboardVisible ? ['30%'] : ['30%']}>
-            <ContentSheetView
-              className={'flex-col gap-8'}
-              style={
-                keyboardVisible && {
-                  paddingBottom: keyboardHeight + 24,
-                }
-              }>
-              <Button
-                variant={'plain'}
-                onPress={() => setConfirmLogout(true)}
-                size={'lg'}
-                className={'bg-destructive/15'}>
-                <ThemedIcon
-                  name={'arrow-right-from-bracket'}
-                  component={FontAwesome6}
-                  color={colors.destructive}
-                />
-                <Text className={'text-destructive'}>{t('common.logout')}</Text>
-              </Button>
-              <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
-                <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
-                <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
-              </Button>
-              <AppVersionInfo />
-              <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
-              <AccountDeletionConfirmationModal
-                visible={confirmAccountDeletion}
-                onVisibleChange={setConfirmAccountDeletion}
-              />
-            </ContentSheetView>
-          </Sheet>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const ParkingModalWrapper = () => {
-    return (
-      <ParkingModal
-        parking={editingParking}
-        open={parkingModalOpen}
-        onOpenChange={setParkingModalOpen}
-        onParking={replaceParkingState}
-        onDelete={deleteParkingState}
-      />
-    );
+  const handleLeave = async () => {
+    onVisibleChange(false);
+    await leaveGroup();
   };
 
   return (
     <>
-      <Modal {...props} open={openModal}>
-        <View className="items-center">
-          <CautionIllustration width={250} height={250} />
-        </View>
-        <View className={'gap-8'}>
-          <Text className="text-center text-base">{t('user.parking.noParkingPopup.body')}</Text>
-          <Button variant="primary" className="w-full" onPress={() => setOpenModal(false)}>
-            <Text>{t('user.parking.noParkingPopup.callToAction')}</Text>
-          </Button>
-        </View>
+      <Modal open={visible} onOpenChange={onVisibleChange}>
+        <ModalTitle
+          text={t('user.parking.confirmLeaveGroup.title', {
+            groupName: userProfile.spot?.parking?.name,
+          })}
+          icon={<ThemedIcon name={'warning'} />}
+        />
+        <Text>{t('user.parking.confirmLeaveGroup.description')}</Text>
+        <ExpandRow className="mt-4">
+          <ExpandItem>
+            <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
+              <Text className={'text-primary'}>{t('common.back')}</Text>
+            </Button>
+          </ExpandItem>
+          <ExpandItem>
+            <Button variant={'plain'} size={'lg'} onPress={() => handleLeave()}>
+              {leaving ? (
+                <ActivityIndicator color={colors.destructive} />
+              ) : (
+                <ThemedIcon
+                  name={'car-off'}
+                  component={MaterialCommunityIcons}
+                  color={colors.destructive}
+                />
+              )}
+              <Text className={'text-destructive'}>
+                {t('user.parking.confirmLeaveGroup.confirm')}
+              </Text>
+            </Button>
+          </ExpandItem>
+        </ExpandRow>
       </Modal>
-      {BottomSheetContent()}
-      {ParkingModalWrapper()}
+      {children}
     </>
   );
 }
 
-function ParkingCard(props: {
-  isSelected: boolean;
-  parking: ParkingResponse;
-  onSelect: () => void;
-  onEdit: () => void;
+function SettingsBottomSheet(props: {
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
-  const { userProfile } = useCurrentUser();
-  const { colors } = useColorScheme();
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
-  const isOwned = props.parking.ownerId === userProfile.id;
+  const { colors } = useColorScheme();
+  const bottomSheetRef = useSheetRefWithState(props.open);
+  const { t } = useTranslation();
 
   return (
-    <Pressable onPress={props.onSelect}>
-      <Card highlight={props.isSelected}>
-        <View className={'flex-row items-center justify-between'}>
-          <View className={'flex-row items-center'}>
-            <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
-            {isOwned && (
-              <Button
-                variant={'plain'}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  props.onEdit();
-                }}>
-                <ThemedIcon name={'pencil'} color={colors.foreground} />
-              </Button>
-            )}
-          </View>
-          <View
-            className={cn(
-              'flex-row items-center gap-2',
-              props.parking.spotsCount === 0 && 'opacity-70'
-            )}>
-            <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
-            <ThemedIcon name={'user'} />
-          </View>
-        </View>
-        <View className="flex-row items-center justify-between gap-4">
-          <View className={'w-4/5 flex-row items-center gap-4'}>
-            <ThemedIcon name={'tag'} component={FontAwesome6} />
-            <Text className="shrink text-sm">{props.parking.address}</Text>
-          </View>
-          {props.isSelected && <ThemedIcon name={'check'} color={colors.primary} />}
-        </View>
-      </Card>
-    </Pressable>
+    <Sheet
+      ref={bottomSheetRef}
+      enableDynamicSizing={false}
+      snapPoints={['30%']}
+      onDismiss={() => props.onOpenChange(false)}>
+      <ContentSheetView className={'flex-col gap-8'}>
+        <Button
+          variant={'plain'}
+          onPress={() => setConfirmLogout(true)}
+          size={'lg'}
+          className={'bg-destructive/15'}>
+          <ThemedIcon
+            name={'arrow-right-from-bracket'}
+            component={FontAwesome6}
+            color={colors.destructive}
+          />
+          <Text className={'text-destructive'}>{t('common.logout')}</Text>
+        </Button>
+        <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
+          <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
+          <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
+        </Button>
+        <AppVersionInfo />
+        <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
+        <AccountDeletionConfirmationModal
+          visible={confirmAccountDeletion}
+          onVisibleChange={setConfirmAccountDeletion}
+        />
+      </ContentSheetView>
+    </Sheet>
   );
 }
 
@@ -870,7 +568,7 @@ function ParkingModal(props: {
       <View className="w-full flex-row items-center gap-2 px-2">
         <ThemedIcon name={'user-plus'} component={FontAwesome6} size={12} />
         <Text className="text-center text-sm">
-          {t('user.parking.memberMaxCount', { memberCount: 9 })}
+          {t('user.parking.memberMaxCount', { memberCount: MAX_SPOT_PER_GROUP - 1 })}
         </Text>
       </View>
       <View className={'flex-col gap-2'}>
@@ -936,5 +634,359 @@ function ParkingModal(props: {
         <Text>{submitText[mode]}</Text>
       </Button>
     </Modal>
+  );
+}
+
+function ParkingBottomSheet(props: {
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+}) {
+  const { userProfile } = useCurrentUser();
+  const [currentSpotName, setCurrentSpotName] = useState(userProfile.spot?.name);
+  const [step, setStep] = useState<'select-parking-option' | 'searchGroup'>(
+    'select-parking-option'
+  );
+  const [confirmLeaveGroup, setConfirmLeaveGroup] = useState(false);
+
+  const { colors } = useColorScheme();
+  const bottomSheetModalRef = useSheetRefWithState(props.open);
+  const { t } = useTranslation();
+
+  const [search, setSearch] = useState<string>();
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchParking = useSearchParking();
+
+  const [defineSpot, isUpdating] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
+
+  const fullSearch = useMemo(
+    () => search ?? userProfile.spot?.parking.address ?? '',
+    [search, userProfile.spot?.parking.address]
+  );
+  const [searchDebounce] = useDebounce(fullSearch, 200);
+  const [parking, setParking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
+  const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
+  const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
+  const [parkingModalOpen, setParkingModalOpen] = useState(false);
+  const [openParkingModal, setOpenParkingModal] = useState(false);
+
+  const router = useRouter();
+
+  const spotNameRef = createRef<ReactTextInput>();
+  const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
+
+  // Notify the user that they must select a group
+  useEffect(() => {
+    if (!userProfile.spot) {
+      setOpenParkingModal(true);
+    }
+  }, [userProfile.spot]);
+
+  useEffect(() => {
+    if (props.open) {
+      parking &&
+        setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
+    } else {
+      setSearch(undefined);
+      setStep('select-parking-option');
+      setCurrentSpotName(userProfile.spot?.name);
+    }
+  }, [props.open]);
+
+  async function updateParking() {
+    if (!selectedParking || !currentSpotName) {
+      return;
+    }
+
+    await defineSpot({
+      parkingId: selectedParking.id,
+      lotName: currentSpotName,
+    });
+  }
+
+  function selectParking(parking: ParkingResponse) {
+    spotNameRef.current?.focus();
+    setSelectedParking(parking);
+    setCurrentSpotName('');
+  }
+
+  function replaceParkingState(parking: ParkingResponse) {
+    setParking((allParking) => [
+      ...(allParking?.filter((p) => p.id !== parking.id) ?? []),
+      parking,
+    ]);
+  }
+
+  function deleteParkingState(parking: ParkingResponse) {
+    setParking((allParking) => [...(allParking?.filter((p) => p.id !== parking.id) ?? [])]);
+  }
+
+  function initiateParkingCreation() {
+    setParkingModalOpen(true);
+    setEditingParking(null);
+  }
+
+  function onParkingEdit(parking: ParkingResponse) {
+    setEditingParking(parking);
+    setParkingModalOpen(true);
+  }
+
+  const maximizeSpace = searchFocused && keyboardVisible;
+
+  const optionActions: {
+    label: string;
+    onPress: () => void;
+    icon: ReactNode;
+    color?: keyof typeof colors;
+    isLoading?: boolean;
+    disabled?: boolean;
+  }[] = [
+    {
+      label: t('user.parking.openOptions.searchGroup'),
+      onPress: () => setStep('searchGroup'),
+      icon: (
+        <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} color={colors.primary} />
+      ),
+    },
+    {
+      label: t('user.parking.openOptions.joinWithCode'),
+      onPress: () => router.replace('/join-parking'),
+      icon: <ThemedIcon name={'ticket'} component={FontAwesome6} color={colors.primary} />,
+    },
+    {
+      label: t('user.parking.openOptions.leave'),
+      color: 'destructive',
+      onPress: () => {
+        props.onOpenChange(false);
+        setConfirmLeaveGroup(true);
+      },
+      disabled: !userProfile.spot,
+      icon: (
+        <ThemedIcon
+          name={'car-off'}
+          component={MaterialCommunityIcons}
+          color={colors.destructive}
+        />
+      ),
+    },
+    {
+      label: t('user.parking.openOptions.createParking'),
+      onPress: () => {
+        props.onOpenChange(false);
+        initiateParkingCreation();
+      },
+      icon: <ThemedIcon name={'plus'} component={FontAwesome6} color={colors.primary} />,
+    },
+  ];
+
+  const SheetContent = () => {
+    switch (step) {
+      case 'select-parking-option':
+        return (
+          <ContentSheetView className={'flex-col gap-6'}>
+            <SheetTitle>{t('user.parking.openOptions.title')}</SheetTitle>
+            <View className={'grid grid-cols-2 flex-row flex-wrap'}>
+              {optionActions.map((option, i) => (
+                <View
+                  key={i}
+                  // manual gap calculation as the regular gap won't
+                  // work with the w-1/2 trick for force 2 columns
+                  className={cn(
+                    'w-1/2',
+                    i % 2 === 0 && 'pr-2',
+                    i % 2 === 1 && 'pl-2',
+                    i < optionActions.length - 2 ? 'mb-2' : 'mt-2'
+                  )}>
+                  <Button
+                    variant={option.color ? 'plain' : 'tonal'}
+                    onPress={option.onPress}
+                    disabled={option.disabled}
+                    style={{
+                      backgroundColor: opacity(colors[option.color ?? 'primary'], 0.1),
+                      borderRadius: 15,
+                    }}>
+                    <View className={'flex-row items-center justify-between gap-3'}>
+                      {option.isLoading ? (
+                        <ActivityIndicator color={colors[option.color ?? 'primary']} />
+                      ) : (
+                        option.icon
+                      )}
+                      <Text
+                        className={'w-2/3'}
+                        style={{
+                          color: colors[option.color ?? 'primary'] ?? colors.foreground,
+                        }}>
+                        {option.label}
+                      </Text>
+                    </View>
+                  </Button>
+                </View>
+              ))}
+            </View>
+          </ContentSheetView>
+        );
+      case 'searchGroup':
+        return (
+          <ContentSheetView
+            className={'flex-col justify-between gap-4'}
+            style={
+              keyboardVisible && {
+                paddingBottom: keyboardHeight + 24,
+              }
+            }>
+            <View className="grow flex-col gap-2">
+              <TextInput
+                icon={{
+                  position: 'left',
+                  element: <ThemedIcon name={'search'} />,
+                }}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                textContentType={'addressCityAndState'}
+                editable={true}
+                value={fullSearch}
+                onChangeText={setSearch}
+                onPress={() => setSearch('')}
+                placeholder={t('user.parking.openOptions.searchGroup')}
+              />
+              <CardContainer className={'flex-1'}>
+                {parking && parking.length > 0 ? (
+                  parking.map((parking) => (
+                    <ParkingCard
+                      key={parking.id}
+                      parking={parking}
+                      isSelected={selectedParking?.id === parking.id}
+                      onSelect={() => selectParking(parking)}
+                      onEdit={() => onParkingEdit(parking)}
+                    />
+                  ))
+                ) : (
+                  <Text className={'top-1/2 mx-auto text-center'}>
+                    {t('user.parking.noMatchingParking', { search })}
+                  </Text>
+                )}
+              </CardContainer>
+            </View>
+            {!maximizeSpace && (
+              <>
+                <View className="flex-col gap-8">
+                  <View className="w-full flex-row items-center justify-between">
+                    <Text disabled={!selectedParking} className="disabled:opacity-50">
+                      {t('common.spot.numberLabel')}
+                    </Text>
+                    <TextInput
+                      ref={spotNameRef}
+                      className="w-40"
+                      icon={{
+                        position: 'right',
+                        element: <ThemedIcon name={'pencil'} />,
+                      }}
+                      value={currentSpotName}
+                      editable={!!selectedParking}
+                      onChangeText={setCurrentSpotName}
+                    />
+                  </View>
+                </View>
+                <Button
+                  className={`w-full rounded-xl bg-primary`}
+                  disabled={!selectedParking || !currentSpotName || isUpdating}
+                  onPress={() => updateParking()}
+                  size={'lg'}>
+                  {isUpdating && <ActivityIndicator color={colors.foreground} />}
+                  <Text className="text-white">{t('common.save')}</Text>
+                </Button>
+              </>
+            )}
+          </ContentSheetView>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <>
+      <LeaveGroupConfirmationModal
+        visible={confirmLeaveGroup}
+        onVisibleChange={setConfirmLeaveGroup}
+      />
+      <Modal {...props} open={openParkingModal}>
+        <View className="items-center">
+          <CautionIllustration width={250} height={250} />
+        </View>
+        <View className={'gap-8'}>
+          <Text className="text-center text-base">{t('user.parking.noParkingPopup.body')}</Text>
+          <Button variant="primary" className="w-full" onPress={() => setOpenParkingModal(false)}>
+            <Text>{t('user.parking.noParkingPopup.callToAction')}</Text>
+          </Button>
+        </View>
+      </Modal>
+
+      <ParkingModal
+        parking={editingParking}
+        open={parkingModalOpen}
+        onOpenChange={setParkingModalOpen}
+        onParking={replaceParkingState}
+        onDelete={deleteParkingState}
+      />
+
+      <Sheet
+        ref={bottomSheetModalRef}
+        enableDynamicSizing={false}
+        onDismiss={() => props.onOpenChange(false)}
+        snapPoints={step === 'searchGroup' ? ['80%'] : ['34%']}>
+        {SheetContent()}
+      </Sheet>
+    </>
+  );
+}
+
+function ParkingCard(props: {
+  isSelected: boolean;
+  parking: ParkingResponse;
+  onSelect: () => void;
+  onEdit: () => void;
+}) {
+  const { userProfile } = useCurrentUser();
+  const { colors } = useColorScheme();
+
+  const isOwned = props.parking.ownerId === userProfile.id;
+
+  return (
+    <Pressable onPress={props.onSelect}>
+      <Card highlight={props.isSelected}>
+        <View className={'flex-row items-center justify-between'}>
+          <View className={'flex-row items-center'}>
+            <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
+            {isOwned && (
+              <Button
+                variant={'plain'}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  props.onEdit();
+                }}>
+                <ThemedIcon name={'pencil'} color={colors.foreground} />
+              </Button>
+            )}
+          </View>
+          <View
+            className={cn(
+              'flex-row items-center gap-2',
+              props.parking.spotsCount === 0 && 'opacity-70'
+            )}>
+            <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
+            <ThemedIcon name={'user'} />
+          </View>
+        </View>
+        <View className="flex-row items-center justify-between gap-4">
+          <View className={'w-4/5 flex-row items-center gap-4'}>
+            <ThemedIcon name={'tag'} component={FontAwesome6} />
+            <Text className="shrink text-sm">{props.parking.address}</Text>
+          </View>
+          {props.isSelected && <ThemedIcon name={'check'} color={colors.primary} />}
+        </View>
+      </Card>
+    </Pressable>
   );
 }

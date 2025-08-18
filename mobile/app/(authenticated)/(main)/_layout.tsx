@@ -58,7 +58,7 @@ export default function MainLayout() {
           }}
         />
         <Tabs.Screen
-          name="plans"
+          name="friendspot-plus"
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon

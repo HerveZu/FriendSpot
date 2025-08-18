@@ -15,7 +15,7 @@ import {
   useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
-import { useDefineSpot } from '~/endpoints/parkings/define-spot';
+import { MAX_SPOT_PER_GROUP, useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useTranslation } from 'react-i18next';
@@ -209,7 +209,6 @@ function ConfirmJoinBottomSheet({
   onJoin: () => void;
   parking: ParkingResponse;
 }) {
-  const MAX_SPOT_PER_GROUP = 10;
   const { t } = useTranslation();
   const [step, setStep] = useState<'confirm' | 'spot'>('confirm');
   const [lotName, setLotName] = useState('');
@@ -241,7 +240,14 @@ function ConfirmJoinBottomSheet({
           <>
             <View className={'flex-col gap-6'}>
               <View className="flex-row items-center justify-between">
-                <SheetTitle className={'text-3xl'}>{parking.name}</SheetTitle>
+                <SheetTitle className={'text-3xl'}>
+                  {parking.name}
+                  {groupIsFull && (
+                    <Text className={'text-destructive'}>
+                      ({t('user.parking.joinParking.full')})
+                    </Text>
+                  )}
+                </SheetTitle>
                 <View className="flex-row items-end gap-1">
                   <Text
                     className={cn(
@@ -261,6 +267,7 @@ function ConfirmJoinBottomSheet({
               </View>
               <Text className="text-xl">{parking.address}</Text>
             </View>
+
             <ExpandRow>
               <ExpandItem>
                 <Button variant="tonal" onPress={onClose}>
@@ -325,7 +332,7 @@ function ConfirmJoinBottomSheet({
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={onClose}
-      snapPoints={keyboardVisible ? ['80%'] : ['40%']}
+      snapPoints={keyboardVisible ? ['80%'] : ['35%']}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore">
       <BottomSheetView

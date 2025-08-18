@@ -1,10 +1,10 @@
-import { PropsWithChildren } from 'react';
-import { View } from 'react-native';
+import { View, ViewProps } from 'react-native';
+import { cn } from '~/lib/cn';
 
-export function ExpandItem(props: PropsWithChildren) {
-  return <View className="flex-1">{props.children}</View>;
+export function ExpandItem({ className, ...props }: ViewProps) {
+  return <View className={cn('flex-1', className)} {...props} />;
 }
 
-export function ExpandRow(props: PropsWithChildren) {
-  return <View className="flex-row items-center gap-4">{props.children}</View>;
+export function ExpandRow({ className, ...props }: ViewProps) {
+  return <View className={cn('flex-row items-center gap-4', className)} {...props} />;
 }
