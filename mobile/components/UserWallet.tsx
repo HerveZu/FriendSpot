@@ -7,9 +7,7 @@ import { cn } from '~/lib/cn';
 import { Modal, ModalFooter, ModalTitle } from '~/components/Modal';
 import { Card } from '~/components/Card';
 import { useTranslation } from 'react-i18next';
-import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Ionicons } from '@expo/vector-icons';
 
 export function UserWallet({ className, ...props }: ViewProps) {
   const { t } = useTranslation();
@@ -20,14 +18,9 @@ export function UserWallet({ className, ...props }: ViewProps) {
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
-        <Card className={cn('mt-2 flex-row items-center justify-center', className)}>
-          <ThemedIcon
-            name="information-circle-outline"
-            size={20}
-            component={Ionicons}
-            color={colors.primary}
-          />
+        <Card className={cn('mt-2 flex-row items-center justify-center gap-2', className)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
+          <Text>points</Text>
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
@@ -37,7 +30,6 @@ export function UserWallet({ className, ...props }: ViewProps) {
             pending={false}
             explanation={t('wallet.availableCreditsExplanation')}
           />
-          <CreditsExplanation pending={true} explanation={t('wallet.pendingCreditsExplanation')} />
         </View>
         <ModalFooter text={t('wallet.creditInfo')} className="bg-primary/20 rounded-lg py-2" />
       </Modal>
