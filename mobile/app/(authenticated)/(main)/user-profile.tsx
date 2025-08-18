@@ -916,7 +916,7 @@ function ParkingBottomSheet(props: {
           <CautionIllustration width={250} height={250} />
         </View>
         <View className={'gap-8'}>
-          <Text className="text-center text-base">{t('user.parking.noParkingPopup.body')}</Text>
+          <Text>{t('user.parking.noParkingPopup.body')}</Text>
           <Button variant="primary" className="w-full" onPress={() => setOpenParkingModal(false)}>
             <Text>{t('user.parking.noParkingPopup.callToAction')}</Text>
           </Button>
