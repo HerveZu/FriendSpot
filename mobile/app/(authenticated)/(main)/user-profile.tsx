@@ -232,7 +232,7 @@ function ShareSpot() {
   );
 }
 
-const BigSeparator = () => <View className={'mt-20'} />;
+const BigSeparator = () => <View className={'mt-14'} />;
 
 function AppVersionInfo() {
   const { t } = useTranslation();
