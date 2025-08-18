@@ -9,6 +9,7 @@ import { UserProvider } from '~/authentication/UserProvider';
 import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
 import { RefreshTriggerProvider } from '~/authentication/RefreshTriggerProvider';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { LiveTimerProvider } from '~/notification/LiveTimerProvider';
 
 export default function AuthenticatedLayout() {
   return (
@@ -18,11 +19,13 @@ export default function AuthenticatedLayout() {
           {/*BottomSheetModalProvider children need to have access to the currentUser*/}
           <BottomSheetModalProvider>
             <EnsureUserHasSpot>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                }}
-              />
+              <LiveTimerProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                  }}
+                />
+              </LiveTimerProvider>
             </EnsureUserHasSpot>
           </BottomSheetModalProvider>
         </UserProvider>

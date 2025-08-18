@@ -11,6 +11,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "expo-live-activity",
       "expo-localization",
       "expo-router",
       [

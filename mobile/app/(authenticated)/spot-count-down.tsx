@@ -1,7 +1,7 @@
 import { differenceInSeconds, intervalToDuration, secondsToMilliseconds } from 'date-fns';
 import { toSeconds } from 'duration-fns';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, View } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
@@ -13,6 +13,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 import { parseDuration, rgbToHex } from '~/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { LiveTimerContext } from '~/notification/LiveTimerProvider';
 
 export type SpotCountDownScreenParams = { activeBookingsJson: string };
 
@@ -68,6 +69,11 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
     []
   );
   const durationSeconds = useMemo(() => toSeconds(parseDuration(props.activeBooking.duration)), []);
+  const { registerLiveActivityTimer } = useContext(LiveTimerContext);
+
+  useEffect(() => {
+    registerLiveActivityTimer(props.activeBooking);
+  }, [props.activeBooking]);
 
   return (
     <CountdownCircleTimer
@@ -95,7 +101,8 @@ function SpotCountDown(props: { activeBooking: BookingResponse }) {
                   style={{
                     color,
                   }}>
-                  {remaining.days > 0 && remaining.days}J
+                  {remaining.days > 0 && remaining.days}
+                  {t('common.timeSuffixes.days')}
                 </Text>
               )}
               <Text

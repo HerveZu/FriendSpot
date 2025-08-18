@@ -69,6 +69,12 @@
       "number": "Spot #{{number}}",
       "numberLabel": "My spot number",
       "numberLabelBooking": "Reserved spot number"
+    },
+    "timeSuffixes": {
+      "days": "d",
+      "hours": "h",
+      "minutes": "m",
+      "seconds": "s"
     }
   },
   "tabs": {
@@ -277,5 +283,12 @@
   "account": {
     "logout": "Logout",
     "logoutConfirmation": "Logout"
+  },
+  "widget": {
+    "liveTimer": {
+      "ended": "This reservation has ended",
+      "title": "Spot #{{spotName}} from {{owner}}",
+      "description": "Ends on {{endDate}}."
+    }
   }
 }
