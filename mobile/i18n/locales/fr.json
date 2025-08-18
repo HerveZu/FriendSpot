@@ -94,7 +94,11 @@
       "editAvatar": "Modifier l'avatar",
       "logout": "Se déconnecter",
       "logoutConfirmation": "Se déconnecter",
-      "randomParking": "Mon groupe {{number}}"
+      "randomParking": "Mon groupe {{number}}",
+      "parameter": {
+        "title": "Paramètres",
+        "cardTitle": "Ouvrir mes paramètres"
+      }
     },
     "parking": {
       "cantFindParking": "Créer un nouveau groupe",
