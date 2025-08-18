@@ -7,17 +7,27 @@ import { VariantProps } from 'class-variance-authority';
 
 export function Title({
   primary,
+  icon,
   className,
   ...props
-}: { primary?: boolean; action?: ReactNode } & TextProps) {
+}: {
+  primary?: boolean;
+  action?: ReactNode;
+  icon?: {
+    element: ReactNode;
+  };
+} & TextProps) {
   return (
     <View className={'mb-4 w-full flex-row items-center justify-between'}>
-      <Text
-        variant="title1"
-        className={cn('font-extrabold', primary ? 'text-3xl' : 'text-xl', className)}>
-        {props.children}
-      </Text>
-      {props.action}
+      <View className="flex-row items-center gap-2">
+        {icon && <View className={cn()}>{icon.element}</View>}
+        <Text
+          variant="title1"
+          className={cn('font-extrabold', primary ? 'text-3xl' : 'text-xl', className)}>
+          {props.children}
+        </Text>
+      </View>
+      <View>{props.action}</View>
     </View>
   );
 }
