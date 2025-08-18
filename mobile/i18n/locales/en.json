@@ -106,6 +106,7 @@
       "noMatchingParking": "No group matches '{{search}}'.",
       "editParking": "Edit a group",
       "parkingName": "My group",
+      "memberMaxCount": "{{memberCount}} members can join.",
       "additionalInformation": "Additional information",
       "create": "Create {{name}}",
       "save": "Save",
