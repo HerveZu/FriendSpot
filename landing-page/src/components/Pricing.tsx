@@ -19,7 +19,7 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "€2",
+    price: "€1.99",
     period: "/month",
     icon: Crown,
     description: "Unlock unlimited parking potential",
@@ -36,12 +36,12 @@ const plans = [
   },
   {
     name: "Neighbourhood",
-    price: "€5",
+    price: "€2.99",
     period: "/month per user",
     icon: Building,
     description: "For larger neighbourhoods and communities",
     features: [
-      "Up to 100 group members",
+      "Up to 50 group members",
       "Advanced group management",
       "Dedicated support",
     ],
