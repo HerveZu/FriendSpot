@@ -493,7 +493,7 @@ function DefineSpotSheet(props: {
             ref={bottomSheetModalRef}
             enableDynamicSizing={false}
             onDismiss={() => props.onOpenChange(false)}
-            snapPoints={keyboardVisible ? ['35%'] : ['35%']}>
+            snapPoints={keyboardVisible ? ['38%'] : ['38%']}>
             <Text variant={'title1'} className="text-center">
               {t('user.parking.button.title')}
             </Text>
@@ -504,35 +504,37 @@ function DefineSpotSheet(props: {
                   paddingBottom: keyboardHeight + 24,
                 }
               }>
-              <View className="mt-4 flex-col gap-4">
-                <Button variant="tonal" onPress={() => openSearchGroup()}>
-                  <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} size={15} />
+              <View className="mt-4 flex-col gap-6">
+                <Button
+                  variant="tonal"
+                  className="flex-row items-center justify-around"
+                  onPress={() => openSearchGroup()}>
+                  <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} size={20} />
                   <Text variant={'body'} className={'w-2/3'}>
                     {t('user.parking.button.searchGroup')}
                   </Text>
                 </Button>
 
-                <Button variant="tonal" onPress={() => router.replace('/join-parking')}>
-                  <ThemedIcon name={'ticket'} component={FontAwesome6} size={15} />
+                <Button
+                  variant="tonal"
+                  className="flex-row items-center justify-around"
+                  onPress={() => router.replace('/join-parking')}>
+                  <ThemedIcon name={'ticket'} component={FontAwesome6} size={20} />
                   <Text variant={'body'} className={'w-2/3'}>
                     {t('user.parking.button.joinWithCode')}
                   </Text>
                 </Button>
-                <Button variant="tonal" onPress={initiateParkingCreation}>
-                  <ThemedIcon name={'plus'} component={FontAwesome6} size={20} />
+                <Button
+                  variant="tonal"
+                  className="flex-row items-center justify-around"
+                  onPress={initiateParkingCreation}>
+                  <ThemedIcon name={'plus'} component={FontAwesome6} size={25} />
                   <Text variant={'body'} className={'w-2/3'}>
                     {t('user.parking.button.createParking')}
                   </Text>
                 </Button>
               </View>
             </ContentSheetView>
-            <ParkingModal
-              parking={editingParking}
-              open={parkingModalOpen}
-              onOpenChange={setParkingModalOpen}
-              onParking={replaceParkingState}
-              onDelete={deleteParkingState}
-            />
           </Sheet>
         );
       case 'searchGroup':
@@ -619,6 +621,18 @@ function DefineSpotSheet(props: {
     }
   };
 
+  const ParkingModalWrapper = () => {
+    return (
+      <ParkingModal
+        parking={editingParking}
+        open={parkingModalOpen}
+        onOpenChange={setParkingModalOpen}
+        onParking={replaceParkingState}
+        onDelete={deleteParkingState}
+      />
+    );
+  };
+
   return (
     <>
       <Modal {...props} open={openModal}>
@@ -633,6 +647,7 @@ function DefineSpotSheet(props: {
         </View>
       </Modal>
       {BottomSheetContent()}
+      {ParkingModalWrapper()}
     </>
   );
 }
