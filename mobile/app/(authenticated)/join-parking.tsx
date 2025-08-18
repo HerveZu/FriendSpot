@@ -25,12 +25,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TextInput } from '~/components/TextInput';
 import { useCurrentUser } from '~/authentication/UserProvider';
 
-import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { ContentSheetView } from '~/components/ContentView';
 import { SheetTitle } from '~/components/Title';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -49,7 +50,7 @@ export default function JoinParking() {
     }
   }, [initialCode, code, hasResetCode]);
 
-  const [parking] = useFetch(
+  const [parking, , isSearching] = useFetch(
     () => (code ? searchParking(code).then((results) => results[0] ?? null) : null),
     [code]
   );
@@ -62,7 +63,7 @@ export default function JoinParking() {
 
   function dismissCheckAndGo() {
     dismissUserSpotCheck();
-    router.replace('/my-spot');
+    router.replace('/');
   }
 
   function resetCode() {
@@ -74,14 +75,18 @@ export default function JoinParking() {
   return (
     <View className="h-full items-center justify-around">
       <View className="flex items-center justify-center gap-8 p-4">
-        <Text className="text-3xl font-bold">{t('user.parking.parkingCode.title')}</Text>
-        <Text className="text-center text-base">{t('user.parking.parkingCode.description')}</Text>
+        <Text className="text-3xl font-bold">{t('user.parking.joinParking.title')}</Text>
+        <Text className="text-center text-base">{t('user.parking.joinParking.description')}</Text>
 
-        <CodeEntry code={code} setCode={setCode} error={!parking} />
+        <CodeEntry
+          code={code}
+          setCode={setCode}
+          error={!parking && code.length > 0 && !isSearching}
+        />
       </View>
 
       <Button onPress={dismissCheckAndGo} variant={'tonal'} size={'md'}>
-        <Text>{t('user.parking.parkingCode.dismissCheck')}</Text>
+        <Text>{t('user.parking.joinParking.dismissCheck')}</Text>
         <ThemedIcon name={'arrow-right'} color={colors.primary} size={14} />
       </Button>
 
@@ -115,7 +120,7 @@ function CodeEntry({
     if (code && code !== internalCode) {
       setInternalCode(appendCodePrefix(code));
     }
-  });
+  }, [code]);
 
   useEffect(() => {
     if (internalCode.length === CELL_COUNT + PARKING_PREFIX.length) {
@@ -123,7 +128,7 @@ function CodeEntry({
       return;
     }
 
-    if (internalCode.length === 0) {
+    if (internalCode.length === PARKING_PREFIX.length) {
       setCode('');
     }
   }, [internalCode, setCode]);
@@ -199,12 +204,15 @@ function ConfirmJoinBottomSheet({
   onJoin: () => void;
   parking: ParkingResponse;
 }) {
+  const MAX_SPOT_PER_GROUP = 10;
   const { t } = useTranslation();
-  const [step, setStep] = useState<'confirm' | 'spot' | 'error'>('confirm');
+  const [step, setStep] = useState<'confirm' | 'spot'>('confirm');
   const [lotName, setLotName] = useState('');
-  const [defineSpot, isLoading] = useLoading(useDefineSpot());
+  const [defineSpot, isLoading] = useLoading(useDefineSpot(), { beforeMarkingComplete: onClose });
   const { refreshProfile } = useCurrentUser();
   const bottomSheetModalRef = useSheetRef();
+  const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
+  const { colors } = useColorScheme();
 
   useEffect(() => {
     if (open) {
@@ -216,143 +224,107 @@ function ConfirmJoinBottomSheet({
 
   async function handleJoin() {
     await defineSpot({ parkingId: parking.id, lotName: lotName }).then(refreshProfile);
-    onClose();
     onJoin();
   }
 
-  function checkNumberOfMembers() {
-    if (parking.spotsCount >= 10) {
-      setStep('error');
-    } else setStep('spot');
-  }
+  const groupIsFull = parking.spotsCount >= MAX_SPOT_PER_GROUP;
 
-  const bottomSheetContent = () => {
+  const content = () => {
     switch (step) {
       case 'confirm':
         return (
-          <Sheet
-            ref={bottomSheetModalRef}
-            enableDynamicSizing={false}
-            onDismiss={onClose}
-            snapPoints={['40%', '40%']}
-            keyboardBehavior="interactive"
-            keyboardBlurBehavior="restore">
-            <BottomSheetView className="flex-1">
-              <ContentSheetView className="mx-auto flex-1 flex-col">
-                <BottomSheetScrollView
-                  contentContainerStyle={{ padding: 16, rowGap: 16 }}
-                  keyboardShouldPersistTaps="handled">
-                  <View className="flex-row items-center justify-between">
-                    <SheetTitle className="flex-row items-center text-3xl">
-                      {parking.name}
-                    </SheetTitle>
-                    <View className="flex-row items-center gap-2">
-                      <ThemedIcon name="user" size={22} className="text-primary" />
-                      <Text className="text-lg font-medium text-primary">
-                        <Text className="text-3xl font-bold text-primary">
-                          {parking.spotsCount}{' '}
-                        </Text>
-                        <Text className="text-xl font-semibold text-foreground">/10</Text>
-                      </Text>
-                    </View>
+          <>
+            <View className={'flex-col gap-6'}>
+              <View className="flex-row items-center justify-between">
+                <SheetTitle className={'text-3xl'}>{parking.name}</SheetTitle>
+                <View className="flex-row items-end gap-1">
+                  <Text
+                    className={cn(
+                      'text-3xl font-bold text-primary',
+                      groupIsFull && 'text-destructive'
+                    )}>
+                    {parking.spotsCount}
+                  </Text>
+
+                  <View className={'flex-row items-center gap-1'}>
+                    <Text className="text-lg font-semibold text-foreground">
+                      /{MAX_SPOT_PER_GROUP}
+                    </Text>
+                    <ThemedIcon name="user" className="text-primary" />
                   </View>
-                  <View className="mt-4">
-                    <Text className=" text-xl">{parking.address}</Text>
-                  </View>
-                </BottomSheetScrollView>
-                <View className="border-muted/20 flex-row items-center gap-4 border-t py-3">
-                  <Button variant="tonal" onPress={onClose} className="flex-1 items-center">
-                    <Text>{t('common.cancel')}</Text>
-                  </Button>
-                  <Button onPress={checkNumberOfMembers} className="flex-1 items-center">
-                    <Text>{t('user.parking.joinParking.join') + ' →'}</Text>
-                  </Button>
                 </View>
-              </ContentSheetView>
-            </BottomSheetView>
-          </Sheet>
+              </View>
+              <Text className="text-xl">{parking.address}</Text>
+            </View>
+            <View className="flex-row gap-4">
+              <Button variant="tonal" onPress={onClose} className={'flex-1'}>
+                <Text>{t('common.cancel')}</Text>
+              </Button>
+              <Button onPress={() => setStep('spot')} disabled={groupIsFull} className={'flex-1'}>
+                <Text>{t('user.parking.joinParking.join')}</Text>
+                {groupIsFull ? (
+                  <ThemedIcon name="lock" />
+                ) : (
+                  <ThemedIcon name="arrow-right" size={14} />
+                )}
+              </Button>
+            </View>
+          </>
         );
       case 'spot':
         return (
-          <Sheet
-            ref={bottomSheetModalRef}
-            enableDynamicSizing={false}
-            onDismiss={onClose}
-            snapPoints={['40%', '40%']}
-            keyboardBehavior="interactive"
-            keyboardBlurBehavior="restore">
-            <BottomSheetView className="flex-1">
-              <ContentSheetView className="flex-1">
-                <BottomSheetScrollView
-                  contentContainerStyle={{ padding: 16, rowGap: 16 }}
-                  keyboardShouldPersistTaps="handled">
-                  <View className="flex-row items-center justify-between">
-                    <SheetTitle className="flex-row items-center">
-                      {t('user.parking.joinParking.spot.title')}
-                    </SheetTitle>
-                  </View>
-                  <TextInput value={lotName} onChangeText={setLotName} placeholder="Ex : 34" />
-                </BottomSheetScrollView>
+          <>
+            <View className={'gap-3'}>
+              <SheetTitle className="text-2xl">
+                {t('user.parking.joinParking.spot.title')}
+              </SheetTitle>
+              <Text>{t('user.parking.joinParking.spot.description')}</Text>
+            </View>
 
-                <View className="border-muted/20 flex-row items-center gap-4 border-t py-3">
-                  <Button
-                    variant="tonal"
-                    disabled={isLoading}
-                    onPress={() => setStep('confirm')}
-                    className="flex-1">
-                    {isLoading ? <ActivityIndicator /> : <Text>{t('common.back')}</Text>}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    disabled={isLoading || lotName.trim() === ''}
-                    onPress={handleJoin}
-                    className="flex-1">
-                    {isLoading ? <ActivityIndicator /> : <Text>{t('common.submit')}</Text>}
-                  </Button>
-                </View>
-              </ContentSheetView>
-            </BottomSheetView>
-          </Sheet>
-        );
-      case 'error':
-        return (
-          <Sheet
-            ref={bottomSheetModalRef}
-            enableDynamicSizing={false}
-            onDismiss={onClose}
-            snapPoints={['40%', '40%']}>
-            <BottomSheetView className="relative">
-              <ContentSheetView className="h-full flex-col gap-4">
-                <BottomSheetScrollView
-                  contentContainerStyle={{ padding: 16, rowGap: 16 }}
-                  keyboardShouldPersistTaps="handled">
-                  <View className="flex-row items-center justify-between">
-                    <SheetTitle className="text- flex-row items-center">
-                      {t('user.parking.joinParking.error.title')}
-                    </SheetTitle>
-                    <View className="flex-row items-center gap-2">
-                      <ThemedIcon name={'lock'} size={30} />
-                    </View>
-                  </View>
-                  <Text>{t('user.parking.joinParking.error.description')}</Text>
-                </BottomSheetScrollView>
-                <View className="flex-row items-center gap-4 py-3">
-                  <Button
-                    variant="primary"
-                    disabled={isLoading}
-                    onPress={onClose}
-                    className="w-full">
-                    {isLoading ? <ActivityIndicator /> : <Text>{t('common.back')}</Text>}
-                  </Button>
-                </View>
-              </ContentSheetView>
-            </BottomSheetView>
-          </Sheet>
+            <TextInput
+              value={lotName}
+              onChangeText={setLotName}
+              maxLength={10}
+              placeholder={t('user.parking.joinParking.spot.placeholder')}
+            />
+
+            <View className="flex-row items-center justify-between gap-4">
+              <Button variant="tonal" onPress={() => setStep('confirm')} className="flex-1">
+                <Text>{t('common.back')}</Text>
+              </Button>
+              <Button
+                variant="primary"
+                disabled={isLoading || lotName.trim() === ''}
+                onPress={handleJoin}
+                className="flex-1">
+                {isLoading && <ActivityIndicator color={colors.foreground} />}
+                <Text>{t('common.submit')}</Text>
+              </Button>
+            </View>
+          </>
         );
       default:
         return null;
     }
   };
 
-  return bottomSheetContent();
+  return (
+    <Sheet
+      ref={bottomSheetModalRef}
+      enableDynamicSizing={false}
+      onDismiss={onClose}
+      snapPoints={keyboardVisible ? ['80%'] : ['40%']}
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore">
+      <BottomSheetView
+        className="flex-1"
+        style={{
+          paddingBottom: keyboardHeight,
+        }}>
+        <ContentSheetView className="mx-auto flex-1 flex-col justify-between">
+          {content()}
+        </ContentSheetView>
+      </BottomSheetView>
+    </Sheet>
+  );
 }

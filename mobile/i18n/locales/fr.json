@@ -84,7 +84,7 @@
     "profile": {
       "noAddressDefined": "Aucune information de groupe définie",
       "mySpot": "Mon groupe",
-      "noParkingDefined": "Aucun groupe de sélectionné !",
+      "noParkingDefined": "Aucun groupe sélectionné !",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
       "deleteAccount": "Supprimer mon compte",
@@ -94,19 +94,18 @@
       "editAvatar": "Modifier l'avatar",
       "logout": "Se déconnecter",
       "logoutConfirmation": "Se déconnecter",
-      "randomParking": "Mon groupe {{number}}",
       "parameter": {
         "title": "Paramètres",
         "cardTitle": "Ouvrir mes paramètres"
       }
     },
     "parking": {
-      "cantFindParking": "Créer un nouveau groupe",
-      "button": {
+      "openOptions": {
         "title": "Que souhaites-tu faire ?",
         "searchGroup": "Rechercher un groupe",
-        "joinWithCode": "Utiliser un code de groupe",
-        "createParking": "Créer un nouveau groupe"
+        "joinWithCode": "Code de groupe",
+        "createParking": "Nouveau groupe",
+        "leave": "Quitter le groupe"
       },
       "noMatchingParking": "Aucun groupe ne correspond à « {{search}} ».",
       "editParking": "Modifier un groupe",
@@ -129,23 +128,15 @@
         "callToAction": "D'accord !"
       },
       "joinParking": {
-        "enterCode": "Entrer le code d'invitation",
-        "join": "Rejoindre",
-        "joining": "Rejoindre en cours...",
-        "success": "Tu as rejoint le groupe avec succès !",
-        "error": {
-          "title": "Oups",
-          "description": "Le groupe est complet, merci de réessayer avec un autre groupe."
-        },
-        "spot": {
-          "title": "Défini le nom de ton spot",
-          "description": "Indique le numéro ou le nom de ton spot dans ce groupe."
-        }
-      },
-      "parkingCode": {
         "title": "Code de groupe",
         "description": "Rejoins un groupe de stationnement existant en utilisant un code d'invitation.",
-        "dismissCheck": "Je n'ai pas de code de groupe"
+        "dismissCheck": "Je n'ai pas de code de groupe",
+        "join": "Rejoindre",
+        "spot": {
+          "title": "Quel est ton numéro de spot ?",
+          "placeholder": "Numéro de spot",
+          "description": "Indique le numéro ou le nom de ton spot dans ce groupe."
+        }
       }
     }
   },

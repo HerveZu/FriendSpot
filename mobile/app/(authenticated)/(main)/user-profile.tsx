@@ -2,6 +2,7 @@ import React, {
   createRef,
   Dispatch,
   PropsWithChildren,
+  ReactNode,
   SetStateAction,
   useContext,
   useEffect,
@@ -24,12 +25,12 @@ import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
-import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome6, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { Card, CardContainer } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { cn } from '~/lib/cn';
-import { Title } from '~/components/Title';
+import { SheetTitle, Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/me/logout';
 import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
@@ -38,7 +39,7 @@ import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
-import { getRandomInt, opacity } from '~/lib/utils';
+import { chunk, opacity } from '~/lib/utils';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
@@ -51,6 +52,7 @@ import { AppContext } from '~/app/_layout';
 import { firebaseAuth } from '~/authentication/firebase';
 import { useRouter } from 'expo-router';
 import CautionIllustration from '~/assets/caution.svg';
+import { useLeaveSpot } from '~/endpoints/parkings/leave-spot';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -161,7 +163,7 @@ export default function UserProfileScreen() {
           <View className={'mt-2 flex-col gap-2'}>
             <Pressable
               onPress={() => openDefineSpotSheet()}
-              className={`${!userProfile.spot ? ' border-destructive' : ''} rounded-xl border`}>
+              className={`${!userProfile.spot ? 'bg-destructive/60' : ''} rounded-xl border`}>
               <Card className="flex-col items-start gap-3">
                 <View className="w-full flex-row items-center justify-between">
                   {!userProfile.spot ? (
@@ -193,7 +195,14 @@ export default function UserProfileScreen() {
         <View className={'flex-col'}>
           <Title
             icon={{
-              element: <ThemedIcon name={'gear'} component={FontAwesome6} color={colors.primary} />,
+              element: (
+                <ThemedIcon
+                  name={'gear'}
+                  component={FontAwesome6}
+                  color={colors.primary}
+                  size={20}
+                />
+              ),
             }}>
             {t('user.profile.parameter.title')}
           </Title>
@@ -237,8 +246,6 @@ function ShareSpot() {
     </Button>
   );
 }
-
-const BigSeparator = () => <View className={'mt-14'} />;
 
 function AppVersionInfo() {
   const { t } = useTranslation();
@@ -406,7 +413,11 @@ function BottomSheet(props: {
   const [search, setSearch] = useState<string>();
   const [searchFocused, setSearchFocused] = useState(false);
   const searchParking = useSearchParking();
+
   const [defineSpot, isUpdating] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
+  const [leaveSpot, isLeaving] = useLoading(useRefreshOnSuccess(useLeaveSpot()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
 
@@ -426,18 +437,12 @@ function BottomSheet(props: {
   const spotNameRef = createRef<ReactTextInput>();
   const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
 
-  // force open when no spot defined
-  useEffect(() => {
-    !userProfile.spot && props.onOpenChange(true);
-    props.setStep('searchGroup');
-  }, [userProfile.spot]);
-
-  // // Notify the user that they must select a group
+  // Notify the user that they must select a group
   useEffect(() => {
     if (!userProfile.spot) {
       setOpenModal(true);
     }
-  }, []);
+  }, [userProfile.spot]);
 
   useEffect(() => {
     if (props.open) {
@@ -496,6 +501,45 @@ function BottomSheet(props: {
   }
 
   const BottomSheetContent = () => {
+    const optionActions: {
+      label: string;
+      onPress: () => void;
+      icon: ReactNode;
+      color?: keyof typeof colors;
+      isLoading?: boolean;
+    }[] = [
+      {
+        label: t('user.parking.openOptions.searchGroup'),
+        onPress: openSearchGroup,
+        icon: (
+          <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} color={colors.primary} />
+        ),
+      },
+      {
+        label: t('user.parking.openOptions.joinWithCode'),
+        onPress: () => router.replace('/join-parking'),
+        icon: <ThemedIcon name={'ticket'} component={FontAwesome6} color={colors.primary} />,
+      },
+      {
+        label: t('user.parking.openOptions.createParking'),
+        onPress: initiateParkingCreation,
+        color: 'success',
+        icon: <ThemedIcon name={'plus'} component={FontAwesome6} color={colors.success} />,
+      },
+      {
+        label: t('user.parking.openOptions.leave'),
+        color: 'destructive',
+        onPress: leaveSpot,
+        isLoading: isLeaving,
+        icon: (
+          <ThemedIcon
+            name={'car-off'}
+            component={MaterialCommunityIcons}
+            color={colors.destructive}
+          />
+        ),
+      },
+    ];
     switch (props.step) {
       case 'button':
         return (
@@ -503,54 +547,38 @@ function BottomSheet(props: {
             ref={bottomSheetModalRef}
             enableDynamicSizing={false}
             onDismiss={() => props.onOpenChange(false)}
-            snapPoints={keyboardVisible ? ['44%'] : ['44%']}>
-            <Text variant={'title1'} className="text-center">
-              {t('user.parking.button.title')}
-            </Text>
-            <ContentSheetView
-              className={'flex-col gap-8'}
-              style={
-                keyboardVisible && {
-                  paddingBottom: keyboardHeight + 24,
-                }
-              }>
-              <View className="mt-4 flex-col gap-6">
-                <Button
-                  variant="tonal"
-                  className="flex-row items-center justify-around"
-                  onPress={() => openSearchGroup()}>
-                  <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} size={20} />
-                  <Text variant={'body'} className={'w-2/3'}>
-                    {t('user.parking.button.searchGroup')}
-                  </Text>
-                </Button>
-
-                <Button
-                  variant="tonal"
-                  className="flex-row items-center justify-around"
-                  onPress={() => router.replace('/join-parking')}>
-                  <ThemedIcon name={'ticket'} component={FontAwesome6} size={20} />
-                  <Text variant={'body'} className={'w-2/3'}>
-                    {t('user.parking.button.joinWithCode')}
-                  </Text>
-                </Button>
-                <Button
-                  variant="tonal"
-                  className="flex-row items-center justify-around"
-                  onPress={initiateParkingCreation}>
-                  <ThemedIcon name={'plus'} component={FontAwesome6} size={25} />
-                  <Text variant={'body'} className={'w-2/3'}>
-                    {t('user.parking.button.createParking')}
-                  </Text>
-                </Button>
-                <Button
-                  variant="primary"
-                  className="mt-2 flex-row items-center justify-around"
-                  onPress={() => props.onOpenChange(false)}>
-                  <Text variant={'body'} className={'w-full text-center'}>
-                    {t('common.back')}
-                  </Text>
-                </Button>
+            snapPoints={['34%']}>
+            <ContentSheetView className={'flex-col gap-6'}>
+              <SheetTitle>{t('user.parking.openOptions.title')}</SheetTitle>
+              <View className={'gap-4'}>
+                {chunk(optionActions, 2).map((chunk, chunkIndex) => (
+                  <View className={'flex-row gap-4'} key={chunkIndex}>
+                    {chunk.map((option, i) => (
+                      <Button
+                        key={i}
+                        variant={option.color ? 'plain' : 'tonal'}
+                        onPress={option.onPress}
+                        className={cn('flex-1 justify-around')}
+                        style={{
+                          backgroundColor: opacity(colors[option.color ?? 'primary'], 0.1),
+                          borderRadius: 15,
+                        }}>
+                        {option.isLoading ? (
+                          <ActivityIndicator color={colors[option.color ?? 'primary']} />
+                        ) : (
+                          option.icon
+                        )}
+                        <Text
+                          className={'w-2/3'}
+                          style={{
+                            color: colors[option.color ?? 'primary'] ?? colors.foreground,
+                          }}>
+                          {option.label}
+                        </Text>
+                      </Button>
+                    ))}
+                  </View>
+                ))}
               </View>
             </ContentSheetView>
           </Sheet>
@@ -582,7 +610,7 @@ function BottomSheet(props: {
                   value={fullSearch}
                   onChangeText={setSearch}
                   onPress={() => setSearch('')}
-                  placeholder={t('user.parking.button.searchGroup')}
+                  placeholder={t('user.parking.openOptions.searchGroup')}
                 />
                 <CardContainer className={'flex-1'}>
                   {parking && parking.length > 0 ? (
@@ -605,9 +633,10 @@ function BottomSheet(props: {
               {!maximizeSpace && (
                 <>
                   <View className="flex-col gap-8">
-                    <View
-                      className={`w-full flex-row items-center justify-between ${!selectedParking ? 'opacity-20' : ''}`}>
-                      <Text className="text-base">{t('common.spot.numberLabel')}</Text>
+                    <View className="w-full flex-row items-center justify-between">
+                      <Text disabled={!selectedParking} className="disabled:opacity-50">
+                        {t('common.spot.numberLabel')}
+                      </Text>
                       <TextInput
                         ref={spotNameRef}
                         className="w-40"
@@ -784,9 +813,7 @@ function ParkingModal(props: {
 
   useEffect(() => {
     setAddress(props.parking?.address ?? '');
-    setName(
-      props.parking?.name ?? t('user.profile.randomParking', { number: getRandomInt(100, 999) })
-    );
+    setName(props.parking?.name ?? '');
   }, [props.parking, props.open]);
 
   useEffect(() => {
@@ -809,7 +836,7 @@ function ParkingModal(props: {
   };
 
   const titleText = {
-    create: t('user.parking.button.createParking'),
+    create: t('user.parking.openOptions.createParking'),
     edit: t('user.parking.editParking'),
   };
 

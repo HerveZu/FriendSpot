@@ -83,3 +83,9 @@ export function fromUtc(date: string | Date): Date {
 export function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+export function chunk<T>(array: T[], size: number): T[][] {
+  return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+    array.slice(i * size, i * size + size)
+  );
+}

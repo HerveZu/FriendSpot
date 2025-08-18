@@ -94,19 +94,18 @@
       "editAvatar": "Edit Avatar",
       "logout": "Logout",
       "logoutConfirmation": "Logout",
-      "randomParking": "My group {{number}}",
       "parameter": {
         "title": "Settings",
         "cardTitle": "Open my settings"
       }
     },
     "parking": {
-      "cantFindParking": "Create a new group",
-      "button": {
+      "openOptions": {
         "title": "What would you like to do?",
         "searchGroup": "Search for a group",
-        "joinWithCode": "Use a group code",
-        "createParking": "Create a new group"
+        "joinWithCode": "Group code",
+        "createParking": "New group",
+        "leave": "Leave this group"
       },
       "noMatchingParking": "No group matches '{{search}}'.",
       "editParking": "Edit a group",
@@ -129,23 +128,15 @@
         "callToAction": "Got it!"
       },
       "joinParking": {
-        "enterCode": "Enter the invitation code",
-        "join": "Join",
-        "joining": "Joining...",
-        "success": "You have successfully joined the group!",
-        "error": {
-          "title": "Oops",
-          "description": "The group is full, please try again with another group."
-        },
-        "spot": {
-          "title": "Set your spot name",
-          "description": "Enter the number or name of your spot in this group."
-        }
-      },
-      "parkingCode": {
         "title": "Group code",
         "description": "Join an existing group group using an invitation code.",
-        "dismissCheck": "I don't have a group code"
+        "dismissCheck": "I don't have a group code",
+        "join": "Join",
+        "spot": {
+          "title": "What's your spot number?",
+          "placeholder": "Spot number",
+          "description": "Enter the number or name of your spot in this group."
+        }
       }
     }
   },

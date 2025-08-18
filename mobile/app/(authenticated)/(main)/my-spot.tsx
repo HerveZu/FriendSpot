@@ -163,6 +163,7 @@ function AcceptRequestModal({
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
   const { t } = useTranslation();
+  const { colors } = useColorScheme();
 
   return (
     <Modal {...props}>
@@ -176,7 +177,7 @@ function AcceptRequestModal({
           })}
         </Text>
         <Button disabled={isAccepting} onPress={() => acceptRequest(request.id)}>
-          {isAccepting && <ActivityIndicator />}
+          {isAccepting && <ActivityIndicator color={colors.foreground} />}
           <Text>{t('lending.acceptRequest.accept', { credits: request.credits })}</Text>
         </Button>
       </View>
