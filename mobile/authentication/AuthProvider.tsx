@@ -28,6 +28,7 @@ export function AuthProvider(props: PropsWithChildren) {
       return;
     }
 
+    console.debug('Not authenticated, redirecting to welcome screen');
     router.navigate('/welcome');
   }, [isLoading, isAuthenticated, appActiveTrigger]);
 
