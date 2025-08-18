@@ -24,7 +24,7 @@ import { useUploadUserPicture } from '~/endpoints/me/upload-user-picture';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
-import { Feather, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '~/authentication/AuthProvider';
 import { Card, CardContainer } from '~/components/Card';
 import { TextInput as ReactTextInput } from 'react-native/Libraries/Components/TextInput/TextInput';
@@ -59,8 +59,6 @@ export default function UserProfileScreen() {
   const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [bottomSheet, setBottomSheet] = useState(false);
-  const [confirmLogout, setConfirmLogout] = useState(false);
-  const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
 
@@ -89,6 +87,7 @@ export default function UserProfileScreen() {
   };
 
   const [displayNameDebounce] = useDebounce(currentDisplayName, 400);
+  const [step, setStep] = useState<string>('');
 
   useEffect(() => {
     if (displayNameDebounce.length < 2) {
@@ -104,6 +103,16 @@ export default function UserProfileScreen() {
   function updateDisplayName() {
     firebaseUser.photoURL &&
       updateUserProfile({ pictureUrl: firebaseUser.photoURL, displayName: currentDisplayName });
+  }
+
+  function openDefineSpotSheet() {
+    setStep('button');
+    setBottomSheet(true);
+  }
+
+  function openParameterSheet() {
+    setStep('parameter');
+    setBottomSheet(true);
   }
 
   return (
@@ -123,7 +132,6 @@ export default function UserProfileScreen() {
             </ScreenTitle>
           </View>
         </View>
-
         <View className={'gap-2'}>
           <TextInput
             icon={{
@@ -138,13 +146,21 @@ export default function UserProfileScreen() {
           />
           <TextInput value={firebaseUser.email ?? ''} readOnly />
         </View>
-
-        <View className={'mb-2 flex-col'}>
-          <Title action={<ShareSpot />}>{t('user.profile.mySpot')}</Title>
-
+        <View className={'flex-col'}>
+          <View className="flex-row items-center">
+            <Title
+              action={<ShareSpot />}
+              icon={{
+                element: (
+                  <ThemedIcon name={'user-group'} component={FontAwesome6} color={colors.primary} />
+                ),
+              }}>
+              {t('user.profile.mySpot')}
+            </Title>
+          </View>
           <View className={'mt-2 flex-col gap-2'}>
             <Pressable
-              onPress={() => setBottomSheet(true)}
+              onPress={() => openDefineSpotSheet()}
               className={`${!userProfile.spot ? ' border-destructive' : ''} rounded-xl border`}>
               <Card className="flex-col items-start gap-3">
                 <View className="w-full flex-row items-center justify-between">
@@ -174,33 +190,23 @@ export default function UserProfileScreen() {
             </Pressable>
           </View>
         </View>
-
-        <BigSeparator />
-
-        <Button
-          variant={'plain'}
-          onPress={() => setConfirmLogout(true)}
-          size={'lg'}
-          className={'bg-destructive/15'}>
-          <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
-          <Text className={'text-destructive'}>{t('common.logout')}</Text>
-        </Button>
-
-        <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
-          <ThemedIcon name={'no-accounts'} component={MaterialIcons} color={colors.destructive} />
-          <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
-        </Button>
-
-        <BigSeparator />
-        <AppVersionInfo />
+        <View className={'flex-col'}>
+          <Title
+            icon={{
+              element: <ThemedIcon name={'gear'} component={FontAwesome6} color={colors.primary} />,
+            }}>
+            {t('user.profile.parameter.title')}
+          </Title>
+          <Pressable onPress={() => openParameterSheet()}>
+            <Card className="flex-col items-start gap-3">
+              <View className="w-full flex-row items-center justify-between">
+                <Text>{t('user.profile.parameter.cardTitle')}</Text>
+              </View>
+            </Card>
+          </Pressable>
+        </View>
       </ScreenWithHeader>
-
-      <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
-      <AccountDeletionConfirmationModal
-        visible={confirmAccountDeletion}
-        onVisibleChange={setConfirmAccountDeletion}
-      />
-      <DefineSpotSheet open={bottomSheet} onOpenChange={setBottomSheet} />
+      <BottomSheet open={bottomSheet} onOpenChange={setBottomSheet} step={step} setStep={setStep} />
     </>
   );
 }
@@ -381,12 +387,17 @@ export function LogoutConfirmationModal({
   );
 }
 
-function DefineSpotSheet(props: {
+function BottomSheet(props: {
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
+  step: string;
+  setStep: Dispatch<SetStateAction<string>>;
 }) {
   const { userProfile } = useCurrentUser();
   const [currentSpotName, setCurrentSpotName] = useState(userProfile.spot?.name);
+
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
   const { colors } = useColorScheme();
   const bottomSheetModalRef = useSheetRef();
@@ -409,7 +420,6 @@ function DefineSpotSheet(props: {
   const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
   const [parkingModalOpen, setParkingModalOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [step, setStep] = useState<'button' | 'searchGroup'>('button');
 
   const router = useRouter();
 
@@ -435,7 +445,6 @@ function DefineSpotSheet(props: {
       bottomSheetModalRef.current?.present();
     } else {
       bottomSheetModalRef.current?.dismiss();
-      setStep('button');
       setSearch(undefined);
       setCurrentSpotName(userProfile.spot?.name);
     }
@@ -482,11 +491,11 @@ function DefineSpotSheet(props: {
   const maximizeSpace = searchFocused && keyboardVisible;
 
   function openSearchGroup() {
-    setStep('searchGroup');
+    props.setStep('searchGroup');
   }
 
   const BottomSheetContent = () => {
-    switch (step) {
+    switch (props.step) {
       case 'button':
         return (
           <Sheet
@@ -621,6 +630,45 @@ function DefineSpotSheet(props: {
                   </Button>
                 </>
               )}
+            </ContentSheetView>
+          </Sheet>
+        );
+      case 'parameter':
+        return (
+          <Sheet
+            ref={bottomSheetModalRef}
+            enableDynamicSizing={false}
+            onDismiss={() => props.onOpenChange(false)}
+            snapPoints={keyboardVisible ? ['30%'] : ['30%']}>
+            <ContentSheetView
+              className={'flex-col gap-8'}
+              style={
+                keyboardVisible && {
+                  paddingBottom: keyboardHeight + 24,
+                }
+              }>
+              <Button
+                variant={'plain'}
+                onPress={() => setConfirmLogout(true)}
+                size={'lg'}
+                className={'bg-destructive/15'}>
+                <ThemedIcon
+                  name={'arrow-right-from-bracket'}
+                  component={FontAwesome6}
+                  color={colors.destructive}
+                />
+                <Text className={'text-destructive'}>{t('common.logout')}</Text>
+              </Button>
+              <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
+                <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
+                <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
+              </Button>
+              <AppVersionInfo />
+              <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
+              <AccountDeletionConfirmationModal
+                visible={confirmAccountDeletion}
+                onVisibleChange={setConfirmAccountDeletion}
+              />
             </ContentSheetView>
           </Sheet>
         );
