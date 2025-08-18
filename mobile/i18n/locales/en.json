@@ -258,7 +258,11 @@
     "title": "My points",
     "availableCreditsExplanation": "Use these points to reserve an available spot.",
     "pendingCreditsExplanation": "The points that will be added to your current balance once your spot sharing is completed.",
-    "creditInfo": "Info: Sharing or reserving 1h = 1 point."
+    "creditInfo": "Info: Sharing or reserving 1h = 1 point.",
+    "point": {
+      "one": "point",
+      "other": "points"
+    }
   },
   "rating": {
     "bookingCompleted": {

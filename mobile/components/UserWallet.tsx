@@ -13,14 +13,15 @@ export function UserWallet({ className, ...props }: ViewProps) {
   const { t } = useTranslation();
   const { userProfile } = useCurrentUser();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
-  const { colors } = useColorScheme();
+
+  const userPoint = userProfile.wallet.credits;
 
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
         <Card className={cn('mt-2 flex-row items-center justify-center gap-2', className)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
-          <Text>points</Text>
+          <Text>{t(`${userPoint > 1 ? 'wallet.point.other' : 'wallet.point.one'}`)}</Text>
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>

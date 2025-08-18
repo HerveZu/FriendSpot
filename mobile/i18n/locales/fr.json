@@ -258,7 +258,11 @@
     "title": "Mes points",
     "availableCreditsExplanation": "Utilise ces points pour réserver un spot disponible.",
     "pendingCreditsExplanation": "Les points qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.",
-    "creditInfo": "Info : Prêter ou réserver 1h = 1 point."
+    "creditInfo": "Info : Prêter ou réserver 1h = 1 point.",
+    "point": {
+      "one": "point",
+      "other": "points"
+    }
   },
   "rating": {
     "bookingCompleted": {
