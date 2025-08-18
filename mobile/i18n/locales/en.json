@@ -67,7 +67,8 @@
     "spot": {
       "name": "{{parking}} [#{{number}}]",
       "number": "Spot #{{number}}",
-      "numberLabel": "My spot number"
+      "numberLabel": "My spot number",
+      "numberLabelBooking": "Reserved spot number"
     }
   },
   "tabs": {

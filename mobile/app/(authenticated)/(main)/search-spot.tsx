@@ -351,7 +351,7 @@ function BookingCard(props: {
               ) : (
                 <Tag
                   onPress={() => setLockInfo(!lockInfo)}
-                  text={t('common.spot.numberLabel')}
+                  text={t('common.spot.numberLabelBooking')}
                   icon={'lock'}
                 />
               )}
