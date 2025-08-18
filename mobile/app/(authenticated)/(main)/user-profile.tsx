@@ -429,6 +429,7 @@ function BottomSheet(props: {
   // force open when no spot defined
   useEffect(() => {
     !userProfile.spot && props.onOpenChange(true);
+    props.setStep('searchGroup');
   }, [userProfile.spot]);
 
   // // Notify the user that they must select a group
