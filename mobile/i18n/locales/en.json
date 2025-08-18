@@ -108,7 +108,7 @@
     "parking": {
       "openOptions": {
         "title": "What would you like to do?",
-        "searchGroup": "Search for a group",
+        "searchGroup": "Search group",
         "joinWithCode": "Group code",
         "createParking": "New group",
         "leave": "Leave this group"
