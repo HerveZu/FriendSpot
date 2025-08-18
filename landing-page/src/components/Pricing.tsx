@@ -9,7 +9,7 @@ const plans = [
     icon: Star,
     description: "Perfect for getting started with parking sharing",
     features: [
-      "Unlimited parking group creation",
+      "Unlimited parking group creation up to 10 members",
       "24-hour time limit per reservation",
       "Community support",
     ],
@@ -49,19 +49,19 @@ const plans = [
     buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
     popular: false,
   },
-  {
-    name: "Custom Group",
-    icon: Building,
-    description: "Tailored to your community and needs.",
-    features: [
-      "Everything in Neighbourhood",
-      "Unlimited group members",
-      "Discuss your parking needs with us",
-    ],
-    buttonText: "Contact us",
-    buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
-    popular: false,
-  },
+  // {
+  //   name: "Custom",
+  //   icon: Building,
+  //   description: "Tailored to your community and needs.",
+  //   features: [
+  //     "Everything in Neighbourhood",
+  //     "Unlimited group members",
+  //     "Discuss your parking needs with us",
+  //   ],
+  //   buttonText: "Contact us",
+  //   buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
+  //   popular: false,
+  // },
 ];
 
 export const Pricing = () => {
@@ -101,6 +101,7 @@ export const Pricing = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => {
             const Icon = plan.icon;
+
             return (
               <div
                 key={index}
