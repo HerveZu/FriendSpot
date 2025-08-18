@@ -332,7 +332,7 @@ function ConfirmJoinBottomSheet({
       ref={bottomSheetModalRef}
       enableDynamicSizing={false}
       onDismiss={onClose}
-      snapPoints={keyboardVisible ? ['80%'] : ['35%']}
+      snapPoints={keyboardVisible ? ['75%'] : ['35%']}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore">
       <BottomSheetView
