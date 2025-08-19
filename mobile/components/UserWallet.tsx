@@ -7,7 +7,6 @@ import { cn } from '~/lib/cn';
 import { Modal, ModalFooter, ModalTitle } from '~/components/Modal';
 import { Card } from '~/components/Card';
 import { useTranslation } from 'react-i18next';
-import { useColorScheme } from '~/lib/useColorScheme';
 
 export function UserWallet({ className, ...props }: ViewProps) {
   const { t } = useTranslation();
