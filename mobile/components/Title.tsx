@@ -35,20 +35,24 @@ export function Title({
 export function SheetTitle({
   className,
   icon,
+  action,
   children,
   variant,
   ...props
-}: { icon?: ReactNode } & TextProps & VariantProps<typeof textVariants>) {
+}: { icon?: ReactNode; action?: ReactNode } & TextProps & VariantProps<typeof textVariants>) {
   const title = (
     <Text variant={variant ?? 'title1'} className={cn('font-bold', className)} {...props}>
       {children}
     </Text>
   );
 
-  return icon ? (
-    <View className="flex-row items-center gap-4">
-      {icon}
-      {title}
+  return icon || action ? (
+    <View className="flex-row items-center justify-between">
+      <View className={'flex-row items-center gap-4'}>
+        {icon}
+        {title}
+      </View>
+      {action}
     </View>
   ) : (
     title

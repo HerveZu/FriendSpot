@@ -107,7 +107,9 @@
     },
     "parking": {
       "openOptions": {
-        "title": "Que souhaites-tu faire ?",
+        "title": {
+          "noGroup": "Rejoins un groupe"
+        },
         "searchGroup": "Chercher un groupe",
         "joinWithCode": "Code de groupe",
         "createParking": "Nouveau groupe",

@@ -516,7 +516,7 @@ function ParkingModal(props: {
   const [editParking, isEditing] = useLoading(useEditParkingInfo(), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
-  const [deleteParking, isDeleting] = useLoading(useDeleteParking(), {
+  const [deleteParking, isDeleting] = useLoading(useRefreshOnSuccess(useDeleteParking()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
 
@@ -788,7 +788,19 @@ function ParkingBottomSheet(props: {
       case 'select-parking-option':
         return (
           <ContentSheetView className={'flex-col gap-6'}>
-            <SheetTitle>{t('user.parking.openOptions.title')}</SheetTitle>
+            <SheetTitle
+              className={'items-center justify-between'}
+              action={
+                userProfile.spot?.parking?.ownerId === userProfile.id && (
+                  <Button
+                    variant={'plain'}
+                    onPress={() => userProfile.spot && onParkingEdit(userProfile.spot.parking)}>
+                    <ThemedIcon name={'pencil'} />
+                  </Button>
+                )
+              }>
+              {userProfile.spot?.parking?.name ?? t('user.parking.openOptions.title.noGroup')}
+            </SheetTitle>
             <View className={'grid grid-cols-2 flex-row flex-wrap'}>
               {optionActions.map((option, i) => (
                 <View
