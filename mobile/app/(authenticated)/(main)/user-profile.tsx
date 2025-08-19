@@ -950,7 +950,7 @@ function ParkingBottomSheet(props: {
         ref={bottomSheetModalRef}
         enableDynamicSizing={false}
         onDismiss={() => props.onOpenChange(false)}
-        snapPoints={step === 'searchGroup' ? ['80%'] : ['34%']}>
+        snapPoints={step === 'searchGroup' ? ['90%'] : [300]}>
         {SheetContent()}
       </Sheet>
     </>
