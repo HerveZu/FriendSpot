@@ -22,7 +22,7 @@ const plans = [
     price: "€1.99",
     period: "/month",
     icon: Crown,
-    description: "Unlock unlimited parking potential",
+    description: "Unlock unlimited parking potential for the best experience",
     features: [
       "Everything in Free",
       "Unlimited time per reservation",
@@ -32,7 +32,6 @@ const plans = [
     buttonClass:
       "bg-gradient-to-r from-primary to-secondary hover:shadow-xl text-white",
     popular: true,
-    oneTime: "Or €10 one-time payment",
   },
   {
     name: "Neighbourhood",
@@ -143,9 +142,6 @@ export const Pricing = () => {
                       </span>
                       <span className="text-slate-300">{plan.period}</span>
                     </div>
-                    {plan.oneTime && (
-                      <p className="text-sm text-primary/80">{plan.oneTime}</p>
-                    )}
                   </div>
 
                   <div className="flex-1">
