@@ -511,7 +511,11 @@ function BookingSheet(props: {
     setFrom(
       props.selectedSuggestion ? max([safeFrom, fromUtc(props.selectedSuggestion.from)]) : safeFrom
     );
-    setTo(props.selectedSuggestion ? fromUtc(props.selectedSuggestion.to) : safeTo);
+    setTo(
+      props.selectedSuggestion
+        ? fromUtc(addHours(props.selectedSuggestion.from, INITIAL_DURATION_HOURS))
+        : safeTo
+    );
   }, [props.open, props.selectedSuggestion]);
 
   useEffect(() => {
