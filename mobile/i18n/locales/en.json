@@ -258,7 +258,7 @@
         "upgradeButton": "Upgrade"
       },
       "neighbourhood": {
-        "name": "Neighbourhood",
+        "name": "Community",
         "description": "For neighbourhoods and communities.",
         "features": "Up to 50 group members;Advanced group management;Dedicated support",
         "upgradeButton": "Create group"
@@ -266,7 +266,7 @@
       "custom": {
         "name": "Custom",
         "description": "Get custom features tailored to your needs. Reach out today!",
-        "features": "Everything in Neighbourhood;Unlimited group members;Custom features",
+        "features": "Everything in Community;Unlimited group members;Custom features",
         "upgradeButton": "Contact us"
       }
     }
