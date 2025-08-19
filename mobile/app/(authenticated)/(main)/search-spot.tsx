@@ -184,9 +184,8 @@ export default function SearchSpotScreen() {
               variant="primary"
               onPress={() => {
                 setInfoModalOpen(false);
-                setSelectedTab('booking');
               }}>
-              <Text>{t('booking.newSpot.viewReservations')}</Text>
+              <Text>{t('common.back')}</Text>
             </Button>
           </Modal>
         )}
