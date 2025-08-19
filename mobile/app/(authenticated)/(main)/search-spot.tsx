@@ -11,13 +11,14 @@ import {
   formatRelative,
   intervalToDuration,
   isAfter,
+  isBefore,
   isWithinInterval,
   max,
   min,
 } from 'date-fns';
 import { Redirect, useRouter } from 'expo-router';
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 
 import { SpotCountDownScreenParams } from '~/app/(authenticated)/spot-count-down';
@@ -320,27 +321,30 @@ function BookingCard(props: {
             })
           }>
           <Card>
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-2">
-                {props.deletable ? (
-                  <DeletableStatus
-                    fallback={<ThemedIcon name={'ticket'} color={colors.primary} />}
-                  />
-                ) : (
-                  <ThemedIcon name={'ticket'} color={colors.primary} />
-                )}
-                <Text variant="heading" className="font-bold">
-                  {capitalize(
-                    isAfter(props.booking.from, now)
-                      ? formatRelative(props.booking.from, now)
-                      : t('booking.spot.onGoingTitle', {
-                          remaining: formatDistance(props.booking.to, now),
-                        })
+            {isBefore(now, props.booking.from) && (
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center gap-2">
+                  {props.deletable ? (
+                    <DeletableStatus
+                      fallback={
+                        <ThemedIcon
+                          name={'clock'}
+                          color={colors.primary}
+                          component={FontAwesome6}
+                        />
+                      }
+                    />
+                  ) : (
+                    <ThemedIcon name={'clock'} color={colors.primary} component={FontAwesome6} />
                   )}
-                </Text>
+                  <Text variant="heading" className="font-bold">
+                    {capitalize(formatRelative(props.booking.from, now))}
+                  </Text>
+                </View>
+                <DeleteTrigger />
               </View>
-              <DeleteTrigger />
-            </View>
+            )}
+
             <User
               displayName={props.booking.owner.displayName}
               pictureUrl={props.booking.owner.pictureUrl}
@@ -356,11 +360,13 @@ function BookingCard(props: {
                 />
               )}
             </View>
-            <DateRange
-              from={props.booking.from}
-              to={props.booking.to}
-              duration={props.booking.duration}
-            />
+            {isAfter(now, props.booking.from) && (
+              <DateRange
+                from={props.booking.from}
+                to={props.booking.to}
+                duration={props.booking.duration}
+              />
+            )}
           </Card>
         </Pressable>
       </Deletable>
@@ -513,7 +519,12 @@ function BookingSheet(props: {
     );
     setTo(
       props.selectedSuggestion
-        ? fromUtc(addHours(props.selectedSuggestion.from, INITIAL_DURATION_HOURS))
+        ? fromUtc(
+            min([
+              props.selectedSuggestion.to,
+              addHours(props.selectedSuggestion.from, INITIAL_DURATION_HOURS),
+            ])
+          )
         : safeTo
     );
   }, [props.open, props.selectedSuggestion]);
@@ -661,13 +672,16 @@ function BookingSheet(props: {
                 {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
               </SheetHeading>
             </View>
-            <Slider
-              step={STEP_HOURS / MAX_DURATION_HOURS}
-              value={differenceInHours(to, from) / MAX_DURATION_HOURS}
-              onValueChange={(value) =>
-                setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
-              }
-            />
+
+            {Platform.OS === 'ios' && (
+              <Slider
+                step={STEP_HOURS / MAX_DURATION_HOURS}
+                value={differenceInHours(to, from) / MAX_DURATION_HOURS}
+                onValueChange={(value) =>
+                  setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
+                }
+              />
+            )}
           </View>
 
           {shouldRequestSpot ? (
