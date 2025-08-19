@@ -5,7 +5,6 @@ import { BlinkingDot } from '~/components/BlinkingDot';
 import {
   addHours,
   addMinutes,
-  differenceInSeconds,
   format,
   formatDuration,
   formatRelative,
@@ -13,7 +12,6 @@ import {
   isWithinInterval,
   max,
   min,
-  secondsToMilliseconds,
 } from 'date-fns';
 import { Redirect } from 'expo-router';
 import React, { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
@@ -25,7 +23,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
 import { Card } from '~/components/Card';
 import { ContentSheetView } from '~/components/ContentView';
-import { DateRange, DateRangeOnly } from '~/components/DateRange';
+import { DateRange } from '~/components/DateRange';
 import { Deletable, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
@@ -47,9 +45,7 @@ import { LendSpotResponse, useLendSpot } from '~/endpoints/booking/lend-spot';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch, useHookFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
-import { capitalize, formatTime, parseDuration, rgbToHex } from '~/lib/utils';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
-import { toSeconds } from 'duration-fns';
+import { capitalize } from '~/lib/utils';
 import { useCancelAvailability } from '~/endpoints/booking/cancel-spot-availability';
 import { cn } from '~/lib/cn';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
@@ -292,7 +288,7 @@ function AvailabilityBookingCard(props: { spotId: string; booking: AvailabilityB
       onDelete={() => cancelBooking(props.spotId, props.booking.id)}>
       <Card className="bg-background">
         <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
-          <View className={'flex-col gap-4'}>
+          <View className={'flex-1 flex-col gap-4'}>
             <User
               displayName={props.booking.bookedBy.displayName}
               pictureUrl={props.booking.bookedBy.pictureUrl}
@@ -305,62 +301,11 @@ function AvailabilityBookingCard(props: { spotId: string; booking: AvailabilityB
                 </View>
               </View>
             )}
-            <DateRangeOnly from={props.booking.from} to={props.booking.to} />
+            <DateRange from={props.booking.from} to={props.booking.to} extend />
           </View>
-          {isCurrently && <Countdown booking={props.booking} />}
         </View>
       </Card>
     </Deletable>
-  );
-}
-
-function Countdown({ booking }: { booking: AvailabilityBooking }) {
-  const { t } = useTranslation();
-  const now = useActualTime(30_000);
-  const { colors } = useColorScheme();
-
-  const initialRemainingSeconds = useMemo(() => differenceInSeconds(booking.to, new Date()), []);
-  const durationSeconds = useMemo(() => toSeconds(parseDuration(booking.duration)), []);
-  const isActive = useMemo(
-    () => new Date(booking.from).getTime() <= now.getTime(),
-    [booking.from, now]
-  );
-
-  return (
-    <View style={{ opacity: isActive ? 1 : 0.4 }} className={'flex-col justify-center'}>
-      <CountdownCircleTimer
-        strokeWidth={2}
-        trailColor={colors.card}
-        size={70}
-        isPlaying={isActive}
-        initialRemainingTime={isActive ? initialRemainingSeconds : durationSeconds}
-        duration={durationSeconds}
-        colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
-        colorsTime={[0.25 * durationSeconds, 0.75 * durationSeconds]}>
-        {({ remainingTime, color }) => (
-          <Text
-            className={'text-xs font-bold'}
-            style={{
-              color,
-            }}>
-            {formatTime(t, secondsToMilliseconds(remainingTime), [
-              {
-                unit: 'days',
-                hideIfZero: true,
-                separator: ' ',
-              },
-              {
-                unit: 'hours',
-              },
-              {
-                unit: 'minutes',
-                hideSuffix: true,
-              },
-            ])}
-          </Text>
-        )}
-      </CountdownCircleTimer>
-    </View>
   );
 }
 

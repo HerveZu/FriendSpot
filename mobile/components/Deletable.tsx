@@ -9,6 +9,7 @@ import { ThemedIcon } from '~/components/ThemedIcon';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 const DeletableContext = createContext<{
   canDelete: boolean;
@@ -44,7 +45,11 @@ export function Deletable({
           className={cn('w-full flex-row items-center justify-end bg-destructive pr-4', className)}
           {...props}>
           <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-            <ThemedIcon name={canDelete ? 'trash' : 'lock'} size={32} />
+            <ThemedIcon
+              name={canDelete ? 'trash-can' : 'lock'}
+              size={32}
+              component={FontAwesome6}
+            />
           </Animated.View>
         </View>
       )
@@ -93,16 +98,11 @@ export function DeleteTrigger() {
   const { colors } = useColorScheme();
   const { canDelete, triggerDelete } = useContext(DeletableContext);
 
-  return canDelete ? (
-    <Button
-      disabled={!canDelete}
-      variant={'plain'}
-      size={'sm'}
-      className={'bg-destructive/30 border border-destructive'}
-      onPress={triggerDelete}>
-      <ThemedIcon name={'trash'} color={colors.destructive} />
-    </Button>
-  ) : (
-    <></>
+  return (
+    canDelete && (
+      <Button disabled={!canDelete} variant={'plain'} size={'none'} onPress={triggerDelete}>
+        <ThemedIcon name={'trash-can'} color={colors.destructive} component={FontAwesome6} />
+      </Button>
+    )
   );
 }
