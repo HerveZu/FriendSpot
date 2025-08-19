@@ -136,7 +136,7 @@
       },
       "confirmLeaveGroup": {
         "title": "Leave {{groupName}}",
-        "description": "When leaving this group, all bookings linked to your spot will be deleted.",
+        "description": "When leaving this group, all bookings linked to your spot will be cancelled.",
         "confirm": "Leave"
       },
       "joinParking": {
