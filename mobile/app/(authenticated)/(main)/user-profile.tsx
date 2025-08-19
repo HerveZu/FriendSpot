@@ -368,7 +368,10 @@ export function LogoutConfirmationModal({
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
-        <ModalTitle text={t('account.logoutConfirmation')} icon={<ThemedIcon name={'warning'} />} />
+        <ModalTitle
+          text={t('user.profile.logoutConfirmation')}
+          icon={<ThemedIcon name={'warning'} />}
+        />
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
@@ -479,7 +482,7 @@ function SettingsBottomSheet(props: {
             component={FontAwesome6}
             color={colors.destructive}
           />
-          <Text className={'text-destructive'}>{t('common.logout')}</Text>
+          <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
         </Button>
         <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
           <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />

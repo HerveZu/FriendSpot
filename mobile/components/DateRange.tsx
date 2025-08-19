@@ -1,6 +1,6 @@
 import { FontAwesome6 } from '@expo/vector-icons';
-import { differenceInMinutes, format, intervalToDuration, isWithinInterval } from 'date-fns';
-import { toMinutes } from 'duration-fns';
+import { differenceInMilliseconds, format, intervalToDuration, isWithinInterval } from 'date-fns';
+import { toMilliseconds } from 'duration-fns';
 import React from 'react';
 import { View, ViewProps } from 'react-native';
 
@@ -8,22 +8,24 @@ import { ThemedIcon } from '~/components/ThemedIcon';
 import { ProgressIndicator } from '~/components/nativewindui/ProgressIndicator';
 import { Text } from '~/components/nativewindui/Text';
 import { useActualTime } from '~/lib/useActualTime';
-import { fromUtc, parseDuration } from '~/lib/utils';
+import { formatTime, fromUtc, parseDuration } from '~/lib/utils';
 import { cn } from '~/lib/cn';
+import { useTranslation } from 'react-i18next';
 
 export function DateRange({
   from,
   to,
+  extend,
   duration,
-  label,
   className,
   ...props
 }: {
   from: Date | string;
   to: Date | string;
   duration?: string;
-  label?: string;
+  extend?: boolean;
 } & ViewProps) {
+  const { t } = useTranslation();
   const now = useActualTime(5000);
 
   const inProgress = isWithinInterval(now, {
@@ -31,18 +33,39 @@ export function DateRange({
     end: fromUtc(to),
   });
 
-  const elapsedMinutes = inProgress ? differenceInMinutes(now, from) : null;
+  const remainingMs = inProgress ? differenceInMilliseconds(to, now) : null;
   const realDuration = duration
     ? parseDuration(duration)
     : intervalToDuration({ start: from, end: to });
 
-  return elapsedMinutes !== null ? (
-    <View className={cn('flex-col gap-4', className)} {...props}>
+  const label =
+    remainingMs &&
+    formatTime(t, remainingMs, [
+      {
+        unit: 'days',
+        hideIfZero: true,
+        separator: ' ',
+      },
+      {
+        unit: 'hours',
+      },
+      {
+        unit: 'minutes',
+        hideSuffix: true,
+      },
+    ]);
+
+  return remainingMs !== null ? (
+    <View className={cn('flex-col gap-4', extend && 'flex-1', className)} {...props}>
       <DateRangeOnly from={from} to={to} />
-      <ProgressIndicator
-        className="h-4"
-        value={Math.round((100 * elapsedMinutes) / toMinutes(realDuration))}
-      />
+
+      <View className={'relative gap-1'}>
+        <ProgressIndicator
+          className="h-4"
+          value={Math.round((100 * remainingMs) / toMilliseconds(realDuration))}
+        />
+        {label && <Text className="absolute left-1 text-xs font-semibold">{label}</Text>}
+      </View>
     </View>
   ) : (
     <DateRangeOnly from={from} to={to} />
