@@ -121,6 +121,7 @@
       "parkingAddress": "Additional information",
       "memberMaxCount": "{{memberCount}} members can join.",
       "create": "Create {{name}}",
+      "leaveAndCreate": "Leave and create {{name}}",
       "save": "Save",
       "cars": "cars",
       "confirmDelete": "Delete",
@@ -137,6 +138,7 @@
       "confirmLeaveGroup": {
         "title": "Leave {{groupName}}",
         "description": "When leaving this group, all bookings linked to your spot will be cancelled.",
+        "leaveAndChangeGroup": "Warning, you are about to leave your current group to join a new one.",
         "confirm": "Leave"
       },
       "joinParking": {

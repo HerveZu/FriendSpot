@@ -121,6 +121,7 @@
       "memberMaxCount": "{{memberCount}} membres pourront le rejoindre.",
       "parkingAddress": "Information complémentaire",
       "create": "Créer {{name}}",
+      "leaveAndCreate": "Quitter et créer {{name}}",
       "save": "Enregistrer",
       "cars": "voitures",
       "confirmDelete": "Supprimer",
@@ -137,6 +138,7 @@
       "confirmLeaveGroup": {
         "title": "Quitter {{groupName}}",
         "description": "En quittant ce groupe, toutes les réservations associées à votre spot seront annulées.",
+        "leaveAndChangeGroup": "Attention, tu t'apprêtes à quitter ton groupe actuel pour en rejoindre un nouveau.",
         "confirm": "Quitter"
       },
       "joinParking": {
