@@ -296,10 +296,6 @@
     "otaPatch": "OTA Patch applied {{time}}",
     "noOtaPatch": "No OTA patch"
   },
-  "account": {
-    "logout": "Logout",
-    "logoutConfirmation": "Logout"
-  },
   "widget": {
     "liveTimer": {
       "ended": "This reservation has ended",

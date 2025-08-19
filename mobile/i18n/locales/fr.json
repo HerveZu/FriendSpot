@@ -60,7 +60,7 @@
     "next": "Suivant",
     "save": "Enregistrer",
     "delete": "Supprimer",
-    "logout": "Se déconnecter",
+    "logout": "Déconnexion",
     "other": "Autre",
     "search": "Rechercher",
     "return": "Retour",
@@ -295,10 +295,6 @@
     "version": "Version",
     "otaPatch": "Patch OTA appliqué {{time}}",
     "noOtaPatch": "Aucun patch OTA"
-  },
-  "account": {
-    "logout": "Se déconnecter",
-    "logoutConfirmation": "Se déconnecter"
   },
   "widget": {
     "liveTimer": {
