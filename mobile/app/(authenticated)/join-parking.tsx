@@ -15,7 +15,7 @@ import {
   useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
-import { MAX_SPOT_PER_GROUP, useDefineSpot } from '~/endpoints/parkings/define-spot';
+import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useFetch, useLoading } from '~/lib/useFetch';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,7 @@ import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
+import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -231,8 +232,6 @@ function ConfirmJoinBottomSheet({
     onJoin();
   }
 
-  const groupIsFull = parking.spotsCount >= MAX_SPOT_PER_GROUP;
-
   const content = () => {
     switch (step) {
       case 'confirm':
@@ -242,28 +241,13 @@ function ConfirmJoinBottomSheet({
               <View className="flex-row items-center justify-between">
                 <SheetTitle className={'text-3xl'}>
                   {parking.name}
-                  {groupIsFull && (
+                  {parking.isFull && (
                     <Text className={'text-destructive'}>
                       ({t('user.parking.joinParking.full')})
                     </Text>
                   )}
                 </SheetTitle>
-                <View className="flex-row items-end gap-1">
-                  <Text
-                    className={cn(
-                      'text-3xl font-bold text-primary',
-                      groupIsFull && 'text-destructive'
-                    )}>
-                    {parking.spotsCount}
-                  </Text>
-
-                  <View className={'flex-row items-center gap-1'}>
-                    <Text className="text-lg font-semibold text-foreground">
-                      /{MAX_SPOT_PER_GROUP}
-                    </Text>
-                    <ThemedIcon name="user" className="text-primary" />
-                  </View>
-                </View>
+                <ParkingSpotCount parking={parking} />
               </View>
               <Text className="text-xl">{parking.address}</Text>
             </View>
@@ -275,9 +259,9 @@ function ConfirmJoinBottomSheet({
                 </Button>
               </ExpandItem>
               <ExpandItem>
-                <Button onPress={() => setStep('spot')} disabled={groupIsFull}>
+                <Button onPress={() => setStep('spot')} disabled={parking.isFull}>
                   <Text>{t('user.parking.joinParking.join')}</Text>
-                  {groupIsFull ? (
+                  {parking.isFull ? (
                     <ThemedIcon name="lock" />
                   ) : (
                     <ThemedIcon name="arrow-right" size={14} />

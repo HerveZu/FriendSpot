@@ -6,7 +6,14 @@ export function useSearchParking() {
   const { apiRequest } = useApiRequest();
 
   return useCallback(
-    (search: string) => apiRequest<ParkingResponse[]>(`/parking?search=${search}`, 'GET'),
+    async (search: string) => {
+      const allParking = await apiRequest<ParkingResponse[]>(`/parking?search=${search}`, 'GET');
+      return allParking.map((parking) => ({
+        ...parking,
+        maxSpots: 10,
+        isFull: parking.spotsCount >= 10,
+      }));
+    },
     [apiRequest]
   );
 }

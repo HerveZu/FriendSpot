@@ -1,4 +1,4 @@
-import {
+import React, {
   createRef,
   Dispatch,
   PropsWithChildren,
@@ -58,8 +58,9 @@ import { useLeaveSpot } from '~/endpoints/parkings/leave-spot';
 import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
 import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
-import { MAX_SPOT_PER_GROUP, useDefineSpot } from '~/endpoints/parkings/define-spot';
+import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
+import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -562,13 +563,15 @@ function ParkingModal(props: {
     props.onDelete(props.parking);
   }
 
+  const FREE_PARKING_MAX_SPOT = 10;
+
   return (
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
       <ModalTitle text={titleText[mode]} />
       <View className="w-full flex-row items-center gap-2 px-2">
         <ThemedIcon name={'user-plus'} component={FontAwesome6} size={12} />
         <Text className="text-center text-sm">
-          {t('user.parking.memberMaxCount', { memberCount: MAX_SPOT_PER_GROUP - 1 })}
+          {t('user.parking.memberMaxCount', { memberCount: FREE_PARKING_MAX_SPOT - 1 })}
         </Text>
       </View>
       <View className={'flex-col gap-2'}>
@@ -954,7 +957,7 @@ function ParkingCard(props: {
   const isOwned = props.parking.ownerId === userProfile.id;
 
   return (
-    <Pressable onPress={props.onSelect}>
+    <Pressable disabled={props.parking.isFull} onPress={props.onSelect}>
       <Card highlight={props.isSelected}>
         <View className={'flex-row items-center justify-between'}>
           <View className={'flex-row items-center'}>
@@ -970,20 +973,14 @@ function ParkingCard(props: {
               </Button>
             )}
           </View>
-          <View
-            className={cn(
-              'flex-row items-center gap-2',
-              props.parking.spotsCount === 0 && 'opacity-70'
-            )}>
-            <Text className={'font-semibold'}>{props.parking.spotsCount}</Text>
-            <ThemedIcon name={'user'} />
-          </View>
+          <ParkingSpotCount parking={props.parking} />
         </View>
         <View className="flex-row items-center justify-between gap-4">
           <View className={'w-4/5 flex-row items-center gap-4'}>
             <ThemedIcon name={'tag'} component={FontAwesome6} />
             <Text className="shrink text-sm">{props.parking.address}</Text>
           </View>
+          {props.parking.isFull && <ThemedIcon name={'lock'} color={colors.destructive} />}
           {props.isSelected && <ThemedIcon name={'check'} color={colors.primary} />}
         </View>
       </Card>

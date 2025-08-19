@@ -6,8 +6,6 @@ type DefineSpotRequest = {
   lotName: string;
 };
 
-export const MAX_SPOT_PER_GROUP = 10;
-
 export function useDefineSpot() {
   const { apiRequest } = useApiRequest();
 
