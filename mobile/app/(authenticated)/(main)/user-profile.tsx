@@ -506,9 +506,14 @@ function ParkingModal(props: {
   const mode = props.parking ? 'edit' : 'create';
   const [address, setAddress] = useState(props.parking?.address ?? '');
   const [name, setName] = useState(props.parking?.name ?? '');
+  const [lotName, setLotName] = useState<string>('');
   const { colors } = useColorScheme();
   const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
+  const [defineSpot, isUpdating] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
+    beforeMarkingComplete: () => props.onOpenChange(false),
+  });
   const { t } = useTranslation();
+  const { userProfile } = useCurrentUser();
 
   const [createParking, isCreating] = useLoading(useCreateParking(), {
     beforeMarkingComplete: () => props.onOpenChange(false),
@@ -529,8 +534,14 @@ function ParkingModal(props: {
     setConfirmedParkingName(null);
   }, [props.open]);
 
+  const lotNameIsValid = mode === 'create' ? lotName.trim().length > 0 : true;
+
   const submitFn = {
-    create: () => createParking({ name, address }),
+    create: () =>
+      createParking({ name, address }).then((parking) => {
+        defineSpot({ parkingId: parking.id, lotName: lotName });
+      }),
+
     edit: () => (props.parking?.id ? editParking(props.parking.id, { name, address }) : undefined),
   };
 
@@ -586,11 +597,20 @@ function ParkingModal(props: {
           onChangeText={setAddress}
           placeholder={t('user.parking.parkingAddress')}
           maxLength={100}
-          icon={{
-            element: <ThemedIcon name={'tag'} component={FontAwesome6} />,
-            position: 'left',
-          }}
         />
+        {mode === 'create' && (
+          <TextInput
+            value={lotName}
+            onChangeText={setLotName}
+            placeholder={t('user.parking.parkingLotname')}
+            maxLength={10}
+          />
+        )}
+        {mode === 'create' && userProfile.spot && (
+          <Text variant={'callout'} className="mt-2 text-destructive">
+            {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
+          </Text>
+        )}
       </View>
 
       {mode === 'edit' && (
@@ -611,28 +631,35 @@ function ParkingModal(props: {
               }}
             />
           )}
-          <View className={cn(confirmedParkingName !== null && 'flex-row justify-between')}>
+          <ExpandRow className={cn(confirmedParkingName !== null && 'flex-row justify-between')}>
             {confirmedParkingName !== null && (
-              <Button variant={'tonal'} onPress={() => setConfirmedParkingName(null)}>
-                <Text>{t('user.parking.cancelDelete')}</Text>
-              </Button>
+              <ExpandItem>
+                <Button variant={'tonal'} onPress={() => setConfirmedParkingName(null)}>
+                  <Text>{t('user.parking.cancelDelete')}</Text>
+                </Button>
+              </ExpandItem>
             )}
-            <Button
-              disabled={
-                confirmedParkingName !== null && confirmedParkingName !== props.parking?.name
-              }
-              variant={'plain'}
-              onPress={() =>
-                confirmedParkingName === null ? setConfirmedParkingName('') : onDelete()
-              }>
-              {isDeleting && <ActivityIndicator color={colors.destructive} />}
-              <Text className={'text-destructive'}>{t('user.parking.confirmDelete')}</Text>
-            </Button>
-          </View>
+            <ExpandItem>
+              <Button
+                disabled={
+                  confirmedParkingName !== null && confirmedParkingName !== props.parking?.name
+                }
+                variant={'plain'}
+                onPress={() =>
+                  confirmedParkingName === null ? setConfirmedParkingName('') : onDelete()
+                }>
+                {isDeleting && <ActivityIndicator color={colors.destructive} />}
+                <Text className={'text-destructive'}>{t('user.parking.confirmDelete')}</Text>
+              </Button>
+            </ExpandItem>
+          </ExpandRow>
         </>
       )}
 
-      <Button disabled={!name || !address || isSubmitting[mode]} onPress={onSubmit}>
+      <Button
+        disabled={!name || !address || isSubmitting[mode] || !lotNameIsValid}
+        onPress={onSubmit}
+        className="">
         {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
         <Text>{submitText[mode]}</Text>
       </Button>
