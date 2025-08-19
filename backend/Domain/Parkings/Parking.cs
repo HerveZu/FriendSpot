@@ -40,6 +40,7 @@ public sealed record BookingRequestAccepted : IDomainEvent
 
 public sealed class Parking : IAggregateRoot
 {
+    public const int FreeMaxSpotCount = 10;
     private readonly List<ParkingBookingRequest> _bookingRequests = [];
     private readonly DomainEvents _domainEvents = new();
 

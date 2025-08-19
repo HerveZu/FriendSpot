@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
+using Api.Common.Contracts;
 using Api.Parkings;
-using Api.Parkings.Contracts;
 using Api.Tests.TestBench;
 
 namespace Api.Tests;

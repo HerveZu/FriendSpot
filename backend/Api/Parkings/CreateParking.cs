@@ -1,10 +1,12 @@
 using Api.Common;
+using Api.Common.Contracts;
 using Api.Common.Infrastructure;
-using Api.Parkings.Contracts;
 using Domain.Parkings;
+using Domain.ParkingSpots;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Parkings;
 
@@ -37,21 +39,17 @@ internal sealed class CreateParking(ILogger<CreateParking> logger, AppDbContext 
         var currentUser = HttpContext.ToCurrentUser();
 
         logger.LogInformation("Creating new parking with name {Name} and address {Address}", req.Name, req.Address);
-        var parking = Parking.Create(currentUser.Identity, req.Name, req.Address);
+        var newParking = Parking.Create(currentUser.Identity, req.Name, req.Address);
 
-        dbContext.Set<Parking>().Add(parking);
+        dbContext.Set<Parking>().Add(newParking);
         await dbContext.SaveChangesAsync(ct);
 
-        await SendOkAsync(
-            new ParkingResponse
-            {
-                Id = parking.Id,
-                Name = parking.Name,
-                Code = parking.Code,
-                Address = parking.Address,
-                SpotsCount = 0,
-                OwnerId = parking.OwnerId
-            },
-            ct);
+        var parkingResponse = await dbContext
+            .Set<Parking>()
+            .Where(parking => newParking.Id == parking.Id)
+            .ToParkingResponse(dbContext.Set<ParkingSpot>())
+            .FirstAsync(ct);
+
+        await SendOkAsync(parkingResponse, ct);
     }
 }

@@ -1,6 +1,6 @@
 using Api.Common;
+using Api.Common.Contracts;
 using Api.Common.Infrastructure;
-using Api.Parkings.Contracts;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
@@ -48,17 +48,7 @@ internal sealed class SearchAvailableParking(AppDbContext dbContext)
         }
 
         var availableParking = await matchingParking
-            .Select(parking => new ParkingResponse
-            {
-                Id = parking.Id,
-                Name = parking.Name,
-                Code = parking.Code,
-                Address = parking.Address,
-                SpotsCount = dbContext
-                    .Set<ParkingSpot>()
-                    .Count(spot => spot.ParkingId == parking.Id),
-                OwnerId = parking.OwnerId
-            })
+            .ToParkingResponse(dbContext.Set<ParkingSpot>())
             .OrderByDescending(parking => parking.SpotsCount)
             .ToArrayAsync(ct);
 

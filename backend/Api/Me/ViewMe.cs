@@ -1,4 +1,5 @@
 using Api.Common;
+using Api.Common.Contracts;
 using Api.Common.Infrastructure;
 using Domain.Parkings;
 using Domain.ParkingSpots;
@@ -39,32 +40,8 @@ public sealed record MeResponse
     public sealed record SpotStatus
     {
         public required Guid Id { get; init; }
-        public required bool CurrentlyAvailable { get; init; }
-        public required DateTimeOffset? NextAvailability { get; init; }
-        public required DateTimeOffset? LastUse { get; init; }
-        public required DateTimeOffset? NextUse { get; init; }
         public required string Name { get; init; }
-        public required SpotParking Parking { get; init; }
-        public required SpotUser? CurrentlyUsedBy { get; init; }
-
-        [PublicAPI]
-        public sealed record SpotParking
-        {
-            public required Guid Id { get; init; }
-            public required string Name { get; init; }
-            public required string Address { get; init; }
-            public required string Code { get; init; }
-        }
-
-        [PublicAPI]
-        public sealed record SpotUser
-        {
-            public required string Id { get; init; }
-            public required string? PictureUrl { get; init; }
-            public required string DisplayName { get; init; }
-            public required DateTimeOffset UsingSince { get; init; }
-            public required DateTimeOffset UsingUntil { get; init; }
-        }
+        public required ParkingResponse Parking { get; init; }
     }
 }
 
@@ -102,59 +79,16 @@ internal sealed class ViewStatus(AppDbContext dbContext) : EndpointWithoutReques
                             ParkingLotId = x.spotId
                         })
                         .FirstOrDefault(),
-                    Spot = dbContext.Set<ParkingSpot>()
-                        .Where(spot => spot.OwnerId == user.Identity)
-                        .Select(spot => new MeResponse.SpotStatus
+                    Spot = (from spot in dbContext.Set<ParkingSpot>()
+                        join parking in dbContext.Set<Parking>().ToParkingResponse(dbContext.Set<ParkingSpot>())
+                            on spot.ParkingId equals parking.Id
+                        where spot.OwnerId == user.Identity
+                        select new MeResponse.SpotStatus
                         {
                             Id = spot.Id,
-                            CurrentlyUsedBy = spot.Bookings
-                                .Where(booking => now >= booking.From && booking.To >= now)
-                                .Select(booking => new
-                                {
-                                    Booking = booking,
-                                    User = dbContext
-                                        .Set<User>()
-                                        .First(bookingUser => bookingUser.Identity == booking.BookingUserId)
-                                })
-                                .Select(x => new MeResponse.SpotStatus.SpotUser
-                                {
-                                    Id = x.User.Identity,
-                                    DisplayName = x.User.DisplayName,
-                                    PictureUrl = x.User.PictureUrl,
-                                    UsingSince = x.Booking.From,
-                                    UsingUntil = x.Booking.To
-                                })
-                                .FirstOrDefault(),
-                            CurrentlyAvailable = spot.Availabilities
-                                .Any(availability => now >= availability.From && availability.To >= now),
-                            NextAvailability = spot.Availabilities
-                                .Where(availability => availability.From > now)
-                                .Select(availability => availability.From)
-                                .Order()
-                                .FirstOrDefault(),
-                            LastUse = spot.Bookings
-                                .Where(booking => booking.To < now)
-                                .Select(booking => booking.To)
-                                .OrderDescending()
-                                .FirstOrDefault(),
-                            NextUse = spot.Bookings
-                                .Where(booking => booking.From > now)
-                                .Select(booking => booking.From)
-                                .Order()
-                                .FirstOrDefault(),
                             Name = spot.SpotName,
-                            Parking = dbContext.Set<Parking>()
-                                .Where(parking => parking.Id == spot.ParkingId)
-                                .Select(parking => new MeResponse.SpotStatus.SpotParking
-                                {
-                                    Id = parking.Id,
-                                    Name = parking.Name,
-                                    Address = parking.Address,
-                                    Code = parking.Code
-                                })
-                                .First()
-                        })
-                        .FirstOrDefault(),
+                            Parking = parking
+                        }).FirstOrDefault(),
                     Wallet = dbContext.Set<Wallet>()
                         .Where(wallet => wallet.UserId == currentUser.Identity)
                         .Select(wallet => new MeResponse.WalletStatus
