@@ -113,7 +113,7 @@
         "searchGroup": "Search group",
         "joinWithCode": "Group code",
         "createParking": "New group",
-        "leave": "Leave this group"
+        "leave": "Leave group"
       },
       "noMatchingParking": "No group matches '{{search}}'.",
       "editParking": "Edit a group",
