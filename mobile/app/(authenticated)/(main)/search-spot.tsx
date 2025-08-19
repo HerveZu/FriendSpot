@@ -36,7 +36,7 @@ import { SheetHeading, SheetTitle, Title } from '~/components/Title';
 import { User } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Sheet } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { useBookSpot } from '~/endpoints/booking/book-spot';
 import { useCancelBooking } from '~/endpoints/booking/cancel-spot-booking';
@@ -63,6 +63,7 @@ import {
 } from '~/endpoints/requestBooking/get-my-parking-requests';
 import { useCancelBookingRequest } from '~/endpoints/requestBooking/cancel-spot-booking-request';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
+import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -417,7 +418,7 @@ function BookingSheet(props: {
   setInfoModalOpen?: Dispatch<SetStateAction<boolean>>;
 }) {
   const { t } = useTranslation();
-  const ref = useSheetRef();
+  const ref = useSheetRefWithState(props.open);
 
   const MIN_DURATION_HOURS = 0.5;
   const MAX_DURATION_HOURS = 12;
@@ -492,16 +493,13 @@ function BookingSheet(props: {
   );
 
   useEffect(() => {
-    if (props.open) {
-      ref.current?.present();
-    } else {
+    if (!props.open) {
       setSelectedSpot(undefined);
       setBookingSimulation(undefined);
       setRequestSimulation(undefined);
       setRequestBonusOption(null);
-      ref.current?.dismiss();
     }
-  }, [ref.current, props.open]);
+  }, [props.open]);
 
   useEffect(() => {
     if (!props.open) {

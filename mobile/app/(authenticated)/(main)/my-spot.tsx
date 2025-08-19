@@ -34,7 +34,7 @@ import { SheetTitle, Title } from '~/components/Title';
 import { User, UserAvatar, Users } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Sheet } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { useCancelBooking } from '~/endpoints/booking/cancel-spot-booking';
 import {
@@ -62,6 +62,7 @@ import { useAcceptBookingRequest } from '~/endpoints/requestBooking/accept-spot-
 import { Modal, ModalProps, ModalTitle } from '~/components/Modal';
 import { Rating } from '~/components/Rating';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
+import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
 
 export default function MySpotScreen() {
   const { t } = useTranslation();
@@ -330,7 +331,7 @@ function Countdown({ booking }: { booking: AvailabilityBooking }) {
       <CountdownCircleTimer
         strokeWidth={2}
         trailColor={colors.card}
-        size={55}
+        size={70}
         isPlaying={isActive}
         initialRemainingTime={isActive ? initialRemainingSeconds : durationSeconds}
         duration={durationSeconds}
@@ -342,20 +343,20 @@ function Countdown({ booking }: { booking: AvailabilityBooking }) {
             style={{
               color,
             }}>
-            {formatTime(
-              t,
-              secondsToMilliseconds(remainingTime),
-              [
-                {
-                  unit: 'hours',
-                },
-                {
-                  unit: 'minutes',
-                  hideSuffix: true,
-                },
-              ],
-              { separator: '' }
-            )}
+            {formatTime(t, secondsToMilliseconds(remainingTime), [
+              {
+                unit: 'days',
+                hideIfZero: true,
+                separator: ' ',
+              },
+              {
+                unit: 'hours',
+              },
+              {
+                unit: 'minutes',
+                hideSuffix: true,
+              },
+            ])}
           </Text>
         )}
       </CountdownCircleTimer>
@@ -365,7 +366,7 @@ function Countdown({ booking }: { booking: AvailabilityBooking }) {
 
 function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {
   const { t } = useTranslation();
-  const ref = useSheetRef();
+  const ref = useSheetRefWithState(props.open);
   const [lend, actionPending] = useLoading(useLendSpot(), {
     skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
     beforeMarkingComplete: () => props.onOpen(false),
@@ -401,14 +402,6 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
       true
     ).then(setSimulation);
   }, [fromDebounce, toDebounce]);
-
-  useEffect(() => {
-    if (props.open) {
-      ref.current?.present();
-    } else {
-      ref.current?.dismiss();
-    }
-  }, [ref.current, props.open]);
 
   function minTo(from: Date): Date {
     return addHours(from, MIN_DURATION_HOURS);

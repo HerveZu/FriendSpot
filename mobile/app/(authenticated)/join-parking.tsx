@@ -28,12 +28,13 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { ContentSheetView } from '~/components/ContentView';
 import { SheetTitle } from '~/components/Title';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Sheet } from '~/components/nativewindui/Sheet';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
 import { ParkingSpotCount } from '~/components/ParkingSpotCount';
+import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -215,17 +216,9 @@ function ConfirmJoinBottomSheet({
   const [lotName, setLotName] = useState('');
   const [defineSpot, isLoading] = useLoading(useDefineSpot(), { beforeMarkingComplete: onClose });
   const { refreshProfile } = useCurrentUser();
-  const bottomSheetModalRef = useSheetRef();
+  const bottomSheetModalRef = useSheetRefWithState(open);
   const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
   const { colors } = useColorScheme();
-
-  useEffect(() => {
-    if (open) {
-      bottomSheetModalRef.current?.present();
-    } else {
-      bottomSheetModalRef.current?.dismiss();
-    }
-  }, [open]);
 
   async function handleJoin() {
     await defineSpot({ parkingId: parking.id, lotName: lotName }).then(refreshProfile);

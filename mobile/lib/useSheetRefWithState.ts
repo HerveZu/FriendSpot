@@ -11,7 +11,7 @@ export function useSheetRefWithState(open: boolean): RefObject<BottomSheetModal 
     } else {
       ref.current?.dismiss();
     }
-  }, [ref.current, open]);
+  }, [open]);
 
   return ref;
 }

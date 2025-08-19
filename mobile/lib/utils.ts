@@ -85,27 +85,29 @@ export function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+type Unit = keyof Duration;
+
 export function formatTime(
   t: TFunction,
   timeMs: number,
-  keys: { unit: keyof Duration; hideSuffix?: boolean; hideIfZero?: boolean }[],
-  options?: { separator?: string }
+  keys: { unit: Unit; hideSuffix?: boolean; hideIfZero?: boolean; separator?: string }[]
 ): string {
   const remaining = intervalToDuration({
     start: 0,
     end: new Date(timeMs),
   });
 
-  const parts = keys.map(({ unit, hideSuffix, hideIfZero }) => {
-    const value = remaining[unit];
-    return value
-      ? `${value.toString().padStart(2, '0')}${!hideSuffix ? t(`common.timeSuffixes.${unit}`) : ''}`
-      : hideIfZero
+  const parts = keys.map(({ unit, hideSuffix, hideIfZero, separator }) => {
+    const value = remaining[unit] ?? 0;
+    const formattedValue =
+      hideIfZero && !value
         ? ''
-        : '00';
+        : `${value.toString().padStart(2, '0')}${hideSuffix ? '' : t(`common.timeSuffixes.${unit}`)}`;
+
+    return `${formattedValue}${separator ?? ''}`;
   });
 
-  return parts.join(options?.separator === undefined ? ' ' : options.separator);
+  return parts.join('');
 }
 
 export function chunk<T>(array: T[], size: number): T[][] {

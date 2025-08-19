@@ -1,12 +1,13 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useEffect } from 'react';
+import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction } from 'react';
 import { Pressable } from 'react-native';
 
 import { ContentSheetView } from '~/components/ContentView';
 import { List } from '~/components/List';
 import { SheetTitle } from '~/components/Title';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Sheet } from '~/components/nativewindui/Sheet';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
 
 export function ListSheet(
   props: {
@@ -17,15 +18,7 @@ export function ListSheet(
     setNextReservedSpot: Dispatch<SetStateAction<boolean>>;
   } & PropsWithChildren
 ) {
-  const ref = useSheetRef();
-
-  useEffect(() => {
-    if (props.open) {
-      ref.current?.present();
-    } else {
-      ref.current?.dismiss();
-    }
-  }, [ref.current, props.open]);
+  const ref = useSheetRefWithState(props.open);
 
   return (
     <Sheet
