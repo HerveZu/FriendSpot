@@ -710,6 +710,7 @@ function ParkingBottomSheet(props: {
 
   function selectParking(parking: ParkingResponse) {
     spotNameRef.current?.focus();
+    setSearch(parking.name);
     setSelectedParking(parking);
     setCurrentSpotName('');
   }
