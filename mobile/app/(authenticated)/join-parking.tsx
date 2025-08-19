@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { TouchableWithoutFeedback, Keyboard, SafeAreaView } from 'react-native';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
@@ -76,35 +77,49 @@ export default function JoinParking() {
   }
 
   return (
-    <View className="h-full items-center justify-around">
-      <View className="flex items-center justify-center gap-8 p-4">
-        <Text className="text-3xl font-bold">{t('user.parking.joinParking.title')}</Text>
-        <Text className="text-center text-base">{t('user.parking.joinParking.description')}</Text>
+    <View className="py-24">
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView className="h-full items-center gap-20">
+          <View className="flex items-center justify-center gap-8">
+            <Text className="text-3xl font-bold">{t('user.parking.joinParking.title')}</Text>
+            <Text className="text-center text-base">
+              {t('user.parking.joinParking.description')}
+            </Text>
 
-        <CodeEntry
-          code={code}
-          setCode={setCode}
-          error={!parking && code.length > 0 && !isSearching}
-        />
-      </View>
+            <CodeEntry
+              code={code}
+              setCode={setCode}
+              error={!parking && code.length > 0 && !isSearching}
+            />
+          </View>
 
-      <Button onPress={dismissCheckAndGo} variant={'tonal'} size={'md'}>
-        <Text>{t('user.parking.joinParking.dismissCheck')}</Text>
-        <ThemedIcon
-          name={'arrow-right'}
-          color={Platform.select({ ios: colors.primary })}
-          size={14}
-        />
-      </Button>
+          <View className="absolute bottom-0 px-4 pb-4">
+            <Button
+              onPress={dismissCheckAndGo}
+              variant={'tonal'}
+              size={'md'}
+              className="bg-primary/10 flex-row items-center justify-center gap-2 rounded-lg py-3">
+              <Text className="font-medium text-primary">
+                {t('user.parking.joinParking.dismissCheck')}
+              </Text>
+              <ThemedIcon
+                name={'arrow-right'}
+                color={Platform.select({ ios: colors.primary })}
+                size={14}
+              />
+            </Button>
+          </View>
 
-      {parking && (
-        <ConfirmJoinBottomSheet
-          open={confirmModalOpen}
-          onJoin={dismissCheckAndGo}
-          onClose={resetCode}
-          parking={parking}
-        />
-      )}
+          {parking && (
+            <ConfirmJoinBottomSheet
+              open={confirmModalOpen}
+              onJoin={dismissCheckAndGo}
+              onClose={resetCode}
+              parking={parking}
+            />
+          )}
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </View>
   );
 }
