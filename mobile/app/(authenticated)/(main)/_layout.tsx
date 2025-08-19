@@ -66,6 +66,7 @@ export default function MainLayout() {
                 component={FontAwesome6}
                 size={24}
                 focused={focused}
+                activeWithNoSpot
                 info={t('tabs.upgrade')}
               />
             ),
@@ -76,7 +77,7 @@ export default function MainLayout() {
           name="user-profile"
           options={{
             tabBarIcon: ({ focused }) => (
-              <Tab info={t('tabs.profile')}>
+              <Tab info={t('tabs.profile')} activeWithNoSpot>
                 <MeAvatar
                   className={cn('aspect-square h-7', focused && 'border-2 border-primary')}
                 />
@@ -97,10 +98,10 @@ function TabIcon<TGlyph extends string>({
 }: { focused?: boolean } & TabProps & ThemedIconProps<TGlyph>) {
   const { colors } = useColorScheme();
   const { userProfile } = useCurrentUser();
-  const disabled = !userProfile.spot;
+  const disabled = !props.activeWithNoSpot && !userProfile.spot;
 
   return (
-    <Tab info={info}>
+    <Tab info={info} {...props}>
       <ThemedIcon
         color={disabled ? colors.grey6 : focused ? colors.primary : colors.grey}
         size={24}
@@ -110,11 +111,11 @@ function TabIcon<TGlyph extends string>({
   );
 }
 
-type TabProps = PropsWithChildren<{ info?: string }>;
+type TabProps = PropsWithChildren<{ info?: string; activeWithNoSpot?: boolean }>;
 
-function Tab({ children, info }: TabProps) {
+function Tab({ children, info, activeWithNoSpot }: TabProps) {
   const { userProfile } = useCurrentUser();
-  const disabled = !userProfile.spot;
+  const disabled = !activeWithNoSpot && !userProfile.spot;
 
   return (
     <View className="flex-1 items-center">
