@@ -369,23 +369,23 @@ export function LogoutConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
         <ModalTitle text={t('account.logoutConfirmation')} icon={<ThemedIcon name={'warning'} />} />
-        <View className="mt-4 w-full flex-row justify-between gap-4">
-          <Button
-            className={'grow'}
-            size={'lg'}
-            variant="tonal"
-            onPress={() => onVisibleChange(false)}>
-            <Text className={'text-primary'}>{t('common.back')}</Text>
-          </Button>
-          <Button className={'grow'} variant={'plain'} size={'lg'} onPress={() => handleLogout()}>
-            {loggingOut ? (
-              <ActivityIndicator color={colors.destructive} />
-            ) : (
-              <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
-            )}
-            <Text className={'text-destructive'}>{t('common.logout')}</Text>
-          </Button>
-        </View>
+        <ExpandRow className="mt-4">
+          <ExpandItem>
+            <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
+              <Text className={'text-primary'}>{t('common.back')}</Text>
+            </Button>
+          </ExpandItem>
+          <ExpandItem>
+            <Button variant={'plain'} size={'lg'} onPress={() => handleLogout()}>
+              {loggingOut ? (
+                <ActivityIndicator color={colors.destructive} />
+              ) : (
+                <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
+              )}
+              <Text className={'text-destructive'}>{t('common.logout')}</Text>
+            </Button>
+          </ExpandItem>
+        </ExpandRow>
       </Modal>
       {children}
     </>

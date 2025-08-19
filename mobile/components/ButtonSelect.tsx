@@ -1,6 +1,6 @@
-import { View } from 'react-native';
 import { Button } from '~/components/nativewindui/Button';
 import { ReactNode } from 'react';
+import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
 
 export function ButtonSelect<TOption>(props: {
   selectedOption: TOption | null;
@@ -8,21 +8,21 @@ export function ButtonSelect<TOption>(props: {
   options: { key: TOption; label: (selected: boolean) => ReactNode }[];
 }) {
   return (
-    <View className={'flex-row justify-between gap-2'}>
+    <ExpandRow className={'flex-row justify-between gap-2'}>
       {props.options.map((option, i) => {
         const isSelected = props.selectedOption === option.key;
         return (
-          <Button
-            key={i}
-            variant={isSelected ? 'primary' : 'tonal'}
-            className={'grow'}
-            onPress={() =>
-              isSelected ? props.setSelectedOption(null) : props.setSelectedOption(option.key)
-            }>
-            {option.label(isSelected)}
-          </Button>
+          <ExpandItem key={i}>
+            <Button
+              variant={isSelected ? 'primary' : 'tonal'}
+              onPress={() =>
+                isSelected ? props.setSelectedOption(null) : props.setSelectedOption(option.key)
+              }>
+              {option.label(isSelected)}
+            </Button>
+          </ExpandItem>
         );
       })}
-    </View>
+    </ExpandRow>
   );
 }

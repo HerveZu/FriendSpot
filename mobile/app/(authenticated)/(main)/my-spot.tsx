@@ -172,8 +172,8 @@ function AcceptRequestModal({
         <Text>
           {t('lending.acceptRequest.description', {
             requester: request.requester.displayName,
-            from: format(request.from, 'PPpp'),
-            to: format(request.to, 'PPpp'),
+            from: format(request.from, 'PPp'),
+            to: format(request.to, 'PPp'),
           })}
         </Text>
         <Button disabled={isAccepting} onPress={() => acceptRequest(request.id)}>
@@ -262,7 +262,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
           <ScrollView>
             <View className="flex-col gap-1">
               {props.availability.bookings.map((booking) => (
-                <BookingCard key={booking.id} spotId={props.spotId} booking={booking} />
+                <AvailabilityBookingCard key={booking.id} spotId={props.spotId} booking={booking} />
               ))}
             </View>
           </ScrollView>
@@ -270,96 +270,97 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
       </Card>
     </Deletable>
   );
+}
 
-  function BookingCard(props: { spotId: string; booking: AvailabilityBooking }) {
-    const now = useActualTime(30_000);
-    const cancelBooking = useRefreshOnSuccess(useCancelBooking());
+function AvailabilityBookingCard(props: { spotId: string; booking: AvailabilityBooking }) {
+  const now = useActualTime(30_000);
+  const { t } = useTranslation();
+  const cancelBooking = useRefreshOnSuccess(useCancelBooking());
 
-    const isCurrently = useMemo(() => {
-      return isWithinInterval(now, {
-        start: new Date(props.booking.from),
-        end: new Date(props.booking.to),
-      });
-    }, [props.booking.from, props.booking.to, now]);
+  const isCurrently = useMemo(() => {
+    return isWithinInterval(now, {
+      start: new Date(props.booking.from),
+      end: new Date(props.booking.to),
+    });
+  }, [props.booking.from, props.booking.to, now]);
 
-    function Countdown() {
-      const { colors } = useColorScheme();
-      const initialRemainingSeconds = useMemo(
-        () => differenceInSeconds(props.booking.to, new Date()),
-        []
-      );
-      const durationSeconds = useMemo(() => toSeconds(parseDuration(props.booking.duration)), []);
-      const isActive = useMemo(
-        () => new Date(props.booking.from).getTime() <= now.getTime(),
-        [props.booking.from, now]
-      );
-
-      return (
-        <View style={{ opacity: isActive ? 1 : 0.4 }} className={'flex-col justify-center'}>
-          <CountdownCircleTimer
-            strokeWidth={2}
-            trailColor={colors.card}
-            size={55}
-            isPlaying={isActive}
-            initialRemainingTime={isActive ? initialRemainingSeconds : durationSeconds}
-            duration={durationSeconds}
-            colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
-            colorsTime={[0.25 * durationSeconds, 0.75 * durationSeconds]}>
-            {({ remainingTime, color }) => (
-              <Text
-                className={'text-xs font-bold'}
-                style={{
-                  color,
-                }}>
-                {formatTime(
-                  t,
-                  secondsToMilliseconds(remainingTime),
-                  [
-                    {
-                      unit: 'hours',
-                    },
-                    {
-                      unit: 'minutes',
-                      hideSuffix: true,
-                    },
-                  ],
-                  { separator: '' }
-                )}
-              </Text>
-            )}
-          </CountdownCircleTimer>
-        </View>
-      );
-    }
-
-    return (
-      <Deletable
-        className="rounded-xl"
-        canDelete={props.booking.canCancel}
-        onDelete={() => cancelBooking(props.spotId, props.booking.id)}>
-        <Card className="bg-background">
-          <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
-            <View className={'flex-col gap-4'}>
-              <User
-                displayName={props.booking.bookedBy.displayName}
-                pictureUrl={props.booking.bookedBy.pictureUrl}
-              />
-              {isCurrently && (
-                <View>
-                  <View className="flex-row items-center gap-2">
-                    <BlinkingDot />
-                    <Text className="text-xs">{t('lending.currentlyUsingSpot')}</Text>
-                  </View>
+  return (
+    <Deletable
+      className="rounded-xl"
+      canDelete={props.booking.canCancel}
+      onDelete={() => cancelBooking(props.spotId, props.booking.id)}>
+      <Card className="bg-background">
+        <View className={cn('flex-row justify-between', !isCurrently && 'opacity-60')}>
+          <View className={'flex-col gap-4'}>
+            <User
+              displayName={props.booking.bookedBy.displayName}
+              pictureUrl={props.booking.bookedBy.pictureUrl}
+            />
+            {isCurrently && (
+              <View>
+                <View className="flex-row items-center gap-2">
+                  <BlinkingDot />
+                  <Text className="text-xs">{t('lending.currentlyUsingSpot')}</Text>
                 </View>
-              )}
-              <DateRangeOnly from={props.booking.from} to={props.booking.to} />
-            </View>
-            {isCurrently && <Countdown />}
+              </View>
+            )}
+            <DateRangeOnly from={props.booking.from} to={props.booking.to} />
           </View>
-        </Card>
-      </Deletable>
-    );
-  }
+          {isCurrently && <Countdown booking={props.booking} />}
+        </View>
+      </Card>
+    </Deletable>
+  );
+}
+
+function Countdown({ booking }: { booking: AvailabilityBooking }) {
+  const { t } = useTranslation();
+  const now = useActualTime(30_000);
+  const { colors } = useColorScheme();
+
+  const initialRemainingSeconds = useMemo(() => differenceInSeconds(booking.to, new Date()), []);
+  const durationSeconds = useMemo(() => toSeconds(parseDuration(booking.duration)), []);
+  const isActive = useMemo(
+    () => new Date(booking.from).getTime() <= now.getTime(),
+    [booking.from, now]
+  );
+
+  return (
+    <View style={{ opacity: isActive ? 1 : 0.4 }} className={'flex-col justify-center'}>
+      <CountdownCircleTimer
+        strokeWidth={2}
+        trailColor={colors.card}
+        size={55}
+        isPlaying={isActive}
+        initialRemainingTime={isActive ? initialRemainingSeconds : durationSeconds}
+        duration={durationSeconds}
+        colors={[rgbToHex(colors.primary), rgbToHex(colors.destructive)]}
+        colorsTime={[0.25 * durationSeconds, 0.75 * durationSeconds]}>
+        {({ remainingTime, color }) => (
+          <Text
+            className={'text-xs font-bold'}
+            style={{
+              color,
+            }}>
+            {formatTime(
+              t,
+              secondsToMilliseconds(remainingTime),
+              [
+                {
+                  unit: 'hours',
+                },
+                {
+                  unit: 'minutes',
+                  hideSuffix: true,
+                },
+              ],
+              { separator: '' }
+            )}
+          </Text>
+        )}
+      </CountdownCircleTimer>
+    </View>
+  );
 }
 
 function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {

@@ -77,11 +77,11 @@ export function Tab(
   return (
     <TabContext.Provider value={{ isFocused }}>
       {/*extra view needed for android*/}
-      <View className={'grow'}>
+      <View className={'grow self-center'}>
         <Button
           disabled={props.disabled}
-          variant={isFocused ? 'tonal' : 'plain'}
           className={'grow'}
+          variant={isFocused ? 'tonal' : 'plain'}
           onPress={() => setSelectedTab(props.index)}>
           {props.preview}
           {isFocused && props.children}
