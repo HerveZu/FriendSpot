@@ -243,6 +243,7 @@
   },
   "upgrade": {
     "title": "FriendSpot+",
+    "tag": "Prochainement",
     "plans": {
       "periods": {
         "monthly": "/mois",

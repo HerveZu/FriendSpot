@@ -60,7 +60,7 @@ export default function FriendspotPlus() {
   return (
     <ScreenWithHeader>
       <ScreenTitle title={t('upgrade.title')} wallet={false}>
-        <Tag text={'Coming soon'}></Tag>
+        <Tag text={t('upgrade.tag')}></Tag>
       </ScreenTitle>
       <View className={'flex-col gap-6'}>
         {plans.map((plan, i) => (
