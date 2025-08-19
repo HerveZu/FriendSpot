@@ -512,7 +512,7 @@ function ParkingModal(props: {
   const [lotName, setLotName] = useState<string>('');
   const { colors } = useColorScheme();
   const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
-  const [defineSpot, isUpdating] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
+  const [defineSpot, isJoiningGroup] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
   const { t } = useTranslation();
@@ -549,7 +549,7 @@ function ParkingModal(props: {
   };
 
   const isSubmitting = {
-    create: isCreating,
+    create: isCreating || isJoiningGroup,
     edit: isEditing,
   };
 
