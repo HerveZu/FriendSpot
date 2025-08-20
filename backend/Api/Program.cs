@@ -30,66 +30,59 @@ builder.Services
     .ConfigureAndValidate<S3Options>()
     .ConfigureAndValidate<CorsOptions>()
     .ConfigureAndValidate<ExpoOptions>()
+    .ConfigureAndValidate<DeeplinkOptions>()
     .AddHttpClient()
     .AddScoped<INotificationPushService, ExpoPushNotificationService>()
     .AddScoped<IStartupService, MigrateDb>()
-    .AddMediatR(
-        x => { x.RegisterServicesFromAssemblyContaining<Program>(); })
+    .AddMediatR(x => { x.RegisterServicesFromAssemblyContaining<Program>(); })
     .AddDbContext<AppDbContext>()
-    .AddQuartz(
-        x =>
-        {
-            var postgresOptions = builder.Configuration.GetOptions<PostgresOptions>();
+    .AddQuartz(x =>
+    {
+        var postgresOptions = builder.Configuration.GetOptions<PostgresOptions>();
 
-            x.UsePersistentStore(
-                options =>
-                {
-                    options.UseNewtonsoftJsonSerializer();
-                    options.UseClustering();
-                    options.UsePostgres(
-                        postgres =>
-                        {
-                            postgres.ConnectionString = postgresOptions.ConnectionString;
-                            postgres.TablePrefix = "quartz.qrtz_";
-                        });
-                });
-        })
+        x.UsePersistentStore(options =>
+        {
+            options.UseNewtonsoftJsonSerializer();
+            options.UseClustering();
+            options.UsePostgres(postgres =>
+            {
+                postgres.ConnectionString = postgresOptions.ConnectionString;
+                postgres.TablePrefix = "quartz.qrtz_";
+            });
+        });
+    })
     .AddQuartzHostedService(x => x.WaitForJobsToComplete = true)
     .AddFastEndpoints()
     .AddOpenApi()
     .AddCors()
-    .ConfigureHttpJsonOptions(
-        options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+    .ConfigureHttpJsonOptions(options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Services
     .AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services
     .AddAuthorization()
-    .AddAuthentication(
-        options =>
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://securetoken.google.com/friendspot-app";
+        options.Audience = "friendspot-app";
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-    .AddJwtBearer(
-        options =>
-        {
-            options.Authority = "https://securetoken.google.com/friendspot-app";
-            options.Audience = "friendspot-app";
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                NameClaimType = ClaimTypes.NameIdentifier
-            };
-        });
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            NameClaimType = ClaimTypes.NameIdentifier
+        };
+    });
 
 builder.Host
-    .UseSerilog(
-        (_, _, loggerConfiguration) =>
+    .UseSerilog((_, _, loggerConfiguration) =>
         {
             loggerConfiguration
                 .Enrich.FromLogContext()
@@ -110,36 +103,33 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors(
-    options =>
+app.UseCors(options =>
+{
+    var cors = options
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+
+    if (app.Environment.IsDevelopment())
     {
-        var cors = options
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        cors.AllowAnyOrigin();
+        return;
+    }
 
-        if (app.Environment.IsDevelopment())
-        {
-            cors.AllowAnyOrigin();
-            return;
-        }
-
-        var corsOptions = app.Services.GetRequiredService<IOptions<CorsOptions>>();
-        cors.SetIsOriginAllowed(corsOptions.Value.AllowedOrigins.Contains);
-    });
+    var corsOptions = app.Services.GetRequiredService<IOptions<CorsOptions>>();
+    cors.SetIsOriginAllowed(corsOptions.Value.AllowedOrigins.Contains);
+});
 
 app
     .UseHttpsRedirection()
     .UseAuthentication()
     .UseAuthorization()
-    .UseFastEndpoints(
-        config => config.Endpoints.Configurator = ep =>
-        {
-            ep.PreProcessor<EnsureUserExists>(Order.After);
-            ep.PostProcessor<ReturnBusinessErrors>(Order.Before);
+    .UseFastEndpoints(config => config.Endpoints.Configurator = ep =>
+    {
+        ep.PreProcessor<EnsureUserExists>(Order.After);
+        ep.PostProcessor<ReturnBusinessErrors>(Order.Before);
 
-            ep.Options(
-                routeBuilder => routeBuilder
-                    .AddEndpointFilter<RunInTransaction>());
-        });
+        ep.Options(routeBuilder => routeBuilder
+            .AddEndpointFilter<RunInTransaction>());
+    });
 
 await app.RunAsync();

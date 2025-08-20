@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { useApiRequest } from '~/endpoints/use-api-request';
+import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 
 export type UserProfile = {
   readonly id: string;
@@ -17,23 +18,8 @@ export type UserProfile = {
 
 export type UserSpot = {
   readonly id: string;
-  readonly currentlyAvailable: boolean;
   readonly name: string;
-  readonly nextAvailability: null | Date;
-  readonly nextUse: null | Date;
-  readonly lastUse: null | Date;
-  readonly parking: {
-    readonly id: string;
-    readonly name: string;
-    readonly address: string;
-  };
-  readonly currentlyUsedBy?: {
-    readonly id: string;
-    readonly displayName: string;
-    readonly pictureUrl: string;
-    readonly usingSince: Date;
-    readonly usingUntil: Date;
-  };
+  readonly parking: ParkingResponse;
 };
 
 export type BookingToRate = {

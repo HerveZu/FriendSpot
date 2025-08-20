@@ -15,16 +15,18 @@ export function Rating({
   const percent = rating / stars;
 
   return (
-    <View className={cn('min-w-0 flex-row items-center gap-2', className)} {...props}>
+    <View
+      className={cn('min-w-0 flex-row items-center justify-center gap-2', className)}
+      {...props}>
       {displayRating && (
-        <Text className="shrink-0 font-bold" style={{ color: color }}>
+        <Text className="shrink-0 text-base" style={{ color: color }}>
           {rating.toFixed(1)}
         </Text>
       )}
       <View className="relative">
         <View className="flex-row gap-1">
           {[...new Array(stars).keys()].map((i) => (
-            <ThemedIcon key={i} name="star-o" color={color} size={24} />
+            <ThemedIcon key={i} name="star-o" color={color} size={20} />
           ))}
         </View>
         <View className="absolute left-0">
@@ -34,7 +36,7 @@ export function Rating({
               width: `${100 * percent}%`,
             }}>
             {[...new Array(stars).keys()].map((i) => (
-              <ThemedIcon key={i} name="star" color={color} size={24} />
+              <ThemedIcon key={i} name="star" color={color} size={20} />
             ))}
           </View>
         </View>

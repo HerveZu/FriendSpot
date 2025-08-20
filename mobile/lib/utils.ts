@@ -1,5 +1,6 @@
-import { Duration } from 'date-fns';
+import { Duration, intervalToDuration } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
+import { TFunction } from 'i18next';
 
 export function capitalize(val: string) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -82,4 +83,35 @@ export function fromUtc(date: string | Date): Date {
 
 export function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+type Unit = keyof Duration;
+
+export function formatTime(
+  t: TFunction,
+  timeMs: number,
+  keys: { unit: Unit; hideSuffix?: boolean; hideIfZero?: boolean; separator?: string }[]
+): string {
+  const remaining = intervalToDuration({
+    start: 0,
+    end: new Date(timeMs),
+  });
+
+  const parts = keys.map(({ unit, hideSuffix, hideIfZero, separator }) => {
+    const value = remaining[unit] ?? 0;
+    const formattedValue =
+      hideIfZero && !value
+        ? ''
+        : `${value.toString().padStart(2, '0')}${hideSuffix ? '' : t(`common.timeSuffixes.${unit}`)}`;
+
+    return `${formattedValue}${separator ?? ''}`;
+  });
+
+  return parts.join('');
+}
+
+export function chunk<T>(array: T[], size: number): T[][] {
+  return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+    array.slice(i * size, i * size + size)
+  );
 }

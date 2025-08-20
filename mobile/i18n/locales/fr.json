@@ -21,7 +21,7 @@
       }
     },
     "mailConfirmation": {
-      "title": "Vérifie ta boîte mail !",
+      "title": "Vérifie ta boîte mail",
       "description": "Nous avons besoin que tu confirmes ton adresse e-mail pour finaliser ton inscription.",
       "noEmailReceived": "Aucun email de reçu ?",
       "clickHere": "Clique ici."
@@ -42,7 +42,9 @@
       "errors": {
         "emailAlreadyInUse": "Cette adresse e-mail est déjà utilisée.",
         "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
-        "passwordsDoNotMatch": "Les mots de passes ne sont pas identiques."
+        "passwordsDoNotMatch": "Les mots de passes ne sont pas identiques.",
+        "emailNotVerified": "Merci de vérifier ton adresse e-mail.\nPense à consulter tes spams si tu ne trouves pas notre message.",
+        "emailRequestPending": "Ta demande d'e-mail est en cours de traitement."
       },
       "confirmPrivacyPolicy": {
         "part1": "Je confirme avoir lu et accepter",
@@ -52,30 +54,43 @@
   },
   "common": {
     "submit": "Valider",
+    "done": "C'est fait !",
     "cancel": "Annuler",
     "back": "Retour",
     "next": "Suivant",
     "save": "Enregistrer",
     "delete": "Supprimer",
-    "logout": "Se déconnecter",
+    "logout": "Déconnexion",
     "other": "Autre",
     "search": "Rechercher",
     "return": "Retour",
     "spot": {
       "name": "{{parking}} [Spot n° {{number}}]",
       "number": "Spot n° {{number}}",
-      "numberLabel": "Spot n°"
+      "numberLabel": "Numéro de mon spot",
+      "numberLabelBooking": "Numéro du spot réservé"
+    },
+    "timeSuffixes": {
+      "days": "j",
+      "hours": "h",
+      "minutes": "m",
+      "seconds": "s"
     }
+  },
+  "tabs": {
+    "mySpot": "Mon spot",
+    "search": "Réserver",
+    "profile": "Profile",
+    "upgrade": "FriendSpot+"
   },
   "welcome": {
     "welcomeTo": "Bienvenue sur"
   },
   "user": {
     "profile": {
-      "noAddressDefined": "Aucune adresse parking définie",
-      "title": "Mon profil",
-      "mySpot": "Mon spot",
-      "noParkingDefined": "Aucun nom de parking de défini",
+      "noAddressDefined": "Aucune information de groupe définie",
+      "mySpot": "Mon groupe",
+      "noParkingDefined": "Aucun groupe sélectionné !",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
       "deleteAccount": "Supprimer mon compte",
@@ -85,21 +100,59 @@
       "editAvatar": "Modifier l'avatar",
       "logout": "Se déconnecter",
       "logoutConfirmation": "Se déconnecter",
-      "randomParking": "Mon parking {{number}}"
+      "parameter": {
+        "title": "Paramètres",
+        "cardTitle": "Ouvrir mes paramètres"
+      }
     },
     "parking": {
-      "cantFindParking": "Tu ne trouves pas ton parking ? Créé le maintenant !",
-      "searchParking": "Rechercher un parking",
-      "noMatchingParking": "Aucun parking ne correspond à «{{search}}».",
-      "createParking": "Créer un parking",
-      "editParking": "Modifier un parking",
-      "parkingName": "Mon parking",
-      "parkingAddress": "Chemin de mon parking",
+      "openOptions": {
+        "title": {
+          "noGroup": "Rejoins un groupe"
+        },
+        "searchGroup": "Chercher un groupe",
+        "joinWithCode": "Code de groupe",
+        "createParking": "Nouveau groupe",
+        "leave": "Quitter le groupe"
+      },
+      "noMatchingParking": "Aucun groupe ne correspond à « {{search}} ».",
+      "editParking": "Modifier un groupe",
+      "parkingName": "Mon groupe",
+      "memberMaxCount": "{{memberCount}} membres pourront le rejoindre.",
+      "parkingAddress": "Information complémentaire",
+      "parkingLotname": "Mon numéro de spot",
       "create": "Créer {{name}}",
       "save": "Enregistrer",
       "cars": "voitures",
       "confirmDelete": "Supprimer",
-      "cancelDelete": "Annuler"
+      "cancelDelete": "Annuler",
+      "share": {
+        "button": "Partager",
+        "title": "Partage ton groupe de stationnement FriendSpot avec tes voisins",
+        "message": "Salut ! Rejoins notre groupe de stationnement entre voisins sur FriendSpot. Utilise le code {{code}}."
+      },
+      "noParkingPopup": {
+        "body": "Pour utiliser l’application, tu dois rejoindre un groupe existant ou en créer un.",
+        "callToAction": "D'accord !"
+      },
+      "confirmLeaveGroup": {
+        "title": "Quitter {{groupName}}",
+        "description": "En quittant ce groupe, toutes les réservations associées à votre spot seront annulées.",
+        "leaveAndChangeGroup": "Attention, tu t'apprêtes à quitter ton groupe actuel pour en rejoindre un nouveau.",
+        "confirm": "Quitter"
+      },
+      "joinParking": {
+        "title": "Code de groupe",
+        "description": "Rejoins un groupe de stationnement existant en utilisant un code d'invitation.",
+        "dismissCheck": "Je n'ai pas de code de groupe",
+        "join": "Rejoindre",
+        "full": "Plein",
+        "spot": {
+          "title": "Quel est ton numéro de spot ?",
+          "placeholder": "Numéro de spot",
+          "description": "Indique le numéro ou le nom de ton spot dans ce groupe."
+        }
+      }
     }
   },
   "mySpot": {
@@ -129,7 +182,7 @@
     "reserveFrom": "Réserver du",
     "reserveUntil": "Jusqu'au",
     "reserve": "Réserver",
-    "reserveForCredits": "Réserver pour {{credits}} crédits",
+    "reserveForCredits": "Réserver pour {{credits}} points",
     "now": "Maintenant",
     "occupyingSpot": "Tu occupes ce spot",
     "occupyingSpots": "Tu occupes ces {{count}} spots",
@@ -159,7 +212,7 @@
       "title": "Besoin d’une place ?",
       "details": "Aucune place n’est disponible pour le moment. Faites savoir que vous cherchez.",
       "bonus": "Ajouter un bonus",
-      "requestForCredits": "Demander un spot pour {{credits}} crédits",
+      "requestForCredits": "Demander un spot pour {{credits}} points",
       "request": "Demander un spot",
       "card": {
         "title": "Demande de spot"
@@ -180,21 +233,53 @@
     "spotAlreadyShared": "Ta place est déjà partagée,\nsa disponibilité s'étend si tu ajoutes des créneaux.",
     "lendFrom": "Prêter du",
     "lendUntil": "Jusqu'au",
-    "lendAndEarnCredits": "Prêter et gagner jusqu'à {{credits}} crédits",
+    "lendAndEarnCredits": "Prêter et gagner jusqu'à {{credits}} points",
     "tabs": {
       "myLendings": "Mes prêts",
       "neighboursRequests": "Demandes de spot"
     },
     "acceptRequest": {
       "description": "En acceptant, votre spot sera prêté à {{requester}} du {{from}} au {{to}}.",
-      "accept": "Accepter pour {{credits}} crédits"
+      "accept": "Accepter pour {{credits}} points"
+    }
+  },
+  "upgrade": {
+    "title": "FriendSpot+",
+    "tag": "Prochainement",
+    "plans": {
+      "periods": {
+        "monthly": "/mois",
+        "perUserMonthly": "/mois par utilisateur"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Débloquez un potentiel de stationnement illimité.",
+        "features": "Durée illimitée par réservation;Demandes de partage de place de stationnement;Support basique",
+        "upgradeButton": "Mettre à niveau"
+      },
+      "neighbourhood": {
+        "name": "Quartier",
+        "description": "Pour les quartiers et les communautés.",
+        "features": "Jusqu'à 50 membres par groupe;Gestion de groupe avancée;Support dédié",
+        "upgradeButton": "Créer un groupe"
+      },
+      "custom": {
+        "name": "Personnalisé",
+        "description": "Bénéficiez de fonctionnalités personnalisées et adaptées à vos besoins. Contactez-nous dès aujourd'hui !",
+        "features": "Tout ce qui est inclu dans Quartier;Membres du groupe illimités;Fonctionnalités personnalisées",
+        "upgradeButton": "Nous contacter"
+      }
     }
   },
   "wallet": {
-    "howItWorks": "Comment ça marche ?",
-    "availableCreditsExplanation": "Utilise ces crédits pour réserver un spot disponible.",
-    "pendingCreditsExplanation": "Crédits qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.",
-    "creditInfo": "Info : Prêter ou réserver 1h = 1 crédit."
+    "title": "Mes points",
+    "availableCreditsExplanation": "Utilise ces points pour réserver un spot disponible.",
+    "pendingCreditsExplanation": "Les points qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.",
+    "creditInfo": "Info : Prêter ou réserver 1h = 1 point.",
+    "point": {
+      "one": "point",
+      "other": "points"
+    }
   },
   "rating": {
     "bookingCompleted": {
@@ -211,8 +296,11 @@
     "otaPatch": "Patch OTA appliqué {{time}}",
     "noOtaPatch": "Aucun patch OTA"
   },
-  "account": {
-    "logout": "Se déconnecter",
-    "logoutConfirmation": "Se déconnecter"
+  "widget": {
+    "liveTimer": {
+      "ended": "Cette réservation est terminée",
+      "title": "Spot n°{{spotName}} de {{owner}}",
+      "description": "Fin le {{endDate}}."
+    }
   }
 }

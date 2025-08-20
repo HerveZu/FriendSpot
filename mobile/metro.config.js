@@ -9,6 +9,7 @@ const createConfig = () => {
 
   config.transformer = {
     ...transformer,
+    assetPlugins: ['expo-asset/tools/hashAssetFiles'],
     babelTransformerPath: require.resolve('react-native-svg-transformer'),
   };
   config.resolver = {
@@ -20,5 +21,6 @@ const createConfig = () => {
 };
 
 const config = createConfig();
+config.resolver.unstable_enablePackageExports = false;
 
 module.exports = withNativeWind(config, { input: './global.css', inlineRem: 16 });

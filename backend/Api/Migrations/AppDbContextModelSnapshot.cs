@@ -510,6 +510,10 @@ namespace Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -520,6 +524,9 @@ namespace Api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.HasIndex("OwnerId");
 
@@ -762,7 +769,17 @@ namespace Api.Migrations
                 {
                     b.OwnsMany("Domain.Users.UserDevice", "UserDevices", b1 =>
                         {
+                            b1.Property<string>("UserIdentity")
+                                .HasColumnType("text");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
                             b1.Property<string>("DeviceId")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.Property<string>("ExpoPushToken")
@@ -779,13 +796,10 @@ namespace Api.Migrations
                             b1.Property<bool>("UniquenessNotGuaranteed")
                                 .HasColumnType("boolean");
 
-                            b1.Property<string>("UserIdentity")
-                                .IsRequired()
-                                .HasColumnType("text");
+                            b1.HasKey("UserIdentity", "Id");
 
-                            b1.HasKey("DeviceId");
-
-                            b1.HasIndex("UserIdentity");
+                            b1.HasIndex("DeviceId")
+                                .IsUnique();
 
                             b1.ToTable("UserDevice");
 

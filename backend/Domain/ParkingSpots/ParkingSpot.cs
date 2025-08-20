@@ -35,6 +35,11 @@ public sealed record ParkingSpotBookingCompleted : IDomainEvent
     public required string OwnerId { get; init; }
 }
 
+public sealed record ParkingSpotLeft : IDomainEvent
+{
+    public required Guid SpotId { get; init; }
+}
+
 public sealed class ParkingSpot : IAggregateRoot
 {
     private readonly List<ParkingSpotAvailability> _availabilities = [];
@@ -87,10 +92,28 @@ public sealed class ParkingSpot : IAggregateRoot
         return new ParkingSpot(Guid.CreateVersion7(), ownerId, parkingId, new SpotName(spotName));
     }
 
-    public void ChangeSpotName(Guid parkingId, string newSpotName)
+    public void ChangeSpot(Guid parkingId, string newSpotName)
     {
-        ParkingId = parkingId;
+        if (parkingId != ParkingId)
+        {
+            ParkingId = parkingId;
+            _domainEvents.RegisterNext(
+                new ParkingSpotLeft
+                {
+                    SpotId = Id
+                });
+        }
+
         SpotName = new SpotName(newSpotName);
+    }
+
+    public void Leave()
+    {
+        _domainEvents.RegisterNext(
+            new ParkingSpotLeft
+            {
+                SpotId = Id
+            });
     }
 
     public (ParkingSpotBooking Booking, Credits cost) Book(

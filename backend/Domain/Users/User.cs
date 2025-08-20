@@ -83,9 +83,8 @@ public sealed class User : IAggregateRoot
             return;
         }
 
-        // as the device id is not guaranteed to be unique,
-        // there's a risk that an existing device whose id is neither
-        // guaranteed to be unique and represents the same physical device
+        // as many device ids can represent the same physical device,
+        // we have to delete all devices that might conflict (when: uniquenessNotGuaranteed)
 
         // To prevent duplicate devices, we need to remove all potential duplicated devices
         if (uniquenessNotGuaranteed)
@@ -141,7 +140,11 @@ internal sealed class UserConfig : IEntityConfiguration<User>
             x => x.UserDevices,
             deviceBuilder =>
             {
-                deviceBuilder.HasKey(x => x.DeviceId);
+                // not a pk as the device might be deleted and created again in the same transaction
+                // when transferring the device to someone else
+                deviceBuilder.Property(x => x.DeviceId);
+                deviceBuilder.HasIndex(x => x.DeviceId).IsUnique();
+
                 deviceBuilder.Property(x => x.UniquenessNotGuaranteed);
                 deviceBuilder.Property(x => x.ExpoPushToken);
                 deviceBuilder

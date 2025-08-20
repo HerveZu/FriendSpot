@@ -1,7 +1,6 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from 'react';
 import { Falsy } from 'react-native';
-
-import { useCurrentUser } from '~/authentication/UserProvider';
+import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 
 type UseFetchResponse<TResponse> = [
   TResponse | undefined,
@@ -16,10 +15,11 @@ export function useHookFetch<TResponse>(
 ): UseFetchResponse<TResponse> {
   const fetchData = dataHook();
 
-  // this closure magic makes it work
+  // this closure magic makes it work with hooks somehow :)
   return useFetch(() => fetchData(), deps, withRefresh);
 }
 
+// this won't work when using hooks as fetchData, use useHookFetch instead
 export function useFetch<TResponse>(
   fetchData: () => Promise<TResponse> | Falsy,
   deps: unknown[],
@@ -27,7 +27,7 @@ export function useFetch<TResponse>(
 ): UseFetchResponse<TResponse> {
   const [data, setData] = useState<TResponse>();
   const [loading, setLoading] = useState(false);
-  const { refreshTrigger } = useCurrentUser();
+  const { refreshTrigger } = useContext(RefreshTriggerContext);
 
   const callback = useCallback(fetchData, [...deps, withRefresh && refreshTrigger]);
 
@@ -77,12 +77,12 @@ export function useLoading<TArgs extends unknown[], TResponse>(
 export function useRefreshOnSuccess<TArgs extends unknown[], TResponse>(
   apiRequest: (...args: TArgs) => Promise<TResponse>
 ): (...args: TArgs) => Promise<TResponse> {
-  const { refreshProfile } = useCurrentUser();
+  const { triggerRefresh } = useContext(RefreshTriggerContext);
 
   return useCallback(
     async (...args: TArgs) => {
       const result = await apiRequest(...args);
-      await refreshProfile();
+      triggerRefresh();
       return result;
     },
     [apiRequest]

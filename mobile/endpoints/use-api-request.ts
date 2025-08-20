@@ -1,13 +1,10 @@
-import { getIdToken } from '@firebase/auth';
+import { getIdToken } from 'firebase/auth';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { useAuth } from '~/authentication/AuthProvider';
+import { apiConfig } from '~/endpoints/api-config';
 
 type httpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
-
-const apiConfig = {
-  backendUrl: process.env.EXPO_PUBLIC_BACKEND_API_URL,
-};
 
 export function useApiRequest() {
   const { firebaseUser } = useAuth();

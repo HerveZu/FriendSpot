@@ -21,14 +21,13 @@ public sealed class ParkingSpotTests
         var parkingSpot = ParkingSpot.Define(ownerId, parkingId, spotName);
 
         // Assert
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parkingSpot.Id, Is.Not.EqualTo(Guid.Empty));
-                Assert.That(parkingSpot.OwnerId, Is.EqualTo(ownerId));
-                Assert.That(parkingSpot.ParkingId, Is.EqualTo(parkingId));
-                Assert.That((string)parkingSpot.SpotName, Is.EqualTo(spotName.ToUpper()));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parkingSpot.Id, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(parkingSpot.OwnerId, Is.EqualTo(ownerId));
+            Assert.That(parkingSpot.ParkingId, Is.EqualTo(parkingId));
+            Assert.That((string)parkingSpot.SpotName, Is.EqualTo(spotName.ToUpper()));
+        });
     }
 
     [Test]
@@ -40,15 +39,14 @@ public sealed class ParkingSpotTests
         const string newSpotName = "Spot B";
 
         // Act
-        parkingSpot.ChangeSpotName(newParkingId, newSpotName);
+        parkingSpot.ChangeSpot(newParkingId, newSpotName);
 
         // Assert
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parkingSpot.ParkingId, Is.EqualTo(newParkingId));
-                Assert.That(parkingSpot.SpotName.Name, Is.EqualTo(newSpotName.ToUpper()));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parkingSpot.ParkingId, Is.EqualTo(newParkingId));
+            Assert.That(parkingSpot.SpotName.Name, Is.EqualTo(newSpotName.ToUpper()));
+        });
     }
 
     [Test]
@@ -59,9 +57,8 @@ public sealed class ParkingSpotTests
         parkingSpot.Disable();
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.Disabled"));
     }
 
@@ -72,9 +69,8 @@ public sealed class ParkingSpotTests
         var parkingSpot = Factory.ParkingSpot(Guid.NewGuid(), "owner-123", Guid.NewGuid(), new SpotName("Spot A"));
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.Book("owner-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.Book("owner-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.InvalidBooking"));
     }
 
@@ -95,9 +91,8 @@ public sealed class ParkingSpotTests
                     DateTimeOffset.Now.AddDays(5))
             ]);
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(-1), TimeSpan.FromHours(2)));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(-1), TimeSpan.FromHours(2)));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpotBooking.Invalid"));
     }
 
@@ -108,9 +103,8 @@ public sealed class ParkingSpotTests
         var parkingSpot = Factory.ParkingSpot(Guid.NewGuid(), "owner-123", Guid.NewGuid(), new SpotName("Spot A"));
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.NoAvailability"));
     }
 
@@ -124,9 +118,8 @@ public sealed class ParkingSpotTests
         parkingSpot.Book("other-user-123", DateTimeOffset.Now.AddHours(1), TimeSpan.FromHours(2));
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.Book("user-123", DateTimeOffset.Now.AddHours(2), TimeSpan.FromHours(2)));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.Book("user-123", DateTimeOffset.Now.AddHours(2), TimeSpan.FromHours(2)));
 
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.NoAvailability"));
     }
@@ -146,12 +139,11 @@ public sealed class ParkingSpotTests
 
         // Assert
         Assert.That(parkingSpot.Bookings, Has.Count.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parkingSpot.Bookings[0].From, Is.EqualTo(from));
-                Assert.That(parkingSpot.Bookings[0].To, Is.EqualTo(from.AddHours(10)));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parkingSpot.Bookings[0].From, Is.EqualTo(from));
+            Assert.That(parkingSpot.Bookings[0].To, Is.EqualTo(from.AddHours(10)));
+        });
     }
 
     [Test]
@@ -196,12 +188,11 @@ public sealed class ParkingSpotTests
 
         // Assert
         Assert.That(parkingSpot.Bookings, Has.Count.EqualTo(2));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parkingSpot.Bookings[1].From, Is.EqualTo(from.AddHours(8)));
-                Assert.That(parkingSpot.Bookings[1].To, Is.EqualTo(from.AddHours(14)));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parkingSpot.Bookings[1].From, Is.EqualTo(from.AddHours(8)));
+            Assert.That(parkingSpot.Bookings[1].To, Is.EqualTo(from.AddHours(14)));
+        });
     }
 
     [Test]
@@ -222,9 +213,8 @@ public sealed class ParkingSpotTests
             ]);
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.Zero));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.Zero));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpotBooking.Invalid"));
     }
 
@@ -236,9 +226,8 @@ public sealed class ParkingSpotTests
         parkingSpot.Disable();
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.MakeAvailable(DateTimeOffset.Now.AddDays(1), DateTimeOffset.Now.AddDays(2)));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.MakeAvailable(DateTimeOffset.Now.AddDays(1), DateTimeOffset.Now.AddDays(2)));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.Disabled"));
     }
 
@@ -256,12 +245,11 @@ public sealed class ParkingSpotTests
         parkingSpot.MakeAvailable(from.AddHours(8), to);
 
         Assert.That(parkingSpot.Availabilities, Has.Count.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parkingSpot.Availabilities[0].From, Is.EqualTo(from));
-                Assert.That(parkingSpot.Availabilities[0].To, Is.EqualTo(to));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parkingSpot.Availabilities[0].From, Is.EqualTo(from));
+            Assert.That(parkingSpot.Availabilities[0].To, Is.EqualTo(to));
+        });
     }
 
     [Test]
@@ -271,9 +259,8 @@ public sealed class ParkingSpotTests
         var parkingSpot = Factory.ParkingSpot(Guid.NewGuid(), "owner-123", Guid.NewGuid(), new SpotName("Spot A"));
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.RateBooking("user-123", Guid.NewGuid(), BookRating.Good));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.RateBooking("user-123", Guid.NewGuid(), BookRating.Good));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.BookingNotFound"));
     }
 
@@ -286,9 +273,8 @@ public sealed class ParkingSpotTests
         var booking = parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)).Booking;
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.RateBooking("other-user", booking.Id, BookRating.Good));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.RateBooking("other-user", booking.Id, BookRating.Good));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.InvalidRating"));
     }
 
@@ -324,9 +310,8 @@ public sealed class ParkingSpotTests
         var parkingSpot = Factory.ParkingSpot(Guid.NewGuid(), "owner-123", Guid.NewGuid(), new SpotName("Spot A"));
 
         // Act & Assert
-        var exception = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.CancelBooking("owner-123", Guid.NewGuid()));
+        var exception = Assert.Throws<BusinessException>(() =>
+            parkingSpot.CancelBooking("owner-123", Guid.NewGuid()));
         Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.BookingNotFound"));
     }
 
@@ -377,16 +362,14 @@ public sealed class ParkingSpotTests
             )
             .Booking;
 
-        var ex = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.CancelBooking("different-user", booking.Id));
+        var ex = Assert.Throws<BusinessException>(() =>
+            parkingSpot.CancelBooking("different-user", booking.Id));
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
-                Assert.That(parkingSpot.Bookings, Does.Contain(booking));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+            Assert.That(parkingSpot.Bookings, Does.Contain(booking));
+        });
     }
 
     [Test]
@@ -416,12 +399,11 @@ public sealed class ParkingSpotTests
 
         parkingSpot.CancelAvailability("owner-123", parkingSpot.Availabilities[0].Id);
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parkingSpot.Bookings, Is.Empty);
-                Assert.That(parkingSpot.Availabilities, Is.Empty);
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parkingSpot.Bookings, Is.Empty);
+            Assert.That(parkingSpot.Availabilities, Is.Empty);
+        });
     }
 
     [Test]
@@ -436,17 +418,15 @@ public sealed class ParkingSpotTests
         parkingSpot.Book("other-user-123", startTime.AddHours(3), TimeSpan.FromHours(1));
         parkingSpot.Book("user-123", startTime.AddHours(5), TimeSpan.FromHours(1));
 
-        var ex = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.CancelAvailability("owner-123", parkingSpot.Availabilities[0].Id));
+        var ex = Assert.Throws<BusinessException>(() =>
+            parkingSpot.CancelAvailability("owner-123", parkingSpot.Availabilities[0].Id));
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
-                Assert.That(parkingSpot.Availabilities, Has.Count.EqualTo(1));
-                Assert.That(parkingSpot.Bookings, Has.Count.EqualTo(3));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+            Assert.That(parkingSpot.Availabilities, Has.Count.EqualTo(1));
+            Assert.That(parkingSpot.Bookings, Has.Count.EqualTo(3));
+        });
     }
 
     [Test]
@@ -458,16 +438,14 @@ public sealed class ParkingSpotTests
 
         parkingSpot.MakeAvailable(startTime, endTime);
 
-        var ex = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.CancelAvailability("not-owner-user-123", parkingSpot.Availabilities[0].Id));
+        var ex = Assert.Throws<BusinessException>(() =>
+            parkingSpot.CancelAvailability("not-owner-user-123", parkingSpot.Availabilities[0].Id));
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
-                Assert.That(parkingSpot.Availabilities, Does.Contain(parkingSpot.Availabilities[0]));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+            Assert.That(parkingSpot.Availabilities, Does.Contain(parkingSpot.Availabilities[0]));
+        });
     }
 
     [Test]
@@ -475,9 +453,8 @@ public sealed class ParkingSpotTests
     {
         var parkingSpot = Factory.ParkingSpot(Guid.NewGuid(), "owner-123", Guid.NewGuid(), new SpotName("Spot A"));
 
-        var ex = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.CancelAvailability("owner-123", Guid.NewGuid()));
+        var ex = Assert.Throws<BusinessException>(() =>
+            parkingSpot.CancelAvailability("owner-123", Guid.NewGuid()));
 
         Assert.That(ex.Code, Is.EqualTo("ParkingSpot.AvailabilityNotFound"));
     }
@@ -492,16 +469,14 @@ public sealed class ParkingSpotTests
         parkingSpot.MakeAvailable(verySoonStartTime, endTime);
         var booking = parkingSpot.Book("user-123", verySoonStartTime, TimeSpan.FromHours(6)).Booking;
 
-        var ex = Assert.Throws<BusinessException>(
-            () =>
-                parkingSpot.CancelBooking("owner-123", booking.Id));
+        var ex = Assert.Throws<BusinessException>(() =>
+            parkingSpot.CancelBooking("owner-123", booking.Id));
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
-                Assert.That(parkingSpot.Bookings, Does.Contain(booking));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex.Code, Is.EqualTo("ParkingSpot.InvalidCancelling"));
+            Assert.That(parkingSpot.Bookings, Does.Contain(booking));
+        });
     }
 
     [Test]
@@ -530,12 +505,11 @@ public sealed class ParkingSpotTests
         var splitResult = availability.SplitNonOverlapping([]);
 
         Assert.That(splitResult, Has.Length.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
-                Assert.That(splitResult[0].To, Is.EqualTo(availability.To));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
+            Assert.That(splitResult[0].To, Is.EqualTo(availability.To));
+        });
     }
 
     [Test]
@@ -553,12 +527,11 @@ public sealed class ParkingSpotTests
         var splitResult = availability.SplitNonOverlapping(bookings);
 
         Assert.That(splitResult, Has.Length.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
-                Assert.That(splitResult[0].To + _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].From));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
+            Assert.That(splitResult[0].To + _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].From));
+        });
     }
 
     [Test]
@@ -576,12 +549,11 @@ public sealed class ParkingSpotTests
         var splitResult = availability.SplitNonOverlapping(bookings);
 
         Assert.That(splitResult, Has.Length.EqualTo(1));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(splitResult[0].From - _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].To));
-                Assert.That(splitResult[0].To, Is.EqualTo(availability.To));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(splitResult[0].From - _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].To));
+            Assert.That(splitResult[0].To, Is.EqualTo(availability.To));
+        });
     }
 
     [Test]
@@ -599,14 +571,13 @@ public sealed class ParkingSpotTests
         var splitResult = availability.SplitNonOverlapping(bookings);
 
         Assert.That(splitResult, Has.Length.EqualTo(2));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
-                Assert.That(splitResult[0].To + _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].From));
-                Assert.That(splitResult[1].From - _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].To));
-                Assert.That(splitResult[1].To, Is.EqualTo(availability.To));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
+            Assert.That(splitResult[0].To + _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].From));
+            Assert.That(splitResult[1].From - _availabilitySplitBorderMargin, Is.EqualTo(bookings[0].To));
+            Assert.That(splitResult[1].To, Is.EqualTo(availability.To));
+        });
     }
 
     [Test]
@@ -627,15 +598,14 @@ public sealed class ParkingSpotTests
         var splitResult = availability.SplitNonOverlapping(bookings);
 
         Assert.That(splitResult, Has.Length.EqualTo(5));
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
-                Assert.That(splitResult[1].From, Is.GreaterThan(splitResult[0].To));
-                Assert.That(splitResult[2].From, Is.GreaterThan(splitResult[1].To));
-                Assert.That(splitResult[3].From, Is.GreaterThan(splitResult[2].To));
-                Assert.That(splitResult[4].From, Is.GreaterThan(splitResult[3].To));
-                Assert.That(splitResult[4].To, Is.EqualTo(availability.To));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(splitResult[0].From, Is.EqualTo(availability.From));
+            Assert.That(splitResult[1].From, Is.GreaterThan(splitResult[0].To));
+            Assert.That(splitResult[2].From, Is.GreaterThan(splitResult[1].To));
+            Assert.That(splitResult[3].From, Is.GreaterThan(splitResult[2].To));
+            Assert.That(splitResult[4].From, Is.GreaterThan(splitResult[3].To));
+            Assert.That(splitResult[4].To, Is.EqualTo(availability.To));
+        });
     }
 }

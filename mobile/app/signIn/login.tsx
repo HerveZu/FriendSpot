@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import {
-  getAuth,
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -21,6 +20,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useValidators } from '~/form/validators';
 import { FormInfo, FormMessages } from '~/form/FormMessages';
+import { useRedirectToInitialUrl } from '~/authentication/useRedirectToInitialUrl';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -31,8 +31,7 @@ export default function LoginScreen() {
   const [error, setError] = useState<string>();
   const [isPendingMailModalOpen, setIsPendingMailModalOpen] = useState(false);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
-  const auth = getAuth();
-  const router = useRouter();
+  const redirectToInitialUrl = useRedirectToInitialUrl();
   const validators = useValidators();
 
   useEffect(() => {
@@ -46,7 +45,7 @@ export default function LoginScreen() {
   async function signInUser(email: string, password: string) {
     let signIn: UserCredential;
     try {
-      signIn = await signInWithEmailAndPassword(auth, email, password);
+      signIn = await signInWithEmailAndPassword(firebaseAuth, email, password);
     } catch {
       setError(t('auth.login.errors.incorrectCredentials'));
       return;
@@ -57,10 +56,10 @@ export default function LoginScreen() {
       return;
     }
 
-    router.push('/my-spot');
     setError(undefined);
     setIsPendingMailModalOpen(false);
     setIsResetPasswordModalOpen(false);
+    redirectToInitialUrl('/');
   }
 
   return (
@@ -68,7 +67,6 @@ export default function LoginScreen() {
       <MailConfirmationPendingModal
         open={isPendingMailModalOpen}
         onOpenChange={setIsPendingMailModalOpen}
-        onError={setError}
       />
       <ResetPasswordModal
         open={isResetPasswordModalOpen}
@@ -109,21 +107,39 @@ export default function LoginScreen() {
   );
 }
 
-function MailConfirmationPendingModal(props: ModalProps & { onError: (error: string) => void }) {
+function MailConfirmationPendingModal(props: ModalProps) {
   const { t } = useTranslation();
+  const [message, setMessage] = useState<string>('');
+
+  useEffect(() => {
+    if (props.open === false) {
+      setMessage('');
+    }
+  }, [props.open]);
 
   async function sendEmail() {
-    props.onOpenChange(false);
-
     const currentUser = firebaseAuth.currentUser;
     if (!currentUser) {
       return;
     }
 
     try {
-      await sendEmailVerification(currentUser);
+      await sendEmailVerification(currentUser).then(() => {
+        setMessage(t('auth.signUp.errors.emailRequestPending'));
+      });
     } catch {
-      props.onError(t('auth.errors.tryAgainLater'));
+      setMessage(t('auth.errors.tryAgainLater'));
+    }
+  }
+
+  async function checkIfEmailIsVerified() {
+    const user = firebaseAuth.currentUser;
+
+    await user?.reload();
+    if (user?.emailVerified) {
+      props.onOpenChange(false);
+    } else {
+      setMessage(t('auth.signUp.errors.emailNotVerified'));
     }
   }
 
@@ -133,13 +149,17 @@ function MailConfirmationPendingModal(props: ModalProps & { onError: (error: str
       <View className="gap-4">
         <Text className="text-base text-foreground">{t('auth.mailConfirmation.description')}</Text>
         <View className="flex-row items-center gap-2">
-          <Text className="text-center text-xs text-foreground">
+          <Text className="text-md text-center text-foreground">
             {t('auth.mailConfirmation.noEmailReceived')}
           </Text>
           <Pressable onPress={() => sendEmail()}>
-            <Text className="text-xs text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
+            <Text className="text-md text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
           </Pressable>
         </View>
+        {message && <Text className="text-md text-destructive">{message}</Text>}
+        <Button variant="primary" className="mt-2" onPress={() => checkIfEmailIsVerified()}>
+          <Text>{t('common.done')}</Text>
+        </Button>
       </View>
     </Modal>
   );
@@ -166,7 +186,6 @@ function ResetPasswordForm() {
   const { t } = useTranslation();
   const { isValid, handleSubmit, isLoading } = useContext(FormContext);
 
-  const auth = getAuth();
   const { colors } = useColorScheme();
   const validators = useValidators();
 
@@ -176,7 +195,7 @@ function ResetPasswordForm() {
 
   async function resetPassword(email: string) {
     setInfo(t('auth.resetPassword.sending'));
-    await sendPasswordResetEmail(auth, email)
+    await sendPasswordResetEmail(firebaseAuth, email)
       .then(() => setInfo(t('auth.resetPassword.emailSent')))
       .catch((e: Error) => setError(e.message));
   }

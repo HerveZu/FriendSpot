@@ -34,8 +34,7 @@ internal sealed class DeleteParking(AppDbContext dbContext, ILogger<DeleteParkin
         logger.LogInformation("Deleting parking {ParkingId}", parking.Id);
 
         parking.Delete(currentUser.Identity);
-        dbContext.Set<Parking>().Remove(parking);
 
-        await dbContext.SaveChangesAsync(ct);
+        await dbContext.DeleteAndSaveWithEventPropagation(parking, ct);
     }
 }

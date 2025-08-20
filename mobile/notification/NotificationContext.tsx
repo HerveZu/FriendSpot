@@ -12,9 +12,10 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
+    shouldShowList: false,
   }),
 });
 
@@ -34,7 +35,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const notificationListener = useRef<EventSubscription>();
+  const notificationListener = useRef<EventSubscription>(null);
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(

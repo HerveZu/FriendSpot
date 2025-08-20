@@ -44,18 +44,18 @@ internal sealed class DefineMySpot(AppDbContext dbContext) : Endpoint<DefineMySp
             return;
         }
 
-        var parkingSpot = await dbContext.Set<ParkingSpot>()
+        var userSpot = await dbContext.Set<ParkingSpot>()
             .FirstOrDefaultAsync(parkingSpot => parkingSpot.OwnerId == currentUser.Identity, ct);
 
-        if (parkingSpot is null)
+        if (userSpot is null)
         {
-            parkingSpot = ParkingSpot.Define(HttpContext.ToCurrentUser().Identity, req.ParkingId, req.LotName);
-            await dbContext.Set<ParkingSpot>().AddAsync(parkingSpot, ct);
+            userSpot = ParkingSpot.Define(HttpContext.ToCurrentUser().Identity, req.ParkingId, req.LotName);
+            await dbContext.Set<ParkingSpot>().AddAsync(userSpot, ct);
         }
         else
         {
-            parkingSpot.ChangeSpotName(req.ParkingId, req.LotName);
-            dbContext.Set<ParkingSpot>().Update(parkingSpot);
+            userSpot.ChangeSpot(req.ParkingId, req.LotName);
+            dbContext.Set<ParkingSpot>().Update(userSpot);
         }
 
         await dbContext.SaveChangesAsync(ct);

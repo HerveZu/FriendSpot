@@ -105,6 +105,7 @@ internal abstract class IntegrationTestsBase
              ("Identity", "Rating_Rating", "DisplayName", "PictureUrl", "IsDeleted") 
              values 
              ('{Seed.Users.ParkingAdmin}', {Seed.Users.InitialRating}, 'Parking Admin', null, false),
+             ('{Seed.Users.OtherParkingAdmin}', {Seed.Users.InitialRating}, 'Other Parking Admin', null, false),
              ('{Seed.Users.Resident1}', {Seed.Users.InitialRating}, 'Resident 1', null, false),
              ('{Seed.Users.Resident2}', {Seed.Users.InitialRating}, 'Resident 2', null, false);
 
@@ -126,7 +127,8 @@ internal abstract class IntegrationTestsBase
              insert into public."Parking"
              ("Id", "Name", "Address", "OwnerId") 
              values 
-             ('{Seed.Parkings.Main}', 'Main Parking', 'Main Street 123', '{Seed.Users.ParkingAdmin}');
+             ('{Seed.Parkings.Main}', 'Main Parking', 'Main Street 123', '{Seed.Users.ParkingAdmin}'),
+             ('{Seed.Parkings.Other}', 'Other Parking', 'Other Street 123', '{Seed.Users.OtherParkingAdmin}');
 
              insert into public."ParkingSpot"
              ("Id", "ParkingId", "SpotName", "OwnerId")

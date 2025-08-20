@@ -13,41 +13,44 @@ export function UserWallet({ className, ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
 
-  function CreditsExplanation(props: { pending: boolean; explanation: string }) {
-    return (
-      <View className={'w-full flex-row items-center justify-between gap-6 p-2.5'}>
-        <Credits
-          pending={props.pending}
-          credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
-          displayCredit={false}
-        />
-        <View className={'max-w-60'}>
-          <Text className={'min-w-60 text-start'}>{props.explanation}</Text>
-        </View>
-      </View>
-    );
-  }
+  const userPoint = userProfile.wallet.credits;
 
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
-        <Card className={cn(`w-40 flex-row justify-between gap-4`, className)}>
+        <Card className={cn('mt-2 flex-row items-center justify-center gap-2', className)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
-          <Credits pending={true} credits={userProfile.wallet.pendingCredits} />
+          <Text>{t(`${userPoint > 1 ? 'wallet.point.other' : 'wallet.point.one'}`)}</Text>
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
-        <ModalTitle text={t('wallet.howItWorks')} />
+        <ModalTitle text={t('wallet.title')} />
         <View className="w-full">
           <CreditsExplanation
             pending={false}
             explanation={t('wallet.availableCreditsExplanation')}
           />
-          <CreditsExplanation pending={true} explanation={t('wallet.pendingCreditsExplanation')} />
         </View>
         <ModalFooter text={t('wallet.creditInfo')} className="bg-primary/20 rounded-lg py-2" />
       </Modal>
     </>
+  );
+}
+
+function CreditsExplanation(props: { pending: boolean; explanation: string }) {
+  const { userProfile } = useCurrentUser();
+
+  return (
+    <View className={'w-full flex-row items-center justify-between gap-6 p-2.5'}>
+      <Credits
+        pending={props.pending}
+        credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
+        displayCredit={false}
+      />
+      <View className={'max-w-60'}>
+        <Text className={'min-w-60 text-start'}>{props.explanation}</Text>
+      </View>
+    </View>
   );
 }
 

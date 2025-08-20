@@ -9,7 +9,7 @@ import React, {
 import { Card } from './Card';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { ViewProps } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 
 const TabsSelectorContext = createContext<{
@@ -76,14 +76,17 @@ export function Tab(
 
   return (
     <TabContext.Provider value={{ isFocused }}>
-      <Button
-        disabled={props.disabled}
-        variant={isFocused ? 'tonal' : 'plain'}
-        className={'grow'}
-        onPress={() => setSelectedTab(props.index)}>
-        {props.preview}
-        {isFocused && props.children}
-      </Button>
+      {/*extra view needed for android*/}
+      <View className={'grow self-center'}>
+        <Button
+          disabled={props.disabled}
+          className={'grow'}
+          variant={isFocused ? 'tonal' : 'plain'}
+          onPress={() => setSelectedTab(props.index)}>
+          {props.preview}
+          {isFocused && props.children}
+        </Button>
+      </View>
     </TabContext.Provider>
   );
 }

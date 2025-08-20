@@ -1,11 +1,12 @@
 using Api.Common;
+using Api.Common.Contracts;
 using Api.Common.Infrastructure;
-using Api.Parkings.Contracts;
 using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Parkings;
 
@@ -44,28 +45,23 @@ internal sealed class EditParkingInfo(ILogger<EditParkingInfo> logger, AppDbCont
             req.Name,
             req.Address);
 
-        var parking = await dbContext.Set<Parking>().FindAsync([req.ParkingId], ct);
+        var editingParking = await dbContext.Set<Parking>().FindAsync([req.ParkingId], ct);
 
-        if (parking is null)
+        if (editingParking is null)
         {
             ThrowError("Parking not found");
             return;
         }
 
-        parking.EditInfo(currentUser.Identity, req.Name, req.Address);
+        editingParking.EditInfo(currentUser.Identity, req.Name, req.Address);
         await dbContext.SaveChangesAsync(ct);
 
-        await SendOkAsync(
-            new ParkingResponse
-            {
-                Id = parking.Id,
-                Name = parking.Name,
-                Address = parking.Address,
-                SpotsCount = dbContext
-                    .Set<ParkingSpot>()
-                    .Count(spot => spot.ParkingId == parking.Id),
-                OwnerId = parking.OwnerId
-            },
-            ct);
+        var parkingResponse = await dbContext
+            .Set<Parking>()
+            .Where(parking => editingParking.Id == parking.Id)
+            .ToParkingResponse(dbContext.Set<ParkingSpot>())
+            .FirstAsync(ct);
+
+        await SendOkAsync(parkingResponse, ct);
     }
 }

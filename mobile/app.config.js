@@ -1,4 +1,5 @@
 const APP_VARIANT = process.env.APP_VARIANT;
+const appDomain = process.env.EXPO_PUBLIC_APP_DOMAIN;
 
 const getUniqueIdentifier = () => {
   const id = 'com.friendspot';
@@ -24,9 +25,23 @@ export default ({ config }) => ({
   ios: {
     ...config.ios,
     bundleIdentifier: getUniqueIdentifier(),
+    associatedDomains: [`applinks:${appDomain}`],
   },
   android: {
     ...config.android,
     package: getUniqueIdentifier(),
+    intentFilters: [
+      {
+        action: 'VIEW',
+        data: [
+          {
+            scheme: 'https',
+            host: appDomain,
+            pathPrefix: '/_open',
+          },
+        ],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+    ],
   },
 });

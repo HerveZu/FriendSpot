@@ -10,6 +10,7 @@ type DisplayUser = {
   displayName: string;
   pictureUrl?: string | null;
   fontSize?: number;
+  info?: string;
 };
 
 const MAX_USERS = 3;

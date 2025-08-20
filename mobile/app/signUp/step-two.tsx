@@ -5,8 +5,8 @@ import {
   updateProfile,
   UserCredential,
 } from 'firebase/auth';
-import React, { useState } from 'react';
-import { View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import stepTwoIllustration from '~/assets/security.svg';
 import { Modal, ModalTitle } from '~/components/Modal';
@@ -18,6 +18,7 @@ import { ExternalLink } from '~/components/ExternalLink';
 import { Checkbox } from '~/components/Checkbox';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
+import { useRedirectToInitialUrl } from '~/authentication/useRedirectToInitialUrl';
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;
@@ -27,12 +28,13 @@ export default function StepTwoScreen() {
   const { t } = useTranslation();
   const [password, setPassword] = useState<string>();
   const [passwordConfirm, setPasswordConfirm] = useState<string>();
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<string>('');
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
 
   const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
+  const redirectToInitialUrl = useRedirectToInitialUrl();
   const validators = useValidators();
 
   async function createAccount() {
@@ -55,12 +57,29 @@ export default function StepTwoScreen() {
     return <Redirect href="/signUp/step-one" />;
   }
 
-  function redirect() {
-    setIsModalVisible(false);
-    router.push({
-      pathname: '/signIn/login',
-      params: { email, password },
-    });
+  async function checkIfEmailIsVerified() {
+    const user = firebaseAuth.currentUser;
+
+    await user?.reload();
+    if (user?.emailVerified) {
+      setIsModalVisible(false);
+      redirectToInitialUrl('/');
+    } else {
+      setError(t('auth.signUp.errors.emailNotVerified'));
+    }
+  }
+
+  async function sendEmail() {
+    const currentUser = firebaseAuth.currentUser;
+    if (!currentUser) {
+      return;
+    }
+
+    try {
+      await sendEmailVerification(currentUser);
+    } catch {
+      setError(t('auth.errors.tryAgainLater'));
+    }
   }
 
   return (
@@ -76,7 +95,16 @@ export default function StepTwoScreen() {
             <Text className="text-base text-foreground">
               {t('auth.signUp.checkEmailAndConfirm')}
             </Text>
-            <Button size={'lg'} onPress={() => redirect()}>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-md text-center text-foreground">
+                {t('auth.mailConfirmation.noEmailReceived')}
+              </Text>
+              <Pressable onPress={() => sendEmail()}>
+                <Text className="text-md text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
+              </Pressable>
+            </View>
+            {error && <Text className="text-sm text-destructive">{error}</Text>}
+            <Button size={'lg'} onPress={() => checkIfEmailIsVerified()}>
               <Text className="text-foreground">{t('auth.signUp.done')}</Text>
             </Button>
           </View>

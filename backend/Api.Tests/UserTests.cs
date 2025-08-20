@@ -38,6 +38,7 @@ internal sealed class UserTests : IntegrationTestsBase
     {
         using var resident1 = UserClient(Seed.Users.Resident1);
         using var resident2 = UserClient(Seed.Users.Resident2);
+        const string deviceId = "device-id";
 
         var previousRegister = await resident1.PostAsync(
             "/@me/register",
@@ -46,10 +47,9 @@ internal sealed class UserTests : IntegrationTestsBase
                 {
                     Device = new RegisterUserRequest.UserDevice
                     {
-                        Id = "device-id",
+                        Id = deviceId,
                         ExpoPushToken = null,
-                        Locale = "fr",
-                        Timezone = "Europe/Paris"
+                        Locale = "fr"
                     },
                     DisplayName = "resident1",
                     PictureUrl = null
@@ -65,7 +65,7 @@ internal sealed class UserTests : IntegrationTestsBase
                 {
                     Device = new RegisterUserRequest.UserDevice
                     {
-                        Id = "device-id",
+                        Id = deviceId,
                         ExpoPushToken = null,
                         Locale = "en"
                     },
@@ -80,11 +80,75 @@ internal sealed class UserTests : IntegrationTestsBase
         await conn.OpenAsync(cancellationToken);
 
         await using var cmd = new NpgsqlCommand(
-            """
-            SELECT COUNT(*)
-            FROM public."UserDevice"
-            WHERE "DeviceId" = 'device-id';
-            """,
+            $"""
+             SELECT COUNT(*)
+             FROM public."UserDevice"
+             WHERE "DeviceId" = '{deviceId}';
+             """,
+            conn);
+
+        var count = await cmd.ExecuteScalarAsync(cancellationToken);
+
+        Assert.That(Convert.ToInt32(count), Is.EqualTo(1));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task RegisterOnExistingAccount_ShouldUpdateDevice__WhenSameDeviceId(
+        CancellationToken cancellationToken)
+    {
+        using var existingUser = UserClient(Seed.Users.Resident1);
+        const string deviceId = "device-id";
+
+        var previousRegister = await existingUser.PostAsync(
+            "/@me/register",
+            JsonContent.Create(
+                new RegisterUserRequest
+                {
+                    Device = new RegisterUserRequest.UserDevice
+                    {
+                        Id = deviceId,
+                        ExpoPushToken = null,
+                        Locale = "fr",
+                        Timezone = "Europe/Paris",
+                        UniquenessNotGuaranteed = true
+                    },
+                    DisplayName = "user",
+                    PictureUrl = null
+                }),
+            cancellationToken);
+
+        await previousRegister.AssertIsSuccessful(cancellationToken);
+
+        var newRegister = await existingUser.PostAsync(
+            "/@me/register",
+            JsonContent.Create(
+                new RegisterUserRequest
+                {
+                    Device = new RegisterUserRequest.UserDevice
+                    {
+                        Id = deviceId,
+                        ExpoPushToken = null,
+                        Locale = "CH-de",
+                        Timezone = "Europe/Zurich",
+                        UniquenessNotGuaranteed = true
+                    },
+                    DisplayName = "user2",
+                    PictureUrl = null
+                }),
+            cancellationToken);
+
+        await newRegister.AssertIsSuccessful(cancellationToken);
+
+        await using var conn = new NpgsqlConnection(PgContainer.GetConnectionString());
+        await conn.OpenAsync(cancellationToken);
+
+        await using var cmd = new NpgsqlCommand(
+            $"""
+             SELECT count(*)
+             FROM public."UserDevice"
+             WHERE "DeviceId" = '{deviceId}' and "TimeZone" = 'Europe/Zurich' and "Locale" = 'ch-DE';
+             """,
             conn);
 
         var count = await cmd.ExecuteScalarAsync(cancellationToken);

@@ -1,114 +1,85 @@
-import { getAuth, signOut, updateProfile, User } from 'firebase/auth';
 import {
   createContext,
   PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
-  useState,
+  useMemo,
 } from 'react';
 
 import { useAuth } from '~/authentication/AuthProvider';
 import { Loader } from '~/components/Loader';
 import { useGetProfile, UserProfile } from '~/endpoints/me/get-profile';
-import { useRegisterUser } from '~/endpoints/me/register-user';
-import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
-import { useNotification } from '~/notification/NotificationContext';
-import { useDeviceId } from '~/lib/use-device-id';
 import { SplashScreen } from 'expo-router';
-import { deviceLocale, deviceCalendar } from '~/i18n/i18n';
+import { useRegisterUser } from '~/endpoints/me/register-user';
+import { AppContext } from '~/app/_layout';
+import { useNotification } from '~/notification/NotificationContext';
+import { deviceCalendar, deviceLocale } from '~/i18n/i18n';
+import { updateProfile } from 'firebase/auth';
+import { useFetch } from '~/lib/useFetch';
 
-type UserProfileContext = {
-  readonly userProfile: UserProfile;
-  refreshProfile: () => Promise<void>;
-  refreshTrigger: unknown;
-  updateInternalProfile: (
-    photoURL: string | null | undefined,
-    displayName: string
-  ) => Promise<void>;
+type UpdateUserProfile = {
+  pictureUrl: string | null | undefined;
+  displayName: string;
 };
 
-const _UserProfileContext = createContext<UserProfileContext>(null!);
+const UserProfileContext = createContext<{
+  readonly userProfile: UserProfile;
+  readonly refreshProfile: () => Promise<void>;
+  readonly updateUserProfile: (profile: UpdateUserProfile) => Promise<void>;
+}>(null!);
 
 export function useCurrentUser() {
-  return useContext(_UserProfileContext);
+  return useContext(UserProfileContext);
 }
 
 export function UserProvider(props: PropsWithChildren) {
-  const { firebaseUser } = useAuth();
-  const [userProfile, setUserProfile] = useState<UserProfile>();
-  const [refreshTrigger, setRefreshTrigger] = useState(new Date());
-  const registerUser = useRegisterUser();
   const getProfile = useGetProfile();
-  const stateTrigger = useListenOnAppStateChange('background');
-  const [internalFirebaseUser, setInternalFirebaseUser] = useState<User>(firebaseUser);
+  const registerUser = useRegisterUser();
 
+  const { firebaseUser } = useAuth();
+  const [userProfile, setUserProfile] = useFetch(() => getProfile(), []);
+  const { userDevice } = useContext(AppContext);
   const { expoPushToken } = useNotification();
-  const { deviceId, uniquenessNotGuaranteed } = useDeviceId();
 
-  const updateInternalProfile = useCallback(
-    async (photoURL: string | null | undefined, displayName: string) => {
-      await updateProfile(firebaseUser, {
-        displayName: displayName,
-        photoURL: photoURL,
-      }).then(() => {
-        setInternalFirebaseUser((firebaseUser) => {
-          return {
-            ...firebaseUser,
-            photoURL: photoURL ?? null,
-            displayName,
-          };
-        });
-      });
-    },
-    [firebaseUser, updateProfile, setInternalFirebaseUser]
+  const refreshProfile = useCallback(async () => {
+    await getProfile().then(setUserProfile);
+  }, [getProfile, setUserProfile]);
+
+  const registerDevice = useMemo(
+    () => ({
+      id: userDevice.deviceId,
+      expoPushToken: expoPushToken,
+      uniquenessNotGuaranteed: userDevice.uniquenessNotGuaranteed,
+      locale: deviceLocale.languageTag,
+      timezone: deviceCalendar.timeZone,
+    }),
+    [userDevice, expoPushToken]
   );
 
-  // force app refresh every 30s
-  useEffect(() => {
-    const handler = setInterval(refreshProfile, 30_000);
-    return () => clearTimeout(handler);
-  }, []);
-
-  const registerWithRetries = useCallback(
-    async (internalFirebaseUser: User, deviceId: string) => {
-      for (let attempt = 1; attempt <= 5; attempt++) {
-        try {
-          await registerUser({
-            displayName:
-              internalFirebaseUser.displayName ?? internalFirebaseUser.email ?? 'Unknown User',
-            pictureUrl: internalFirebaseUser.photoURL,
-            device: {
-              id: deviceId,
-              expoPushToken: expoPushToken,
-              uniquenessNotGuaranteed: uniquenessNotGuaranteed,
-              locale: deviceLocale.languageTag,
-              timezone: deviceCalendar.timeZone,
-            },
-          });
-          return;
-        } catch (error) {
-          const delayMs = 200 * attempt;
-          console.error(`Register failed on attempt ${attempt}, retrying in ${delayMs}ms`, error);
-          await new Promise((resolve) => setTimeout(resolve, delayMs));
-        }
-      }
-
-      throw new Error('Max register attempt count reach');
-    },
-    [internalFirebaseUser, expoPushToken, deviceId, uniquenessNotGuaranteed]
+  const updateUserProfile = useCallback(
+    ({ displayName, pictureUrl }: UpdateUserProfile) =>
+      updateProfile(firebaseUser, { displayName, photoURL: pictureUrl }).then(() =>
+        registerUser({
+          displayName: displayName,
+          pictureUrl: pictureUrl ?? null,
+          device: registerDevice,
+        }).then(refreshProfile)
+      ),
+    [registerUser, registerDevice, firebaseUser, getProfile, setUserProfile]
   );
 
   useEffect(() => {
     // discarding when no displayName, because it takes one more render to be actually populated.
-    if (!deviceId || !internalFirebaseUser.displayName) {
+    if (!firebaseUser.displayName && userProfile?.displayName !== firebaseUser.displayName) {
       return;
     }
 
-    registerWithRetries(internalFirebaseUser, deviceId)
-      .catch(() => signOut(getAuth()))
-      .then(() => getProfile().then(setUserProfile));
-  }, [registerWithRetries, internalFirebaseUser, deviceId]);
+    updateUserProfile({
+      displayName: firebaseUser.displayName,
+      pictureUrl: firebaseUser.photoURL,
+    }).then(() => console.debug('User registered after firebaseUser change trigger'));
+  }, [firebaseUser.displayName]);
 
   useEffect(() => {
     if (userProfile) {
@@ -116,25 +87,10 @@ export function UserProvider(props: PropsWithChildren) {
     }
   }, [userProfile]);
 
-  const refreshProfile = useCallback(async () => {
-    await getProfile()
-      .then(setUserProfile)
-      .then(() => setRefreshTrigger(new Date()));
-  }, [getProfile, setUserProfile]);
-
-  useEffect(() => {
-    if (!internalFirebaseUser.emailVerified) {
-      return;
-    }
-
-    refreshProfile().then();
-  }, [internalFirebaseUser, refreshProfile, stateTrigger]);
-
   return userProfile ? (
-    <_UserProfileContext.Provider
-      value={{ refreshTrigger, userProfile, refreshProfile, updateInternalProfile }}>
+    <UserProfileContext.Provider value={{ userProfile, refreshProfile, updateUserProfile }}>
       {props.children}
-    </_UserProfileContext.Provider>
+    </UserProfileContext.Provider>
   ) : (
     <Loader />
   );

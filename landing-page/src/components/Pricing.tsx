@@ -1,132 +1,181 @@
-import { Check, ArrowRight, Zap } from 'lucide-react';
+import { useEffect, useRef } from "react";
+import { Building, Check, Crown, Star } from "lucide-react";
 
 const plans = [
   {
-    name: "Starter",
-    price: "0",
-    period: "Gratuit",
-    description: "Parfait pour commencer",
+    name: "Free",
+    price: "€0",
+    period: "forever",
+    icon: Star,
+    description: "Perfect for getting started with parking sharing",
     features: [
-      "5 projets",
-      "2 membres d'équipe",
-      "10 GB de stockage",
-      "Support par email"
+      "Unlimited parking group creation up to 10 members",
+      "24-hour time limit per reservation",
+      "Community support",
     ],
-    cta: "Commencer Gratuitement",
-    popular: false
+    buttonText: "Get Started Free",
+    buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
+    popular: false,
   },
   {
-    name: "Pro",
-    price: "29",
-    period: "/mois",
-    description: "Pour les équipes en croissance",
+    name: "Premium",
+    price: "€1.99",
+    period: "/month",
+    icon: Crown,
+    description: "Unlock unlimited parking potential for the best experience",
     features: [
-      "Projets illimités",
-      "10 membres d'équipe",
-      "100 GB de stockage",
-      "Support prioritaire",
-      "Analytics avancés",
-      "Intégrations personnalisées"
+      "Everything in Free",
+      "Unlimited time per reservation",
+      "Parking sharing requests",
     ],
-    cta: "Essai Gratuit 14 jours",
-    popular: true
+    buttonText: "Start Premium",
+    buttonClass:
+      "bg-gradient-to-r from-primary to-secondary hover:shadow-xl text-white",
+    popular: true,
   },
   {
-    name: "Enterprise",
-    price: "99",
-    period: "/mois",
-    description: "Pour les grandes organisations",
+    name: "Neighbourhood",
+    price: "€2.99",
+    period: "/month per user",
+    icon: Building,
+    description: "For larger neighbourhoods and communities",
     features: [
-      "Tout du plan Pro",
-      "Membres illimités",
-      "Stockage illimité",
-      "Support dédié 24/7",
-      "SSO et sécurité avancée",
-      "Formation personnalisée"
+      "Up to 50 group members",
+      "Advanced group management",
+      "Dedicated support",
     ],
-    cta: "Contactez-nous",
-    popular: false
-  }
+    buttonText: "Create group",
+    buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
+    popular: false,
+  },
+  // {
+  //   name: "Custom",
+  //   icon: Building,
+  //   description: "Tailored to your community and needs.",
+  //   features: [
+  //     "Everything in Neighbourhood",
+  //     "Unlimited group members",
+  //     "Discuss your parking needs with us",
+  //   ],
+  //   buttonText: "Contact us",
+  //   buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
+  //   popular: false,
+  // },
 ];
 
-export function Pricing() {
-  return (
-    <section id="pricing" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Tarifs
-            <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"> transparents</span>
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Choisissez le plan qui correspond à vos besoins
-          </p>
+export const Pricing = () => {
+  const ref = useRef<HTMLElement>(null);
 
-          <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
-            <Zap size={16} className="mr-2" />
-            Économisez 20% avec l'abonnement annuel
-          </div>
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-fade-in-up");
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
+
+    const elements = ref.current?.querySelectorAll(".pricing-card");
+    elements?.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="pricing" ref={ref} className="py-20 bg-slate-900">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-50 mb-4">
+            Simple, Fair Pricing
+          </h2>
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+            Choose the plan that fits your parking needs. Start free and upgrade
+            when you're ready for more features.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan, index) => (
-            <div
-              key={index}
-              className={`relative p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
-                plan.popular 
-                  ? 'border-blue-500 shadow-xl bg-gradient-to-b from-blue-50 to-white' 
-                  : 'border-gray-200 hover:border-gray-300 hover:shadow-lg bg-white'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                    Plus populaire
-                  </div>
-                </div>
-              )}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {plans.map((plan, index) => {
+            const Icon = plan.icon;
 
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <p className="text-gray-600 mb-4">{plan.description}</p>
-                <div className="flex items-baseline justify-center">
-                  <span className="text-5xl font-bold text-gray-900">{plan.price}€</span>
-                  <span className="text-gray-500 ml-1">{plan.period}</span>
+            return (
+              <div
+                key={index}
+                className={`pricing-card opacity-0 transition-all duration-700 transform translate-y-8 ${
+                  plan.popular ? "lg:scale-105" : ""
+                }`}
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                <div
+                  className={`relative bg-slate-800 rounded-2xl p-8 h-full flex flex-col ${
+                    plan.popular ? "ring-2 ring-primary ring-opacity-50" : ""
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-sm font-semibold">
+                        Most Popular
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="text-center mb-8">
+                    <div
+                      className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 ${
+                        plan.popular
+                          ? "bg-gradient-to-r from-primary to-secondary"
+                          : "bg-slate-700"
+                      }`}
+                    >
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-50 mb-2">
+                      {plan.name}
+                    </h3>
+                    <p className="text-slate-300 mb-4">{plan.description}</p>
+                    <div className="mb-2">
+                      <span className="text-4xl font-bold text-slate-50">
+                        {plan.price}
+                      </span>
+                      <span className="text-slate-300">{plan.period}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex-1">
+                    <ul className="space-y-4 mb-8">
+                      {plan.features.map((feature, featureIndex) => (
+                        <li
+                          key={featureIndex}
+                          className="flex items-center space-x-3"
+                        >
+                          <Check className="w-5 h-5 text-primary/80 flex-shrink-0" />
+                          <span className="text-slate-300">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <button
+                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 capitalize transform hover:scale-105 ${plan.buttonClass}`}
+                  >
+                    {plan.buttonText}
+                  </button>
                 </div>
               </div>
-
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center">
-                    <Check size={20} className="text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
-                  plan.popular
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
-                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                }`}
-              >
-                <span>{plan.cta}</span>
-                <ArrowRight size={16} />
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-gray-600 mb-4">
-            Besoin d'une solution sur mesure ?
+          <p className="text-slate-400">
+            All plans include our core parking sharing features. No hidden fees,
+            cancel anytime.
           </p>
-          <button className="text-blue-600 hover:text-blue-700 font-semibold">
-            Parlons de vos besoins →
-          </button>
         </div>
       </div>
     </section>
   );
-}
+};
