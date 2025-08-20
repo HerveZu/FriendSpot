@@ -195,12 +195,12 @@ export default function UserProfileScreen() {
                 />
               ),
             }}>
-            {t('user.profile.parameter.title')}
+            {t('user.profile.settings.title')}
           </Title>
           <Pressable onPress={() => setParameterSheetOpen(true)}>
             <Card className="flex-col items-start gap-3">
               <View className="w-full flex-row items-center justify-between">
-                <Text>{t('user.profile.parameter.cardTitle')}</Text>
+                <Text>{t('user.profile.settings.open')}</Text>
               </View>
             </Card>
           </Pressable>
@@ -236,24 +236,6 @@ function ShareSpot() {
       <ThemedIcon name={'share'} component={FontAwesome6} />
       <Text>{t('user.parking.share.button')}</Text>
     </Button>
-  );
-}
-
-function AppVersionInfo() {
-  const { t } = useTranslation();
-
-  return (
-    <View className={'flex-row items-center justify-center gap-4'}>
-      <Text variant={'caption2'}>{Constants.expoConfig?.version ?? 'Unknown'}</Text>
-      <Text variant={'caption2'}>-</Text>
-      <Text variant={'caption2'}>
-        {Updates.createdAt
-          ? t('app.otaPatch', {
-              time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
-            })
-          : t('app.noOtaPatch')}
-      </Text>
-    </View>
   );
 }
 
@@ -365,10 +347,7 @@ export function LogoutConfirmationModal({
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
-        <ModalTitle
-          text={t('user.profile.logoutConfirmation')}
-          icon={<ThemedIcon name={'warning'} />}
-        />
+        <ModalTitle text={t('user.profile.logoutConfirmation')} />
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
@@ -382,7 +361,7 @@ export function LogoutConfirmationModal({
               ) : (
                 <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
               )}
-              <Text className={'text-destructive'}>{t('common.logout')}</Text>
+              <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
             </Button>
           </ExpandItem>
         </ExpandRow>
@@ -455,32 +434,112 @@ function SettingsBottomSheet(props: {
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
+  const [debugOpen, setDebugOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
   const { colors } = useColorScheme();
   const { t } = useTranslation();
 
+  const infoEntries = [
+    {
+      icon: (
+        <ThemedIcon name={'tags'} component={FontAwesome6} color={colors.foreground} size={14} />
+      ),
+      title: 'Name',
+      content: Constants.expoConfig?.name,
+    },
+    {
+      icon: (
+        <ThemedIcon
+          name={'box-open'}
+          component={FontAwesome6}
+          color={colors.foreground}
+          size={14}
+        />
+      ),
+      title: 'SDK',
+      content: Constants.expoConfig?.sdkVersion,
+    },
+    {
+      icon: (
+        <ThemedIcon
+          name={'code-branch'}
+          component={FontAwesome6}
+          color={colors.foreground}
+          size={14}
+        />
+      ),
+      title: 'Env',
+      content: Updates.channel?.length ? Updates.channel : 'Unknown',
+    },
+    {
+      icon: (
+        <ThemedIcon
+          name={'code-compare'}
+          component={FontAwesome6}
+          color={colors.foreground}
+          size={14}
+        />
+      ),
+      title: 'Version',
+      content: `${Constants.expoConfig?.version ?? 'Unknown'} - ${
+        Updates.createdAt
+          ? t('app.otaPatch', {
+              time: formatDistance(Updates.createdAt, new Date(), { addSuffix: true }),
+            })
+          : t('app.noOtaPatch')
+      }`,
+    },
+  ];
+
   return (
     <>
+      <Modal open={debugOpen} onOpenChange={setDebugOpen}>
+        <View className={'gap-3 p-1'}>
+          {infoEntries.map((infoEntry, i) => (
+            <View key={i} className={'flex-row items-center justify-between'}>
+              <View className={'flex-row items-center gap-2'}>
+                <View className={'w-3'}>{infoEntry.icon}</View>
+                <Text className={'text-sm font-semibold'}>{infoEntry.title}</Text>
+              </View>
+
+              <Text className={'text-sm'}>{infoEntry.content}</Text>
+            </View>
+          ))}
+        </View>
+      </Modal>
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
-        <Button
-          variant={'plain'}
-          onPress={() => setConfirmLogout(true)}
-          size={'lg'}
-          className={'bg-destructive/15'}>
-          <ThemedIcon
-            name={'arrow-right-from-bracket'}
-            component={FontAwesome6}
-            color={colors.destructive}
-          />
-          <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
-        </Button>
-        <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)} size={'lg'}>
+        <SheetTitle>{t('user.profile.settings.title')}</SheetTitle>
+
+        <View className={'gap-4'}>
+          <Button
+            size={'lg'}
+            variant={'plain'}
+            className={'bg-destructive/10'}
+            onPress={() => setConfirmLogout(true)}>
+            <ThemedIcon
+              name={'arrow-right-from-bracket'}
+              component={FontAwesome6}
+              color={colors.destructive}
+            />
+            <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
+          </Button>
+
+          <Button
+            className={'w-full'}
+            variant={'tonal'}
+            size={'lg'}
+            onPress={() => setDebugOpen(true)}>
+            <ThemedIcon name={'wrench'} component={FontAwesome6} color={colors.primary} />
+            <Text className={'text-primary'}>{t('user.profile.appInfo')}</Text>
+          </Button>
+        </View>
+
+        <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
           <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
           <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
         </Button>
-        <AppVersionInfo />
       </DynamicBottomSheet>
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
       <AccountDeletionConfirmationModal
