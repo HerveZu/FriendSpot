@@ -3,10 +3,10 @@ import { useCallback } from 'react';
 import { useApiRequest } from '~/endpoints/use-api-request';
 
 export type BookingRequestsResponse = {
-  readonly requests: BookingRequestResponse[];
+  readonly requests: MyBookingRequestResponse[];
 };
 
-export type BookingRequestResponse = {
+export type MyBookingRequestResponse = {
   readonly id: string;
   readonly from: string;
   readonly to: string;

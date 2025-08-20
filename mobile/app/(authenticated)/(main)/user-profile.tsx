@@ -9,7 +9,13 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { ActivityIndicator, Pressable, Share, TextInput as ReactTextInput, View, } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  Share,
+  TextInput as ReactTextInput,
+  View,
+} from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';

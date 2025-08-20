@@ -35,7 +35,6 @@ import { SheetHeading, SheetTitle, Title } from '~/components/Title';
 import { User } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
-import { Sheet } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { useBookSpot } from '~/endpoints/booking/book-spot';
 import { useCancelBooking } from '~/endpoints/booking/cancel-spot-booking';
@@ -56,13 +55,13 @@ import { Tab, TabArea, TabPreview, TabsProvider, TabsSelector } from '~/componen
 import { ButtonSelect } from '~/components/ButtonSelect';
 import { useRequestSpotBooking } from '~/endpoints/requestBooking/request-spot-booking';
 import { LogoCard } from '~/components/Logo';
-import {
-  BookingRequestResponse,
-  useGetMyBookingRequests,
-} from '~/endpoints/requestBooking/get-my-parking-requests';
 import { useCancelBookingRequest } from '~/endpoints/requestBooking/cancel-spot-booking-request';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 import { DynamicBottomSheet } from '~/components/DynamicBottomSheet';
+import {
+  MyBookingRequestResponse,
+  useGetMyBookingRequests,
+} from '~/endpoints/requestBooking/get-my-parking-requests';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -378,7 +377,7 @@ function BookingCard(props: {
   );
 }
 
-function BookingRequestCard(props: { request: BookingRequestResponse }) {
+function BookingRequestCard(props: { request: MyBookingRequestResponse }) {
   const { t } = useTranslation();
   const { colors } = useColorScheme();
   const cancelRequest = useRefreshOnSuccess(useCancelBookingRequest());
