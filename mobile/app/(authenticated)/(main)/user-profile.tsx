@@ -160,7 +160,7 @@ export default function UserProfileScreen() {
             onPress={() => setParkingBottomSheetOpen(true)}
             className={cn('rounded-xl border', !userProfile.spot && 'bg-destructive/60')}>
             <Card className="flex-col items-start gap-3">
-              <View className="w-full flex-row items-center justify-between">
+              <View className="flex-1 flex-row items-center justify-between">
                 {!userProfile.spot ? (
                   <View className="flex flex-row items-center justify-center gap-2">
                     <ThemedIcon
@@ -174,14 +174,13 @@ export default function UserProfileScreen() {
                     </Text>
                   </View>
                 ) : (
-                  <Text>
+                  <Text numberOfLines={2} ellipsizeMode={'tail'}>
                     {t('common.spot.name', {
                       parking: userProfile.spot.parking.name,
                       number: userProfile.spot.name,
                     })}
                   </Text>
                 )}
-                <ThemedIcon name={'pencil'} />
               </View>
             </Card>
           </Pressable>
@@ -904,7 +903,6 @@ function ParkingBottomSheet(props: {
                       parking={parking}
                       isSelected={selectedParking?.id === parking.id}
                       onSelect={() => selectParking(parking)}
-                      onEdit={() => onParkingEdit(parking)}
                     />
                   ))
                 ) : (
@@ -992,36 +990,22 @@ function ParkingCard(props: {
   isSelected: boolean;
   parking: ParkingResponse;
   onSelect: () => void;
-  onEdit: () => void;
 }) {
-  const { userProfile } = useCurrentUser();
   const { colors } = useColorScheme();
-
-  const isOwned = props.parking.ownerId === userProfile.id;
 
   return (
     <Pressable disabled={props.parking.isFull} onPress={props.onSelect}>
       <Card highlight={props.isSelected}>
-        <View className={'flex-row items-center justify-between'}>
-          <View className={'flex-row items-center'}>
-            <Text className={'text-lg font-bold'}>{props.parking.name}</Text>
-            {isOwned && (
-              <Button
-                variant={'plain'}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  props.onEdit();
-                }}>
-                <ThemedIcon name={'pencil'} color={colors.foreground} />
-              </Button>
-            )}
-          </View>
+        <View className={'flex-row items-center justify-between gap-2'}>
+          <Text numberOfLines={2} ellipsizeMode={'tail'} className={'flex-1 text-lg font-bold'}>
+            {props.parking.name}
+          </Text>
           <ParkingSpotCount parking={props.parking} />
         </View>
         <View className="flex-row items-center justify-between gap-4">
           <View className={'w-4/5 flex-row items-center gap-4'}>
             <ThemedIcon name={'tag'} component={FontAwesome6} />
-            <Text className="shrink text-sm">{props.parking.address}</Text>
+            <Text className={'text-sm'}>{props.parking.address}</Text>
           </View>
           {props.parking.isFull && <ThemedIcon name={'lock'} color={colors.destructive} />}
           {props.isSelected && <ThemedIcon name={'check'} color={colors.primary} />}
