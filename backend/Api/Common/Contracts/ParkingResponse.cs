@@ -13,7 +13,7 @@ public sealed record ParkingResponse
     public required string Address { get; init; }
     public required int SpotsCount { get; init; }
     public required string OwnerId { get; init; }
-    public required int MaxSpots { get; init; }
+    public required uint MaxSpots { get; init; }
     public required bool IsFull { get; init; }
 }
 
@@ -37,8 +37,8 @@ public static class ParkingResponseExtensions
                 Address = x.parking.Address,
                 Code = x.parking.Code,
                 SpotsCount = x.spotCount,
-                IsFull = x.spotCount >= Parking.FreeMaxSpotCount,
-                MaxSpots = Parking.FreeMaxSpotCount
+                IsFull = x.spotCount >= x.parking.MaxSpotCount,
+                MaxSpots = x.parking.MaxSpotCount
             });
     }
 }
