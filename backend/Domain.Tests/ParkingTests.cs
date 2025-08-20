@@ -16,13 +16,12 @@ public sealed class ParkingTests
         var parking = Parking.Create(ownerId, name, address);
 
         // Assert
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parking.Name.Name, Is.EqualTo(name));
-                Assert.That(parking.Address.Address, Is.EqualTo(address));
-                Assert.That(parking.OwnerId, Is.EqualTo(ownerId));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parking.Name.Name, Is.EqualTo(name));
+            Assert.That(parking.Address.Address, Is.EqualTo(address));
+            Assert.That(parking.OwnerId, Is.EqualTo(ownerId));
+        });
     }
 
     [Test]
@@ -40,9 +39,8 @@ public sealed class ParkingTests
         "owner-123")]
     public void Create_ShouldThrow_WhenInvalidData(string name, string address, string ownerId)
     {
-        Assert.Throws<ArgumentException>(
-            () =>
-                Parking.Create(ownerId, name, address));
+        Assert.Throws<ArgumentException>(() =>
+            Parking.Create(ownerId, name, address));
     }
 
     [Test]
@@ -52,8 +50,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
         const string newOwnerId = "new-owner-123";
 
         // Act
@@ -70,8 +70,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
 
         // Act
         var ex = Assert.Throws<BusinessException>(() => parking.TransferOwnership("owner-123"));
@@ -87,8 +89,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
         const string newName = "Updated Parking";
         const string newAddress = "456 New Street";
 
@@ -96,12 +100,11 @@ public sealed class ParkingTests
         parking.EditInfo("owner-123", newName, newAddress);
 
         // Assert
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(parking.Name.Name, Is.EqualTo(newName));
-                Assert.That(parking.Address.Address, Is.EqualTo(newAddress));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(parking.Name.Name, Is.EqualTo(newName));
+            Assert.That(parking.Address.Address, Is.EqualTo(newAddress));
+        });
     }
 
     [Test]
@@ -110,8 +113,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
         const string newName = "Updated Parking";
         const string newAddress = "456 New Street";
 
@@ -126,8 +131,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
         parking.Delete("owner-123");
 
         Assert.Pass();
@@ -139,8 +146,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
 
         var ex = Assert.Throws<BusinessException>(() => parking.Delete("other-123"));
 
@@ -156,15 +165,16 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
 
-        var ex = Assert.Throws<BusinessException>(
-            () => parking.RequestBooking(
-                "other-123",
-                now.AddHours(fromAddHours),
-                now.AddHours(toAddHours),
-                new Credits(bonus)));
+        var ex = Assert.Throws<BusinessException>(() => parking.RequestBooking(
+            "other-123",
+            now.AddHours(fromAddHours),
+            now.AddHours(toAddHours),
+            new Credits(bonus)));
 
         Assert.That(ex.Code, Is.EqualTo("ParkingBookingRequest.Invalid"));
     }
@@ -176,8 +186,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
 
         parking.RequestBooking(
             "other-123",
@@ -194,8 +206,10 @@ public sealed class ParkingTests
         var parking = Factory.Parking(
             Guid.NewGuid(),
             "owner-123",
+            new ParkingCode("P-123"),
             new ParkingName("Parking A"),
-            new ParkingAddress("Main st central"));
+            new ParkingAddress("Main st central"),
+            10);
 
         var request = parking.RequestBooking(
             "other-123",

@@ -40,17 +40,23 @@ public sealed record BookingRequestAccepted : IDomainEvent
 
 public sealed class Parking : IAggregateRoot
 {
-    public const int FreeMaxSpotCount = 10;
     private readonly List<ParkingBookingRequest> _bookingRequests = [];
     private readonly DomainEvents _domainEvents = new();
 
-    private Parking(Guid id, string ownerId, ParkingName name, ParkingAddress address, ParkingCode code)
+    private Parking(
+        Guid id,
+        string ownerId,
+        ParkingName name,
+        ParkingAddress address,
+        ParkingCode code,
+        uint maxSpotCount)
     {
         Id = id;
         OwnerId = ownerId;
         Name = name;
         Address = address;
         Code = code;
+        MaxSpotCount = maxSpotCount;
     }
 
     private Parking(
@@ -59,6 +65,7 @@ public sealed class Parking : IAggregateRoot
         ParkingName name,
         ParkingAddress address,
         ParkingCode code,
+        uint maxSpotCount,
         List<ParkingBookingRequest>? bookingRequests = null)
     {
         Id = id;
@@ -66,6 +73,7 @@ public sealed class Parking : IAggregateRoot
         Name = name;
         Address = address;
         Code = code;
+        MaxSpotCount = maxSpotCount;
         _bookingRequests = bookingRequests ?? [];
     }
 
@@ -74,6 +82,7 @@ public sealed class Parking : IAggregateRoot
     public string OwnerId { get; private set; }
     public ParkingName Name { get; private set; }
     public ParkingAddress Address { get; private set; }
+    public uint MaxSpotCount { get; }
     public IReadOnlyList<ParkingBookingRequest> BookingRequests => _bookingRequests.AsReadOnly();
 
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
@@ -88,7 +97,8 @@ public sealed class Parking : IAggregateRoot
             ownerId,
             new ParkingName(name),
             new ParkingAddress(address),
-            ParkingCode.NewRandom(6));
+            ParkingCode.NewRandom(6),
+            10);
     }
 
     public ParkingBookingRequest RequestBooking(
@@ -241,6 +251,8 @@ internal sealed class ParkingConfig : IEntityConfiguration<Parking>
         builder
             .Property(x => x.Code)
             .HasConversion(x => x.Value, x => new ParkingCode(x));
+
+        builder.Property(x => x.MaxSpotCount);
 
         builder.HasIndex(x => x.Code).IsUnique();
 
