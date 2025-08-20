@@ -60,7 +60,6 @@
     "next": "Next",
     "save": "Save",
     "delete": "Delete",
-    "logout": "Logout",
     "other": "Other",
     "search": "Search",
     "return": "Return",
@@ -93,16 +92,17 @@
       "noParkingDefined": "No group selected!",
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
-      "deleteAccount": "Delete my account",
+      "deleteAccount": "Delete my account and data",
       "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
       "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
       "deleteAccountTitle": "Delete my account",
       "editAvatar": "Edit Avatar",
-      "logout": "Logout",
-      "logoutConfirmation": "Logout",
-      "parameter": {
+      "logout": "Log out",
+      "logoutConfirmation": "Come back soon!",
+      "appInfo": "Information",
+      "settings": {
         "title": "Settings",
-        "cardTitle": "Open my settings"
+        "open": "Open my settings"
       }
     },
     "parking": {

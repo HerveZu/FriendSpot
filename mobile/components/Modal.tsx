@@ -35,7 +35,7 @@ export function Modal({
           onBackdropPress={() => onOpenChange(false)}
           // this removes the flickering on exit
           backdropTransitionOutTiming={1}>
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={50}>
             <View className={'bg-background'} {...props}>
               <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
                 {children}
@@ -52,7 +52,7 @@ export function ModalTitle(props: { text: string; icon?: ReactNode; className?: 
   return (
     <View className={cn('flex-row items-center gap-4', props.className)}>
       {props.icon}
-      <Text variant="title1" className={cn('font-semibold', props.className)}>
+      <Text variant="title1" className={cn('flex-1 font-semibold', props.className)}>
         {props.text}
       </Text>
     </View>

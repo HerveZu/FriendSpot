@@ -60,7 +60,6 @@
     "next": "Suivant",
     "save": "Enregistrer",
     "delete": "Supprimer",
-    "logout": "Déconnexion",
     "other": "Autre",
     "search": "Rechercher",
     "return": "Retour",
@@ -93,16 +92,17 @@
       "noParkingDefined": "Aucun groupe sélectionné !",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
-      "deleteAccount": "Supprimer mon compte",
+      "deleteAccount": "Supprimer mon compte et données",
       "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
       "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
       "deleteAccountTitle": "Supprimer mon compte",
       "editAvatar": "Modifier l'avatar",
-      "logout": "Se déconnecter",
-      "logoutConfirmation": "Se déconnecter",
-      "parameter": {
+      "logout": "Déconnexion",
+      "logoutConfirmation": "À bientôt !",
+      "appInfo": "Informations",
+      "settings": {
         "title": "Paramètres",
-        "cardTitle": "Ouvrir mes paramètres"
+        "open": "Ouvrir mes paramètres"
       }
     },
     "parking": {
