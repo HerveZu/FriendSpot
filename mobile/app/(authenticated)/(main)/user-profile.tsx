@@ -468,7 +468,7 @@ function SettingsBottomSheet(props: {
     <Sheet
       ref={bottomSheetRef}
       enableDynamicSizing={false}
-      snapPoints={['30%']}
+      snapPoints={[300]}
       onDismiss={() => props.onOpenChange(false)}>
       <ContentSheetView className={'flex-col gap-8'}>
         <Button
