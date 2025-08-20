@@ -859,6 +859,8 @@ function ParkingBottomSheet(props: {
                       )}
                       <Text
                         className={'w-2/3'}
+                        numberOfLines={2}
+                        ellipsizeMode={'clip'}
                         style={{
                           color: colors[option.color ?? 'primary'] ?? colors.foreground,
                         }}>
