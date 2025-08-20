@@ -41,6 +41,7 @@ import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
 import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
+import { Screen } from '~/components/Screen';
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
@@ -84,7 +85,7 @@ export default function JoinParking() {
   return (
     <>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="h-full items-center justify-between py-24">
+        <Screen className="h-full items-center justify-between py-24">
           <View className="flex items-center gap-14">
             <View className="flex items-center gap-8">
               <Text className="text-3xl font-bold">{t('user.parking.joinParking.title')}</Text>
@@ -121,7 +122,7 @@ export default function JoinParking() {
               parking={parking}
             />
           )}
-        </View>
+        </Screen>
       </TouchableWithoutFeedback>
     </>
   );
@@ -229,93 +230,19 @@ function ConfirmJoinBottomSheet({
   onJoin: () => void;
   parking: ParkingResponse;
 }) {
-  const { t } = useTranslation();
   const [step, setStep] = useState<'confirm' | 'spot'>('confirm');
-  const [lotName, setLotName] = useState('');
-  const [defineSpot, isLoading] = useLoading(useDefineSpot(), { beforeMarkingComplete: onClose });
-  const { refreshProfile } = useCurrentUser();
   const bottomSheetModalRef = useSheetRefWithState(open);
   const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
-  const { colors } = useColorScheme();
-
-  async function handleJoin() {
-    await defineSpot({ parkingId: parking.id, lotName: lotName }).then(refreshProfile);
-    onJoin();
-  }
 
   const content = () => {
     switch (step) {
       case 'confirm':
         return (
-          <>
-            <View className={'flex-col gap-6'}>
-              <View className="flex-row items-center justify-between">
-                <SheetTitle className={'text-3xl'}>
-                  {parking.name}
-                  {parking.isFull && (
-                    <Text className={'text-destructive'}>
-                      ({t('user.parking.joinParking.full')})
-                    </Text>
-                  )}
-                </SheetTitle>
-                <ParkingSpotCount parking={parking} />
-              </View>
-              <Text className="text-xl">{parking.address}</Text>
-            </View>
-
-            <ExpandRow>
-              <ExpandItem>
-                <Button variant="tonal" onPress={onClose}>
-                  <Text>{t('common.cancel')}</Text>
-                </Button>
-              </ExpandItem>
-              <ExpandItem>
-                <Button onPress={() => setStep('spot')} disabled={parking.isFull}>
-                  <Text>{t('user.parking.joinParking.join')}</Text>
-                  {parking.isFull ? (
-                    <ThemedIcon name="lock" />
-                  ) : (
-                    <ThemedIcon name="arrow-right" size={14} />
-                  )}
-                </Button>
-              </ExpandItem>
-            </ExpandRow>
-          </>
+          <ConfirmContent parking={parking} onNext={() => setStep('spot')} onCancel={onClose} />
         );
       case 'spot':
         return (
-          <>
-            <View className={'gap-3'}>
-              <SheetTitle className="text-2xl">
-                {t('user.parking.joinParking.spot.title')}
-              </SheetTitle>
-              <Text>{t('user.parking.joinParking.spot.description')}</Text>
-            </View>
-
-            <TextInput
-              value={lotName}
-              onChangeText={setLotName}
-              maxLength={10}
-              placeholder={t('user.parking.joinParking.spot.placeholder')}
-            />
-
-            <ExpandRow>
-              <ExpandItem>
-                <Button variant="tonal" onPress={() => setStep('confirm')}>
-                  <Text>{t('common.back')}</Text>
-                </Button>
-              </ExpandItem>
-              <ExpandItem>
-                <Button
-                  variant="primary"
-                  disabled={isLoading || lotName.trim() === ''}
-                  onPress={handleJoin}>
-                  {isLoading && <ActivityIndicator color={colors.foreground} />}
-                  <Text>{t('common.submit')}</Text>
-                </Button>
-              </ExpandItem>
-            </ExpandRow>
-          </>
+          <SpotContent parking={parking} onBack={() => setStep('confirm')} onComplete={onJoin} />
         );
       default:
         return null;
@@ -340,5 +267,112 @@ function ConfirmJoinBottomSheet({
         </ContentSheetView>
       </BottomSheetView>
     </Sheet>
+  );
+}
+
+function SpotContent({
+  parking,
+  onBack,
+  onComplete,
+}: {
+  parking: ParkingResponse;
+  onBack: () => void;
+  onComplete: () => void;
+}) {
+  const { t } = useTranslation();
+  const [lotName, setLotName] = useState('');
+  const [defineSpot, isLoading] = useLoading(useDefineSpot(), {
+    beforeMarkingComplete: onComplete,
+  });
+  const { refreshProfile } = useCurrentUser();
+  const { colors } = useColorScheme();
+
+  async function handleJoin() {
+    await defineSpot({ parkingId: parking.id, lotName: lotName }).then(refreshProfile);
+    onComplete();
+  }
+
+  return (
+    <>
+      <View className={'gap-3'}>
+        <SheetTitle className="text-2xl">{t('user.parking.joinParking.spot.title')}</SheetTitle>
+        <Text>{t('user.parking.joinParking.spot.description')}</Text>
+      </View>
+
+      <TextInput
+        value={lotName}
+        onChangeText={setLotName}
+        maxLength={10}
+        placeholder={t('user.parking.joinParking.spot.placeholder')}
+      />
+
+      <ExpandRow>
+        <ExpandItem>
+          <Button variant="tonal" onPress={onBack}>
+            <Text>{t('common.back')}</Text>
+          </Button>
+        </ExpandItem>
+        <ExpandItem>
+          <Button
+            variant="primary"
+            disabled={isLoading || lotName.trim() === ''}
+            onPress={handleJoin}>
+            {isLoading && <ActivityIndicator color={colors.foreground} />}
+            <Text>{t('common.submit')}</Text>
+          </Button>
+        </ExpandItem>
+      </ExpandRow>
+    </>
+  );
+}
+
+function ConfirmContent({
+  parking,
+  onNext,
+  onCancel,
+}: {
+  parking: ParkingResponse;
+  onNext: () => void;
+  onCancel: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <View className={'flex-col gap-6'}>
+        <View className="flex-row items-center justify-between">
+          <SheetTitle
+            numberOfLines={2}
+            className={'text-3xl'}
+            action={<ParkingSpotCount parking={parking} />}>
+            {parking.name}
+            {parking.isFull && (
+              <Text className={'text-destructive'}>({t('user.parking.joinParking.full')})</Text>
+            )}
+          </SheetTitle>
+        </View>
+        <Text numberOfLines={4} ellipsizeMode={'tail'}>
+          {parking.address}
+        </Text>
+      </View>
+
+      <ExpandRow>
+        <ExpandItem>
+          <Button variant="tonal" onPress={onCancel}>
+            <Text>{t('common.cancel')}</Text>
+          </Button>
+        </ExpandItem>
+        <ExpandItem>
+          <Button onPress={onNext} disabled={parking.isFull}>
+            <Text>{t('user.parking.joinParking.join')}</Text>
+            {parking.isFull ? (
+              <ThemedIcon name="lock" />
+            ) : (
+              <ThemedIcon name="arrow-right" size={14} />
+            )}
+          </Button>
+        </ExpandItem>
+      </ExpandRow>
+    </>
   );
 }

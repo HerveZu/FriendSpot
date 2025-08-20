@@ -18,7 +18,10 @@ export type TextInputProps = {
 } & NativeTextInputProps;
 
 export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
-  ({ className, onFocus, onBlur, style, icon, ...props }: TextInputProps, ref) => {
+  (
+    { className, onFocus, onBlur, style, icon, value, defaultValue, ...props }: TextInputProps,
+    ref
+  ) => {
     const [focus, setFocus] = useState(false);
     const { colors } = useColorScheme();
     const innerRef = useRef<ReactTextInput>(null);
@@ -55,6 +58,7 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
             },
             omitUndefined(style),
           ]}
+          defaultValue={value ?? defaultValue}
           {...props}
         />
         {icon && (
