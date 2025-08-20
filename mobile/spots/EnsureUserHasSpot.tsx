@@ -13,17 +13,20 @@ export function EnsureUserHasSpot({ children }: PropsWithChildren) {
   const userHasParking = user.userProfile?.spot?.parking;
   const [dismissed, setDismissed] = useState(false);
 
-  useEffect(() => {
-    !dismissed &&
-      !userHasParking &&
-      router.push({
-        pathname: '/join-parking',
-      });
-  }, [dismissed, userHasParking]);
-
   const dismiss = useCallback(() => {
     setDismissed(true);
   }, [setDismissed]);
+
+  useEffect(() => {
+    if (dismissed || userHasParking) {
+      return;
+    }
+
+    dismiss();
+    router.push({
+      pathname: '/join-parking',
+    });
+  }, [dismissed, userHasParking, dismiss]);
 
   return (
     <UserSpotCheckContext.Provider value={{ hasDismissed: dismissed, dismiss }}>
