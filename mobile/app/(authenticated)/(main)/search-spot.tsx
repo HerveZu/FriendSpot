@@ -1,5 +1,4 @@
 import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Slider } from '~/components/nativewindui/Slider';
 import {
   addHours,
@@ -25,7 +24,6 @@ import { SpotCountDownScreenParams } from '~/app/(authenticated)/spot-count-down
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
 import { Card, CardContainer } from '~/components/Card';
-import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
@@ -64,7 +62,7 @@ import {
 } from '~/endpoints/requestBooking/get-my-parking-requests';
 import { useCancelBookingRequest } from '~/endpoints/requestBooking/cancel-spot-booking-request';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
-import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
+import { DynamicBottomSheet } from '~/components/DynamicBottomSheet';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -423,7 +421,6 @@ function BookingSheet(props: {
   setInfoModalOpen?: Dispatch<SetStateAction<boolean>>;
 }) {
   const { t } = useTranslation();
-  const ref = useSheetRefWithState(props.open);
 
   const MIN_DURATION_HOURS = 0.5;
   const MAX_DURATION_HOURS = 12;
@@ -591,135 +588,127 @@ function BookingSheet(props: {
   }
 
   return (
-    <Sheet
-      ref={ref}
-      enableDynamicSizing={false}
-      onDismiss={() => props.onOpen(false)}
-      snapPoints={[700]}>
-      <BottomSheetView>
-        <ContentSheetView className="h-full flex-col gap-8">
-          <View className="grow flex-col gap-6">
-            <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
-              {capitalize(formatRelative(from, now))}
-            </SheetTitle>
+    <DynamicBottomSheet open={props.open} onOpenChange={props.onOpen}>
+      <View className="grow flex-col gap-6">
+        <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
+          {capitalize(formatRelative(from, now))}
+        </SheetTitle>
 
-            {shouldRequestSpot ? (
-              <View className={'gap-6'}>
-                <Card>
-                  <Text variant={'body'}>{t('booking.requestBooking.details')}</Text>
-                </Card>
+        {shouldRequestSpot ? (
+          <View className={'gap-6'}>
+            <Card>
+              <Text variant={'body'}>{t('booking.requestBooking.details')}</Text>
+            </Card>
 
-                <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="arrow-trend-up" />}>
-                  {t('booking.requestBooking.bonus')}
-                </SheetHeading>
-                <ButtonSelect
-                  selectedOption={requestBonusOption}
-                  setSelectedOption={setRequestBonusOption}
-                  options={[bonusOption(5), bonusOption(10), bonusOption(50)]}
+            <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="arrow-trend-up" />}>
+              {t('booking.requestBooking.bonus')}
+            </SheetHeading>
+            <ButtonSelect
+              selectedOption={requestBonusOption}
+              setSelectedOption={setRequestBonusOption}
+              options={[bonusOption(5), bonusOption(10), bonusOption(50)]}
+            />
+          </View>
+        ) : (
+          <CardContainer className={'max-h-60'}>
+            {spots
+              .sort((a, b) => a.owner.rating - b.owner.rating)
+              .reverse()
+              .map((spot, i) => (
+                <AvailableSpotCard
+                  key={i}
+                  spot={spot}
+                  selectedSpot={selectedSpot}
+                  onSelect={() => setSelectedSpot(spot)}
                 />
-              </View>
-            ) : (
-              <CardContainer className={'max-h-60'}>
-                {spots
-                  .sort((a, b) => a.owner.rating - b.owner.rating)
-                  .reverse()
-                  .map((spot, i) => (
-                    <AvailableSpotCard
-                      key={i}
-                      spot={spot}
-                      selectedSpot={selectedSpot}
-                      onSelect={() => setSelectedSpot(spot)}
-                    />
-                  ))}
-              </CardContainer>
-            )}
-          </View>
-          <View className="flex-col items-center justify-between gap-2">
-            <View className="w-full flex-row items-center justify-between">
-              <Text className="w-24">{t('booking.reserveFrom')}</Text>
-              <DatePicker
-                minimumDate={justAfterNow}
-                value={from}
-                mode="datetime"
-                materialTimeClassName={'w-24'}
-                materialDateClassName={'w-32'}
-                onChange={(ev) => {
-                  const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
-                  setFrom(from);
-                  setTo(max([minTo(from), to]));
-                }}
-              />
-            </View>
-            <View className="w-full flex-row items-center justify-between">
-              <Text className="w-24">{t('booking.reserveUntil')}</Text>
-              <DatePicker
-                minimumDate={minTo(from)}
-                value={to}
-                mode="datetime"
-                materialTimeClassName={'w-24'}
-                materialDateClassName={'w-32'}
-                onChange={(ev) => {
-                  const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
-                  setTo(to);
-                  setFrom(min([from, to]));
-                }}
-              />
-            </View>
-          </View>
-          <View className="flex-col justify-between gap-2">
-            <View className="flex-row items-center gap-2">
-              <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="clock" />}>
-                {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
-              </SheetHeading>
-            </View>
+              ))}
+          </CardContainer>
+        )}
+      </View>
+      <View className="flex-col items-center justify-between gap-2">
+        <View className="w-full flex-row items-center justify-between">
+          <Text className="w-24">{t('booking.reserveFrom')}</Text>
+          <DatePicker
+            minimumDate={justAfterNow}
+            value={from}
+            mode="datetime"
+            materialTimeClassName={'w-24'}
+            materialDateClassName={'w-32'}
+            onChange={(ev) => {
+              const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
+              setFrom(from);
+              setTo(max([minTo(from), to]));
+            }}
+          />
+        </View>
+        <View className="w-full flex-row items-center justify-between">
+          <Text className="w-24">{t('booking.reserveUntil')}</Text>
+          <DatePicker
+            minimumDate={minTo(from)}
+            value={to}
+            mode="datetime"
+            materialTimeClassName={'w-24'}
+            materialDateClassName={'w-32'}
+            onChange={(ev) => {
+              const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
+              setTo(to);
+              setFrom(min([from, to]));
+            }}
+          />
+        </View>
+      </View>
+      <View className="flex-col justify-between gap-2">
+        <View className="flex-row items-center gap-2">
+          <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="clock" />}>
+            {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
+          </SheetHeading>
+        </View>
 
-            {Platform.OS === 'ios' && (
-              <Slider
-                step={STEP_HOURS / MAX_DURATION_HOURS}
-                value={differenceInHours(to, from) / MAX_DURATION_HOURS}
-                onValueChange={(value) =>
-                  setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
-                }
-              />
-            )}
-          </View>
+        {Platform.OS === 'ios' && (
+          <Slider
+            step={STEP_HOURS / MAX_DURATION_HOURS}
+            value={differenceInHours(to, from) / MAX_DURATION_HOURS}
+            onValueChange={(value) =>
+              setTo(addHours(from, Math.max(MIN_DURATION_HOURS, value * MAX_DURATION_HOURS)))
+            }
+          />
+        )}
+      </View>
 
-          {shouldRequestSpot ? (
-            <Button
-              variant="primary"
-              size="lg"
-              disabled={
-                !requestSimulation || requestSimulation?.usedCredits > userProfile.wallet.credits
-              }
-              onPress={actuallyRequestBooking}>
-              {isRequesting && <ActivityIndicator color={colors.foreground} />}
-              <Text>
-                {requestSimulation
-                  ? t('booking.requestBooking.requestForCredits', {
-                      credits: requestSimulation.usedCredits,
-                    })
-                  : t('booking.requestBooking.request')}
-              </Text>
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              size="lg"
-              disabled={
-                !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
-              }
-              onPress={actuallyBookSpot}>
-              {isBooking && <ActivityIndicator color={colors.foreground} />}
-              <Text>
-                {bookingSimulation
-                  ? t('booking.reserveForCredits', { credits: bookingSimulation.usedCredits })
-                  : t('booking.reserve')}
-              </Text>
-            </Button>
-          )}
-        </ContentSheetView>
-      </BottomSheetView>
-    </Sheet>
+      {shouldRequestSpot ? (
+        <Button
+          variant="primary"
+          size="lg"
+          disabled={
+            !requestSimulation || requestSimulation?.usedCredits > userProfile.wallet.credits
+          }
+          onPress={actuallyRequestBooking}>
+          {isRequesting && <ActivityIndicator color={colors.foreground} />}
+          <Text>
+            {requestSimulation
+              ? t('booking.requestBooking.requestForCredits', {
+                  credits: requestSimulation.usedCredits,
+                })
+              : t('booking.requestBooking.request')}
+          </Text>
+        </Button>
+      ) : (
+        <Button
+          variant="primary"
+          size="lg"
+          disabled={
+            !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
+          }
+          onPress={actuallyBookSpot}>
+          {isBooking && <ActivityIndicator color={colors.foreground} />}
+          <Text>
+            {bookingSimulation
+              ? t('booking.reserveForCredits', { credits: bookingSimulation.usedCredits })
+              : t('booking.reserve')}
+          </Text>
+        </Button>
+      )}
+    </DynamicBottomSheet>
   );
 }
 

@@ -1,5 +1,4 @@
 import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
 import TreeIllustration from 'assets/tree.svg';
 import { BlinkingDot } from '~/components/BlinkingDot';
 import {
@@ -14,15 +13,14 @@ import {
   min,
 } from 'date-fns';
 import { Redirect } from 'expo-router';
-import React, { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, View } from 'react-native';
+import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
 import { Card } from '~/components/Card';
-import { ContentSheetView } from '~/components/ContentView';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
@@ -32,7 +30,6 @@ import { SheetTitle, Title } from '~/components/Title';
 import { User, UserAvatar, Users } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker';
-import { Sheet } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { useCancelBooking } from '~/endpoints/booking/cancel-spot-booking';
 import {
@@ -58,7 +55,7 @@ import { useAcceptBookingRequest } from '~/endpoints/requestBooking/accept-spot-
 import { Modal, ModalProps, ModalTitle } from '~/components/Modal';
 import { Rating } from '~/components/Rating';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
-import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
+import { DynamicBottomSheet } from '~/components/DynamicBottomSheet';
 
 export default function MySpotScreen() {
   const { t } = useTranslation();
@@ -311,7 +308,6 @@ function AvailabilityBookingCard(props: { spotId: string; booking: AvailabilityB
 
 function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<boolean>> }) {
   const { t } = useTranslation();
-  const ref = useSheetRefWithState(props.open);
   const [lend, actionPending] = useLoading(useLendSpot(), {
     skiLoadingWhen: (_, simulation?: boolean) => !!simulation,
     beforeMarkingComplete: () => props.onOpen(false),
@@ -362,88 +358,75 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   const justAfterNow = addMinutes(now, 5);
 
   return (
-    <Sheet
-      ref={ref}
-      onDismiss={() => props.onOpen(false)}
-      enableDynamicSizing={false}
-      snapPoints={[
-        simulation?.overlaps
-          ? Platform.select({ android: 550, default: 500 })
-          : Platform.select({ android: 400, default: 350 }),
-      ]}>
-      <BottomSheetView>
-        <ContentSheetView className="h-full flex-col justify-between">
-          <List>
-            <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
-              {capitalize(formatRelative(from, now))}
-            </SheetTitle>
-            <View className="flex-row items-center gap-4">
-              <ThemedIcon component={FontAwesome6} name="clock" />
-              <Text variant="title3">
-                {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
-              </Text>
-            </View>
-          </List>
+    <DynamicBottomSheet open={props.open} onOpenChange={props.onOpen}>
+      <List>
+        <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
+          {capitalize(formatRelative(from, now))}
+        </SheetTitle>
+        <View className="flex-row items-center gap-4">
+          <ThemedIcon component={FontAwesome6} name="clock" />
+          <Text variant="title3">
+            {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
+          </Text>
+        </View>
+      </List>
 
-          {simulation?.overlaps && (
-            <View className="mx-auto w-full flex-row items-center justify-center gap-8 p-4">
-              <Text variant="title3" className="text-center text-primary">
-                {t('lending.spotAlreadyShared')}
-              </Text>
-            </View>
-          )}
+      {simulation?.overlaps && (
+        <View className="mx-auto w-full flex-row items-center justify-center gap-8 p-4">
+          <Text variant="title3" className="text-center text-primary">
+            {t('lending.spotAlreadyShared')}
+          </Text>
+        </View>
+      )}
 
-          <View className={'flex-col gap-8'}>
-            <View className="flex-col items-center justify-between gap-2">
-              <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">{t('lending.lendFrom')}</Text>
-                <DatePicker
-                  minimumDate={justAfterNow}
-                  value={from}
-                  mode="datetime"
-                  materialTimeClassName={'w-24'}
-                  materialDateClassName={'w-32'}
-                  onChange={(ev) => {
-                    const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
-                    setFrom(from);
-                    setTo(max([minTo(from), to]));
-                  }}
-                />
-              </View>
-              <View className="w-full flex-row items-center justify-between">
-                <Text className="w-24">{t('lending.lendUntil')}</Text>
-                <DatePicker
-                  minimumDate={minTo(from)}
-                  value={to}
-                  mode="datetime"
-                  materialTimeClassName={'w-24'}
-                  materialDateClassName={'w-32'}
-                  onChange={(ev) => {
-                    const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
-                    setTo(to);
-                    setFrom(min([from, to]));
-                  }}
-                />
-              </View>
-            </View>
-
-            <Button
-              variant="primary"
-              size="lg"
-              disabled={simulation && simulation.earnedCredits <= 0}
-              onPress={() => lendSpot(from, to)}>
-              {actionPending && <ActivityIndicator color={colors.foreground} />}
-              <Text>
-                {simulation && simulation.earnedCredits > 0
-                  ? t('lending.lendAndEarnCredits', {
-                      credits: Math.round(simulation?.earnedCredits),
-                    })
-                  : t('lending.lendMySpot')}
-              </Text>
-            </Button>
+      <View className={'flex-col gap-8'}>
+        <View className="flex-col items-center justify-between gap-2">
+          <View className="w-full flex-row items-center justify-between">
+            <Text className="w-24">{t('lending.lendFrom')}</Text>
+            <DatePicker
+              minimumDate={justAfterNow}
+              value={from}
+              mode="datetime"
+              materialTimeClassName={'w-24'}
+              materialDateClassName={'w-32'}
+              onChange={(ev) => {
+                const from = max([justAfterNow, new Date(ev.nativeEvent.timestamp)]);
+                setFrom(from);
+                setTo(max([minTo(from), to]));
+              }}
+            />
           </View>
-        </ContentSheetView>
-      </BottomSheetView>
-    </Sheet>
+          <View className="w-full flex-row items-center justify-between">
+            <Text className="w-24">{t('lending.lendUntil')}</Text>
+            <DatePicker
+              minimumDate={minTo(from)}
+              value={to}
+              mode="datetime"
+              materialTimeClassName={'w-24'}
+              materialDateClassName={'w-32'}
+              onChange={(ev) => {
+                const to = max([minTo(from), new Date(ev.nativeEvent.timestamp)]);
+                setTo(to);
+                setFrom(min([from, to]));
+              }}
+            />
+          </View>
+        </View>
+
+        <Button
+          size="lg"
+          disabled={simulation && simulation.earnedCredits <= 0}
+          onPress={() => lendSpot(from, to)}>
+          {actionPending && <ActivityIndicator color={colors.foreground} />}
+          <Text>
+            {simulation && simulation.earnedCredits > 0
+              ? t('lending.lendAndEarnCredits', {
+                  credits: Math.round(simulation?.earnedCredits),
+                })
+              : t('lending.lendMySpot')}
+          </Text>
+        </Button>
+      </View>
+    </DynamicBottomSheet>
   );
 }

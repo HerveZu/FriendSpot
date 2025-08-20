@@ -1,4 +1,4 @@
-import React, {
+import {
   createRef,
   Dispatch,
   PropsWithChildren,
@@ -9,20 +9,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  Share,
-  TextInput as ReactTextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, Share, TextInput as ReactTextInput, View, } from 'react-native';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { TextInput } from '~/components/TextInput';
-import { Sheet } from '~/components/nativewindui/Sheet';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
@@ -35,7 +28,6 @@ import { Card, CardContainer } from '~/components/Card';
 import { cn } from '~/lib/cn';
 import { SheetTitle, Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/me/logout';
-import { ContentSheetView } from '~/components/ContentView';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
@@ -56,11 +48,11 @@ import { useRouter } from 'expo-router';
 import CautionIllustration from '~/assets/caution.svg';
 import { useLeaveSpot } from '~/endpoints/parkings/leave-spot';
 import { ExpandItem, ExpandRow } from '~/components/ExpandItem';
-import { useSheetRefWithState } from '~/lib/useSheetRefWithState';
 import { useSearchParking } from '~/endpoints/parkings/search-parking';
 import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { ParkingSpotCount } from '~/components/ParkingSpotCount';
+import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/DynamicBottomSheet';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -461,16 +453,11 @@ function SettingsBottomSheet(props: {
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
   const { colors } = useColorScheme();
-  const bottomSheetRef = useSheetRefWithState(props.open);
   const { t } = useTranslation();
 
   return (
-    <Sheet
-      ref={bottomSheetRef}
-      enableDynamicSizing={false}
-      snapPoints={[300]}
-      onDismiss={() => props.onOpenChange(false)}>
-      <ContentSheetView className={'flex-col gap-8'}>
+    <>
+      <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
         <Button
           variant={'plain'}
           onPress={() => setConfirmLogout(true)}
@@ -488,13 +475,13 @@ function SettingsBottomSheet(props: {
           <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
         </Button>
         <AppVersionInfo />
-        <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
-        <AccountDeletionConfirmationModal
-          visible={confirmAccountDeletion}
-          onVisibleChange={setConfirmAccountDeletion}
-        />
-      </ContentSheetView>
-    </Sheet>
+      </DynamicBottomSheet>
+      <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
+      <AccountDeletionConfirmationModal
+        visible={confirmAccountDeletion}
+        onVisibleChange={setConfirmAccountDeletion}
+      />
+    </>
   );
 }
 
@@ -675,17 +662,14 @@ function ParkingBottomSheet(props: {
 }) {
   const { userProfile } = useCurrentUser();
   const [currentSpotName, setCurrentSpotName] = useState(userProfile.spot?.name);
-  const [step, setStep] = useState<'select-parking-option' | 'searchGroup'>(
-    'select-parking-option'
-  );
+  const [step, setStep] = useState<'selectParkingOption' | 'searchGroup'>('selectParkingOption');
   const [confirmLeaveGroup, setConfirmLeaveGroup] = useState(false);
 
   const { colors } = useColorScheme();
-  const bottomSheetModalRef = useSheetRefWithState(props.open);
   const { t } = useTranslation();
 
   const [search, setSearch] = useState<string>();
-  const [searchFocused, setSearchFocused] = useState(false);
+  const [inputFocused, setInputFocused] = useState<'search' | 'spotName' | null>(null);
   const searchParking = useSearchParking();
 
   const [defineSpot, isUpdating] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
@@ -706,7 +690,7 @@ function ParkingBottomSheet(props: {
   const router = useRouter();
 
   const spotNameRef = createRef<ReactTextInput>();
-  const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
+  const { keyboardVisible } = useKeyboardVisible();
 
   // Notify the user that they must select a group
   useEffect(() => {
@@ -721,7 +705,7 @@ function ParkingBottomSheet(props: {
         setSelectedParking(parking.find((parking) => parking.id === userProfile.spot?.parking.id));
     } else {
       setSearch(undefined);
-      setStep('select-parking-option');
+      setStep('selectParkingOption');
       setCurrentSpotName(userProfile.spot?.name);
     }
   }, [props.open]);
@@ -765,7 +749,7 @@ function ParkingBottomSheet(props: {
     setParkingModalOpen(true);
   }
 
-  const maximizeSpace = searchFocused && keyboardVisible;
+  const maximizeSearch = inputFocused === 'search' && keyboardVisible;
 
   const optionActions: {
     label: string;
@@ -815,9 +799,9 @@ function ParkingBottomSheet(props: {
 
   const SheetContent = () => {
     switch (step) {
-      case 'select-parking-option':
+      case 'selectParkingOption':
         return (
-          <ContentSheetView className={'flex-col gap-6'}>
+          <>
             <SheetTitle
               className={'items-center justify-between'}
               action={
@@ -871,33 +855,29 @@ function ParkingBottomSheet(props: {
                 </View>
               ))}
             </View>
-          </ContentSheetView>
+          </>
         );
       case 'searchGroup':
         return (
-          <ContentSheetView
-            className={'flex-col justify-between gap-4'}
-            style={
-              keyboardVisible && {
-                paddingBottom: keyboardHeight + 24,
-              }
-            }>
-            <View className="grow flex-col gap-2">
-              <TextInput
-                icon={{
-                  position: 'left',
-                  element: <ThemedIcon name={'search'} />,
-                }}
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-                textContentType={'addressCityAndState'}
-                editable={true}
-                value={fullSearch}
-                onChangeText={setSearch}
-                onPress={() => setSearch('')}
-                placeholder={t('user.parking.openOptions.searchGroup')}
-              />
-              <CardContainer className={'flex-1'}>
+          <>
+            <View className={cn('flex-col gap-2')}>
+              <DynamicBottomSheetTextInput>
+                <TextInput
+                  icon={{
+                    position: 'left',
+                    element: <ThemedIcon name={'search'} />,
+                  }}
+                  textContentType={'addressCityAndState'}
+                  editable={true}
+                  value={fullSearch}
+                  onChangeText={setSearch}
+                  onPress={() => setSearch('')}
+                  placeholder={t('user.parking.openOptions.searchGroup')}
+                  onFocus={() => setInputFocused('search')}
+                  onBlur={() => setInputFocused(null)}
+                />
+              </DynamicBottomSheetTextInput>
+              <CardContainer className={cn('h-72', maximizeSearch && 'h-full')}>
                 {parking && parking.length > 0 ? (
                   parking.map((parking) => (
                     <ParkingCard
@@ -914,13 +894,14 @@ function ParkingBottomSheet(props: {
                 )}
               </CardContainer>
             </View>
-            {!maximizeSpace && (
-              <>
-                <View className="flex-col gap-8">
-                  <View className="w-full flex-row items-center justify-between">
-                    <Text disabled={!selectedParking} className="disabled:opacity-50">
-                      {t('common.spot.numberLabel')}
-                    </Text>
+
+            <>
+              <View className="flex-col gap-8">
+                <View className="w-full flex-row items-center justify-between gap-4">
+                  <Text disabled={!selectedParking} className="disabled:opacity-50">
+                    {t('common.spot.numberLabel')}
+                  </Text>
+                  <DynamicBottomSheetTextInput>
                     <TextInput
                       ref={spotNameRef}
                       className="w-40"
@@ -931,20 +912,22 @@ function ParkingBottomSheet(props: {
                       value={currentSpotName}
                       editable={!!selectedParking}
                       onChangeText={setCurrentSpotName}
+                      onFocus={() => setInputFocused('spotName')}
+                      onBlur={() => setInputFocused(null)}
                     />
-                  </View>
+                  </DynamicBottomSheetTextInput>
                 </View>
-                <Button
-                  className={`w-full rounded-xl bg-primary`}
-                  disabled={!selectedParking || !currentSpotName || isUpdating}
-                  onPress={() => updateParking()}
-                  size={'lg'}>
-                  {isUpdating && <ActivityIndicator color={colors.foreground} />}
-                  <Text className="text-white">{t('common.save')}</Text>
-                </Button>
-              </>
-            )}
-          </ContentSheetView>
+              </View>
+
+              <Button
+                disabled={!selectedParking || !currentSpotName || isUpdating}
+                onPress={() => updateParking()}
+                size={'lg'}>
+                {isUpdating && <ActivityIndicator color={colors.foreground} />}
+                <Text className="text-white">{t('common.save')}</Text>
+              </Button>
+            </>
+          </>
         );
       default:
         return null;
@@ -977,13 +960,9 @@ function ParkingBottomSheet(props: {
         onDelete={deleteParkingState}
       />
 
-      <Sheet
-        ref={bottomSheetModalRef}
-        enableDynamicSizing={false}
-        onDismiss={() => props.onOpenChange(false)}
-        snapPoints={step === 'searchGroup' ? ['90%'] : [300]}>
+      <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
         {SheetContent()}
-      </Sheet>
+      </DynamicBottomSheet>
     </>
   );
 }

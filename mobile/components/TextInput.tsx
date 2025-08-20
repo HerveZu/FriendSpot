@@ -37,11 +37,11 @@ export const TextInput = forwardRef<ReactTextInput, TextInputProps>(
           ref={refToUse}
           onFocus={(e) => {
             setFocus(true);
-            onFocus && onFocus(e);
+            onFocus?.(e);
           }}
           onBlur={(e) => {
             setFocus(false);
-            onBlur && onBlur(e);
+            onBlur?.(e);
           }}
           className={cn(
             'relative min-h-12 rounded-xl border bg-background p-2 text-lg',
