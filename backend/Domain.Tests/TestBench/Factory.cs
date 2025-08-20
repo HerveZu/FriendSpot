@@ -46,11 +46,13 @@ internal sealed class Factory
     public static Parking Parking(
         Guid id,
         string ownerId,
+        ParkingCode code,
         ParkingName name,
         ParkingAddress address,
+        uint maxSpotCount,
         List<ParkingBookingRequest>? bookingRequests = null)
     {
-        return ActivateNonPublic<Parking>(id, ownerId, name, address, bookingRequests);
+        return ActivateNonPublic<Parking>(id, ownerId, name, address, code, maxSpotCount, bookingRequests);
     }
 
     private static T ActivateNonPublic<T>(params object?[] parameters)
