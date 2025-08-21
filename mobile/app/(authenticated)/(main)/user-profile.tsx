@@ -288,7 +288,9 @@ export function AccountDeletionConfirmationModal({
                 borderRadius: 6,
               }}
             />
-            <Text variant={'caption1'}>{t('user.profile.deleteAccountConfirm')}</Text>
+            <Text variant={'caption1'} className={'flex-1'}>
+              {t('user.profile.deleteAccountConfirm')}
+            </Text>
           </View>
         </View>
 
