@@ -3,6 +3,7 @@ using Api.Common.Options;
 using FastEndpoints;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace Api.DeepLinks;
 
@@ -45,6 +46,14 @@ internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILo
 
         logger.LogInformation("Scrapping HTML metadata tags from {Target} to forward", appUrl);
         using var client = new HttpClient();
+
+        var acceptLanguage = HttpContext.Request.Headers.AcceptLanguage.FirstOrDefault();
+
+        if (acceptLanguage is not null)
+        {
+            client.DefaultRequestHeaders.Add(HeaderNames.AcceptLanguage, acceptLanguage);
+        }
+
         var targetResponse = await client.GetAsync(appUrl, ct);
 
         if (!targetResponse.IsSuccessStatusCode)
