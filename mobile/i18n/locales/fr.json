@@ -260,13 +260,13 @@
       "neighbourhood": {
         "name": "Quartier",
         "description": "Pour les quartiers et les communautés.",
-        "features": "Jusqu'à 50 membres par groupe;Gestion de groupe avancée;Support dédié",
+        "features": "Jusqu'à 50 membres;Privé;Code personalisé;Support dédié",
         "upgradeButton": "Créer un groupe"
       },
       "custom": {
         "name": "Personnalisé",
         "description": "Bénéficiez de fonctionnalités personnalisées et adaptées à vos besoins. Contactez-nous dès aujourd'hui !",
-        "features": "Tout ce qui est inclu dans Quartier;Membres du groupe illimités;Fonctionnalités personnalisées",
+        "features": "Tout ce qui est inclu dans Quartier;Nombre de membre illimité;Fonctionnalités personnalisées",
         "upgradeButton": "Nous contacter"
       }
     }
