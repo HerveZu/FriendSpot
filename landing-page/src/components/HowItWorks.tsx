@@ -1,35 +1,33 @@
 import { useEffect, useRef } from "react";
 import { Clock, MapPin, Repeat, UserPlus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const steps = [
   {
     icon: UserPlus,
-    title: "Create or Join Groups",
-    description:
-      "Start by creating a parking group with friends, family, or neighbors. Or join existing groups in your area.",
+    titleKey: "howItWorks.steps.createOrJoin.title",
+    descriptionKey: "howItWorks.steps.createOrJoin.description",
   },
   {
     icon: MapPin,
-    title: "Share Your Spot",
-    description:
-      "When you're not using your parking spot, make it available to your group members.",
+    titleKey: "howItWorks.steps.shareSpot.title",
+    descriptionKey: "howItWorks.steps.shareSpot.description",
   },
   {
     icon: Clock,
-    title: "Earn Time Credits",
-    description:
-      "For every hour you share your spot, you earn 1 hour of parking credit to use elsewhere.",
+    titleKey: "howItWorks.steps.earnCredits.title",
+    descriptionKey: "howItWorks.steps.earnCredits.description",
   },
   {
     icon: Repeat,
-    title: "Use Others' Spots",
-    description:
-      "Spend your earned credits to park in other members' spots when you need them.",
+    titleKey: "howItWorks.steps.useSpots.title",
+    descriptionKey: "howItWorks.steps.useSpots.description",
   },
 ];
 
 export const HowItWorks = () => {
   const ref = useRef<HTMLElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -54,11 +52,10 @@ export const HowItWorks = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-50 mb-4">
-            How It Works
+            {t("howItWorks.title")}
           </h2>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-            Simple, fair, and completely free. Join the parking revolution in 4
-            easy steps.
+            {t("howItWorks.subtitle")}
           </p>
         </div>
 
@@ -78,10 +75,10 @@ export const HowItWorks = () => {
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-50 mb-4">
-                    {step.title}
+                    {t(step.titleKey)}
                   </h3>
                   <p className="text-slate-300 leading-relaxed">
-                    {step.description}
+                    {t(step.descriptionKey)}
                   </p>
                 </div>
               </div>

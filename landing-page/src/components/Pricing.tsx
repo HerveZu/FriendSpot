@@ -1,70 +1,47 @@
 import { useEffect, useRef } from "react";
 import { Building, Check, Crown, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const plans = [
   {
-    name: "Free",
-    price: "€0",
-    period: "forever",
+    nameKey: "pricing.plans.free.name",
+    priceKey: "pricing.plans.free.price",
+    periodKey: "pricing.plans.free.period",
     icon: Star,
-    description: "Perfect for getting started with parking sharing",
-    features: [
-      "Unlimited parking group creation up to 10 members",
-      "24-hour time limit per reservation",
-      "Community support",
-    ],
-    buttonText: "Get Started Free",
+    descriptionKey: "pricing.plans.free.description",
+    featuresKey: "pricing.plans.free.features",
+    buttonTextKey: "pricing.plans.free.buttonText",
     buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
     popular: false,
   },
   {
-    name: "Premium",
-    price: "€1.99",
-    period: "/month",
+    nameKey: "pricing.plans.premium.name",
+    priceKey: "pricing.plans.premium.price",
+    periodKey: "pricing.plans.premium.period",
     icon: Crown,
-    description: "Unlock unlimited parking potential for the best experience",
-    features: [
-      "Everything in Free",
-      "Unlimited time per reservation",
-      "Parking sharing requests",
-    ],
-    buttonText: "Start Premium",
+    descriptionKey: "pricing.plans.premium.description",
+    featuresKey: "pricing.plans.premium.features",
+    buttonTextKey: "pricing.plans.premium.buttonText",
     buttonClass:
       "bg-gradient-to-r from-primary to-secondary hover:shadow-xl text-white",
     popular: true,
   },
   {
-    name: "Neighbourhood",
-    price: "€2.99",
-    period: "/month per user",
+    nameKey: "pricing.plans.neighbourhood.name",
+    priceKey: "pricing.plans.neighbourhood.price",
+    periodKey: "pricing.plans.neighbourhood.period",
     icon: Building,
-    description: "For larger neighbourhoods and communities",
-    features: [
-      "Up to 50 group members",
-      "Advanced group management",
-      "Dedicated support",
-    ],
-    buttonText: "Create group",
+    descriptionKey: "pricing.plans.neighbourhood.description",
+    featuresKey: "pricing.plans.neighbourhood.features",
+    buttonTextKey: "pricing.plans.neighbourhood.buttonText",
     buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
     popular: false,
   },
-  // {
-  //   name: "Custom",
-  //   icon: Building,
-  //   description: "Tailored to your community and needs.",
-  //   features: [
-  //     "Everything in Neighbourhood",
-  //     "Unlimited group members",
-  //     "Discuss your parking needs with us",
-  //   ],
-  //   buttonText: "Contact us",
-  //   buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
-  //   popular: false,
-  // },
 ];
 
 export const Pricing = () => {
   const ref = useRef<HTMLElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -89,11 +66,10 @@ export const Pricing = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-50 mb-4">
-            Simple, Fair Pricing
+            {t("pricing.title")}
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-            Choose the plan that fits your parking needs. Start free and upgrade
-            when you're ready for more features.
+            {t("pricing.subtitle")}
           </p>
         </div>
 
@@ -117,7 +93,7 @@ export const Pricing = () => {
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <div className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-sm font-semibold">
-                        Most Popular
+                        {t("pricing.mostPopular")}
                       </div>
                     </div>
                   )}
@@ -133,35 +109,47 @@ export const Pricing = () => {
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-slate-50 mb-2">
-                      {plan.name}
+                      {t(plan.nameKey)}
                     </h3>
-                    <p className="text-slate-300 mb-4">{plan.description}</p>
+                    <p className="text-slate-300 mb-4">
+                      {t(plan.descriptionKey)}
+                    </p>
                     <div className="mb-2">
                       <span className="text-4xl font-bold text-slate-50">
-                        {plan.price}
+                        {t(plan.priceKey)}
                       </span>
-                      <span className="text-slate-300">{plan.period}</span>
+                      <span className="text-slate-300">
+                        {t(plan.periodKey)}
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex-1">
                     <ul className="space-y-4 mb-8">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li
-                          key={featureIndex}
-                          className="flex items-center space-x-3"
-                        >
-                          <Check className="w-5 h-5 text-primary/80 flex-shrink-0" />
-                          <span className="text-slate-300">{feature}</span>
-                        </li>
-                      ))}
+                      {Array.isArray(
+                        t(plan.featuresKey, { returnObjects: true }),
+                      )
+                        ? t(plan.featuresKey, { returnObjects: true }).map(
+                            (feature: string, featureIndex: number) => (
+                              <li
+                                key={featureIndex}
+                                className="flex items-center space-x-3"
+                              >
+                                <Check className="w-5 h-5 text-primary/80 flex-shrink-0" />
+                                <span className="text-slate-300">
+                                  {feature}
+                                </span>
+                              </li>
+                            ),
+                          )
+                        : null}
                     </ul>
                   </div>
 
                   <button
                     className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 capitalize transform hover:scale-105 ${plan.buttonClass}`}
                   >
-                    {plan.buttonText}
+                    {t(plan.buttonTextKey)}
                   </button>
                 </div>
               </div>
@@ -170,10 +158,7 @@ export const Pricing = () => {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-slate-400">
-            All plans include our core parking sharing features. No hidden fees,
-            cancel anytime.
-          </p>
+          <p className="text-slate-400">{t("pricing.footer")}</p>
         </div>
       </div>
     </section>
