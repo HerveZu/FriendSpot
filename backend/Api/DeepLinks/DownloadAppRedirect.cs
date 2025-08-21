@@ -1,6 +1,9 @@
+using System.Text;
 using Api.Common.Options;
 using FastEndpoints;
+using HtmlAgilityPack;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace Api.DeepLinks;
 
@@ -37,12 +40,51 @@ internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILo
 
         if (appUrl is null)
         {
-            ThrowError("Could not determine what device platform is used from the User-Agent header.");
+            logger.LogDebug("User-Agent {UserAgent} not recognized, falling back to the AppStore", userAgent);
+            appUrl = $"https://itunes.apple.com/app/id{options.Value.AppleAppId}";
+        }
+
+        logger.LogInformation("Scrapping HTML metadata tags from {Target} to forward", appUrl);
+        using var client = new HttpClient();
+
+        var acceptLanguage = HttpContext.Request.Headers.AcceptLanguage.FirstOrDefault();
+
+        if (acceptLanguage is not null)
+        {
+            client.DefaultRequestHeaders.AcceptLanguage.Clear();
+            client.DefaultRequestHeaders.Add(HeaderNames.AcceptLanguage, acceptLanguage);
+        }
+
+        var targetResponse = await client.GetAsync(appUrl, ct);
+
+        if (!targetResponse.IsSuccessStatusCode)
+        {
+            logger.LogWarning("Failed to fetch HTML metadata, falling back to a standard redirection");
+            await SendRedirectAsync(appUrl, false, true);
             return;
         }
 
-        logger.LogInformation("Redirecting to app url for download {AppUrl}", appUrl);
+        var html = await targetResponse.Content.ReadAsStringAsync(ct);
+        var htmlDocument = new HtmlDocument();
+        htmlDocument.LoadHtml(html);
+        var metaTags = htmlDocument.DocumentNode.SelectNodes("//head/meta");
 
-        await SendRedirectAsync(appUrl, false, true);
+        await SendBytesAsync(
+            Encoding.UTF8.GetBytes(
+                $"""
+                 <!DOCTYPE html>
+                 <html>
+                 <head>
+                     {string.Join('\n', metaTags.Select(tag => tag.OuterHtml))}
+                   
+                     <meta http-equiv="refresh" content="1;url={appUrl}" />
+                 </head>
+                 <body>
+                   <p>Redirecting...</p>
+                 </body>
+                 </html>
+                 """),
+            contentType: "text/html; charset=utf-8",
+            cancellation: ct);
     }
 }
