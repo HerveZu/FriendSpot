@@ -1,0 +1,102 @@
+{
+  "header": {
+    "logo": "FriendSpot",
+    "nav": {
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "contact": "Contact"
+    }
+  },
+  "hero": {
+    "title": {
+      "part1": "Neighbor-to-neighbor parking",
+      "part2": "made simple"
+    },
+    "subtitle": {
+      "line1": "The first app for sharing parking spots between neighbors.",
+      "line2": "1 hour shared = 1 point earned"
+    },
+    "features": {
+      "communityDriven": "Community-driven",
+      "timeBasedSharing": "Time-based sharing",
+      "completelyFree": "No hidden fees"
+    },
+    "download": {
+      "iOS": "Download for iOS",
+      "android": "Download for Android"
+    }
+  },
+  "pricing": {
+    "title": "Simple, Fair Pricing",
+    "subtitle": "Choose the plan that fits your parking needs. Start with a basic plan and upgrade when you're ready for more features.",
+    "mostPopular": "Most Popular",
+    "footer": "All plans include our core parking sharing features. No hidden fees, cancel anytime.",
+    "plans": {
+      "free": {
+        "name": "Basic Plan",
+        "price": "€0",
+        "period": "forever",
+        "description": "Perfect for discovering neighbor-to-neighbor parking sharing.",
+        "features": [
+          "Unlimited parking group creation up to 10 members",
+          "24-hour time limit per reservation",
+          "Community support"
+        ],
+        "buttonText": "Available soon"
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "€1.99",
+        "period": "/month",
+        "description": "Unlock unlimited parking potential for the best experience.",
+        "features": [
+          "Everything in the Basic Plan",
+          "Unlimited time per reservation",
+          "Parking sharing requests"
+        ],
+        "buttonText": "Available soon"
+      },
+      "neighbourhood": {
+        "name": "Neighbourhood",
+        "price": "€2.99",
+        "period": "/month per user",
+        "description": "For larger neighborhoods and communities.",
+        "features": [
+          "Up to 50 group members",
+          "Advanced group management",
+          "Dedicated support"
+        ],
+        "buttonText": "Available soon"
+      }
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Simple, fair, and accessible. Join the parking revolution in 4 easy steps.",
+    "steps": {
+      "createOrJoin": {
+        "title": "Create or Join Groups",
+        "description": "Start by creating a parking group with your neighbors. Or join existing groups in your area."
+      },
+      "shareSpot": {
+        "title": "Share Your Spot",
+        "description": "When you're not using your parking spot, make it available to your group members."
+      },
+      "earnCredits": {
+        "title": "Earn Points",
+        "description": "For every hour you share your spot, you earn 1 point to use elsewhere."
+      },
+      "useSpots": {
+        "title": "Use Others' Spots",
+        "description": "Spend your earned points to park in other members' spots when you need them."
+      }
+    }
+  },
+  "footer": {
+    "logo": "FriendSpot",
+    "description": "Revolutionizing urban parking through community-driven sharing. Join thousands of users making parking stress-free and social.",
+    "copyright": "Copyright {{year}} - FriendSpot. All rights reserved.",
+    "contact": "Contact Us",
+    "privacyPolicy": "Privacy Policy"
+  }
+}
