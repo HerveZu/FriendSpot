@@ -51,6 +51,7 @@ internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILo
 
         if (acceptLanguage is not null)
         {
+            client.DefaultRequestHeaders.AcceptLanguage.Clear();
             client.DefaultRequestHeaders.Add(HeaderNames.AcceptLanguage, acceptLanguage);
         }
 
