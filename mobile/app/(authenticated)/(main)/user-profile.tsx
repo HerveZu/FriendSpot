@@ -742,8 +742,8 @@ function ParkingBottomSheet(props: {
   });
 
   const fullSearch = useMemo(
-    () => search ?? userProfile.spot?.parking.address ?? '',
-    [search, userProfile.spot?.parking.address]
+    () => search ?? userProfile.spot?.parking.name ?? '',
+    [search, userProfile.spot?.parking.name]
   );
   const [searchDebounce] = useDebounce(fullSearch, 200);
   const [parking, setParking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
