@@ -15,7 +15,7 @@
           "Limite de 24 heures par réservation",
           "Support communautaire"
         ],
-        "buttonText": "Prochainement"
+        "buttonText": "Disponible prochainement"
       },
       "premium": {
         "name": "Premium",
@@ -27,7 +27,7 @@
           "Durée illimitée par réservation",
           "Demandes de partage de stationnement"
         ],
-        "buttonText": "Prochainement"
+        "buttonText": "Disponible prochainement"
       },
       "neighbourhood": {
         "name": "Quartier",
@@ -39,7 +39,7 @@
           "Gestion avancée des groupes",
           "Support dédié"
         ],
-        "buttonText": "Prochainement"
+        "buttonText": "Disponible prochainement"
       }
     }
   },
