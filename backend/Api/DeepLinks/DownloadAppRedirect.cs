@@ -66,7 +66,7 @@ internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILo
         var html = await targetResponse.Content.ReadAsStringAsync(ct);
         var htmlDocument = new HtmlDocument();
         htmlDocument.LoadHtml(html);
-        var metaTags = htmlDocument.DocumentNode.SelectNodes("//meta");
+        var metaTags = htmlDocument.DocumentNode.SelectNodes("//head/meta");
 
         await SendBytesAsync(
             Encoding.UTF8.GetBytes(
