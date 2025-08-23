@@ -11,6 +11,7 @@ import {
 } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   Share,
   TextInput as ReactTextInput,
@@ -449,7 +450,10 @@ function SettingsBottomSheet(props: {
         <ThemedIcon name={'tags'} component={FontAwesome6} color={colors.foreground} size={14} />
       ),
       title: 'Name',
-      content: Constants.expoConfig?.name,
+      content: Platform.select({
+        ios: Constants.expoConfig?.ios?.bundleIdentifier,
+        android: Constants.expoConfig?.android?.package,
+      }),
     },
     {
       icon: (

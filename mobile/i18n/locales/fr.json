@@ -243,30 +243,27 @@
       "accept": "Accepter pour {{credits}} points"
     }
   },
-  "upgrade": {
+  "friendspotplus": {
     "title": "FriendSpot+",
-    "tag": "Prochainement",
     "plans": {
-      "periods": {
-        "monthly": "/mois",
-        "perUserMonthly": "/mois par utilisateur"
-      },
+      "everythingIn": "Tout dans {{product}}",
+      "upgradeButton": "Passer à {{product}}",
       "premium": {
-        "name": "Premium",
-        "description": "Débloquez un potentiel de stationnement illimité.",
         "features": "Durée illimitée par réservation;Demandes de partage de place de stationnement;Support basique",
-        "upgradeButton": "Mettre à niveau"
+        "period": "/mois"
       },
       "neighbourhood": {
-        "name": "Quartier",
-        "description": "Pour les quartiers et les communautés.",
-        "features": "Jusqu'à 50 membres;Privé;Code personalisé;Support dédié",
-        "upgradeButton": "Créer un groupe"
+        "features": "Création de 1 groupe;50 membres par groupe;Codes de groupe personalisés",
+        "period": "/mois"
+      },
+      "administrator": {
+        "features": "Création de jusqu'à 10 groupes;100 membres par groupe;Support dédié",
+        "period": "/mois"
       },
       "custom": {
         "name": "Personnalisé",
         "description": "Bénéficiez de fonctionnalités personnalisées et adaptées à vos besoins. Contactez-nous dès aujourd'hui !",
-        "features": "Tout ce qui est inclu dans Quartier;Nombre de membre illimité;Fonctionnalités personnalisées",
+        "features": "Création illimité de groupe;Membre illimité par groupe;Fonctionnalités personnalisées",
         "upgradeButton": "Nous contacter"
       }
     }

@@ -243,30 +243,27 @@
       "accept": "Accept for {{credits}} points"
     }
   },
-  "upgrade": {
+  "friendspotplus": {
     "title": "FriendSpot+",
-    "tag": "Coming soon",
     "plans": {
-      "periods": {
-        "monthly": "/month",
-        "perUserMonthly": "/month per user"
-      },
+      "everythingIn": "Everything in {{product}}",
+      "upgradeButton": "Upgrade to {{product}}",
       "premium": {
-        "name": "Premium",
-        "description": "Unlock unlimited group potential.",
         "features": "Unlimited time per reservation;Spot sharing requests;Basic support",
-        "upgradeButton": "Upgrade"
+        "period": "/month"
       },
       "neighbourhood": {
-        "name": "Community",
-        "description": "For neighbourhoods and communities.",
-        "features": "Up to 50 members;Private;Custom group code;Dedicated support",
-        "upgradeButton": "Create group"
+        "features": "Create 1 group;50 members per group;Custom group codes",
+        "period": "/month"
+      },
+      "administrator": {
+        "features": "Create up to 10 groups;100 members per group;Dedicated support",
+        "period": "/month"
       },
       "custom": {
         "name": "Custom",
         "description": "Get custom features tailored to your needs. Reach out today!",
-        "features": "Everything in Community;Unlimited members;Custom features",
+        "features": "Unlimited group;Unlimited members per group;Custom features",
         "upgradeButton": "Contact us"
       }
     }
