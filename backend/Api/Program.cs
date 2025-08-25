@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz;
+using Refit;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +31,7 @@ builder.Services
     .ConfigureAndValidate<S3Options>()
     .ConfigureAndValidate<CorsOptions>()
     .ConfigureAndValidate<ExpoOptions>()
-    .ConfigureAndValidate<DeeplinkOptions>()
+    .ConfigureAndValidate<AppOptions>()
     .AddHttpClient()
     .AddScoped<INotificationPushService, ExpoPushNotificationService>()
     .AddScoped<IStartupService, MigrateDb>()
@@ -56,6 +57,19 @@ builder.Services
     .AddOpenApi()
     .AddCors()
     .ConfigureHttpJsonOptions(options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+
+builder.Services
+    .AddScoped<AppleJwtMessageHandler>()
+    .AddRefitClient<IAppStoreServerApi>()
+    .ConfigureHttpClient(c =>
+    {
+        var appOptions = builder.Configuration.GetOptions<AppOptions>();
+        c.BaseAddress = new Uri(
+            appOptions.SandboxPurchases
+                ? "https://api.storekit-sandbox.itunes.apple.com/"
+                : "https://api.storekit.itunes.apple.com/");
+    })
+    .AddHttpMessageHandler<AppleJwtMessageHandler>();
 
 builder.Services
     .AddLocalization(options => options.ResourcesPath = "Resources");

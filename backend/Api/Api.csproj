@@ -10,6 +10,7 @@
     <ItemGroup>
         <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.1"/>
         <PackageReference Include="AWSSDK.S3" Version="3.7.414.2"/>
+        <PackageReference Include="BouncyCastle.NetCore" Version="2.2.1"/>
         <PackageReference Include="DotNetEnv" Version="3.1.1"/>
         <PackageReference Include="EFCoreAddQueryFilter" Version="1.0.0"/>
         <PackageReference Include="FastEndpoints" Version="5.31.0"/>
@@ -25,6 +26,8 @@
         <PackageReference Include="Quartz.AspNetCore" Version="3.13.1"/>
         <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.13.1"/>
         <PackageReference Include="Quartz.Serialization.Json" Version="3.13.1"/>
+        <PackageReference Include="Refit" Version="8.0.0"/>
+        <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0"/>
         <PackageReference Include="Serilog" Version="4.1.0"/>
         <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0"/>
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>

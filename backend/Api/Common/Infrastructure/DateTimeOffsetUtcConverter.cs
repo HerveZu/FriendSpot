@@ -12,7 +12,7 @@ internal static class DateTimeOffsetUtcConverter
             v => v.ToUniversalTime(),
             v => v);
 
-        var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+        var nullableDateTimeConverter = new ValueConverter<DateTimeOffset?, DateTimeOffset?>(
             v => v.HasValue ? v.Value.ToUniversalTime() : v,
             v => v);
 

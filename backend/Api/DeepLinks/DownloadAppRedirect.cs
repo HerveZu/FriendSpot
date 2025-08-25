@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Api.DeepLinks;
 
-internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILogger<DownloadAppRedirect> logger)
+internal sealed class DownloadAppRedirect(IOptions<AppOptions> options, ILogger<DownloadAppRedirect> logger)
     : EndpointWithoutRequest
 {
     private const string OpenPath = "/_open";
