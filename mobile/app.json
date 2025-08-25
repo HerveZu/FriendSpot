@@ -48,7 +48,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.friendspot",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
