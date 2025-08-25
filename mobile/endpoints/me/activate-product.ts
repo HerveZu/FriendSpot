@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { useApiRequest } from '~/endpoints/use-api-request';
 
 type ActivateProductRequest = {
-  readonly sku: string;
   readonly transactionId: string;
   readonly provider: 'appstore' | 'playstore';
 };

@@ -4,23 +4,28 @@ import { useActivateProduct } from '~/endpoints/me/activate-product';
 import { Platform } from 'react-native';
 
 export function ActivateIapProducts(props: PropsWithChildren) {
-  const activatePurchase = useActivateProduct();
+  const activateProduct = useActivateProduct();
 
   useIAP({
     onPurchaseSuccess: async (purchase) => {
-      if (!purchase.purchaseToken) {
-        console.warn('No purchase token found for purchase: ', purchase.productId);
+      if (!purchase.transactionId) {
+        console.warn('No transaction id found for purchase: ', purchase.transactionId);
         return;
       }
 
-      console.log('Activating product', { productId: purchase.productId });
-      await activatePurchase({
-        sku: purchase.productId,
+      console.log('Activating product', {
+        transactionId: purchase.transactionId,
+        productId: purchase.productId,
+      });
+      await activateProduct({
         transactionId: purchase.transactionId,
         provider: Platform.OS === 'ios' ? 'appstore' : 'playstore',
       });
       await finishTransaction({ purchase });
-      console.log('Product successfully activated: ', { productId: purchase.productId });
+      console.log('Product successfully activated: ', {
+        transactionId: purchase.transactionId,
+        productId: purchase.productId,
+      });
     },
   });
 
