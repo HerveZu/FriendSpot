@@ -253,11 +253,7 @@
         "period": "/mois"
       },
       "neighbourhood": {
-        "features": "Création de 1 groupe;50 membres par groupe;Codes de groupe personalisés",
-        "period": "/mois"
-      },
-      "administrator": {
-        "features": "Création de jusqu'à 10 groupes;100 membres par groupe;Support dédié",
+        "features": "Créer un groupe avec jusqu'à 50 membres;Codes de groupe personalisés",
         "period": "/mois"
       },
       "custom": {

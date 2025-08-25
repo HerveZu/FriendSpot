@@ -10,24 +10,27 @@ import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
 import { RefreshTriggerProvider } from '~/authentication/RefreshTriggerProvider';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { LiveTimerProvider } from '~/notification/LiveTimerProvider';
+import { ActivateIapProducts } from '~/authentication/ActivateIapProducts';
 
 export default function AuthenticatedLayout() {
   return (
     <AuthProvider>
       <RefreshTriggerProvider refreshIntervalMs={30_000}>
         <UserProvider>
-          {/*BottomSheetModalProvider children need to have access to the currentUser*/}
-          <BottomSheetModalProvider>
-            <EnsureUserHasSpot>
-              <LiveTimerProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                  }}
-                />
-              </LiveTimerProvider>
-            </EnsureUserHasSpot>
-          </BottomSheetModalProvider>
+          <ActivateIapProducts>
+            {/*BottomSheetModalProvider children need to have access to the currentUser*/}
+            <BottomSheetModalProvider>
+              <EnsureUserHasSpot>
+                <LiveTimerProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                    }}
+                  />
+                </LiveTimerProvider>
+              </EnsureUserHasSpot>
+            </BottomSheetModalProvider>
+          </ActivateIapProducts>
         </UserProvider>
       </RefreshTriggerProvider>
     </AuthProvider>

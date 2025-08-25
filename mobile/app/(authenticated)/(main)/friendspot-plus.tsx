@@ -144,7 +144,7 @@ function SubscriptionCard({
           skus: [product.id],
         },
       },
-    });
+    }).catch(console.error);
   }
 
   async function contactUs() {

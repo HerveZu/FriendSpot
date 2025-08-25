@@ -253,11 +253,7 @@
         "period": "/month"
       },
       "neighbourhood": {
-        "features": "Create 1 group;50 members per group;Custom group codes",
-        "period": "/month"
-      },
-      "administrator": {
-        "features": "Create up to 10 groups;100 members per group;Dedicated support",
+        "features": "Create 1 group with up to 50 members;Custom group codes",
         "period": "/month"
       },
       "custom": {
