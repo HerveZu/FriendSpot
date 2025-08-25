@@ -66,17 +66,16 @@ export function UserProvider(props: PropsWithChildren) {
           device: registerDevice,
         }).then(refreshProfile)
       ),
-    [registerUser, registerDevice, firebaseUser, getProfile, setUserProfile]
+    [registerUser, registerDevice, firebaseUser]
   );
 
   useEffect(() => {
-    // discarding when no displayName, because it takes one more render to be actually populated.
-    if (!firebaseUser.displayName && userProfile?.displayName !== firebaseUser.displayName) {
+    if (userProfile && userProfile.displayName !== firebaseUser.displayName) {
       return;
     }
 
     updateUserProfile({
-      displayName: firebaseUser.displayName,
+      displayName: firebaseUser.displayName ?? firebaseUser.email ?? 'Unknown',
       pictureUrl: firebaseUser.photoURL,
     }).then(() => console.debug('User registered after firebaseUser change trigger'));
   }, [firebaseUser.displayName]);
