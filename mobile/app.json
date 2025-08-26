@@ -44,11 +44,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.friendspot",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -60,9 +58,7 @@
         "backgroundColor": "#000000"
       },
       "package": "com.friendspot",
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "extra": {
       "router": {
