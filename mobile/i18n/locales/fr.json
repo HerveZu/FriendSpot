@@ -255,7 +255,7 @@
         "period": "/mois"
       },
       "neighbourhood": {
-        "features": "1 groupe communauté. Groupes communautés jusqu'à 50 membres",
+        "features": "1 groupe communauté;Groupes communautés jusqu'à 50 membres",
         "period": "/mois"
       },
       "custom": {
