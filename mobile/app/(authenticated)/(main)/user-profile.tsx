@@ -14,6 +14,7 @@ import {
   Platform,
   Pressable,
   Share,
+  Switch,
   TextInput as ReactTextInput,
   View,
 } from 'react-native';
@@ -21,7 +22,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import { KnownIcon, ThemedIcon } from '~/components/ThemedIcon';
 import { TextInput } from '~/components/TextInput';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
@@ -64,7 +65,7 @@ import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/Dy
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
   const { colors } = useColorScheme();
-  const { userProfile, updateUserProfile } = useCurrentUser();
+  const { userProfile, updateUserProfile, features } = useCurrentUser();
   const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [parkingBottomSheetOpen, setParkingBottomSheetOpen] = useState(false);
@@ -126,8 +127,19 @@ export default function UserProfileScreen() {
           </Pressable>
 
           <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
-              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
+            <ScreenTitle
+              wallet={false}
+              title={userProfile.displayName}
+              icon={features.isPremium && <KnownIcon name={'premium'} size={26} />}
+              className={'mb-0'}>
+              <View className={'flex-row gap-2'}>
+                <Rating
+                  displayRating
+                  rating={userProfile.rating}
+                  stars={3}
+                  color={colors.primary}
+                />
+              </View>
             </ScreenTitle>
           </View>
         </View>
@@ -184,7 +196,7 @@ export default function UserProfileScreen() {
             </Card>
           </Pressable>
         </View>
-        <View className={'flex-col'}>
+        <View className={'flex-col gap-2'}>
           <Title
             icon={{
               element: (
@@ -556,7 +568,7 @@ function SettingsBottomSheet(props: {
   );
 }
 
-function ParkingModal(props: {
+function ParkingGroupModal(props: {
   parking: ParkingResponse | null;
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
@@ -566,14 +578,15 @@ function ParkingModal(props: {
   const mode = props.parking ? 'edit' : 'create';
   const [address, setAddress] = useState(props.parking?.address ?? '');
   const [name, setName] = useState(props.parking?.name ?? '');
-  const [lotName, setLotName] = useState<string>('');
+  const [lotName, setLotName] = useState('');
+  const [neighbourhoodGroup, setNeighbourhoodGroup] = useState(false);
   const { colors } = useColorScheme();
   const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
   const [defineSpot, isJoiningGroup] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
   const { t } = useTranslation();
-  const { userProfile } = useCurrentUser();
+  const { userProfile, features } = useCurrentUser();
 
   const [createParking, isCreating] = useLoading(useCreateParking(), {
     beforeMarkingComplete: () => props.onOpenChange(false),
@@ -598,9 +611,9 @@ function ParkingModal(props: {
 
   const submitFn = {
     create: () =>
-      createParking({ name, address }).then((parking) => {
-        defineSpot({ parkingId: parking.id, lotName: lotName });
-      }),
+      createParking({ name, address, neighbourhood: neighbourhoodGroup }).then((parking) =>
+        defineSpot({ parkingId: parking.id, lotName: lotName })
+      ),
 
     edit: () => (props.parking?.id ? editParking(props.parking.id, { name, address }) : undefined),
   };
@@ -634,15 +647,18 @@ function ParkingModal(props: {
     props.onDelete(props.parking);
   }
 
-  const FREE_PARKING_MAX_SPOT = 10;
+  const canCreateNeighbourhoodGroup = features.active.availableNeighbourhoodGroups > 0;
+  const maxMembersCount = neighbourhoodGroup
+    ? features.active.maxSpotPerNeighbourhoodGroup
+    : features.active.maxSpotPerGroup;
 
   return (
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
       <ModalTitle text={titleText[mode]} />
       <View className="w-full flex-row items-center gap-2 px-2">
-        <ThemedIcon name={'user-plus'} component={FontAwesome6} size={12} />
-        <Text className="text-center text-sm">
-          {t('user.parking.memberMaxCount', { memberCount: FREE_PARKING_MAX_SPOT - 1 })}
+        <ThemedIcon name={'user-group'} component={FontAwesome6} size={14} color={colors.primary} />
+        <Text className="font-semibold text-primary">
+          {t('user.parking.memberMaxCount', { memberCount: maxMembersCount })}
         </Text>
       </View>
       <View className={'flex-col gap-2'}>
@@ -665,11 +681,6 @@ function ParkingModal(props: {
             placeholder={t('user.parking.parkingLotname')}
             maxLength={10}
           />
-        )}
-        {mode === 'create' && userProfile.spot && (
-          <Text variant={'callout'} className="mt-2 text-destructive">
-            {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
-          </Text>
         )}
       </View>
 
@@ -714,6 +725,34 @@ function ParkingModal(props: {
             </ExpandItem>
           </ExpandRow>
         </>
+      )}
+
+      {mode === 'create' && (
+        <Card className={'flex-row items-center justify-between'}>
+          <View className={'flex-row items-center gap-2'}>
+            <KnownIcon name={'premium'} size={18} color={colors.primary} />
+            <Text className={'text-primary'}>
+              {t('user.parking.addMoreMembers', {
+                memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
+              })}
+            </Text>
+            <Text disabled={!canCreateNeighbourhoodGroup}>
+              ({features.active.availableNeighbourhoodGroups}/
+              {features.active.maxNeighbourhoodGroups})
+            </Text>
+          </View>
+          <Switch
+            disabled={!canCreateNeighbourhoodGroup}
+            value={neighbourhoodGroup}
+            onValueChange={setNeighbourhoodGroup}
+          />
+        </Card>
+      )}
+
+      {mode === 'create' && userProfile.spot && (
+        <Text variant={'callout'} className="text-center text-destructive">
+          {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
+        </Text>
       )}
 
       <Button
@@ -875,6 +914,11 @@ function ParkingBottomSheet(props: {
           <>
             <SheetTitle
               className={'items-center justify-between'}
+              icon={
+                userProfile.spot?.parking.isNeighbourhood && (
+                  <KnownIcon name={'premium'} size={24} />
+                )
+              }
               action={
                 userProfile.spot?.parking?.ownerId === userProfile.id && (
                   <Button
@@ -1023,7 +1067,7 @@ function ParkingBottomSheet(props: {
         </View>
       </Modal>
 
-      <ParkingModal
+      <ParkingGroupModal
         parking={editingParking}
         open={parkingModalOpen}
         onOpenChange={setParkingModalOpen}
@@ -1049,6 +1093,7 @@ function ParkingCard(props: {
     <Pressable disabled={props.parking.isFull} onPress={props.onSelect}>
       <Card highlight={props.isSelected}>
         <View className={'flex-row items-center justify-between gap-2'}>
+          {props.parking.isNeighbourhood && <KnownIcon name={'premium'} />}
           <Text numberOfLines={2} ellipsizeMode={'tail'} className={'flex-1 text-lg font-bold'}>
             {props.parking.name}
           </Text>

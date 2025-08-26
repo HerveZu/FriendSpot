@@ -30,8 +30,8 @@ import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 
 const HeaderContext = createContext<{
   hideHeader: boolean;
-  headerText: string | undefined;
-  setHeaderText: Dispatch<SetStateAction<string | undefined>>;
+  header: ReactNode | undefined;
+  setHeader: Dispatch<SetStateAction<ReactNode | undefined>>;
 }>(null!);
 
 const HIDE_HEADER_AFTER_SCROLL = 20;
@@ -40,7 +40,7 @@ export function ScreenWithHeader(
   props: { className?: string; stickyBottom?: ReactNode } & PropsWithChildren
 ) {
   const [refreshing, setRefreshing] = useState(false);
-  const [headerText, setHeaderText] = useState<string>();
+  const [header, setHeader] = useState<ReactNode>();
   const [scroll, setScroll] = useState(0);
   const { colors, isDarkColorScheme } = useColorScheme();
   const { refreshProfile } = useCurrentUser();
@@ -65,7 +65,7 @@ export function ScreenWithHeader(
   }
 
   return (
-    <HeaderContext.Provider value={{ hideHeader, headerText, setHeaderText }}>
+    <HeaderContext.Provider value={{ hideHeader, header, setHeader }}>
       <View className={'pt-safe flex-1'}>
         <Animated.View
           className={cn(
@@ -87,7 +87,7 @@ export function ScreenWithHeader(
             />
           )}
           <Text variant="heading" className="mx-auto mb-4 mt-auto text-xl">
-            {headerText}
+            {header}
           </Text>
         </Animated.View>
         <>
@@ -140,10 +140,11 @@ export function ScreenTitle({
   wallet = true,
   className,
   style,
+  icon,
   children,
   ...props
-}: { title: string; wallet?: boolean } & ViewProps) {
-  const { hideHeader, headerText, setHeaderText } = useContext(HeaderContext);
+}: { title: ReactNode; icon?: ReactNode; wallet?: boolean } & ViewProps) {
+  const { hideHeader, header, setHeader } = useContext(HeaderContext);
   const fadeOpacity = useAnimatedValue(1);
 
   useEffect(() => {
@@ -155,7 +156,7 @@ export function ScreenTitle({
   }, [hideHeader]);
 
   useEffect(() => {
-    setHeaderText(title);
+    setHeader(title);
   }, [title]);
 
   return (
@@ -168,9 +169,12 @@ export function ScreenTitle({
         style,
       ]}
       {...props}>
-      <Text variant="title1" className="text-3xl font-extrabold">
-        {headerText}
-      </Text>
+      <View className={'flex-row items-center gap-2'}>
+        {icon}
+        <Text variant="title1" className="text-3xl font-extrabold">
+          {header}
+        </Text>
+      </View>
       <View className={'w-full flex-row items-center justify-between'}>
         {wallet && <UserWallet />}
         {children}

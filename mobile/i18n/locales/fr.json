@@ -118,7 +118,8 @@
       "noMatchingParking": "Aucun groupe ne correspond à « {{search}} ».",
       "editParking": "Modifier un groupe",
       "parkingName": "Mon groupe",
-      "memberMaxCount": "{{memberCount}} membres pourront le rejoindre.",
+      "memberMaxCount": "{{memberCount}} utilisateurs pourront le rejoindre.",
+      "addMoreMemebers": "Jusqu'à {{memberCount}} membres",
       "parkingAddress": "Information complémentaire",
       "parkingLotname": "Mon numéro de spot",
       "create": "Créer {{name}}",
@@ -138,7 +139,7 @@
       "confirmLeaveGroup": {
         "title": "Quitter {{groupName}}",
         "description": "En quittant ce groupe, toutes les réservations associées à votre spot seront annulées.",
-        "leaveAndChangeGroup": "Attention, tu t'apprêtes à quitter ton groupe actuel pour en rejoindre un nouveau.",
+        "leaveAndChangeGroup": "Tu t'apprêtes à quitter ton groupe actuel pour en rejoindre un nouveau.",
         "confirm": "Quitter"
       },
       "joinParking": {
@@ -222,7 +223,8 @@
       "bookings": "Réservations",
       "suggestedSpots": "Suggérés",
       "requests": "Demandes"
-    }
+    },
+    "groupLocked": "Ce groupe est actuellement désactivé, l'abonnement du propriétaire ayant expiré."
   },
   "lending": {
     "lendMySpot": "Prêter mon spot",
@@ -249,11 +251,11 @@
       "everythingIn": "Tout dans {{product}}",
       "upgradeButton": "Passer à {{product}}",
       "premium": {
-        "features": "Durée illimitée par réservation;Demandes de partage de place de stationnement;Support basique",
+        "features": "Durée illimitée par réservation;Réservation jusqu'à 6 mois à l'avance;Demandes de partage de place de stationnement",
         "period": "/mois"
       },
       "neighbourhood": {
-        "features": "Créer un groupe avec jusqu'à 50 membres;Codes de groupe personalisés",
+        "features": "1 groupe communauté. Groupes communautés jusqu'à 50 membres",
         "period": "/mois"
       },
       "custom": {

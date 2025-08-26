@@ -1,4 +1,4 @@
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
 import { Icon } from '@expo/vector-icons/build/createIconSet';
 import { OpaqueColorValue } from 'react-native';
 
@@ -14,10 +14,26 @@ export type ThemedIconProps<TGlyph extends string> = {
 
 export function ThemedIcon<TGlyph extends string>({
   size = 18,
-  ...props
+  name,
+  component,
+  color,
 }: ThemedIconProps<TGlyph>) {
   const { colors } = useColorScheme();
-  const Icon = props.component ?? FontAwesome;
+  const Icon = component ?? FontAwesome;
 
-  return <Icon name={props.name as any} size={size} color={props.color ?? colors.foreground} />;
+  return <Icon name={name as any} size={size} color={color ?? colors.foreground} />;
+}
+
+type KnownIconType = 'premium' | 'warning';
+
+const iconNameMap: Record<KnownIconType, string> = {
+  premium: 'crown',
+  warning: 'circle-exclamation',
+};
+
+export function KnownIcon<TGlyph extends string>({
+  name,
+  ...props
+}: Omit<ThemedIconProps<TGlyph>, 'name' | 'component'> & { name: KnownIconType }) {
+  return <ThemedIcon component={FontAwesome6} name={iconNameMap[name] as any} {...props} />;
 }

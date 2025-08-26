@@ -4,6 +4,7 @@ import {
   addHours,
   addMinutes,
   differenceInHours,
+  differenceInMilliseconds,
   differenceInSeconds,
   formatDistance,
   formatDuration,
@@ -45,7 +46,7 @@ import { cn } from '~/lib/cn';
 import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch, useHookFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
-import { capitalize, fromUtc } from '~/lib/utils';
+import { capitalize, durationToMs, fromUtc } from '~/lib/utils';
 import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
@@ -62,10 +63,11 @@ import {
   MyBookingRequestResponse,
   useGetMyBookingRequests,
 } from '~/endpoints/requestBooking/get-my-parking-requests';
+import { PremiumButton } from '~/components/PremiumButton';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
-  const { userProfile } = useCurrentUser();
+  const { userProfile, features } = useCurrentUser();
 
   const { colors } = useColorScheme();
   const getSuggestedSpots = useGetSuggestedSpots();
@@ -119,7 +121,7 @@ export default function SearchSpotScreen() {
     <ScreenWithHeader
       stickyBottom={
         <Button
-          disabled={!userProfile.spot}
+          disabled={!userProfile.spot || features.currentParkingIsLocked}
           size="lg"
           variant="primary"
           onPress={() => {
@@ -186,6 +188,10 @@ export default function SearchSpotScreen() {
               <Text>{t('common.back')}</Text>
             </Button>
           </Modal>
+        )}
+
+        {features.currentParkingIsLocked && (
+          <MessageInfo variant={'warning'} info={t('booking.groupLocked')} />
         )}
 
         <TabArea tabIndex={'booking'}>
@@ -433,7 +439,7 @@ function BookingSheet(props: {
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
 
-  const { userProfile } = useCurrentUser();
+  const { userProfile, features } = useCurrentUser();
   const { colors } = useColorScheme();
   const [book, isBooking] = useLoading(useBookSpot(), {
     skiLoadingWhen: (_body, _parkingLotId, simulation?: boolean) => !!simulation,
@@ -675,11 +681,13 @@ function BookingSheet(props: {
       </View>
 
       {shouldRequestSpot ? (
-        <Button
+        <PremiumButton
           variant="primary"
           size="lg"
           disabled={
-            !requestSimulation || requestSimulation?.usedCredits > userProfile.wallet.credits
+            !requestSimulation ||
+            requestSimulation?.usedCredits > userProfile.wallet.credits ||
+            features.currentParkingIsLocked
           }
           onPress={actuallyRequestBooking}>
           {isRequesting && <ActivityIndicator color={colors.foreground} />}
@@ -690,13 +698,18 @@ function BookingSheet(props: {
                 })
               : t('booking.requestBooking.request')}
           </Text>
-        </Button>
+        </PremiumButton>
       ) : (
-        <Button
+        <PremiumButton
+          premiumIf={
+            differenceInMilliseconds(to, now) >= durationToMs(features.active.maxBookInAdvanceTime)
+          }
           variant="primary"
           size="lg"
           disabled={
-            !bookingSimulation || bookingSimulation?.usedCredits > userProfile.wallet.credits
+            !bookingSimulation ||
+            bookingSimulation?.usedCredits > userProfile.wallet.credits ||
+            features.currentParkingIsLocked
           }
           onPress={actuallyBookSpot}>
           {isBooking && <ActivityIndicator color={colors.foreground} />}
@@ -705,7 +718,7 @@ function BookingSheet(props: {
               ? t('booking.reserveForCredits', { credits: bookingSimulation.usedCredits })
               : t('booking.reserve')}
           </Text>
-        </Button>
+        </PremiumButton>
       )}
     </DynamicBottomSheet>
   );

@@ -120,7 +120,8 @@
       "parkingName": "My group",
       "parkingLotname": "My spot number",
       "parkingAddress": "Additional information",
-      "memberMaxCount": "{{memberCount}} members can join.",
+      "memberMaxCount": "{{memberCount}} users can join.",
+      "addMoreMembers": "Up to {{memberCount}} members",
       "create": "Create {{name}}",
       "save": "Save",
       "cars": "cars",
@@ -138,7 +139,7 @@
       "confirmLeaveGroup": {
         "title": "Leave {{groupName}}",
         "description": "When leaving this group, all bookings linked to your spot will be cancelled.",
-        "leaveAndChangeGroup": "Warning, you are about to leave your current group to join a new one.",
+        "leaveAndChangeGroup": "You are about to leave your current group to join a new one.",
         "confirm": "Leave"
       },
       "joinParking": {
@@ -222,7 +223,8 @@
       "bookings": "Bookings",
       "suggestedSpots": "Suggested",
       "requests": "Requests"
-    }
+    },
+    "groupLocked": "This group is currently locked as the owner's subscription has expired."
   },
   "lending": {
     "lendMySpot": "Share my spot",
@@ -249,11 +251,11 @@
       "everythingIn": "Everything in {{product}}",
       "upgradeButton": "Upgrade to {{product}}",
       "premium": {
-        "features": "Unlimited time per reservation;Spot sharing requests;Basic support",
+        "features": "Unlimited time per reservation;Reserve a spot up to 6 months in advance;Spot sharing requests",
         "period": "/month"
       },
       "neighbourhood": {
-        "features": "Create 1 group with up to 50 members;Custom group codes",
+        "features": "1 neighbourhood group;Neighbourhood groups up to 50 members",
         "period": "/month"
       },
       "custom": {

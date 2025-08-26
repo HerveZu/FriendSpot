@@ -3,34 +3,32 @@ import { Card } from '~/components/Card';
 import { Text } from '~/components/nativewindui/Text';
 import { Button } from '~/components/nativewindui/Button';
 import { useTranslation } from 'react-i18next';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import { KnownIcon, ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { ProductCommon, useIAP } from 'expo-iap';
 import { Linking, View } from 'react-native';
 import { Loader } from '~/components/Loader';
+import { Plans } from '~/endpoints/me/get-features';
+import { useCurrentUser } from '~/authentication/UserProvider';
 
-const subscriptionInfoMap: {
-  [sku: string]: {
+const subscriptionInfoMap: Record<
+  keyof Plans,
+  {
     i18nKey: string;
     icon: ReactElement;
-    inheritSubscriptionSku?: string;
-  };
-} = {
-  'com.friendspot.subscriptions.premium': {
+    inheritSubscriptionSku?: keyof Plans;
+  }
+> = {
+  premium: {
     i18nKey: 'premium',
-    icon: <ThemedIcon name={'crown'} component={FontAwesome6} size={16} />,
+    icon: <KnownIcon name={'premium'} size={16} />,
   },
-  'com.friendspot.subscriptions.neighbourhood': {
-    inheritSubscriptionSku: 'com.friendspot.subscriptions.premium',
+  neighbourhood: {
+    inheritSubscriptionSku: 'premium',
     i18nKey: 'neighbourhood',
     icon: <ThemedIcon name={'house'} component={FontAwesome6} size={16} />,
-  },
-  'com.friendspot.subscriptions.administrator': {
-    inheritSubscriptionSku: 'com.friendspot.subscriptions.neighbourhood',
-    i18nKey: 'administrator',
-    icon: <ThemedIcon name={'building-user'} component={FontAwesome6} size={16} />,
   },
 };
 
@@ -40,14 +38,15 @@ export default function FriendspotPlus() {
     useIAP();
   const [ready, setReady] = useState(false);
   const [validSubscriptionIds, setValidSubscriptionIds] = useState<string[]>();
+  const { features } = useCurrentUser();
 
   useEffect(() => {
     if (!connected) return;
 
-    const skus = Object.keys(subscriptionInfoMap);
+    const productIds = Object.values(features.plans).map((plan) => plan.productId);
 
-    console.log('Fetching subscriptions', skus);
-    requestProducts({ skus: skus, type: 'subs' })
+    console.log('Requesting products', productIds);
+    requestProducts({ skus: productIds })
       .then(() => setReady(true))
       .catch(console.error);
   }, [connected]);
@@ -70,26 +69,35 @@ export default function FriendspotPlus() {
         <View className={'flex-col gap-6'}>
           {subscriptions
             .sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
-            .map((product, i) => (
-              <SubscriptionCard
-                key={i}
-                product={product}
-                {...subscriptionInfoMap[product.id]}
-                inheritProduct={
-                  subscriptions.find(
-                    (x) => x.id === subscriptionInfoMap[product.id].inheritSubscriptionSku
-                  ) ?? null
-                }
-                isAvailable={!validSubscriptionIds?.includes(product.id)}
-              />
-            ))}
+            .map((product, i) => {
+              const planKey = Object.keys(features.plans).find(
+                (productId) => productId === product.id
+              ) as keyof Plans | undefined;
+
+              if (!planKey) {
+                return;
+              }
+
+              const info = subscriptionInfoMap[planKey];
+
+              return (
+                <SubscriptionCard
+                  key={i}
+                  product={product}
+                  {...info}
+                  inheritProduct={
+                    subscriptions.find((x) => x.id === info.inheritSubscriptionSku) ?? null
+                  }
+                  isAvailable={!validSubscriptionIds?.includes(product.id)}
+                />
+              );
+            })}
           <SubscriptionCard
             icon={<ThemedIcon name={'unlock'} component={FontAwesome6} size={16} />}
             i18nKey={'custom'}
             product={null}
             inheritProduct={
-              subscriptions.find((x) => x.id === 'com.friendspot.subscriptions.administrator') ??
-              null
+              subscriptions.find((x) => x.id === features.plans.neighbourhood.productId) ?? null
             }
             isAvailable={true}
           />
