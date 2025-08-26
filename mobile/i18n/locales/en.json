@@ -251,7 +251,7 @@
       "everythingIn": "Everything in {{product}}",
       "upgradeButton": "Upgrade to {{product}}",
       "premium": {
-        "features": "Unlimited time per reservation;Reserve a spot up to 6 months in advance;Spot sharing requests",
+        "features": "Unlimited time per reservation;Reserve a spot up to 6 months in advance;All groups up to 50 members;Spot sharing requests",
         "period": "/month"
       },
       "neighbourhood": {
