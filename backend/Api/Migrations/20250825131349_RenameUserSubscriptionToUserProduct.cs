@@ -15,7 +15,7 @@ namespace Api.Migrations
                 name: "UserSubscription");
 
             migrationBuilder.CreateTable(
-                name: "UserProducts",
+                name: "UserProduct",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -37,13 +37,13 @@ namespace Api.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserProducts_TransactionId",
-                table: "UserProducts",
+                table: "UserProduct",
                 column: "TransactionId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserProducts_UserId",
-                table: "UserProducts",
+                table: "UserProduct",
                 column: "UserId");
         }
 
@@ -51,7 +51,7 @@ namespace Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UserProducts");
+                name: "UserProduct");
 
             migrationBuilder.CreateTable(
                 name: "UserSubscription",

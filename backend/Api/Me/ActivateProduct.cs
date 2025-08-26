@@ -46,7 +46,7 @@ internal sealed class ActivateProduct(
     public override async Task HandleAsync(ActivateProductRequest req, CancellationToken ct)
     {
         var alreadyActivated =
-            await dbContext.Set<UserProducts>().AnyAsync(x => x.TransactionId == req.TransactionId, ct);
+            await dbContext.Set<UserProduct>().AnyAsync(x => x.TransactionId == req.TransactionId, ct);
 
         if (alreadyActivated)
         {
@@ -74,12 +74,12 @@ internal sealed class ActivateProduct(
 
         logger.LogInformation("Product verified {Product}", productInfo);
 
-        var subscription = UserProducts.Activate(
+        var subscription = UserProduct.Activate(
             req.TransactionId,
             currentUser.Identity,
             productInfo.ProductId,
             productInfo.ExpirationDate);
-        dbContext.Set<UserProducts>().Add(subscription);
+        dbContext.Set<UserProduct>().Add(subscription);
 
         await dbContext.SaveChangesAsync(ct);
     }

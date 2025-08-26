@@ -49,7 +49,8 @@ public sealed class Parking : IAggregateRoot
         ParkingName name,
         ParkingAddress address,
         ParkingCode code,
-        uint maxSpotCount)
+        uint maxSpotCount,
+        bool isNeighbourhood)
     {
         Id = id;
         OwnerId = ownerId;
@@ -57,6 +58,7 @@ public sealed class Parking : IAggregateRoot
         Address = address;
         Code = code;
         MaxSpotCount = maxSpotCount;
+        IsNeighbourhood = isNeighbourhood;
     }
 
     private Parking(
@@ -66,6 +68,7 @@ public sealed class Parking : IAggregateRoot
         ParkingAddress address,
         ParkingCode code,
         uint maxSpotCount,
+        bool isNeighbourhood,
         List<ParkingBookingRequest>? bookingRequests = null)
     {
         Id = id;
@@ -74,6 +77,7 @@ public sealed class Parking : IAggregateRoot
         Address = address;
         Code = code;
         MaxSpotCount = maxSpotCount;
+        IsNeighbourhood = isNeighbourhood;
         _bookingRequests = bookingRequests ?? [];
     }
 
@@ -83,6 +87,8 @@ public sealed class Parking : IAggregateRoot
     public ParkingName Name { get; private set; }
     public ParkingAddress Address { get; private set; }
     public uint MaxSpotCount { get; }
+    public bool IsNeighbourhood { get; }
+
     public IReadOnlyList<ParkingBookingRequest> BookingRequests => _bookingRequests.AsReadOnly();
 
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
@@ -90,7 +96,7 @@ public sealed class Parking : IAggregateRoot
         return _domainEvents.GetUncommittedEvents();
     }
 
-    public static Parking Create(string ownerId, string name, string address)
+    public static Parking Create(string ownerId, string name, string address, uint maxSpotCount)
     {
         return new Parking(
             Guid.CreateVersion7(),
@@ -98,7 +104,25 @@ public sealed class Parking : IAggregateRoot
             new ParkingName(name),
             new ParkingAddress(address),
             ParkingCode.NewRandom(6),
-            10);
+            maxSpotCount,
+            false);
+    }
+
+    public static Parking CreateNeighbourhood(string ownerId, string name, string address, uint maxSpotCount)
+    {
+        return new Parking(
+            Guid.CreateVersion7(),
+            ownerId,
+            new ParkingName(name),
+            new ParkingAddress(address),
+            ParkingCode.NewRandom(6),
+            maxSpotCount,
+            true);
+    }
+
+    public bool IsLocked(EnabledFeatures ownerFeatures)
+    {
+        return IsNeighbourhood && ownerFeatures.ActivePlan?.ProductId != Plans.Neighbourhood;
     }
 
     public ParkingBookingRequest RequestBooking(
@@ -253,6 +277,7 @@ internal sealed class ParkingConfig : IEntityConfiguration<Parking>
             .HasConversion(x => x.Value, x => new ParkingCode(x));
 
         builder.Property(x => x.MaxSpotCount);
+        builder.Property(x => x.IsNeighbourhood);
 
         builder.HasIndex(x => x.Code).IsUnique();
 

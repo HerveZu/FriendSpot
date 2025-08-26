@@ -44,6 +44,14 @@ internal sealed class DefineMySpot(AppDbContext dbContext) : Endpoint<DefineMySp
             return;
         }
 
+        var spotInParking = await dbContext.Set<ParkingSpot>().CountAsync(x => x.ParkingId == parking.Id, ct);
+
+        if (spotInParking >= parking.MaxSpotCount)
+        {
+            ThrowError($"Parking is full ({parking.MaxSpotCount})");
+            return;
+        }
+
         var userSpot = await dbContext.Set<ParkingSpot>()
             .FirstOrDefaultAsync(parkingSpot => parkingSpot.OwnerId == currentUser.Identity, ct);
 

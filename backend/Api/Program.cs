@@ -33,6 +33,7 @@ builder.Services
     .ConfigureAndValidate<ExpoOptions>()
     .ConfigureAndValidate<AppOptions>()
     .AddHttpClient()
+    .AddScoped<IUserFeatures, UserFeatures>()
     .AddScoped<INotificationPushService, ExpoPushNotificationService>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddMediatR(x => { x.RegisterServicesFromAssemblyContaining<Program>(); })
