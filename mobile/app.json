@@ -46,7 +46,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.friendspot",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
