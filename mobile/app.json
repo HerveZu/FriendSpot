@@ -2,7 +2,7 @@
   "expo": {
     "name": "friendspot",
     "slug": "friendspot",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "scheme": "friendspot",
     "newArchEnabled": true,
     "web": {
@@ -48,7 +48,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.friendspot",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
