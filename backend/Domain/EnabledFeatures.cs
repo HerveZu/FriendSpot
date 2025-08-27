@@ -59,7 +59,10 @@ public record PremiumPlanSpecs : FreePlanSpecs
 {
     public override int Precedence => 1;
     public override bool CanSendRequest => true;
-    public override TimeSpan MaxBookInAdvanceTime => TimeSpan.MaxValue;
+
+    public override TimeSpan MaxBookInAdvanceTime =>
+        TimeSpan.FromDays(10_000); // can't use .MaxValue as it results in overflows
+
     public override uint MaxSpotPerGroup => 15;
 }
 
