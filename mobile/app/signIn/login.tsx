@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import {
@@ -14,7 +14,7 @@ import { firebaseAuth } from '~/authentication/firebase';
 import { Modal, ModalProps, ModalTitle } from '~/components/Modal';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { Form, FormContext } from '~/form/Form';
+import { Form } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
