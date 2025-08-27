@@ -44,7 +44,7 @@ export const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 h-16 w-full z-50 transition-all duration-300 bg-slate-900/95 ${
+      className={`fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/95 ${
         lastScroll === "bottom" &&
         // avoid scroll bouncing issues on mobile
         lastScrollPosition > 100 &&
@@ -72,12 +72,9 @@ export const Header = () => {
                 </a>
               ))
             ) : (
-              <a
-                href="#contact"
-                className="text-slate-300 hover:text-primary transition-colors duration-200"
-              >
-                {t("header.nav.contact")}
-              </a>
+              <button>
+                <a href={"/"}>Home</a>
+              </button>
             )}
             <button
               onClick={toggleLanguage}
@@ -105,26 +102,28 @@ export const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-slate-800">
             <nav className="flex flex-col space-y-4 pt-4">
-              {isHomePage ? (
-                navItems.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="text-slate-300 hover:text-primary transition-colors duration-200"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.label}
-                  </a>
-                ))
-              ) : (
-                <a
-                  href="#contact"
-                  className="text-slate-300 hover:text-primary transition-colors duration-200"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t("header.nav.contact")}
-                </a>
-              )}
+              {isHomePage
+                ? navItems.map((item) => (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      className="text-slate-300 hover:text-primary transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ))
+                : ""}
+              <button>
+                <a href={"/"}>Home</a>
+              </button>
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center space-x-2 text-slate-300 hover:text-primary transition-colors duration-200"
+              >
+                <FlagIcon className="w-5 h-5" />
+                <span>{i18n.language === "en" ? "EN" : "FR"}</span>
+              </button>
             </nav>
           </div>
         )}
