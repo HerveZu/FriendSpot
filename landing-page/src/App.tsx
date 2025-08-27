@@ -7,7 +7,7 @@ import { Header } from "./components/Header";
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-50">
+    <div className="min-h-screen text-slate-50 bg-slate-900 pt-16">
       <Header />
       <Router>
         <Routes>
