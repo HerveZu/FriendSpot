@@ -35,14 +35,14 @@
       "free": {
         "name": "Basic Plan",
         "price": "€0",
-        "period": "forever",
+        "period": "lifetime",
         "description": "Perfect for discovering neighbor-to-neighbor parking sharing.",
         "features": [
           "Unlimited parking group creation up to 10 members",
           "24-hour time limit per reservation",
           "Community support"
         ],
-        "buttonText": "Available soon"
+        "buttonText": "Coming soon"
       },
       "premium": {
         "name": "Premium",
@@ -54,10 +54,10 @@
           "Unlimited time per reservation",
           "Parking sharing requests"
         ],
-        "buttonText": "Available soon"
+        "buttonText": "Coming soon"
       },
       "neighbourhood": {
-        "name": "Neighbourhood",
+        "name": "Neighborhood",
         "price": "€2.99",
         "period": "/month per user",
         "description": "For larger neighborhoods and communities.",
@@ -66,7 +66,7 @@
           "Advanced group management",
           "Dedicated support"
         ],
-        "buttonText": "Available soon"
+        "buttonText": "Coming soon"
       }
     }
   },
@@ -94,17 +94,16 @@
   },
   "footer": {
     "logo": "FriendSpot",
-    "description": "Revolutionizing urban parking through community-driven sharing. Join thousands of users making parking stress-free and social.",
+    "description": "Revolutionizing urban parking through community-driven sharing. Join thousands of users for stress-free and friendly parking.",
     "copyright": "Copyright {{year}} - FriendSpot. All rights reserved.",
     "contact": "Contact Us",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms of Service"
   },
   "privacy": {
     "title": "Privacy Policy",
     "lastUpdated": "Last updated: {{date}}",
     "intro": "This Privacy Policy describes our policies and procedures on the collection, use, and disclosure of your information when you use the service.",
-    "improveService": "We use your personal data to provide and improve the service.",
-    "generator": "Privacy Policy Generator",
     "interpretation": {
       "title": "Interpretation and Definitions",
       "subtitle": "Interpretation",
@@ -226,6 +225,51 @@
     "contact": {
       "title": "Contact Us",
       "email": "By email:"
+    }
+  },
+  "terms": {
+    "title": "Terms and Conditions (T&C)",
+    "sections": {
+      "object": {
+        "title": "1. Object",
+        "content": "These Terms and Conditions (T&C) govern access to and use of the FriendSpot mobile application and the website https://friendspot.app (hereinafter referred to as 'the Application'). By downloading, installing, or using FriendSpot, the user unreservedly accepts these T&C."
+      },
+      "accountCreation": {
+        "title": "2. Account Creation",
+        "content": "The use of certain features requires the creation of a user account. The user agrees to provide accurate information and maintain the confidentiality of their credentials. The user is solely responsible for any activity carried out via their account."
+      },
+      "userContent": {
+        "title": "3. User Content",
+        "content": "Users can publish content (text, images, etc.) via the Application. The user retains ownership of their content but grants FriendSpot a non-exclusive, free, and worldwide license to host, display, and distribute it as part of the service. The user agrees not to publish any illegal, defamatory, discriminatory, or infringing content."
+      },
+      "subscriptions": {
+        "title": "4. Subscriptions and Payments",
+        "content": "Certain features are accessible via subscription through Google Play and Apple App Store platforms. Financial conditions (pricing, renewal, cancellation) are defined by each store and apply automatically. Refunds are not managed directly by FriendSpot but only through the stores."
+      },
+      "intellectualProperty": {
+        "title": "5. Intellectual Property",
+        "content": "All content, design, logo, and FriendSpot brand are protected by intellectual property laws. Any reproduction or use without authorization is prohibited."
+      },
+      "feedback": {
+        "title": "6. Suggestions and Feedback",
+        "content": "Any suggestion, idea, or feedback submitted to FriendSpot may be freely used without obligation of compensation."
+      },
+      "liability": {
+        "title": "7. Limitation of Liability",
+        "content": "FriendSpot makes every effort to ensure the proper functioning of the Application but does not guarantee the absence of errors, interruptions, or data loss. FriendSpot cannot be held responsible for content published by users."
+      },
+      "abuseReporting": {
+        "title": "8. Abuse and Violations Reporting",
+        "content": "In case of copyright infringement or illegal content, the user can contact: support@friendspot.com"
+      },
+      "termination": {
+        "title": "9. Termination",
+        "content": "FriendSpot reserves the right to suspend or delete any user account in case of non-compliance with these T&C."
+      },
+      "applicableLaw": {
+        "title": "10. Applicable Law",
+        "content": "These T&C are governed by French law. Any dispute will be brought before the competent courts in France."
+      }
     }
   }
 }

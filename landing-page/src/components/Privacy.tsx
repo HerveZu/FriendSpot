@@ -9,17 +9,6 @@ export function Privacy() {
       <p>{t("privacy.lastUpdated", { date: "August 27, 2025" })}</p>
 
       <p>{t("privacy.intro")}</p>
-      <p>
-        {t("privacy.improveService")}{" "}
-        <a
-          href="https://www.termsfeed.com/privacy-policy-generator/"
-          target="_blank"
-          className="text-blue-600 underline"
-        >
-          {t("privacy.generator")}
-        </a>
-        .
-      </p>
 
       <h2 className="text-2xl font-semibold mt-6">
         {t("privacy.interpretation.title")}
@@ -109,17 +98,19 @@ export function Privacy() {
       </h4>
       <p>{t("privacy.dataCollection.personalData.description")}</p>
       <ul className="list-disc list-inside space-y-2">
-        <li>{t("privacy.dataCollection.personalData.email")}</li>
+        <li>
+          {t("privacy.dataCollection.personalData.email", "Adresse e-mail")}
+        </li>
         <li>{t("privacy.dataCollection.personalData.usageData")}</li>
       </ul>
 
       <h4 className="text-lg font-semibold mt-3">
-        {t("privacy.dataCollection.usageData.title")}
+        {t("privacy.dataCollection.usageData.title", "Données d'utilisation")}
       </h4>
       <p>{t("privacy.dataCollection.usageData.description")}</p>
 
       <h4 className="text-lg font-semibold mt-3">
-        {t("privacy.dataCollection.tracking.title")}
+        {t("privacy.dataCollection.tracking.title", "Technologies de suivi")}
       </h4>
       <p>{t("privacy.dataCollection.tracking.description")}</p>
       <ul className="list-disc list-inside space-y-2">
