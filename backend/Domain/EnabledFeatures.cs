@@ -4,8 +4,8 @@ namespace Domain;
 
 public static class Plans
 {
-    public const string Premium = "com.friendspot.subscriptions.premium";
-    public const string Neighbourhood = "com.friendspot.subscriptions.neighbourhood";
+    public const string Premium = "com.friendspot.sub.premium";
+    public const string Neighbourhood = "com.friendspot.sub.neighbourhood";
 }
 
 public sealed class EnabledFeatures
