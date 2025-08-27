@@ -86,6 +86,7 @@
     "welcomeTo": "Welcome to"
   },
   "user": {
+    "groupLocked": "This group is currently locked as the owner's subscription has expired.",
     "profile": {
       "noAddressDefined": "No group information defined",
       "mySpot": "My group",
@@ -226,8 +227,7 @@
       "bookings": "Bookings",
       "suggestedSpots": "Suggested",
       "requests": "Requests"
-    },
-    "groupLocked": "This group is currently locked as the owner's subscription has expired."
+    }
   },
   "lending": {
     "lendMySpot": "Share my spot",

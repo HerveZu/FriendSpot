@@ -86,6 +86,7 @@
     "welcomeTo": "Bienvenue sur"
   },
   "user": {
+    "groupLocked": "Ce groupe est actuellement désactivé, l'abonnement du propriétaire ayant expiré.",
     "profile": {
       "noAddressDefined": "Aucune information de groupe définie",
       "mySpot": "Mon groupe",
@@ -226,8 +227,7 @@
       "bookings": "Réservations",
       "suggestedSpots": "Suggérés",
       "requests": "Demandes"
-    },
-    "groupLocked": "Ce groupe est actuellement désactivé, l'abonnement du propriétaire ayant expiré."
+    }
   },
   "lending": {
     "lendMySpot": "Prêter mon spot",

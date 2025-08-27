@@ -188,12 +188,16 @@ export default function UserProfileScreen() {
                     </Text>
                   </View>
                 ) : (
-                  <Text numberOfLines={2} ellipsizeMode={'tail'}>
-                    {t('common.spot.name', {
-                      parking: userProfile.spot.parking.name,
-                      number: userProfile.spot.name,
-                    })}
-                  </Text>
+                  <View className={'flex-row items-center gap-2'}>
+                    {features.currentParkingIsLocked && <KnownIcon name={'warning'} />}
+
+                    <Text numberOfLines={2} ellipsizeMode={'tail'}>
+                      {t('common.spot.name', {
+                        parking: userProfile.spot.parking.name,
+                        number: userProfile.spot.name,
+                      })}
+                    </Text>
+                  </View>
                 )}
               </View>
             </Card>

@@ -59,7 +59,7 @@ import { DynamicBottomSheet } from '~/components/DynamicBottomSheet';
 
 export default function MySpotScreen() {
   const { t } = useTranslation();
-  const { userProfile } = useCurrentUser();
+  const { userProfile, features } = useCurrentUser();
 
   const getAvailabilities = useGetAvailabilities();
   const [lendSheetOpen, setLendSheetOpen] = useState(false);
@@ -76,7 +76,7 @@ export default function MySpotScreen() {
     <ScreenWithHeader
       stickyBottom={
         <Button
-          disabled={!userProfile.spot}
+          disabled={!userProfile.spot || features.currentParkingIsLocked}
           size="lg"
           variant="primary"
           onPress={() => setLendSheetOpen(true)}>
@@ -107,6 +107,11 @@ export default function MySpotScreen() {
             <Text>{t('lending.tabs.neighboursRequests')}</Text>
           </Tab>
         </TabsSelector>
+
+        {features.currentParkingIsLocked && (
+          <MessageInfo variant={'warning'} info={t('user.groupLocked')} />
+        )}
+
         <TabArea tabIndex={'my-spot'}>
           {!availabilities ? (
             <ActivityIndicator />
@@ -158,6 +163,7 @@ function AcceptRequestModal({
   });
   const { t } = useTranslation();
   const { colors } = useColorScheme();
+  const { features } = useCurrentUser();
 
   return (
     <Modal {...props}>
@@ -170,7 +176,9 @@ function AcceptRequestModal({
             to: format(request.to, 'PPp'),
           })}
         </Text>
-        <Button disabled={isAccepting} onPress={() => acceptRequest(request.id)}>
+        <Button
+          disabled={isAccepting || features.currentParkingIsLocked}
+          onPress={() => acceptRequest(request.id)}>
           {isAccepting && <ActivityIndicator color={colors.foreground} />}
           <Text>{t('lending.acceptRequest.accept', { credits: request.credits })}</Text>
         </Button>

@@ -191,7 +191,7 @@ export default function SearchSpotScreen() {
         )}
 
         {features.currentParkingIsLocked && (
-          <MessageInfo variant={'warning'} info={t('booking.groupLocked')} />
+          <MessageInfo variant={'warning'} info={t('user.groupLocked')} />
         )}
 
         <TabArea tabIndex={'booking'}>
