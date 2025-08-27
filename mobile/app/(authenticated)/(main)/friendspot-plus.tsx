@@ -1,36 +1,17 @@
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { Card } from '~/components/Card';
 import { Text } from '~/components/nativewindui/Text';
-import { Button } from '~/components/nativewindui/Button';
 import { useTranslation } from 'react-i18next';
-import { KnownIcon, ThemedIcon } from '~/components/ThemedIcon';
+import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { ProductCommon, useIAP } from 'expo-iap';
-import { Linking, View } from 'react-native';
+import { View } from 'react-native';
 import { Loader } from '~/components/Loader';
-import { Plans } from '~/endpoints/me/get-features';
 import { useCurrentUser } from '~/authentication/UserProvider';
-
-const subscriptionInfoMap: Record<
-  keyof Plans,
-  {
-    i18nKey: string;
-    icon: ReactElement;
-    inheritSubscriptionSku?: keyof Plans;
-  }
-> = {
-  premium: {
-    i18nKey: 'premium',
-    icon: <KnownIcon name={'premium'} size={16} />,
-  },
-  neighbourhood: {
-    inheritSubscriptionSku: 'premium',
-    i18nKey: 'neighbourhood',
-    icon: <ThemedIcon name={'house'} component={FontAwesome6} size={16} />,
-  },
-};
+import { ContactUsButton } from '~/components/ContactUsButton';
+import { useGetPlanInfo } from '~/components/FriendspotPlus';
 
 export default function FriendspotPlus() {
   const { t } = useTranslation();
@@ -39,6 +20,7 @@ export default function FriendspotPlus() {
   const [ready, setReady] = useState(false);
   const [validSubscriptionIds, setValidSubscriptionIds] = useState<string[]>();
   const { features } = useCurrentUser();
+  const getPlanInfo = useGetPlanInfo();
 
   useEffect(() => {
     if (!connected) return;
@@ -70,26 +52,20 @@ export default function FriendspotPlus() {
           {subscriptions
             .sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
             .map((product, i) => {
-              const planKey = Object.keys(features.plans).find(
-                (productId) => productId === product.id
-              ) as keyof Plans | undefined;
-
-              if (!planKey) {
-                return;
-              }
-
-              const info = subscriptionInfoMap[planKey];
+              const info = getPlanInfo(product.id);
 
               return (
-                <SubscriptionCard
-                  key={i}
-                  product={product}
-                  {...info}
-                  inheritProduct={
-                    subscriptions.find((x) => x.id === info.inheritSubscriptionSku) ?? null
-                  }
-                  isAvailable={!validSubscriptionIds?.includes(product.id)}
-                />
+                info && (
+                  <SubscriptionCard
+                    key={i}
+                    product={product}
+                    {...info}
+                    inheritProduct={
+                      subscriptions.find((x) => x.id === info.inheritSubscriptionSku) ?? null
+                    }
+                    isAvailable={!validSubscriptionIds?.includes(product.id)}
+                  />
+                )
               );
             })}
           <SubscriptionCard
@@ -155,11 +131,6 @@ function SubscriptionCard({
     }).catch(console.error);
   }
 
-  async function contactUs() {
-    const url = 'mailto:?subject=Friendspot Plus';
-    await Linking.openURL(url);
-  }
-
   return (
     <Card>
       <View className={'flex-row items-center justify-between'}>
@@ -186,17 +157,18 @@ function SubscriptionCard({
           </View>
         ))}
       </View>
-      <Button
+      <ContactUsButton
         variant={'primary'}
         disabled={!isAvailable}
-        onPress={() => (product ? purchase(product) : contactUs())}>
+        contactUsDisabled={!!product}
+        onPress={() => product && purchase(product)}>
         {!isAvailable && <ThemedIcon name={'lock'} component={FontAwesome6} />}
         <Text>
           {product
             ? t(`friendspotplus.plans.upgradeButton`, { product: product.displayName })
             : t(`friendspotplus.plans.${i18nKey}.upgradeButton`)}
         </Text>
-      </Button>
+      </ContactUsButton>
     </Card>
   );
 }

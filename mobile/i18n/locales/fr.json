@@ -92,17 +92,20 @@
       "noParkingDefined": "Aucun groupe sélectionné !",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
-      "deleteAccount": "Supprimer mon compte et données",
-      "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
-      "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
-      "deleteAccountTitle": "Supprimer mon compte",
       "editAvatar": "Modifier l'avatar",
-      "logout": "Déconnexion",
-      "logoutConfirmation": "À bientôt !",
-      "appInfo": "Informations",
       "settings": {
-        "title": "Paramètres",
-        "open": "Ouvrir mes paramètres"
+        "title": "Mes paramètres",
+        "open": "Ouvrir mes paramètres",
+        "appInfo": "Informations de l'application",
+        "restorePurchases": "Restaurer mes achats",
+        "contactSupport": "Contacter le support",
+        "logout": "Déconnexion",
+        "logoutConfirmation": "À bientôt !",
+        "deleteAccount": "Supprimer mon compte et données",
+        "accountCreated": "Compte créé le {{date}}",
+        "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
+        "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
+        "deleteAccountTitle": "Supprimer mon compte"
       }
     },
     "parking": {
@@ -251,10 +254,12 @@
       "everythingIn": "Tout dans {{product}}",
       "upgradeButton": "Passer à {{product}}",
       "premium": {
+        "accountName": "Compte Premium",
         "features": "Durée illimitée par réservation;Réservation jusqu'à 6 mois à l'avance;Tous les groupes jusqu'à 15 membres.Demandes de partage de place de stationnement",
         "period": "/mois"
       },
       "neighbourhood": {
+        "accountName": "Premium + Communauté",
         "features": "1 groupe communauté;Groupes communautés jusqu'à 50 membres",
         "period": "/mois"
       },

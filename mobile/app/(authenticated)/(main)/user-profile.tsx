@@ -46,7 +46,7 @@ import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
 import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
-import { formatDistance } from 'date-fns';
+import { formatDate, formatDistance } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { Rating } from '~/components/Rating';
 import { universalLink } from '~/endpoints/universalLink';
@@ -61,6 +61,9 @@ import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/DynamicBottomSheet';
+import { ContactUsButton } from '~/components/ContactUsButton';
+import { useIAP } from 'expo-iap';
+import { useGetPlanInfo } from '~/components/FriendspotPlus';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -283,13 +286,13 @@ export function AccountDeletionConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20 gap-4'}>
         <ModalTitle
-          text={t('user.profile.deleteAccountTitle')}
+          text={t('user.profile.settings.deleteAccountTitle')}
           icon={<ThemedIcon name={'warning'} />}
         />
 
         <View className={'mt-4 flex-col gap-8'}>
           <Text className={'text-destructive'} variant={'callout'}>
-            {t('user.profile.deleteAccountConfirmation')}
+            {t('user.profile.settings.deleteAccountConfirmation')}
           </Text>
 
           <View className={'flex-row items-center gap-4'}>
@@ -302,7 +305,7 @@ export function AccountDeletionConfirmationModal({
               }}
             />
             <Text variant={'caption1'} className={'flex-1'}>
-              {t('user.profile.deleteAccountConfirm')}
+              {t('user.profile.settings.deleteAccountConfirm')}
             </Text>
           </View>
         </View>
@@ -362,7 +365,7 @@ export function LogoutConfirmationModal({
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
-        <ModalTitle text={t('user.profile.logoutConfirmation')} />
+        <ModalTitle text={t('user.profile.settings.logoutConfirmation')} />
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
@@ -376,7 +379,7 @@ export function LogoutConfirmationModal({
               ) : (
                 <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
               )}
-              <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
+              <Text className={'text-destructive'}>{t('user.profile.settings.logout')}</Text>
             </Button>
           </ExpandItem>
         </ExpandRow>
@@ -452,6 +455,10 @@ function SettingsBottomSheet(props: {
   const [debugOpen, setDebugOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
+  const { restorePurchases } = useIAP();
+  const { features } = useCurrentUser();
+  const { firebaseUser } = useAuth();
+  const getPlanInfo = useGetPlanInfo();
 
   const { colors } = useColorScheme();
   const { t } = useTranslation();
@@ -511,6 +518,8 @@ function SettingsBottomSheet(props: {
     },
   ];
 
+  const activePlanInfo = features.plan && getPlanInfo(features.plan.productId);
+
   return (
     <>
       <Modal open={debugOpen} onOpenChange={setDebugOpen}>
@@ -530,34 +539,61 @@ function SettingsBottomSheet(props: {
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
         <SheetTitle>{t('user.profile.settings.title')}</SheetTitle>
 
+        <Card className={'gap-2'}>
+          <View className={'flex-row items-center gap-2'}>
+            <ThemedIcon name={'user-check'} component={FontAwesome6} />
+            <Text className={'text-lg font-semibold'}>
+              {t('user.profile.settings.accountCreated', {
+                date: formatDate(new Date(firebaseUser.metadata.creationTime ?? new Date()), 'PP'),
+              })}
+            </Text>
+          </View>
+
+          {activePlanInfo && (
+            <View className={'flex-row items-center gap-2'}>
+              <KnownIcon name={'premium'} />
+              <Text className={'text-lg font-semibold'}>
+                {t(`friendspotplus.plans.${activePlanInfo.i18nKey}.accountName`)}
+              </Text>
+            </View>
+          )}
+        </Card>
+
         <View className={'gap-4'}>
-          <Button
-            size={'lg'}
-            variant={'plain'}
-            className={'bg-destructive/10'}
-            onPress={() => setConfirmLogout(true)}>
+          <ContactUsButton size={'lg'} variant={'tonal'}>
+            <ThemedIcon name={'headset'} component={FontAwesome6} color={colors.primary} />
+            <Text>{t('user.profile.settings.contactSupport')}</Text>
+          </ContactUsButton>
+
+          <Button onPress={restorePurchases} size={'lg'} variant={'tonal'}>
+            <ThemedIcon name={'cart-arrow-down'} component={FontAwesome6} color={colors.primary} />
+            <Text className={'text-primary'}>{t('user.profile.settings.restorePurchases')}</Text>
+          </Button>
+          <Button size={'lg'} variant={'plain'} onPress={() => setConfirmLogout(true)}>
             <ThemedIcon
               name={'arrow-right-from-bracket'}
               component={FontAwesome6}
               color={colors.destructive}
             />
-            <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
+            <Text className={'text-destructive'}>{t('user.profile.settings.logout')}</Text>
           </Button>
+        </View>
 
+        <View className={'mt-4 gap-4'}>
           <Button
             className={'w-full'}
             variant={'tonal'}
             size={'lg'}
             onPress={() => setDebugOpen(true)}>
             <ThemedIcon name={'wrench'} component={FontAwesome6} color={colors.primary} />
-            <Text className={'text-primary'}>{t('user.profile.appInfo')}</Text>
+            <Text className={'text-primary'}>{t('user.profile.settings.appInfo')}</Text>
+          </Button>
+
+          <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
+            <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
+            <Text className={'text-destructive'}>{t('user.profile.settings.deleteAccount')}</Text>
           </Button>
         </View>
-
-        <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
-          <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
-          <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
-        </Button>
       </DynamicBottomSheet>
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
       <AccountDeletionConfirmationModal

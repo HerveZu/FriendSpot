@@ -6,6 +6,7 @@ export type AppFeatures = {
   readonly isPremium: boolean;
   readonly currentParkingIsLocked: boolean;
   readonly plans: Plans;
+  readonly plan?: Plan;
   readonly baseline: SubscriptionSpecs;
   readonly active: SubscriptionSpecs;
 };

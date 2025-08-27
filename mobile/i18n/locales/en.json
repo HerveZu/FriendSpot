@@ -92,17 +92,20 @@
       "noParkingDefined": "No group selected!",
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
-      "deleteAccount": "Delete my account and data",
-      "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
-      "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
-      "deleteAccountTitle": "Delete my account",
       "editAvatar": "Edit Avatar",
-      "logout": "Log out",
-      "logoutConfirmation": "Come back soon!",
-      "appInfo": "Information",
       "settings": {
-        "title": "Settings",
-        "open": "Open my settings"
+        "title": "My settings",
+        "open": "Open my settings",
+        "appInfo": "App information",
+        "restorePurchases": "Restore purchases",
+        "contactSupport": "Contact support",
+        "logout": "Log out",
+        "logoutConfirmation": "Come back soon!",
+        "deleteAccount": "Delete my account and data",
+        "accountCreated": "Account created on {{date}}",
+        "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
+        "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
+        "deleteAccountTitle": "Delete my account"
       }
     },
     "parking": {
@@ -251,10 +254,12 @@
       "everythingIn": "Everything in {{product}}",
       "upgradeButton": "Upgrade to {{product}}",
       "premium": {
+        "accountName": "Premium account",
         "features": "Unlimited time per reservation;Reserve a spot up to 6 months in advance;All groups up to 50 members;Spot sharing requests",
         "period": "/month"
       },
       "neighbourhood": {
+        "accountName": "Premium + Neighbourhood",
         "features": "1 neighbourhood group;Neighbourhood groups up to 50 members",
         "period": "/month"
       },

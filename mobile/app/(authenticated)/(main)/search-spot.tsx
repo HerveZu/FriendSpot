@@ -63,7 +63,7 @@ import {
   MyBookingRequestResponse,
   useGetMyBookingRequests,
 } from '~/endpoints/requestBooking/get-my-parking-requests';
-import { PremiumButton } from '~/components/PremiumButton';
+import { PremiumButton } from '~/components/FriendspotPlus';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
