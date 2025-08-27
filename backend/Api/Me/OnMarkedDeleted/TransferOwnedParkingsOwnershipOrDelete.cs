@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Me.OnMarkedDeleted;
 
-internal sealed class TransferOwnedParkingsOwnership(
+internal sealed class TransferOwnedParkingsOwnershipOrDelete(
     AppDbContext dbContext,
-    ILogger<TransferOwnedParkingsOwnership> logger
+    ILogger<TransferOwnedParkingsOwnershipOrDelete> logger
 )
     : IDomainEventHandler<UserMarkedDeleted>
 {
@@ -20,9 +20,10 @@ internal sealed class TransferOwnedParkingsOwnership(
                 select new
                 {
                     Parking = parking,
-                    UserIds = (from spot in dbContext.Set<ParkingSpot>()
+                    OtherUserIds = (from spot in dbContext.Set<ParkingSpot>()
                         where parking.Id == spot.ParkingId
                         join user in dbContext.Set<User>() on spot.OwnerId equals user.Identity
+                        where user.Identity != notification.UserId
                         select user.Identity).ToArray()
                 })
             .ToArrayAsync(cancellationToken);
@@ -32,27 +33,34 @@ internal sealed class TransferOwnedParkingsOwnership(
             ownedParkings.Length,
             notification.UserId);
 
+        var toRemove = new List<Parking>();
+        var toUpdate = new List<Parking>();
+
         foreach (var ownedParking in ownedParkings)
         {
-            var newOwnerId = ownedParking.UserIds.FirstOrDefault();
+            var newOwnerId = ownedParking.OtherUserIds.FirstOrDefault();
 
             if (newOwnerId is null)
             {
                 logger.LogInformation(
                     "No one is using this parking {ParkingId}, deleting...",
                     ownedParking.Parking.Id);
-                dbContext.Set<Parking>().Remove(ownedParking.Parking);
+                ownedParking.Parking.Delete(notification.UserId);
+                toRemove.Add(ownedParking.Parking);
                 continue;
             }
 
             logger.LogInformation(
-                "Switching parking {ParkingId} ownership to randomly picked user {NewOwnerId}",
+                "Transferring parking {ParkingId} ownership to randomly picked user {NewOwnerId}",
                 ownedParking.Parking.Id,
                 newOwnerId);
             ownedParking.Parking.TransferOwnership(newOwnerId);
-            dbContext.Set<Parking>().Update(ownedParking.Parking);
+            toUpdate.Add(ownedParking.Parking);
         }
 
+        dbContext.Set<Parking>().UpdateRange(toUpdate);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await dbContext.DeleteAndSaveRangeWithEventPropagation(toRemove.ToArray(), cancellationToken);
     }
 }
