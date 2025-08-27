@@ -97,7 +97,8 @@
     "description": "Révolutionner le stationnement urbain grâce au partage communautaire. Rejoignez des milliers d'utilisateurs pour un stationnement sans stress et convivial.",
     "copyright": "Copyright {{year}} - FriendSpot. Tous droits réservés.",
     "contact": "Nous contacter",
-    "privacyPolicy": "Politique de confidentialité"
+    "privacyPolicy": "Politique de confidentialité",
+    "terms": "Terms de Service"
   },
   "privacy": {
     "title": "Politique de confidentialité",
