@@ -31,7 +31,7 @@ import { List } from '~/components/List';
 import { Rating } from '~/components/Rating';
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
 import { Tag } from '~/components/Tag';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import { KnownIcon, ThemedIcon } from '~/components/ThemedIcon';
 import { SheetHeading, SheetTitle, Title } from '~/components/Title';
 import { User } from '~/components/UserAvatar';
 import { Button } from '~/components/nativewindui/Button';
@@ -47,7 +47,6 @@ import { useActualTime } from '~/lib/useActualTime';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useFetch, useHookFetch, useLoading, useRefreshOnSuccess } from '~/lib/useFetch';
 import { capitalize, durationToMs, fromUtc } from '~/lib/utils';
-import { COLORS } from '~/theme/colors';
 import { Modal, ModalTitle } from '~/components/Modal';
 import SuccessIllustration from '~/assets/success.svg';
 import { BlinkingDot } from '~/components/BlinkingDot';
@@ -128,7 +127,7 @@ export default function SearchSpotScreen() {
             setSelectedSuggestion(undefined);
             setBookSheetOpen(true);
           }}>
-          <ThemedIcon name="search" color={COLORS.white} />
+          <KnownIcon name="search" />
           <Text>{t('booking.reserveSpot')}</Text>
         </Button>
       }>
@@ -164,7 +163,7 @@ export default function SearchSpotScreen() {
                   activeBookings.length ? (
                     <BlinkingDot disabled={!booking?.bookings?.length} />
                   ) : (
-                    <ThemedIcon name={'ticket'} color={colors.primary} />
+                    <ThemedIcon name={'ticket'} />
                   )
                 }
                 count={booking?.bookings?.length}
@@ -438,6 +437,7 @@ function BookingSheet(props: {
   const [selectedSpot, setSelectedSpot] = useState<AvailableSpot>();
   const [from, setFrom] = useState(addMinutes(now, INITIAL_FROM_MARGIN_MINUTES));
   const [to, setTo] = useState(addHours(from, INITIAL_DURATION_HOURS));
+  const [requestSpot, setRequestSpot] = useState(false);
 
   const { userProfile, features } = useCurrentUser();
   const { colors } = useColorScheme();
@@ -456,7 +456,7 @@ function BookingSheet(props: {
 
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
 
-  const [availableSpots] = useFetch(
+  const [availableSpots, , , isSearchingInitial] = useFetch(
     () => getAvailableSpots(fromDebounce, toDebounce),
     [fromDebounce, toDebounce]
   );
@@ -466,8 +466,6 @@ function BookingSheet(props: {
       (spot) =>
         !props.selectedSuggestion || spot.parkingLotId === props.selectedSuggestion.parkingLotId
     ) ?? [];
-
-  const shouldRequestSpot = spots.length === 0;
 
   const [bookingSimulation, setBookingSimulation] = useFetch(
     () =>
@@ -487,7 +485,7 @@ function BookingSheet(props: {
   const [requestSimulation, setRequestSimulation] = useFetch(
     () =>
       props.open &&
-      shouldRequestSpot &&
+      requestSpot &&
       requestBooking(
         {
           from: fromDebounce,
@@ -496,16 +494,19 @@ function BookingSheet(props: {
         },
         true
       ),
-    [props.open, requestBonusOption, fromDebounce, toDebounce, shouldRequestSpot]
+    [props.open, requestBonusOption, fromDebounce, toDebounce, requestSpot]
   );
 
   useEffect(() => {
-    if (!props.open) {
-      setSelectedSpot(undefined);
-      setBookingSimulation(undefined);
-      setRequestSimulation(undefined);
-      setRequestBonusOption(null);
+    if (props.open) {
+      return;
     }
+
+    setSelectedSpot(undefined);
+    setBookingSimulation(undefined);
+    setRequestSimulation(undefined);
+    setRequestBonusOption(null);
+    setRequestSpot(false);
   }, [props.open]);
 
   useEffect(() => {
@@ -538,10 +539,10 @@ function BookingSheet(props: {
   }, [props.selectedSuggestion]);
 
   useEffect(() => {
-    if (shouldRequestSpot) {
+    if (requestSpot) {
       setSelectedSpot(undefined);
     }
-  }, [shouldRequestSpot]);
+  }, [requestSpot]);
 
   function minTo(from: Date): Date {
     return addHours(from, MIN_DURATION_HOURS);
@@ -595,11 +596,13 @@ function BookingSheet(props: {
   return (
     <DynamicBottomSheet open={props.open} onOpenChange={props.onOpen}>
       <View className="grow flex-col gap-6">
-        <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
+        <SheetTitle icon={<KnownIcon name="search" size={22} />}>
           {capitalize(formatRelative(from, now))}
         </SheetTitle>
 
-        {shouldRequestSpot ? (
+        {isSearchingInitial ? (
+          <ActivityIndicator />
+        ) : requestSpot ? (
           <View className={'gap-6'}>
             <Card>
               <Text variant={'body'}>{t('booking.requestBooking.details')}</Text>
@@ -614,7 +617,7 @@ function BookingSheet(props: {
               options={[bonusOption(5), bonusOption(10), bonusOption(50)]}
             />
           </View>
-        ) : (
+        ) : spots.length ? (
           <CardContainer className={'max-h-60'}>
             {spots
               .sort((a, b) => a.owner.rating - b.owner.rating)
@@ -628,6 +631,25 @@ function BookingSheet(props: {
                 />
               ))}
           </CardContainer>
+        ) : (
+          <Card>
+            <View className={'flex-row items-center gap-4'}>
+              <KnownIcon name={'warning'} />
+              <Text variant={'callout'} className={'flex-1'}>
+                {t('booking.noSpotsAvailable')}
+              </Text>
+            </View>
+
+            <PremiumButton
+              variant={'plain'}
+              onPress={() => setRequestSpot(true)}
+              premiumIcon={<KnownIcon name={'premium'} color={colors.primary} />}
+              icon={
+                <ThemedIcon name={'arrow-right'} component={FontAwesome6} color={colors.primary} />
+              }>
+              <Text className={'text-primary'}>{t('booking.askToSendRequest')}</Text>
+            </PremiumButton>
+          </Card>
         )}
       </View>
       <View className="flex-col items-center justify-between gap-2">
@@ -680,7 +702,7 @@ function BookingSheet(props: {
         )}
       </View>
 
-      {shouldRequestSpot ? (
+      {requestSpot ? (
         <PremiumButton
           variant="primary"
           size="lg"
@@ -758,7 +780,7 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
         <View className="flex-row items-center gap-2">
           <ThemedIcon component={FontAwesome6} name="calendar" color={colors.primary} />
           <Text variant="heading" className="font-bold">
-            {differenceInSeconds(props.suggestion.from, now) > 0
+            {differenceInSeconds(props.suggestion.from, now) > 30
               ? capitalize(formatRelative(props.suggestion.from, now))
               : t('booking.now')}
           </Text>

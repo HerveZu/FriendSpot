@@ -47,7 +47,7 @@ export default function MainLayout() {
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon
-                name="magnifying-glass"
+                name="calendar-check"
                 component={FontAwesome6}
                 size={24}
                 focused={focused}

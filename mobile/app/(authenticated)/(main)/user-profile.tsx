@@ -959,9 +959,7 @@ function ParkingBottomSheet(props: {
     {
       label: t('user.parking.openOptions.searchGroup'),
       onPress: () => setStep('searchGroup'),
-      icon: (
-        <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} color={colors.primary} />
-      ),
+      icon: <KnownIcon name={'search'} color={colors.primary} />,
     },
     {
       label: t('user.parking.openOptions.joinWithCode'),
@@ -1067,7 +1065,7 @@ function ParkingBottomSheet(props: {
                 <TextInput
                   icon={{
                     position: 'left',
-                    element: <ThemedIcon name={'search'} />,
+                    element: <KnownIcon name={'search'} />,
                   }}
                   textContentType={'addressCityAndState'}
                   editable={true}

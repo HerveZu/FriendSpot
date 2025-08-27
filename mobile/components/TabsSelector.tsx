@@ -80,8 +80,8 @@ export function Tab(
       <View className={'grow self-center'}>
         <Button
           disabled={props.disabled}
-          className={'grow'}
-          variant={isFocused ? 'tonal' : 'plain'}
+          className={cn('grow', isFocused && 'bg-primary/10')}
+          variant={'plain'}
           onPress={() => setSelectedTab(props.index)}>
           {props.preview}
           {isFocused && props.children}

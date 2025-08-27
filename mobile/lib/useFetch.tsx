@@ -1,10 +1,12 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from 'react';
 import { Falsy } from 'react-native';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
+import { isLoading } from 'expo-font';
 
 type UseFetchResponse<TResponse> = [
   TResponse | undefined,
   Dispatch<SetStateAction<TResponse | undefined>>,
+  boolean,
   boolean,
 ];
 
@@ -27,6 +29,7 @@ export function useFetch<TResponse>(
 ): UseFetchResponse<TResponse> {
   const [data, setData] = useState<TResponse>();
   const [loading, setLoading] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const { refreshTrigger } = useContext(RefreshTriggerContext);
 
   const callback = useCallback(fetchData, [...deps, withRefresh && refreshTrigger]);
@@ -38,10 +41,13 @@ export function useFetch<TResponse>(
       return;
     }
 
-    promise.then(setData).finally(() => setLoading(false));
+    promise.then(setData).finally(() => {
+      setLoading(false);
+      setHasLoadedOnce(true);
+    });
   }, [callback, setLoading, setData]);
 
-  return [data, setData, loading];
+  return [data, setData, loading, !hasLoadedOnce && loading];
 }
 
 export function useLoading<TArgs extends unknown[], TResponse>(

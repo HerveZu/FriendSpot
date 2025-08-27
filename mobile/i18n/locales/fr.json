@@ -94,6 +94,10 @@
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
       "editAvatar": "Modifier l'avatar",
+      "reputation": {
+        "good": "Bonne réputation",
+        "bad": "Mauvaise réputation"
+      },
       "settings": {
         "title": "Mes paramètres",
         "open": "Ouvrir mes paramètres",
@@ -183,13 +187,14 @@
     "invalidPassword": "Mot de passe invalide"
   },
   "booking": {
-    "reserveSpot": "Réserve un spot",
+    "askToSendRequest": "Faire une demande",
+    "reserveSpot": "Rechercher un spot",
     "reserveNow": "Réserve un spot dès maintenant !",
     "nextReservation": "Ta prochaine réservation commence dans {{time}}",
     "nextReservationTitle": "Prochaine réservation",
     "reservations": "Réservations",
     "suggestedSpots": "Spots Suggérés",
-    "noSpotsAvailable": "Aucun spot n'est disponible\nsur cette période.",
+    "noSpotsAvailable": "Aucun spot n'est disponible pendant cette période.",
     "reserveFrom": "Réserver du",
     "reserveUntil": "Jusqu'au",
     "reserve": "Réserver",

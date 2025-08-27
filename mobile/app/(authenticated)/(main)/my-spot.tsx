@@ -80,7 +80,7 @@ export default function MySpotScreen() {
           size="lg"
           variant="primary"
           onPress={() => setLendSheetOpen(true)}>
-          <ThemedIcon component={MaterialIcons} name="more-time" size={22} />
+          <ThemedIcon component={FontAwesome6} name="user-clock" />
           <Text>{t('lending.lendMySpot')}</Text>
         </Button>
       }>
@@ -224,6 +224,7 @@ function OthersBookingRequestCard(props: { request: BookingRequestResponse }) {
 function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvailability }) {
   const { colors } = useColorScheme();
   const { t } = useTranslation();
+  const now = useActualTime(30_000);
   const cancelAvailability = useRefreshOnSuccess(useCancelAvailability());
 
   const uniqueBookingUsers = [
@@ -241,25 +242,26 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
       canDelete={props.availability.canCancel}
       onDelete={() => cancelAvailability(props.availability.id)}>
       <Card>
-        <View className="flex-col justify-between gap-2">
-          <View className="flex-row items-start justify-between gap-4">
-            <DateRange
-              from={props.availability.from}
-              to={props.availability.to}
-              duration={props.availability.duration}
-            />
-            <View className="flex-row items-center gap-2">
-              <Users users={uniqueBookingUsers} />
-              <DeleteTrigger />
-            </View>
+        <View className="flex-row justify-between gap-4">
+          <View className={'flex-row items-center gap-2'}>
+            <ThemedIcon name={'user-clock'} color={colors.primary} component={FontAwesome6} />
+            <Text variant="heading" className="font-bold">
+              {capitalize(formatRelative(props.availability.from, now))}
+            </Text>
           </View>
-          {props.availability.bookings.length === 0 && (
-            <View className="mt-2 flex-row items-center gap-2">
-              <BlinkingDot color={colors.primary} />
-              <Text className="text-xs">{t('lending.waitingForBooking')}</Text>
-            </View>
-          )}
+          <DeleteTrigger />
         </View>
+        <DateRange
+          from={props.availability.from}
+          to={props.availability.to}
+          duration={props.availability.duration}
+        />
+        {props.availability.bookings.length === 0 && (
+          <View className="mt-2 flex-row items-center gap-2">
+            <BlinkingDot color={colors.primary} />
+            <Text className="text-xs">{t('lending.waitingForBooking')}</Text>
+          </View>
+        )}
         {props.availability.bookings.length > 0 && (
           <ScrollView>
             <View className="flex-col gap-1">
@@ -368,7 +370,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
   return (
     <DynamicBottomSheet open={props.open} onOpenChange={props.onOpen}>
       <List>
-        <SheetTitle icon={<ThemedIcon name="calendar" size={22} />}>
+        <SheetTitle icon={<ThemedIcon name="user-clock" component={FontAwesome6} size={22} />}>
           {capitalize(formatRelative(from, now))}
         </SheetTitle>
         <View className="flex-row items-center gap-4">

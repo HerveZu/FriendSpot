@@ -24,11 +24,12 @@ export function ThemedIcon<TGlyph extends string>({
   return <Icon name={name as any} size={size} color={color ?? colors.foreground} />;
 }
 
-type KnownIconType = 'premium' | 'warning';
+type KnownIconType = 'premium' | 'warning' | 'search';
 
 const iconNameMap: Record<KnownIconType, string> = {
   premium: 'crown',
   warning: 'circle-exclamation',
+  search: 'magnifying-glass',
 };
 
 export function KnownIcon<TGlyph extends string>({

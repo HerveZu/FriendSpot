@@ -9,15 +9,17 @@ export function PremiumButton({
   disabled,
   premiumIf = true,
   children,
+  icon,
+  premiumIcon,
   ...props
-}: ButtonProps & { premiumIf?: boolean }) {
+}: ButtonProps & { premiumIf?: boolean; icon?: ReactElement; premiumIcon?: ReactElement }) {
   const { features } = useCurrentUser();
   const doesntHaveAccess = premiumIf && !features.isPremium;
 
   return (
     <Button disabled={disabled || doesntHaveAccess} {...props}>
       <>
-        {doesntHaveAccess && <KnownIcon name={'premium'} />}
+        {doesntHaveAccess ? (premiumIcon ?? <KnownIcon name={'premium'} />) : icon}
         {children}
       </>
     </Button>

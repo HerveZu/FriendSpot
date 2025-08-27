@@ -94,6 +94,10 @@
       "provideFeedback": "Have a suggestion? Write to us here!",
       "sendFeedback": "Send feedback",
       "editAvatar": "Edit Avatar",
+      "reputation": {
+        "good": "Good reputation",
+        "bad": "Bad reputation"
+      },
       "settings": {
         "title": "My settings",
         "open": "Open my settings",
@@ -183,13 +187,14 @@
     "invalidPassword": "Invalid password"
   },
   "booking": {
-    "reserveSpot": "Reserve a spot",
+    "askToSendRequest": "Send request",
+    "reserveSpot": "Search a spot",
     "reserveNow": "Reserve a spot now!",
     "nextReservation": "Your next reservation starts in {{time}}",
     "nextReservationTitle": "Next reservation",
     "reservations": "Reservations",
     "suggestedSpots": "Suggested Spots",
-    "noSpotsAvailable": "No spots available\nduring this period.",
+    "noSpotsAvailable": "No spot is available during this period.",
     "reserveFrom": "Reserve from",
     "reserveUntil": "Until",
     "reserve": "Reserve",
