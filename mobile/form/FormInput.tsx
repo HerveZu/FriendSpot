@@ -17,13 +17,15 @@ export function FormInput({
   secure,
   validators,
   value,
+  resetOnTrue,
   ...props
 }: {
   value: string | undefined;
-  onValueChange: (value: string | undefined) => void;
+  onValueChange: (value: string) => void;
   placeholder: string;
   secure?: boolean;
   validators?: Validator[];
+  resetOnTrue?: boolean;
 } & TextInputProps) {
   const [id] = useState(Math.random().toString(6));
   const { isSubmitted, touchTrigger, touch, error } = useContext(FormContext);
@@ -42,6 +44,12 @@ export function FormInput({
     setFailedValidators(failedValidators);
     error(id, failedValidators.length > 0);
   }, [value, touchTrigger]);
+
+  useEffect(() => {
+    if (!resetOnTrue) return;
+    setTouched(false);
+    onValueChange('');
+  }, [resetOnTrue]);
 
   const hasError = (isSubmitted || touched) && failedValidators.length > 0;
   const failedValidatorsWithMessage = failedValidators.filter((validator) =>

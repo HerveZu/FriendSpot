@@ -112,9 +112,7 @@ function MailConfirmationPendingModal(props: ModalProps) {
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
-    if (props.open === false) {
-      setMessage('');
-    }
+    props.open && setMessage('');
   }, [props.open]);
 
   async function sendEmail() {

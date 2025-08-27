@@ -64,6 +64,9 @@ import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/Dy
 import { ContactUsButton } from '~/components/ContactUsButton';
 import { useIAP } from 'expo-iap';
 import { useGetPlanInfo } from '~/components/FriendspotPlus';
+import { Form, FormContext } from '~/form/Form';
+import { FormInput } from '~/form/FormInput';
+import { useValidators } from '~/form/validators';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -562,12 +565,12 @@ function SupportBottomSheet(props: {
         </View>
 
         <View className={'gap-2'}>
-          <Button variant={'tonal'} size={'lg'}>
-            <ThemedIcon name={'user-shield'} component={FontAwesome6} color={colors.primary} />
+          <Button variant={'plain'}>
+            <ThemedIcon name={'user-shield'} component={FontAwesome6} />
             <Text>{t('user.profile.support.privacyPolicy')}</Text>
           </Button>
-          <Button variant={'tonal'} size={'lg'}>
-            <ThemedIcon name={'file-contract'} component={FontAwesome6} color={colors.primary} />
+          <Button variant={'plain'}>
+            <ThemedIcon name={'file-contract'} component={FontAwesome6} />
             <Text>{t('user.profile.support.termsOfUse')}</Text>
           </Button>
         </View>
@@ -660,6 +663,9 @@ function ParkingGroupModal(props: {
   });
   const { t } = useTranslation();
   const { userProfile, features } = useCurrentUser();
+  const { keyboardVisible } = useKeyboardVisible();
+  const validators = useValidators();
+  const { isValid, handleSubmit } = useContext(FormContext);
 
   const [createParking, isCreating] = useLoading(useCreateParking(), {
     beforeMarkingComplete: () => props.onOpenChange(false),
@@ -670,8 +676,6 @@ function ParkingGroupModal(props: {
   const [deleteParking, isDeleting] = useLoading(useRefreshOnSuccess(useDeleteParking()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
-
-  const lotNameIsValid = mode === 'create' ? lotName.trim().length > 0 : true;
 
   const submitFn = {
     create: () =>
@@ -726,24 +730,30 @@ function ParkingGroupModal(props: {
         </Text>
       </View>
       <View className={'flex-col gap-2'}>
-        <TextInput
+        <FormInput
           value={name}
-          onChangeText={setName}
+          onValueChange={setName}
           placeholder={t('user.parking.parkingName')}
           maxLength={50}
+          validators={[validators.required]}
+          resetOnTrue={props.open}
         />
-        <TextInput
+        <FormInput
           value={address}
-          onChangeText={setAddress}
+          onValueChange={setAddress}
           placeholder={t('user.parking.parkingAddress')}
           maxLength={100}
+          validators={[validators.required]}
+          resetOnTrue={props.open}
         />
         {mode === 'create' && (
-          <TextInput
+          <FormInput
             value={lotName}
-            onChangeText={setLotName}
+            onValueChange={setLotName}
             placeholder={t('user.parking.parkingLotname')}
             maxLength={10}
+            validators={[validators.required]}
+            resetOnTrue={props.open}
           />
         )}
       </View>
@@ -791,7 +801,7 @@ function ParkingGroupModal(props: {
         </>
       )}
 
-      {mode === 'create' && (
+      {mode === 'create' && !keyboardVisible && (
         <Card className={'flex-row items-center justify-between'}>
           <View className={'flex-row items-center gap-2'}>
             <KnownIcon name={'premium'} size={18} color={colors.primary} />
@@ -814,19 +824,18 @@ function ParkingGroupModal(props: {
         </Card>
       )}
 
-      {mode === 'create' && userProfile.spot && (
+      {mode === 'create' && userProfile.spot && !keyboardVisible && (
         <Text variant={'callout'} className="text-center text-destructive">
           {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
         </Text>
       )}
 
-      <Button
-        disabled={!name || !address || isSubmitting[mode] || !lotNameIsValid}
-        onPress={onSubmit}
-        className="">
-        {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
-        <Text>{submitText[mode]}</Text>
-      </Button>
+      {!keyboardVisible && (
+        <Button disabled={!isValid} onPress={handleSubmit(onSubmit)} className="">
+          {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
+          <Text>{submitText[mode]}</Text>
+        </Button>
+      )}
     </Modal>
   );
 }
@@ -1132,13 +1141,15 @@ function ParkingBottomSheet(props: {
         </View>
       </Modal>
 
-      <ParkingGroupModal
-        parking={editingParking}
-        open={parkingModalOpen}
-        onOpenChange={setParkingModalOpen}
-        onParking={replaceParkingState}
-        onDelete={deleteParkingState}
-      />
+      <Form>
+        <ParkingGroupModal
+          parking={editingParking}
+          open={parkingModalOpen}
+          onOpenChange={setParkingModalOpen}
+          onParking={replaceParkingState}
+          onDelete={deleteParkingState}
+        />
+      </Form>
 
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
         {SheetContent()}
