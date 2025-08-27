@@ -271,7 +271,7 @@ function CodeEntry({
   error?: boolean;
 }) {
   const PREFIX_SEPARATOR = '-';
-  const PARKING_PREFIX = `P${PREFIX_SEPARATOR}`;
+  const PARKING_PREFIX = `F${PREFIX_SEPARATOR}`;
   const CELL_COUNT = 6;
   const [internalCode, setInternalCode] = useState(code);
 
