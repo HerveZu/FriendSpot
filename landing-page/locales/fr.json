@@ -98,5 +98,134 @@
     "copyright": "Copyright {{year}} - FriendSpot. Tous droits réservés.",
     "contact": "Nous contacter",
     "privacyPolicy": "Politique de confidentialité"
+  },
+  "privacy": {
+    "title": "Politique de confidentialité",
+    "lastUpdated": "Dernière mise à jour : {{date}}",
+    "intro": "Cette politique de confidentialité décrit nos politiques et procédures concernant la collecte, l'utilisation et la divulgation de vos informations lorsque vous utilisez le service.",
+    "improveService": "Nous utilisons vos données personnelles pour fournir et améliorer le service.",
+    "generator": "Générateur de politique de confidentialité",
+    "interpretation": {
+      "title": "Interprétation et définitions",
+      "subtitle": "Interprétation",
+      "description": "Les mots dont la première lettre est en majuscule ont des significations définies dans les conditions suivantes."
+    },
+    "definitions": {
+      "title": "Définitions",
+      "description": "Aux fins de cette politique de confidentialité :",
+      "account": {
+        "title": "Compte",
+        "description": "Un compte unique créé pour vous permettre d'accéder à notre service ou à certaines parties de celui-ci."
+      },
+      "affiliate": {
+        "title": "Affilié",
+        "description": "Une entité qui contrôle, est contrôlée par ou est sous contrôle commun avec une partie."
+      },
+      "application": {
+        "title": "Application",
+        "description": "Fait référence à FriendSpot, le programme logiciel fourni par la société."
+      },
+      "company": {
+        "title": "Société",
+        "description": "Fait référence à FriendSpot."
+      },
+      "cookies": {
+        "title": "Cookies",
+        "description": "Petits fichiers placés sur votre appareil par un site web."
+      },
+      "country": {
+        "title": "Pays",
+        "description": "Fait référence à : France"
+      },
+      "device": {
+        "title": "Appareil",
+        "description": "Tout appareil pouvant accéder au service, tel qu'un ordinateur ou un téléphone mobile."
+      },
+      "personalData": {
+        "title": "Données personnelles",
+        "description": "Toute information relative à une personne identifiée ou identifiable."
+      },
+      "service": {
+        "title": "Service",
+        "description": "Fait référence à l'application ou au site web ou aux deux."
+      },
+      "serviceProvider": {
+        "title": "Fournisseur de services",
+        "description": "Toute personne physique ou morale qui traite les données pour le compte de la société."
+      },
+      "usageData": {
+        "title": "Données d'utilisation",
+        "description": "Données collectées automatiquement, générées par l'utilisation du service."
+      },
+      "website": {
+        "title": "Site web",
+        "description": "Accessible depuis https://friendspot.app/"
+      },
+      "you": {
+        "title": "Vous",
+        "description": "La personne accédant ou utilisant le service."
+      }
+    },
+    "dataCollection": {
+      "title": "Collecte et utilisation de vos données personnelles",
+      "types": {
+        "title": "Types de données collectées",
+        "personalData": {
+          "title": "Données personnelles",
+          "description": "Nous pouvons vous demander de fournir certaines informations personnelles identifiables.",
+          "email": "Adresse email",
+          "usageData": "Données d'utilisation"
+        },
+        "usageData": {
+          "title": "Données d'utilisation",
+          "description": "Collectées automatiquement lors de l'utilisation du service."
+        },
+        "tracking": {
+          "title": "Technologies de suivi et cookies",
+          "description": "Nous utilisons des cookies et des technologies similaires pour suivre l'activité sur notre service.",
+          "cookies": {
+            "title": "Cookies ou cookies de navigateur",
+            "description": "Petits fichiers placés sur votre appareil."
+          },
+          "webBeacons": {
+            "title": "Balises web",
+            "description": "Petits fichiers électroniques utilisés pour collecter des statistiques."
+          }
+        }
+      }
+    },
+    "usage": {
+      "title": "Utilisation de vos données personnelles",
+      "description": "La société peut utiliser les données personnelles pour les finalités suivantes :",
+      "provideService": "Fournir et maintenir notre service.",
+      "manageAccount": "Gérer votre compte.",
+      "contact": "Vous contacter via email, téléphone ou notifications.",
+      "businessTransfers": "Pour des transferts commerciaux tels que des fusions ou acquisitions.",
+      "otherPurposes": "Pour d'autres finalités comme l'analyse de données ou le marketing."
+    },
+    "retention": {
+      "title": "Conservation de vos données personnelles",
+      "description": "La société conserve les données personnelles aussi longtemps que nécessaire."
+    },
+    "security": {
+      "title": "Sécurité de vos données personnelles",
+      "description": "Nous utilisons des mesures commercialement acceptables pour protéger vos données."
+    },
+    "children": {
+      "title": "Confidentialité des enfants",
+      "description": "Le service n'est pas destiné aux enfants de moins de 13 ans."
+    },
+    "links": {
+      "title": "Liens vers d'autres sites web",
+      "description": "Nous ne sommes pas responsables des pratiques de confidentialité des sites tiers."
+    },
+    "changes": {
+      "title": "Modifications de cette politique de confidentialité",
+      "description": "Nous pouvons mettre à jour cette politique de confidentialité de temps en temps."
+    },
+    "contact": {
+      "title": "Nous contacter",
+      "email": "Par email :"
+    }
   }
 }
