@@ -17,19 +17,20 @@ public sealed record AppFeatures
     public required SubscriptionSpecs Baseline { get; init; }
     public required SubscriptionSpecs Active { get; init; }
     public required bool CurrentParkingIsLocked { get; init; }
+    public required AppPlan? Plan { get; init; }
 
     [PublicAPI]
     public sealed record AppPlans
     {
-        public required Plan Premium { get; init; }
-        public required Plan Neighbourhood { get; init; }
+        public required AppPlan Premium { get; init; }
+        public required AppPlan Neighbourhood { get; init; }
+    }
 
-        [PublicAPI]
-        public sealed record Plan
-        {
-            public required string ProductId { get; init; }
-            public required SubscriptionSpecs Specs { get; init; }
-        }
+    [PublicAPI]
+    public sealed record AppPlan
+    {
+        public required string ProductId { get; init; }
+        public required SubscriptionSpecs Specs { get; init; }
     }
 
     [PublicAPI]
@@ -97,14 +98,21 @@ internal sealed class GetFeatures(AppDbContext dbContext, IUserFeatures features
         return new AppFeatures
         {
             IsPremium = enabledFeatures.Specs is PremiumPlanSpecs,
+            Plan = enabledFeatures.ActivePlan is null
+                ? null
+                : new AppFeatures.AppPlan
+                {
+                    ProductId = enabledFeatures.ActivePlan.ProductId,
+                    Specs = enabledFeatures.ActivePlan.Specs.ToSubscriptionSpecs(totalOwnedNeighbourhoodGroups)
+                },
             Plans = new AppFeatures.AppPlans
             {
-                Premium = new AppFeatures.AppPlans.Plan
+                Premium = new AppFeatures.AppPlan
                 {
                     ProductId = Plans.Premium,
                     Specs = new PremiumPlanSpecs().ToSubscriptionSpecs(totalOwnedNeighbourhoodGroups)
                 },
-                Neighbourhood = new AppFeatures.AppPlans.Plan
+                Neighbourhood = new AppFeatures.AppPlan
                 {
                     ProductId = Plans.Neighbourhood,
                     Specs = new NeighbourhoodPlanSpecs().ToSubscriptionSpecs(totalOwnedNeighbourhoodGroups)
