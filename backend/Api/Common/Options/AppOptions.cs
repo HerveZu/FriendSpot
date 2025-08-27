@@ -31,6 +31,10 @@ internal sealed record AppOptions : IOptions
     [ConfigurationKeyName("APPLE_CONNECT_API_PRIVATE_KEY")]
     public required string AppleConnectApiPrivateKey { get; init; }
 
+    [Required]
+    [ConfigurationKeyName("ANDROID_SHA256_CERT_FINGERPRINT")]
+    public required string AndroidSha256CertFingerprint { get; init; }
+
     public string[] BundleIds => BundleIdRaw.Split(",");
 
     public static string Section => "APP";
