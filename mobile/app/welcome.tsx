@@ -30,8 +30,8 @@ export default function WelcomeScreen() {
             </Button>
           </Link>
           <Link href="/signUp/step-one" asChild>
-            <Button className="w-full" variant="secondary" size={'lg'}>
-              <Text className={'w-full text-center'}>{t('auth.createAccount')}</Text>
+            <Button className="w-full" variant="plain" size={'lg'}>
+              <Text className={'text-primary'}>{t('auth.createAccount')}</Text>
             </Button>
           </Link>
         </View>
