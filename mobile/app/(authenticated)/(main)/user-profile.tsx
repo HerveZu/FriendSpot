@@ -671,15 +671,6 @@ function ParkingGroupModal(props: {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
 
-  useEffect(() => {
-    setAddress(props.parking?.address ?? '');
-    setName(props.parking?.name ?? '');
-  }, [props.parking, props.open]);
-
-  useEffect(() => {
-    setConfirmedParkingName(null);
-  }, [props.open]);
-
   const lotNameIsValid = mode === 'create' ? lotName.trim().length > 0 : true;
 
   const submitFn = {
@@ -818,6 +809,7 @@ function ParkingGroupModal(props: {
             disabled={!canCreateNeighbourhoodGroup}
             value={neighbourhoodGroup}
             onValueChange={setNeighbourhoodGroup}
+            trackColor={{ true: colors.primary }}
           />
         </Card>
       )}
@@ -1161,11 +1153,15 @@ function ParkingCard(props: {
   onSelect: () => void;
 }) {
   const { colors } = useColorScheme();
+  const { userProfile } = useCurrentUser();
 
   return (
     <Pressable disabled={props.parking.isFull} onPress={props.onSelect}>
       <Card highlight={props.isSelected}>
         <View className={'flex-row items-center justify-between gap-2'}>
+          {props.parking.ownerId === userProfile.id && (
+            <ThemedIcon name={'hammer'} component={FontAwesome6} />
+          )}
           {props.parking.isNeighbourhood && <KnownIcon name={'premium'} />}
           <Text numberOfLines={2} ellipsizeMode={'tail'} className={'flex-1 text-lg font-bold'}>
             {props.parking.name}

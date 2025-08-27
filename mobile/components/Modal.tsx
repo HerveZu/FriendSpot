@@ -30,19 +30,23 @@ export function Modal({
     // this extra View makes it display properly on Android devices
     <>
       <View>
-        <ReactModal
-          isVisible={open}
-          onBackdropPress={() => onOpenChange(false)}
-          // this removes the flickering on exit
-          backdropTransitionOutTiming={1}>
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={50}>
-            <View className={'bg-background'} {...props}>
-              <View className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
-                {children}
+        {/*destroy on close to fix flickering on exit and reset state*/}
+        {open && (
+          <ReactModal
+            isVisible={open}
+            onBackdropPress={() => onOpenChange(false)}
+            // this removes the flickering on exit
+            backdropTransitionOutTiming={1}>
+            <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={50}>
+              <View className={'bg-background'} {...props}>
+                <View
+                  className={cn('bg-primary/15 w-full flex-col gap-2 rounded-xl p-4', className)}>
+                  {children}
+                </View>
               </View>
-            </View>
-          </KeyboardAvoidingView>
-        </ReactModal>
+            </KeyboardAvoidingView>
+          </ReactModal>
+        )}
       </View>
     </>
   );
