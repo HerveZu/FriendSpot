@@ -97,16 +97,22 @@
       "settings": {
         "title": "Mes paramètres",
         "open": "Ouvrir mes paramètres",
-        "appInfo": "Informations de l'application",
         "restorePurchases": "Restaurer mes achats",
-        "contactSupport": "Contacter le support",
         "logout": "Déconnexion",
         "logoutConfirmation": "À bientôt !",
+        "accountCreated": "Compte créé le {{date}}"
+      },
+      "support": {
+        "open": "Support",
+        "title": "Support",
+        "appInfo": "Info de débogage",
+        "contactSupport": "Contacter le support",
         "deleteAccount": "Supprimer mon compte et données",
-        "accountCreated": "Compte créé le {{date}}",
         "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
         "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
-        "deleteAccountTitle": "Supprimer mon compte"
+        "deleteAccountTitle": "Supprimer mon compte",
+        "privacyPolicy": "Politique de confidentialité",
+        "termsOfUse": "Conditions d'utilisation"
       }
     },
     "parking": {
@@ -255,7 +261,7 @@
       "upgradeButton": "Passer à {{product}}",
       "premium": {
         "accountName": "Compte Premium",
-        "features": "Réservation jusqu'à 6 mois à l'avance;Tous les groupes jusqu'à 15 membres.Demandes de partage de place de stationnement",
+        "features": "Réservations en avance illimité;Tous les groupes jusqu'à 15 membres.Demandes de partage de place de stationnement",
         "period": "/mois"
       },
       "neighbourhood": {
@@ -293,7 +299,7 @@
   },
   "app": {
     "version": "Version",
-    "otaPatch": "Patch OTA appliqué {{time}}",
+    "otaPatch": "OTA {{time}}",
     "noOtaPatch": "Aucun patch OTA"
   },
   "widget": {

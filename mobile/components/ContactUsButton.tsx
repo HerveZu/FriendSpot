@@ -10,7 +10,7 @@ export function ContactUsButton({
     <Button
       onPress={async (e) => {
         onPress?.(e);
-        !contactUsDisabled && (await Linking.openURL('mailto:contact@friendspot.app'));
+        !contactUsDisabled && (await Linking.openURL('mailto:support@friendspot.app'));
       }}
       {...props}
     />

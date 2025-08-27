@@ -73,6 +73,7 @@ export default function UserProfileScreen() {
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [parkingBottomSheetOpen, setParkingBottomSheetOpen] = useState(false);
   const [parameterSheetOpen, setParameterSheetOpen] = useState(false);
+  const [supportSheetOpen, setSupportSheetOpen] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
 
@@ -218,16 +219,20 @@ export default function UserProfileScreen() {
             {t('user.profile.settings.title')}
           </Title>
           <Pressable onPress={() => setParameterSheetOpen(true)}>
-            <Card className="flex-col items-start gap-3">
-              <View className="w-full flex-row items-center justify-between">
-                <Text>{t('user.profile.settings.open')}</Text>
-              </View>
+            <Card className={'flex-row items-center justify-between'}>
+              <Text>{t('user.profile.settings.open')}</Text>
+            </Card>
+          </Pressable>
+          <Pressable onPress={() => setSupportSheetOpen(true)}>
+            <Card className={'flex-row items-center justify-between'}>
+              <Text>{t('user.profile.support.open')}</Text>
             </Card>
           </Pressable>
         </View>
       </ScreenWithHeader>
       <ParkingBottomSheet open={parkingBottomSheetOpen} onOpenChange={setParkingBottomSheetOpen} />
       <SettingsBottomSheet open={parameterSheetOpen} onOpenChange={setParameterSheetOpen} />
+      <SupportBottomSheet open={supportSheetOpen} onOpenChange={setSupportSheetOpen} />
     </>
   );
 }
@@ -290,13 +295,13 @@ export function AccountDeletionConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20 gap-4'}>
         <ModalTitle
-          text={t('user.profile.settings.deleteAccountTitle')}
+          text={t('user.profile.support.deleteAccountTitle')}
           icon={<ThemedIcon name={'warning'} />}
         />
 
         <View className={'mt-4 flex-col gap-8'}>
           <Text className={'text-destructive'} variant={'callout'}>
-            {t('user.profile.settings.deleteAccountConfirmation')}
+            {t('user.profile.support.deleteAccountConfirmation')}
           </Text>
 
           <View className={'flex-row items-center gap-4'}>
@@ -309,7 +314,7 @@ export function AccountDeletionConfirmationModal({
               }}
             />
             <Text variant={'caption1'} className={'flex-1'}>
-              {t('user.profile.settings.deleteAccountConfirm')}
+              {t('user.profile.support.deleteAccountConfirm')}
             </Text>
           </View>
         </View>
@@ -452,20 +457,15 @@ export function LeaveGroupConfirmationModal({
   );
 }
 
-function SettingsBottomSheet(props: {
+function SupportBottomSheet(props: {
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
-  const [debugOpen, setDebugOpen] = useState(false);
-  const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
-  const { restorePurchases } = useIAP();
-  const { features } = useCurrentUser();
-  const { firebaseUser } = useAuth();
-  const getPlanInfo = useGetPlanInfo();
 
-  const { colors } = useColorScheme();
+  const [debugOpen, setDebugOpen] = useState(false);
   const { t } = useTranslation();
+  const { colors } = useColorScheme();
 
   const infoEntries = [
     {
@@ -522,10 +522,12 @@ function SettingsBottomSheet(props: {
     },
   ];
 
-  const activePlanInfo = features.plan && getPlanInfo(features.plan.productId);
-
   return (
     <>
+      <AccountDeletionConfirmationModal
+        visible={confirmAccountDeletion}
+        onVisibleChange={setConfirmAccountDeletion}
+      />
       <Modal open={debugOpen} onOpenChange={setDebugOpen}>
         <View className={'gap-3 p-1'}>
           {infoEntries.map((infoEntry, i) => (
@@ -541,12 +543,70 @@ function SettingsBottomSheet(props: {
         </View>
       </Modal>
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
+        <SheetTitle>{t('user.profile.support.title')}</SheetTitle>
+
+        <View className={'gap-2'}>
+          <ContactUsButton size={'lg'} variant={'primary'}>
+            <ThemedIcon name={'headset'} component={FontAwesome6} />
+            <Text>{t('user.profile.support.contactSupport')}</Text>
+          </ContactUsButton>
+
+          <Button
+            className={'w-full'}
+            size={'lg'}
+            variant={'tonal'}
+            onPress={() => setDebugOpen(true)}>
+            <ThemedIcon name={'wrench'} component={FontAwesome6} color={colors.primary} />
+            <Text className={'text-primary'}>{t('user.profile.support.appInfo')}</Text>
+          </Button>
+        </View>
+
+        <View className={'gap-2'}>
+          <Button variant={'tonal'} size={'lg'}>
+            <ThemedIcon name={'user-shield'} component={FontAwesome6} color={colors.primary} />
+            <Text>{t('user.profile.support.privacyPolicy')}</Text>
+          </Button>
+          <Button variant={'tonal'} size={'lg'}>
+            <ThemedIcon name={'file-contract'} component={FontAwesome6} color={colors.primary} />
+            <Text>{t('user.profile.support.termsOfUse')}</Text>
+          </Button>
+        </View>
+
+        <View className={'gap-4'}>
+          <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
+            <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
+            <Text className={'text-destructive'}>{t('user.profile.support.deleteAccount')}</Text>
+          </Button>
+        </View>
+      </DynamicBottomSheet>
+    </>
+  );
+}
+
+function SettingsBottomSheet(props: {
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+}) {
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const { restorePurchases } = useIAP();
+  const { features } = useCurrentUser();
+  const { firebaseUser } = useAuth();
+  const getPlanInfo = useGetPlanInfo();
+
+  const { colors } = useColorScheme();
+  const { t } = useTranslation();
+
+  const activePlanInfo = features.plan && getPlanInfo(features.plan.productId);
+
+  return (
+    <>
+      <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
         <SheetTitle>{t('user.profile.settings.title')}</SheetTitle>
 
         <Card className={'gap-2'}>
           <View className={'flex-row items-center gap-2'}>
             <ThemedIcon name={'user-check'} component={FontAwesome6} />
-            <Text className={'text-lg font-semibold'}>
+            <Text>
               {t('user.profile.settings.accountCreated', {
                 date: formatDate(new Date(firebaseUser.metadata.creationTime ?? new Date()), 'PP'),
               })}
@@ -556,19 +616,12 @@ function SettingsBottomSheet(props: {
           {activePlanInfo && (
             <View className={'flex-row items-center gap-2'}>
               <KnownIcon name={'premium'} />
-              <Text className={'text-lg font-semibold'}>
-                {t(`friendspotplus.plans.${activePlanInfo.i18nKey}.accountName`)}
-              </Text>
+              <Text>{t(`friendspotplus.plans.${activePlanInfo.i18nKey}.accountName`)}</Text>
             </View>
           )}
         </Card>
 
         <View className={'gap-4'}>
-          <ContactUsButton size={'lg'} variant={'tonal'}>
-            <ThemedIcon name={'headset'} component={FontAwesome6} color={colors.primary} />
-            <Text>{t('user.profile.settings.contactSupport')}</Text>
-          </ContactUsButton>
-
           <Button onPress={restorePurchases} size={'lg'} variant={'tonal'}>
             <ThemedIcon name={'cart-arrow-down'} component={FontAwesome6} color={colors.primary} />
             <Text className={'text-primary'}>{t('user.profile.settings.restorePurchases')}</Text>
@@ -582,28 +635,8 @@ function SettingsBottomSheet(props: {
             <Text className={'text-destructive'}>{t('user.profile.settings.logout')}</Text>
           </Button>
         </View>
-
-        <View className={'mt-4 gap-4'}>
-          <Button
-            className={'w-full'}
-            variant={'tonal'}
-            size={'lg'}
-            onPress={() => setDebugOpen(true)}>
-            <ThemedIcon name={'wrench'} component={FontAwesome6} color={colors.primary} />
-            <Text className={'text-primary'}>{t('user.profile.settings.appInfo')}</Text>
-          </Button>
-
-          <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
-            <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
-            <Text className={'text-destructive'}>{t('user.profile.settings.deleteAccount')}</Text>
-          </Button>
-        </View>
       </DynamicBottomSheet>
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
-      <AccountDeletionConfirmationModal
-        visible={confirmAccountDeletion}
-        onVisibleChange={setConfirmAccountDeletion}
-      />
     </>
   );
 }

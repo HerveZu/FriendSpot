@@ -97,16 +97,22 @@
       "settings": {
         "title": "My settings",
         "open": "Open my settings",
-        "appInfo": "App information",
         "restorePurchases": "Restore purchases",
-        "contactSupport": "Contact support",
         "logout": "Log out",
         "logoutConfirmation": "Come back soon!",
+        "accountCreated": "Account created on {{date}}"
+      },
+      "support": {
+        "open": "Support",
+        "title": "Support",
+        "appInfo": "Debug information",
+        "contactSupport": "Contact support",
         "deleteAccount": "Delete my account and data",
-        "accountCreated": "Account created on {{date}}",
         "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
         "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
-        "deleteAccountTitle": "Delete my account"
+        "deleteAccountTitle": "Delete my account",
+        "termsOfUse": "Terms of use",
+        "privacyPolicy": "Privacy policy"
       }
     },
     "parking": {
@@ -255,7 +261,7 @@
       "upgradeButton": "Upgrade to {{product}}",
       "premium": {
         "accountName": "Premium account",
-        "features": "Reserve a spot up to 6 months in advance;Spot sharing requests;All groups up to 15 members;",
+        "features": "Unlimited reservation in advance;Spot sharing requests;All groups up to 15 members;",
         "period": "/month"
       },
       "neighbourhood": {
@@ -293,7 +299,7 @@
   },
   "app": {
     "version": "Version",
-    "otaPatch": "OTA Patch applied {{time}}",
+    "otaPatch": "OTA {{time}}",
     "noOtaPatch": "No OTA patch"
   },
   "widget": {
