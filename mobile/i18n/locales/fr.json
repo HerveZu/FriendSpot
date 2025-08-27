@@ -121,7 +121,7 @@
       "noMatchingParking": "Aucun groupe ne correspond à « {{search}} ».",
       "editParking": "Modifier un groupe",
       "parkingName": "Mon groupe",
-      "memberMaxCount": "{{memberCount}} utilisateurs pourront le rejoindre.",
+      "memberMaxCount": "{{memberCount}} utilisateurs peuvent rejoindre.",
       "addMoreMembers": "Jusqu'à {{memberCount}} membres",
       "parkingAddress": "Information complémentaire",
       "parkingLotname": "Mon numéro de spot",
