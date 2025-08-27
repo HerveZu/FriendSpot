@@ -3,9 +3,10 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 export function usePersistentState<Value>(
   key: string,
-  initialValue: Value
+  initialValue: Value,
+  loadingValue: Value
 ): [Value, Dispatch<SetStateAction<Value>>] {
-  const [value, setValue] = useState<Value>(initialValue);
+  const [value, setValue] = useState<Value>(loadingValue);
 
   useEffect(() => {
     (async () => {
@@ -13,6 +14,8 @@ export function usePersistentState<Value>(
         const saved = await AsyncStorage.getItem(key);
         if (saved) {
           setValue(JSON.parse(saved));
+        } else {
+          setValue(initialValue);
         }
       } catch (err) {
         console.error('Failed to load activity IDs', err);
