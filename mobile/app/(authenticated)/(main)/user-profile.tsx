@@ -67,6 +67,7 @@ import { useGetPlanInfo } from '~/components/FriendspotPlus';
 import { Form, FormContext } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
+import { logger } from 'react-native-reanimated/lib/typescript/logger';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -644,12 +645,11 @@ function SettingsBottomSheet(props: {
   );
 }
 
-function ParkingGroupModal(props: {
+function ParkingModal(props: {
   parking: ParkingResponse | null;
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
-  onParking: (parking: ParkingResponse) => void;
-  onDelete: (parking: ParkingResponse) => void;
+  onOk: () => void;
 }) {
   const mode = props.parking ? 'edit' : 'create';
   const [address, setAddress] = useState(props.parking?.address ?? '');
@@ -657,7 +657,8 @@ function ParkingGroupModal(props: {
   const [lotName, setLotName] = useState('');
   const [neighbourhoodGroup, setNeighbourhoodGroup] = useState(false);
   const { colors } = useColorScheme();
-  const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
+  const [wantToDeleteParking, setWantToDeleteParking] = useState(false);
+  const [confirmedParkingName, setConfirmedParkingName] = useState('');
   const [defineSpot, isJoiningGroup] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
@@ -668,14 +669,34 @@ function ParkingGroupModal(props: {
   const { isValid, handleSubmit } = useContext(FormContext);
 
   const [createParking, isCreating] = useLoading(useCreateParking(), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
+    beforeMarkingComplete: () => {
+      props.onOpenChange(false);
+      props.onOk();
+    },
   });
-  const [editParking, isEditing] = useLoading(useEditParkingInfo(), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
+  const [editParking, isEditing] = useLoading(useRefreshOnSuccess(useEditParkingInfo()), {
+    beforeMarkingComplete: () => {
+      props.onOpenChange(false);
+      props.onOk();
+    },
   });
   const [deleteParking, isDeleting] = useLoading(useRefreshOnSuccess(useDeleteParking()), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
+    beforeMarkingComplete: () => {
+      props.onOpenChange(false);
+      props.onOk();
+    },
   });
+
+  useEffect(() => {
+    setName(props.parking?.name ?? '');
+    setAddress(props.parking?.address ?? '');
+    setLotName('');
+    setWantToDeleteParking(false);
+  }, [props.open]);
+
+  useEffect(() => {
+    !wantToDeleteParking && setConfirmedParkingName('');
+  }, [wantToDeleteParking]);
 
   const submitFn = {
     create: () =>
@@ -702,17 +723,7 @@ function ParkingGroupModal(props: {
   };
 
   async function onSubmit() {
-    const parking = await submitFn[mode]();
-    parking && props.onParking(parking);
-  }
-
-  async function onDelete() {
-    if (!props.parking) {
-      return;
-    }
-
-    await deleteParking(props.parking.id);
-    props.onDelete(props.parking);
+    await submitFn[mode]();
   }
 
   const canCreateNeighbourhoodGroup = features.active.availableNeighbourhoodGroups > 0;
@@ -736,7 +747,6 @@ function ParkingGroupModal(props: {
           placeholder={t('user.parking.parkingName')}
           maxLength={50}
           validators={[validators.required]}
-          resetOnTrue={props.open}
         />
         <FormInput
           value={address}
@@ -744,7 +754,6 @@ function ParkingGroupModal(props: {
           placeholder={t('user.parking.parkingAddress')}
           maxLength={100}
           validators={[validators.required]}
-          resetOnTrue={props.open}
         />
         {mode === 'create' && (
           <FormInput
@@ -753,14 +762,18 @@ function ParkingGroupModal(props: {
             placeholder={t('user.parking.parkingLotname')}
             maxLength={10}
             validators={[validators.required]}
-            resetOnTrue={props.open}
           />
         )}
       </View>
 
       {mode === 'edit' && (
         <>
-          {confirmedParkingName !== null && (
+          {!wantToDeleteParking && !keyboardVisible && (
+            <Pressable className={'mx-auto w-fit'} onPress={() => setWantToDeleteParking(true)}>
+              <Text className={'mx-auto text-center text-destructive'}>{t('common.delete')}</Text>
+            </Pressable>
+          )}
+          {wantToDeleteParking && (
             <TextInput
               style={{
                 color: colors.destructive,
@@ -776,28 +789,24 @@ function ParkingGroupModal(props: {
               }}
             />
           )}
-          <ExpandRow className={cn(confirmedParkingName !== null && 'flex-row justify-between')}>
-            {confirmedParkingName !== null && (
+          {wantToDeleteParking && !keyboardVisible && (
+            <ExpandRow>
               <ExpandItem>
-                <Button variant={'tonal'} onPress={() => setConfirmedParkingName(null)}>
+                <Button variant={'tonal'} onPress={() => setWantToDeleteParking(false)}>
                   <Text>{t('user.parking.cancelDelete')}</Text>
                 </Button>
               </ExpandItem>
-            )}
-            <ExpandItem>
-              <Button
-                disabled={
-                  confirmedParkingName !== null && confirmedParkingName !== props.parking?.name
-                }
-                variant={'plain'}
-                onPress={() =>
-                  confirmedParkingName === null ? setConfirmedParkingName('') : onDelete()
-                }>
-                {isDeleting && <ActivityIndicator color={colors.destructive} />}
-                <Text className={'text-destructive'}>{t('user.parking.confirmDelete')}</Text>
-              </Button>
-            </ExpandItem>
-          </ExpandRow>
+              <ExpandItem>
+                <Button
+                  disabled={confirmedParkingName !== props.parking?.name}
+                  variant={'plain'}
+                  onPress={() => props.parking && deleteParking(props.parking.id)}>
+                  {isDeleting && <ActivityIndicator color={colors.destructive} />}
+                  <Text className={'text-destructive'}>{t('user.parking.confirmDelete')}</Text>
+                </Button>
+              </ExpandItem>
+            </ExpandRow>
+          )}
         </>
       )}
 
@@ -830,7 +839,7 @@ function ParkingGroupModal(props: {
         </Text>
       )}
 
-      {!keyboardVisible && (
+      {!keyboardVisible && !wantToDeleteParking && (
         <Button disabled={!isValid} onPress={handleSubmit(onSubmit)} className="">
           {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
           <Text>{submitText[mode]}</Text>
@@ -865,7 +874,7 @@ function ParkingBottomSheet(props: {
     [search, userProfile.spot?.parking.address]
   );
   const [searchDebounce] = useDebounce(fullSearch, 200);
-  const [parking, setParking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
+  const [parking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
   const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
   const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
   const [parkingModalOpen, setParkingModalOpen] = useState(false);
@@ -910,17 +919,6 @@ function ParkingBottomSheet(props: {
     setSearch(parking.name);
     setSelectedParking(parking);
     setCurrentSpotName('');
-  }
-
-  function replaceParkingState(parking: ParkingResponse) {
-    setParking((allParking) => [
-      ...(allParking?.filter((p) => p.id !== parking.id) ?? []),
-      parking,
-    ]);
-  }
-
-  function deleteParkingState(parking: ParkingResponse) {
-    setParking((allParking) => [...(allParking?.filter((p) => p.id !== parking.id) ?? [])]);
   }
 
   function initiateParkingCreation() {
@@ -1142,12 +1140,11 @@ function ParkingBottomSheet(props: {
       </Modal>
 
       <Form>
-        <ParkingGroupModal
+        <ParkingModal
           parking={editingParking}
           open={parkingModalOpen}
           onOpenChange={setParkingModalOpen}
-          onParking={replaceParkingState}
-          onDelete={deleteParkingState}
+          onOk={() => props.onOpenChange(false)}
         />
       </Form>
 
