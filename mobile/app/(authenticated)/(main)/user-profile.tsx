@@ -67,7 +67,6 @@ import { useGetPlanInfo } from '~/components/FriendspotPlus';
 import { Form, FormContext } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
-import { logger } from 'react-native-reanimated/lib/typescript/logger';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -666,7 +665,6 @@ function ParkingModal(props: {
   const { userProfile, features } = useCurrentUser();
   const { keyboardVisible } = useKeyboardVisible();
   const validators = useValidators();
-  const { isValid, handleSubmit } = useContext(FormContext);
 
   const [createParking, isCreating] = useLoading(useCreateParking(), {
     beforeMarkingComplete: () => {
@@ -733,118 +731,135 @@ function ParkingModal(props: {
 
   return (
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
-      <ModalTitle text={titleText[mode]} />
-      <View className="w-full flex-row items-center gap-2 px-2">
-        <ThemedIcon name={'user-group'} component={FontAwesome6} size={14} color={colors.primary} />
-        <Text className="font-semibold text-primary">
-          {t('user.parking.memberMaxCount', { memberCount: maxMembersCount })}
-        </Text>
-      </View>
-      <View className={'flex-col gap-2'}>
-        <FormInput
-          value={name}
-          onValueChange={setName}
-          placeholder={t('user.parking.parkingName')}
-          maxLength={50}
-          validators={[validators.required]}
-        />
-        <FormInput
-          value={address}
-          onValueChange={setAddress}
-          placeholder={t('user.parking.parkingAddress')}
-          maxLength={100}
-          validators={[validators.required]}
-        />
-        {mode === 'create' && (
-          <FormInput
-            value={lotName}
-            onValueChange={setLotName}
-            placeholder={t('user.parking.parkingLotname')}
-            maxLength={10}
-            validators={[validators.required]}
-          />
+      <Form>
+        {({ isValid, handleSubmit }) => (
+          <>
+            <ModalTitle text={titleText[mode]} />
+            <View className="w-full flex-row items-center gap-2 px-2">
+              <ThemedIcon
+                name={'user-group'}
+                component={FontAwesome6}
+                size={14}
+                color={colors.primary}
+              />
+              <Text className="font-semibold text-primary">
+                {t('user.parking.memberMaxCount', { memberCount: maxMembersCount })}
+              </Text>
+            </View>
+            <View className={'flex-col gap-2'}>
+              <FormInput
+                value={name}
+                onValueChange={setName}
+                placeholder={t('user.parking.parkingName')}
+                maxLength={50}
+                validators={[validators.required]}
+              />
+              <FormInput
+                value={address}
+                onValueChange={setAddress}
+                placeholder={t('user.parking.parkingAddress')}
+                maxLength={100}
+                validators={[validators.required]}
+              />
+              {mode === 'create' && (
+                <FormInput
+                  value={lotName}
+                  onValueChange={setLotName}
+                  placeholder={t('user.parking.parkingLotname')}
+                  maxLength={10}
+                  validators={[validators.required]}
+                />
+              )}
+            </View>
+
+            {mode === 'edit' && (
+              <>
+                {!wantToDeleteParking && !keyboardVisible && (
+                  <Pressable
+                    className={'mx-auto w-fit'}
+                    onPress={() => setWantToDeleteParking(true)}>
+                    <Text className={'mx-auto text-center text-destructive'}>
+                      {t('common.delete')}
+                    </Text>
+                  </Pressable>
+                )}
+                {wantToDeleteParking && (
+                  <TextInput
+                    style={{
+                      color: colors.destructive,
+                      borderColor: colors.destructive,
+                    }}
+                    placeholderTextColor={opacity(colors.destructive, 0.5)}
+                    placeholder={props.parking?.name}
+                    value={confirmedParkingName}
+                    onChangeText={setConfirmedParkingName}
+                    icon={{
+                      position: 'right',
+                      element: <ThemedIcon name={'trash'} color={colors.destructive} />,
+                    }}
+                  />
+                )}
+                {wantToDeleteParking && !keyboardVisible && (
+                  <ExpandRow>
+                    <ExpandItem>
+                      <Button variant={'tonal'} onPress={() => setWantToDeleteParking(false)}>
+                        <Text>{t('user.parking.cancelDelete')}</Text>
+                      </Button>
+                    </ExpandItem>
+                    <ExpandItem>
+                      <Button
+                        disabled={confirmedParkingName !== props.parking?.name}
+                        variant={'plain'}
+                        onPress={() => props.parking && deleteParking(props.parking.id)}>
+                        {isDeleting && <ActivityIndicator color={colors.destructive} />}
+                        <Text className={'text-destructive'}>
+                          {t('user.parking.confirmDelete')}
+                        </Text>
+                      </Button>
+                    </ExpandItem>
+                  </ExpandRow>
+                )}
+              </>
+            )}
+
+            {mode === 'create' && !keyboardVisible && (
+              <Card className={'flex-row items-center justify-between'}>
+                <View className={'flex-row items-center gap-2'}>
+                  <KnownIcon name={'premium'} size={18} color={colors.primary} />
+                  <Text className={'text-primary'}>
+                    {t('user.parking.addMoreMembers', {
+                      memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
+                    })}
+                  </Text>
+                  <Text disabled={!canCreateNeighbourhoodGroup}>
+                    ({features.active.availableNeighbourhoodGroups}/
+                    {features.active.maxNeighbourhoodGroups})
+                  </Text>
+                </View>
+                <Switch
+                  disabled={!canCreateNeighbourhoodGroup}
+                  value={neighbourhoodGroup}
+                  onValueChange={setNeighbourhoodGroup}
+                  trackColor={{ true: colors.primary }}
+                />
+              </Card>
+            )}
+
+            {mode === 'create' && userProfile.spot && !keyboardVisible && (
+              <Text variant={'callout'} className="text-center text-destructive">
+                {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
+              </Text>
+            )}
+
+            {!keyboardVisible && !wantToDeleteParking && (
+              <Button disabled={!isValid} onPress={handleSubmit(onSubmit)} className="">
+                {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
+                <Text>{submitText[mode]}</Text>
+              </Button>
+            )}
+          </>
         )}
-      </View>
-
-      {mode === 'edit' && (
-        <>
-          {!wantToDeleteParking && !keyboardVisible && (
-            <Pressable className={'mx-auto w-fit'} onPress={() => setWantToDeleteParking(true)}>
-              <Text className={'mx-auto text-center text-destructive'}>{t('common.delete')}</Text>
-            </Pressable>
-          )}
-          {wantToDeleteParking && (
-            <TextInput
-              style={{
-                color: colors.destructive,
-                borderColor: colors.destructive,
-              }}
-              placeholderTextColor={opacity(colors.destructive, 0.5)}
-              placeholder={props.parking?.name}
-              value={confirmedParkingName}
-              onChangeText={setConfirmedParkingName}
-              icon={{
-                position: 'right',
-                element: <ThemedIcon name={'trash'} color={colors.destructive} />,
-              }}
-            />
-          )}
-          {wantToDeleteParking && !keyboardVisible && (
-            <ExpandRow>
-              <ExpandItem>
-                <Button variant={'tonal'} onPress={() => setWantToDeleteParking(false)}>
-                  <Text>{t('user.parking.cancelDelete')}</Text>
-                </Button>
-              </ExpandItem>
-              <ExpandItem>
-                <Button
-                  disabled={confirmedParkingName !== props.parking?.name}
-                  variant={'plain'}
-                  onPress={() => props.parking && deleteParking(props.parking.id)}>
-                  {isDeleting && <ActivityIndicator color={colors.destructive} />}
-                  <Text className={'text-destructive'}>{t('user.parking.confirmDelete')}</Text>
-                </Button>
-              </ExpandItem>
-            </ExpandRow>
-          )}
-        </>
-      )}
-
-      {mode === 'create' && !keyboardVisible && (
-        <Card className={'flex-row items-center justify-between'}>
-          <View className={'flex-row items-center gap-2'}>
-            <KnownIcon name={'premium'} size={18} color={colors.primary} />
-            <Text className={'text-primary'}>
-              {t('user.parking.addMoreMembers', {
-                memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
-              })}
-            </Text>
-            <Text disabled={!canCreateNeighbourhoodGroup}>
-              ({features.active.availableNeighbourhoodGroups}/
-              {features.active.maxNeighbourhoodGroups})
-            </Text>
-          </View>
-          <Switch
-            disabled={!canCreateNeighbourhoodGroup}
-            value={neighbourhoodGroup}
-            onValueChange={setNeighbourhoodGroup}
-            trackColor={{ true: colors.primary }}
-          />
-        </Card>
-      )}
-
-      {mode === 'create' && userProfile.spot && !keyboardVisible && (
-        <Text variant={'callout'} className="text-center text-destructive">
-          {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
-        </Text>
-      )}
-
-      {!keyboardVisible && !wantToDeleteParking && (
-        <Button disabled={!isValid} onPress={handleSubmit(onSubmit)} className="">
-          {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
-          <Text>{submitText[mode]}</Text>
-        </Button>
-      )}
+      </Form>
     </Modal>
   );
 }
@@ -1139,14 +1154,12 @@ function ParkingBottomSheet(props: {
         </View>
       </Modal>
 
-      <Form>
-        <ParkingModal
-          parking={editingParking}
-          open={parkingModalOpen}
-          onOpenChange={setParkingModalOpen}
-          onOk={() => props.onOpenChange(false)}
-        />
-      </Form>
+      <ParkingModal
+        parking={editingParking}
+        open={parkingModalOpen}
+        onOpenChange={setParkingModalOpen}
+        onOk={() => props.onOpenChange(false)}
+      />
 
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
         {SheetContent()}

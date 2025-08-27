@@ -173,16 +173,13 @@ function ResetPasswordModal({ className, ...props }: ModalProps) {
         <Text className="text-sm text-foreground">{t('auth.resetPassword.description')}</Text>
       </View>
 
-      <Form>
-        <ResetPasswordForm />
-      </Form>
+      <ResetPasswordForm />
     </Modal>
   );
 }
 
 function ResetPasswordForm() {
   const { t } = useTranslation();
-  const { isValid, handleSubmit, isLoading } = useContext(FormContext);
 
   const { colors } = useColorScheme();
   const validators = useValidators();
@@ -199,27 +196,31 @@ function ResetPasswordForm() {
   }
 
   return (
-    <>
-      <FormInput
-        value={email}
-        onValueChange={setEmail}
-        placeholder={t('auth.email')}
-        inputMode="email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        validators={[validators.email, validators.required]}
-      />
-      {error && <FormMessages>{error}</FormMessages>}
-      {info && <FormInfo>{info}</FormInfo>}
-      <Button
-        size={Platform.select({ default: 'md' })}
-        disabled={!isValid}
-        onPress={handleSubmit(() => resetPassword(email!))}
-        variant="primary"
-        className="w-full">
-        {isLoading && <ActivityIndicator color={colors.foreground} />}
-        <Text>Envoyer</Text>
-      </Button>
-    </>
+    <Form>
+      {({ isValid, handleSubmit, isLoading }) => (
+        <>
+          <FormInput
+            value={email}
+            onValueChange={setEmail}
+            placeholder={t('auth.email')}
+            inputMode="email"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            validators={[validators.email, validators.required]}
+          />
+          {error && <FormMessages>{error}</FormMessages>}
+          {info && <FormInfo>{info}</FormInfo>}
+          <Button
+            size={Platform.select({ default: 'md' })}
+            disabled={!isValid}
+            onPress={handleSubmit(() => resetPassword(email!))}
+            variant="primary"
+            className="w-full">
+            {isLoading && <ActivityIndicator color={colors.foreground} />}
+            <Text>Envoyer</Text>
+          </Button>
+        </>
+      )}
+    </Form>
   );
 }
