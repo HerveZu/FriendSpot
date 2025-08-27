@@ -9,7 +9,7 @@ namespace Api.DeepLinks;
 [PublicAPI]
 public sealed record AssetLinksResponse
 {
-    public required string[] Relations { get; init; }
+    public required string[] Relation { get; init; }
     public required TargetResponse Target { get; init; }
 
     [PublicAPI]
@@ -39,7 +39,7 @@ internal sealed class AndroidAssetLinks(IOptions<AppOptions> options)
         return Task.FromResult(
             options.Value.BundleIds.Select(bundleId => new AssetLinksResponse
                 {
-                    Relations =
+                    Relation =
                     [
                         "delegate_permission/common.handle_all_urls",
                         "delegate_permission/common.get_login_creds"
