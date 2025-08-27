@@ -255,7 +255,7 @@
       "upgradeButton": "Upgrade to {{product}}",
       "premium": {
         "accountName": "Premium account",
-        "features": "Unlimited time per reservation;Reserve a spot up to 6 months in advance;All groups up to 50 members;Spot sharing requests",
+        "features": "Reserve a spot up to 6 months in advance;Spot sharing requests;All groups up to 15 members;",
         "period": "/month"
       },
       "neighbourhood": {
