@@ -28,7 +28,7 @@ export default function FriendspotPlus() {
     const productIds = Object.values(features.plans).map((plan) => plan.productId);
 
     console.log('Requesting products', productIds);
-    requestProducts({ skus: productIds })
+    requestProducts({ skus: productIds, type: 'subs' })
       .then(() => setReady(true))
       .catch(console.error);
   }, [connected]);
