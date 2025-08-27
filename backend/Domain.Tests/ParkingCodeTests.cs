@@ -21,13 +21,13 @@ public sealed class ParkingCodeTests
     }
 
     [Test]
-    public void NewRandom_ShouldCreateCodeStartingWithP()
+    public void NewRandom_ShouldCreateCodeStartingWithCorrectPrefix()
     {
         // Act
         var code = ParkingCode.NewRandom(4);
 
         // Assert
-        Assert.That(code.Value, Does.StartWith("P-"));
+        Assert.That(code.Value, Does.StartWith("F-"));
     }
 
     [Test]

@@ -2,7 +2,7 @@ namespace Domain.Parkings;
 
 public sealed record ParkingCode(string Value)
 {
-    private const char Prefix = 'P';
+    private const char Prefix = 'F';
     private const string ValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     public static ParkingCode NewRandom(int length)

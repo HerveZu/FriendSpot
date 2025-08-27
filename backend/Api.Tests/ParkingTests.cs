@@ -29,7 +29,7 @@ internal sealed class ParkingTests : IntegrationTestsBase
         {
             Assert.That(parking.Name, Is.EqualTo("Test"));
             Assert.That(parking.Address, Is.EqualTo("Test av."));
-            Assert.That(parking.Code, Does.StartWith("P-"));
+            Assert.That(parking.Code, Does.StartWith("F-"));
             Assert.That(parking.Code, Has.Length.EqualTo(8));
         });
     }
