@@ -222,14 +222,14 @@ export default function UserProfile() {
         </View>
         <View className={'flex-col gap-2'}>
           <OpenSection
-            onPress={() => setParameterSheetOpen(true)}
-            icon={<KnownIcon name={'settings'} color={colors.primary} />}
-            title={t('user.profile.settings.open')}
-          />
-          <OpenSection
             onPress={() => setSupportSheetOpen(true)}
             icon={<KnownIcon name={'support'} color={colors.primary} />}
             title={t('user.profile.support.open')}
+          />
+          <OpenSection
+            onPress={() => setParameterSheetOpen(true)}
+            icon={<KnownIcon name={'settings'} color={colors.primary} />}
+            title={t('user.profile.settings.open')}
           />
         </View>
       </ScreenWithHeader>
