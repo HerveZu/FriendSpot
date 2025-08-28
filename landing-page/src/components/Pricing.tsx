@@ -14,6 +14,7 @@ const plans = [
     buttonTextKey: "pricing.plans.free.buttonText",
     buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
     popular: false,
+    link: "https://api.friendspot.app/_open/",
   },
   {
     nameKey: "pricing.plans.premium.name",
@@ -26,6 +27,7 @@ const plans = [
     buttonClass:
       "bg-gradient-to-r from-primary to-secondary hover:shadow-xl text-white",
     popular: true,
+    link: "https://api.friendspot.app/_open/friendspot-plus",
   },
   {
     nameKey: "pricing.plans.neighbourhood.name",
@@ -37,6 +39,7 @@ const plans = [
     buttonTextKey: "pricing.plans.neighbourhood.buttonText",
     buttonClass: "bg-slate-700 hover:bg-slate-600 text-white",
     popular: false,
+    link: "https://api.friendspot.app/_open/friendspot-plus",
   },
 ];
 
@@ -147,7 +150,7 @@ export const Pricing = () => {
                     </ul>
                   </div>
 
-                  <Link to={"https://api.friendspot.app/_open/friendspot-plus"}>
+                  <Link to={plan.link}>
                     <button
                       className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 capitalize transform hover:scale-105 ${plan.buttonClass}`}
                     >
