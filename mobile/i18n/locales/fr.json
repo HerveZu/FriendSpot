@@ -268,7 +268,7 @@
       "upgradeButton": "Passer à {{product}}",
       "premium": {
         "accountName": "Compte Premium",
-        "features": "Réservations en avance illimité;Tous les groupes jusqu'à 15 membres.Demandes de partage de place de stationnement",
+        "features": "Réservations en avance illimité;Tous les groupes jusqu'à 15 membres;Demandes de partage de place de stationnement",
         "period": "/mois"
       },
       "neighbourhood": {
