@@ -148,7 +148,7 @@
       "confirmDelete": "Delete",
       "cancelDelete": "Cancel",
       "share": {
-        "button": "Share",
+        "button": "Invite",
         "title": "Share your FriendSpot group with your neighbors",
         "message": "Hi! Join our neighbor group on FriendSpot. Use the code {{code}}."
       },

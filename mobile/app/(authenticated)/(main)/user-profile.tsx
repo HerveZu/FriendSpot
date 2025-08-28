@@ -70,8 +70,10 @@ import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
 import { urls } from '~/lib/urls';
 import { OpenSection } from '~/components/OpenSection';
+import { CopyToClipboard } from '~/components/CopyToClipboard';
+import { UserSpot } from '~/endpoints/me/get-profile';
 
-export default function UserProfileScreen() {
+export default function UserProfile() {
   const { firebaseUser } = useAuth();
   const { colors } = useColorScheme();
   const { userProfile, updateUserProfile, features } = useCurrentUser();
@@ -169,11 +171,19 @@ export default function UserProfileScreen() {
         </View>
         <View className={'flex-col gap-2'}>
           <Title
-            action={<ShareSpot />}
+            action={
+              userProfile.spot && (
+                <View className={'flex-row items-center gap-4'}>
+                  <CopyToClipboard
+                    textToCopy={userProfile.spot.parking.code}
+                    icon={<ThemedIcon name={'copy'} component={FontAwesome6} />}
+                  />
+                  <ShareSpot spot={userProfile.spot} />
+                </View>
+              )
+            }
             icon={{
-              element: (
-                <ThemedIcon name={'user-group'} component={FontAwesome6} color={colors.primary} />
-              ),
+              element: <ThemedIcon name={'user-group'} component={FontAwesome6} />,
             }}>
             {t('user.profile.mySpot')}
           </Title>
@@ -230,9 +240,8 @@ export default function UserProfileScreen() {
   );
 }
 
-function ShareSpot() {
+function ShareSpot({ spot }: { spot: UserSpot }) {
   const { t } = useTranslation();
-  const { userProfile } = useCurrentUser();
 
   async function shareSpot(code: string) {
     await Share.share(
@@ -246,18 +255,14 @@ function ShareSpot() {
   }
 
   return (
-    <Button
-      variant={'primary'}
-      size={'sm'}
-      disabled={!userProfile.spot}
-      onPress={() => userProfile.spot && shareSpot(userProfile.spot.parking.code)}>
+    <Button variant={'primary'} size={'sm'} onPress={() => shareSpot(spot.parking.code)}>
       <ThemedIcon name={'share'} component={FontAwesome6} />
       <Text>{t('user.parking.share.button')}</Text>
     </Button>
   );
 }
 
-export function AccountDeletionConfirmationModal({
+function AccountDeletionConfirmationModal({
   children,
   visible,
   onVisibleChange,
@@ -343,7 +348,7 @@ export function AccountDeletionConfirmationModal({
   );
 }
 
-export function LogoutConfirmationModal({
+function LogoutConfirmationModal({
   children,
   onVisibleChange,
   visible,
@@ -391,7 +396,7 @@ export function LogoutConfirmationModal({
   );
 }
 
-export function LeaveGroupConfirmationModal({
+function LeaveGroupConfirmationModal({
   children,
   onVisibleChange,
   visible,
