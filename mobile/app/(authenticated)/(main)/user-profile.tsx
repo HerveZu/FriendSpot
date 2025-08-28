@@ -546,15 +546,15 @@ function SupportBottomSheet(props: {
         </SheetTitle>
 
         <View className={'gap-2'}>
-          <ContactUsButton size={'lg'} variant={'primary'}>
-            <ThemedIcon name={'envelope'} component={FontAwesome6} />
+          <ContactUsButton size={'lg'} variant={'tonal'}>
+            <ThemedIcon name={'envelope'} component={FontAwesome6} color={colors.primary} />
             <Text>{t('user.profile.support.contactSupport')}</Text>
           </ContactUsButton>
 
           <Button
             className={'w-full'}
             size={'lg'}
-            variant={'tonal'}
+            variant={'plain'}
             onPress={() => setDebugOpen(true)}>
             <ThemedIcon name={'wrench'} component={FontAwesome6} color={colors.primary} />
             <Text className={'text-primary'}>{t('user.profile.support.appInfo')}</Text>
