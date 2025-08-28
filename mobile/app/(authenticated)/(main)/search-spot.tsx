@@ -185,13 +185,6 @@ export default function SearchSpot() {
             <View className="items-center">
               <SuccessIllustration width={250} height={250} />
             </View>
-            <Button
-              variant="primary"
-              onPress={() => {
-                setInfoModalOpen(false);
-              }}>
-              <Text>{t('common.back')}</Text>
-            </Button>
           </Modal>
         )}
 
