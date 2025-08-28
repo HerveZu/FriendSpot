@@ -1,13 +1,12 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from 'react';
 import { Falsy } from 'react-native';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
-import { isLoading } from 'expo-font';
 
 type UseFetchResponse<TResponse> = [
   TResponse | undefined,
   Dispatch<SetStateAction<TResponse | undefined>>,
   boolean,
-  boolean,
+  { initialLoading: boolean; resetInitialLoading: () => void },
 ];
 
 export function useHookFetch<TResponse>(
@@ -47,7 +46,9 @@ export function useFetch<TResponse>(
     });
   }, [callback, setLoading, setData]);
 
-  return [data, setData, loading, !hasLoadedOnce && loading];
+  const resetInitialLoading = useCallback(() => setHasLoadedOnce(false), [setHasLoadedOnce]);
+
+  return [data, setData, loading, { initialLoading: !hasLoadedOnce, resetInitialLoading }];
 }
 
 export function useLoading<TArgs extends unknown[], TResponse>(

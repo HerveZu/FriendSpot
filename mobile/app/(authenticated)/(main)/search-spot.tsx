@@ -63,6 +63,12 @@ import {
   useGetMyBookingRequests,
 } from '~/endpoints/requestBooking/get-my-parking-requests';
 import { PremiumButton } from '~/components/FriendspotPlus';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -456,7 +462,7 @@ function BookingSheet(props: {
 
   const duration = useMemo(() => intervalToDuration({ start: from, end: to }), [from, to]);
 
-  const [availableSpots, , , isSearchingInitial] = useFetch(
+  const [availableSpots, , , { initialLoading: isSearchingSpot, resetInitialLoading }] = useFetch(
     () => getAvailableSpots(fromDebounce, toDebounce),
     [fromDebounce, toDebounce]
   );
@@ -507,6 +513,7 @@ function BookingSheet(props: {
     setRequestSimulation(undefined);
     setRequestBonusOption(null);
     setRequestSpot(false);
+    resetInitialLoading();
   }, [props.open]);
 
   useEffect(() => {
@@ -533,16 +540,19 @@ function BookingSheet(props: {
   }, [props.open, props.selectedSuggestion]);
 
   useEffect(() => {
-    if (!props.selectedSuggestion) return;
-
-    setSelectedSpot(props.selectedSuggestion);
+    props.selectedSuggestion && setSelectedSpot(props.selectedSuggestion);
   }, [props.selectedSuggestion]);
 
   useEffect(() => {
-    if (requestSpot) {
+    if (spots.length === 0) {
       setSelectedSpot(undefined);
+      setBookingSimulation(undefined);
+      return;
     }
-  }, [requestSpot]);
+
+    setRequestSimulation(undefined);
+    setRequestSpot(false);
+  }, [spots]);
 
   function minTo(from: Date): Date {
     return addHours(from, MIN_DURATION_HOURS);
@@ -600,8 +610,12 @@ function BookingSheet(props: {
           {capitalize(formatRelative(from, now))}
         </SheetTitle>
 
-        {isSearchingInitial ? (
-          <ActivityIndicator />
+        {isSearchingSpot ? (
+          <CardContainer>
+            {Array.from({ length: Math.max(1, spots.length) }).map((_, i) => (
+              <AvailableSpotSkeleton key={i} />
+            ))}
+          </CardContainer>
         ) : requestSpot ? (
           <View className={'gap-6'}>
             <Card>
@@ -743,6 +757,26 @@ function BookingSheet(props: {
         </PremiumButton>
       )}
     </DynamicBottomSheet>
+  );
+}
+
+function AvailableSpotSkeleton() {
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withRepeat(withTiming(0.8, { duration: 1200 }), -1, true);
+  }, [opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Card>
+        <View className={'h-8'} />
+      </Card>
+    </Animated.View>
   );
 }
 
