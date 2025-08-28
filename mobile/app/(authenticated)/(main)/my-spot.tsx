@@ -250,6 +250,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
             </Text>
           </View>
           <DeleteTrigger />
+          <Users users={uniqueBookingUsers} />
         </View>
         <DateRange
           from={props.availability.from}
