@@ -536,7 +536,9 @@ function SupportBottomSheet(props: {
         </View>
       </Modal>
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
-        <SheetTitle>{t('user.profile.support.title')}</SheetTitle>
+        <SheetTitle icon={<KnownIcon name={'support'} size={22} />}>
+          {t('user.profile.support.title')}
+        </SheetTitle>
 
         <View className={'gap-2'}>
           <ContactUsButton size={'lg'} variant={'primary'}>
@@ -594,7 +596,9 @@ function SettingsBottomSheet(props: {
   return (
     <>
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
-        <SheetTitle>{t('user.profile.settings.title')}</SheetTitle>
+        <SheetTitle icon={<KnownIcon name={'settings'} size={22} />}>
+          {t('user.profile.settings.title')}
+        </SheetTitle>
 
         <Card className={'gap-2'}>
           <View className={'flex-row items-center gap-2'}>
