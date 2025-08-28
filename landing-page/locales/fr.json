@@ -11,21 +11,23 @@
         "period": "à vie",
         "description": "Idéal pour découvrir le partage de stationnement entre voisins.",
         "features": [
-          "Création d'un groupe de stationnement jusqu'à 10 membres",
-          "Limite de 3 jours max par réservation",
+          "Réservation de spot jusqu'à 3 jours en avance",
+          "Voir et accepter les demandes de réservation",
+          "Groupes de stationnement jusqu'à 10 membres",
           "Support communautaire"
         ],
-        "buttonText": "Commencez gratuitement"
+        "buttonText": "C'est parti !"
       },
       "premium": {
         "name": "Premium",
         "price": "2,99 €",
         "period": "/mois",
-        "description": "Débloquez un potentiel de stationnement illimité pour la meilleure expérience.",
+        "description": "Toutes les fonctionalités de réservation pour la meilleure expérience.",
         "features": [
-          "Créez un groupe de stationnement avec jusqu'à 15 membres pour une gestion simplifiée",
-          "Profitez de réservations en avance illimitées pour planifier vos besoins de stationnement",
-          "Envoyez et recevez des demandes de partage de place de stationnement en toute simplicité"
+          "Tout inclus dans le plan de base",
+          "Réservations de spot à l'avance sans limite",
+          "Envoyer des demandes de réservation",
+          "Groupes de stationnement jusqu'à 15 membres"
         ],
         "buttonText": "Passez à Premium"
       },
@@ -33,9 +35,10 @@
         "name": "Communauté",
         "price": "39,99€",
         "period": "/mois",
-        "description": "Idéal pour les grands quartiers et communautés souhaitant optimiser leur stationnement.",
+        "description": "Idéal pour les grands quartiers et communautés.",
         "features": [
-          "Créez un groupe communautaire privé pouvant accueillir jusqu'à 50 membres"
+          "Tout inclus dans le plan Premium",
+          "1 groupe communautaire privé jusqu'à 50 membres"
         ],
         "buttonText": "Passez à Communauté"
       }
