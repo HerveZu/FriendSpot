@@ -101,8 +101,8 @@
       "sendFeedback": "Faire un retour",
       "editAvatar": "Modifier l'avatar",
       "reputation": {
-        "good": "Bonne réputation",
-        "bad": "Mauvaise réputation"
+        "good": "Réputation élevée",
+        "bad": "Réputation basse"
       },
       "settings": {
         "title": "Mes paramètres",
