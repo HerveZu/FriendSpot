@@ -1,15 +1,14 @@
 import { PropsWithChildren } from 'react';
 import { finishTransaction, useIAP } from 'expo-iap';
 import { useActivateProduct } from '~/endpoints/me/activate-product';
-import { Platform } from 'react-native';
 
 export function ActivateIapProducts(props: PropsWithChildren) {
   const activateProduct = useActivateProduct();
 
   useIAP({
     onPurchaseSuccess: async (purchase) => {
-      if (!purchase.transactionId) {
-        console.warn('No transaction id found for purchase: ', purchase.transactionId);
+      if (!purchase.transactionId || !purchase.purchaseToken) {
+        console.warn('Transaction is missing required fields to be processed: ', purchase);
         return;
       }
 
@@ -19,7 +18,8 @@ export function ActivateIapProducts(props: PropsWithChildren) {
       });
       await activateProduct({
         transactionId: purchase.transactionId,
-        provider: Platform.OS === 'ios' ? 'appstore' : 'playstore',
+        purchaseToken: purchase.purchaseToken,
+        provider: purchase.platform === 'ios' ? 'appstore' : 'playstore',
       });
       await finishTransaction({ purchase });
       console.log('Product successfully activated: ', {

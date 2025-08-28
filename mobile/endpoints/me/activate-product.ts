@@ -4,6 +4,7 @@ import { useApiRequest } from '~/endpoints/use-api-request';
 
 type ActivateProductRequest = {
   readonly transactionId: string;
+  readonly purchaseToken: string;
   readonly provider: 'appstore' | 'playstore';
 };
 
