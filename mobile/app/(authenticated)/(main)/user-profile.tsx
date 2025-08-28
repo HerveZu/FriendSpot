@@ -69,6 +69,7 @@ import { Form } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
 import { urls } from '~/lib/urls';
+import { OpenSection } from '~/components/OpenSection';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -210,29 +211,16 @@ export default function UserProfileScreen() {
           </Pressable>
         </View>
         <View className={'flex-col gap-2'}>
-          <Title
-            icon={{
-              element: (
-                <ThemedIcon
-                  name={'gear'}
-                  component={FontAwesome6}
-                  color={colors.primary}
-                  size={20}
-                />
-              ),
-            }}>
-            {t('user.profile.settings.title')}
-          </Title>
-          <Pressable onPress={() => setParameterSheetOpen(true)}>
-            <Card className={'flex-row items-center justify-between'}>
-              <Text>{t('user.profile.settings.open')}</Text>
-            </Card>
-          </Pressable>
-          <Pressable onPress={() => setSupportSheetOpen(true)}>
-            <Card className={'flex-row items-center justify-between'}>
-              <Text>{t('user.profile.support.open')}</Text>
-            </Card>
-          </Pressable>
+          <OpenSection
+            onPress={() => setParameterSheetOpen(true)}
+            icon={<KnownIcon name={'settings'} color={colors.primary} />}
+            title={t('user.profile.settings.open')}
+          />
+          <OpenSection
+            onPress={() => setSupportSheetOpen(true)}
+            icon={<KnownIcon name={'support'} color={colors.primary} />}
+            title={t('user.profile.support.open')}
+          />
         </View>
       </ScreenWithHeader>
       <ParkingBottomSheet open={parkingBottomSheetOpen} onOpenChange={setParkingBottomSheetOpen} />
@@ -552,7 +540,7 @@ function SupportBottomSheet(props: {
 
         <View className={'gap-2'}>
           <ContactUsButton size={'lg'} variant={'primary'}>
-            <ThemedIcon name={'headset'} component={FontAwesome6} />
+            <KnownIcon name={'support'} />
             <Text>{t('user.profile.support.contactSupport')}</Text>
           </ContactUsButton>
 
