@@ -31,14 +31,14 @@
         "buttonText": "Upgrade to Premium"
       },
       "neighbourhood": {
-        "name": "Community",
+        "name": "Neighbourhood",
         "price": "€39.99",
         "period": "/month",
         "description": "Ideal for large neighborhoods and communities looking to optimize parking.",
         "features": [
           "Create a private community group accommodating up to 50 members"
         ],
-        "buttonText": "Join the Community"
+        "buttonText": "Upgrade to Neighbourhood"
       }
     }
   },
