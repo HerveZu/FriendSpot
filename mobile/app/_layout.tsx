@@ -14,6 +14,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NAV_THEME } from '~/theme';
 import { DeviceInfo, useDeviceInfo } from '~/lib/use-device-info';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { EnsureEasUpdateApplied } from '~/providers/EnsureEasUpdateApplied';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -28,30 +29,32 @@ export default function RootLayout() {
   const { colorScheme, isDarkColorScheme } = useColorScheme();
 
   return (
-    <SafeAreaProvider>
-      <StatusBar
-        key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
-        style={isDarkColorScheme ? 'light' : 'dark'}
-      />
-      <AppProvider>
-        <NotificationProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <NavThemeProvider value={NAV_THEME[colorScheme]}>
-              <BottomSheetModalProvider>
-                {/*BottomSheetModalProvider children need to have access to the currentUser*/}
-                <Stack
-                  initialRouteName="welcome"
-                  screenOptions={{
-                    headerShown: false,
-                    animation: 'ios_from_right',
-                  }}
-                />
-              </BottomSheetModalProvider>
-            </NavThemeProvider>
-          </GestureHandlerRootView>
-        </NotificationProvider>
-      </AppProvider>
-    </SafeAreaProvider>
+    <EnsureEasUpdateApplied>
+      <SafeAreaProvider>
+        <StatusBar
+          key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
+          style={isDarkColorScheme ? 'light' : 'dark'}
+        />
+        <AppProvider>
+          <NotificationProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <NavThemeProvider value={NAV_THEME[colorScheme]}>
+                <BottomSheetModalProvider>
+                  {/*BottomSheetModalProvider children need to have access to the currentUser*/}
+                  <Stack
+                    initialRouteName="welcome"
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'ios_from_right',
+                    }}
+                  />
+                </BottomSheetModalProvider>
+              </NavThemeProvider>
+            </GestureHandlerRootView>
+          </NotificationProvider>
+        </AppProvider>
+      </SafeAreaProvider>
+    </EnsureEasUpdateApplied>
   );
 }
 

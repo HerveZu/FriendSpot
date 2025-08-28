@@ -6,11 +6,11 @@ import 'expo-dev-client';
 import { Stack } from 'expo-router';
 import { AuthProvider } from '~/authentication/AuthProvider';
 import { UserProvider } from '~/authentication/UserProvider';
-import { EnsureUserHasSpot } from '~/spots/EnsureUserHasSpot';
+import { EnsureUserHasSpot } from '~/providers/EnsureUserHasSpot';
 import { RefreshTriggerProvider } from '~/authentication/RefreshTriggerProvider';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { LiveTimerProvider } from '~/notification/LiveTimerProvider';
-import { ActivateIapProducts } from '~/authentication/ActivateIapProducts';
+import { ActivateIapProducts } from '~/providers/ActivateIapProducts';
 
 export default function AuthenticatedLayout() {
   return (

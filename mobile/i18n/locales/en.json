@@ -65,6 +65,10 @@
     "other": "Other",
     "search": "Search",
     "return": "Return",
+    "updateAvailable": {
+      "message": "Update available!",
+      "reload": "Reload"
+    },
     "spot": {
       "name": "{{parking}} [#{{number}}]",
       "number": "Spot #{{number}}",
