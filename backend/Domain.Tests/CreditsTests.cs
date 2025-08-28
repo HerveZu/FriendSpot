@@ -1,7 +1,6 @@
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(Credits))]
 public sealed class CreditsTests
 {
     [Test]

@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
+using Api.Common.Contracts;
 using Api.Me;
+using Api.Parkings;
 using Api.Tests.TestBench;
 using Npgsql;
 
@@ -154,5 +156,84 @@ internal sealed class UserTests : IntegrationTestsBase
         var count = await cmd.ExecuteScalarAsync(cancellationToken);
 
         Assert.That(Convert.ToInt32(count), Is.EqualTo(1));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task DeleteUser_ShouldDeleteOwnedParking_WhenLeftEmpty(CancellationToken cancellationToken)
+    {
+        using var user = UserClient(Seed.Users.Resident1);
+
+        var createParking = await user.PostAsync(
+            "/parking",
+            JsonContent.Create(
+                new CreateParkingRequest
+                {
+                    Address = "Test",
+                    Name = "Test"
+                }),
+            cancellationToken);
+
+        var parkingWithOneUserOnly = await createParking.AssertIsSuccessful<ParkingResponse>(cancellationToken);
+
+        var joinParking = await user.PutAsync(
+            "/@me/spot",
+            JsonContent.Create(
+                new DefineMySpotRequest
+                {
+                    ParkingId = parkingWithOneUserOnly.Id,
+                    LotName = "test"
+                }),
+            cancellationToken);
+
+        await joinParking.AssertIsSuccessful(cancellationToken);
+
+        var deleteUser = await user.DeleteAsync(
+            "/@me",
+            cancellationToken);
+        await deleteUser.AssertIsSuccessful(cancellationToken);
+
+        await using var conn = new NpgsqlConnection(PgContainer.GetConnectionString());
+        await conn.OpenAsync(cancellationToken);
+
+        await using var cmd = new NpgsqlCommand(
+            $"""
+             SELECT count(*)
+             FROM public."Parking"
+             WHERE "Id" = '{parkingWithOneUserOnly.Id}'
+             """,
+            conn);
+
+        var count = await cmd.ExecuteScalarAsync(cancellationToken);
+
+        Assert.That(Convert.ToInt32(count), Is.EqualTo(0));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task LeaveParking_ShouldTransferOwnershipToOtherUser_WhenOwnerHasLeft(
+        CancellationToken cancellationToken)
+    {
+        using var user = UserClient(Seed.Users.ParkingAdmin);
+
+        var deleteUser = await user.DeleteAsync(
+            "/@me",
+            cancellationToken);
+        await deleteUser.AssertIsSuccessful(cancellationToken);
+
+        await using var conn = new NpgsqlConnection(PgContainer.GetConnectionString());
+        await conn.OpenAsync(cancellationToken);
+
+        await using var cmd = new NpgsqlCommand(
+            $"""
+             SELECT "OwnerId"
+             FROM public."Parking"
+             WHERE "Id" = '{Seed.Parkings.Main}'
+             """,
+            conn);
+
+        var ownerId = await cmd.ExecuteScalarAsync(cancellationToken);
+
+        Assert.That(Convert.ToString(ownerId), Is.Not.EqualTo(Seed.Users.ParkingAdmin));
     }
 }

@@ -50,7 +50,7 @@ export function DynamicBottomSheet({
       {...sheetProps}>
       <SafeAreaView>
         <BottomSheetView>
-          <View className={cn('pb-safe-offset-2 mx-auto w-full gap-8 p-6', className)}>
+          <View className={cn('pb-safe-offset-4 mx-auto w-full gap-8 p-6', className)}>
             {children}
           </View>
         </BottomSheetView>

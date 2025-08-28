@@ -11,8 +11,11 @@ import {
 } from 'react';
 import {
   ActivityIndicator,
+  Linking,
+  Platform,
   Pressable,
   Share,
+  Switch,
   TextInput as ReactTextInput,
   View,
 } from 'react-native';
@@ -20,7 +23,7 @@ import { useCurrentUser } from '~/authentication/UserProvider';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Button } from '~/components/nativewindui/Button';
-import { ThemedIcon } from '~/components/ThemedIcon';
+import { KnownIcon, ThemedIcon } from '~/components/ThemedIcon';
 import { TextInput } from '~/components/TextInput';
 import { useDebounce } from 'use-debounce';
 import { MeAvatar } from '~/components/UserAvatar';
@@ -44,7 +47,7 @@ import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
 import { useDeleteParking } from '~/endpoints/parkings/delete-parking';
-import { formatDistance } from 'date-fns';
+import { formatDate, formatDistance } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { Rating } from '~/components/Rating';
 import { universalLink } from '~/endpoints/universalLink';
@@ -59,15 +62,26 @@ import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/DynamicBottomSheet';
+import { ContactUsButton } from '~/components/ContactUsButton';
+import { useIAP } from 'expo-iap';
+import { useGetPlanInfo } from '~/components/FriendspotPlus';
+import { Form } from '~/form/Form';
+import { FormInput } from '~/form/FormInput';
+import { useValidators } from '~/form/validators';
+import { urls } from '~/lib/urls';
+import { OpenSection } from '~/components/OpenSection';
+import { CopyToClipboard } from '~/components/CopyToClipboard';
+import { UserSpot } from '~/endpoints/me/get-profile';
 
-export default function UserProfileScreen() {
+export default function UserProfile() {
   const { firebaseUser } = useAuth();
   const { colors } = useColorScheme();
-  const { userProfile, updateUserProfile } = useCurrentUser();
+  const { userProfile, updateUserProfile, features } = useCurrentUser();
   const { t } = useTranslation();
   const [currentDisplayName, setCurrentDisplayName] = useState(userProfile.displayName);
   const [parkingBottomSheetOpen, setParkingBottomSheetOpen] = useState(false);
   const [parameterSheetOpen, setParameterSheetOpen] = useState(false);
+  const [supportSheetOpen, setSupportSheetOpen] = useState(false);
 
   const uploadPicture = useUploadUserPicture();
 
@@ -125,8 +139,19 @@ export default function UserProfileScreen() {
           </Pressable>
 
           <View className="w-3/5 shrink gap-4">
-            <ScreenTitle wallet={false} title={userProfile.displayName} className={'mb-0'}>
-              <Rating displayRating rating={userProfile.rating} stars={3} color={colors.primary} />
+            <ScreenTitle
+              wallet={false}
+              title={userProfile.displayName}
+              icon={features.isPremium && <KnownIcon name={'premium'} size={26} />}
+              className={'mb-0'}>
+              <View className={'flex-row gap-2'}>
+                <Rating
+                  displayRating
+                  rating={userProfile.rating}
+                  stars={3}
+                  color={colors.primary}
+                />
+              </View>
             </ScreenTitle>
           </View>
         </View>
@@ -146,11 +171,19 @@ export default function UserProfileScreen() {
         </View>
         <View className={'flex-col gap-2'}>
           <Title
-            action={<ShareSpot />}
+            action={
+              userProfile.spot && (
+                <View className={'flex-row items-center gap-4'}>
+                  <CopyToClipboard
+                    textToCopy={userProfile.spot.parking.code}
+                    icon={<ThemedIcon name={'copy'} component={FontAwesome6} />}
+                  />
+                  <ShareSpot spot={userProfile.spot} />
+                </View>
+              )
+            }
             icon={{
-              element: (
-                <ThemedIcon name={'user-group'} component={FontAwesome6} color={colors.primary} />
-              ),
+              element: <ThemedIcon name={'user-group'} component={FontAwesome6} />,
             }}>
             {t('user.profile.mySpot')}
           </Title>
@@ -172,49 +205,43 @@ export default function UserProfileScreen() {
                     </Text>
                   </View>
                 ) : (
-                  <Text numberOfLines={2} ellipsizeMode={'tail'}>
-                    {t('common.spot.name', {
-                      parking: userProfile.spot.parking.name,
-                      number: userProfile.spot.name,
-                    })}
-                  </Text>
+                  <View className={'flex-row items-center gap-2'}>
+                    {features.currentParkingIsLocked && <KnownIcon name={'warning'} />}
+
+                    <Text numberOfLines={2} ellipsizeMode={'tail'}>
+                      {t('common.spot.name', {
+                        parking: userProfile.spot.parking.name,
+                        number: userProfile.spot.name,
+                      })}
+                    </Text>
+                  </View>
                 )}
               </View>
             </Card>
           </Pressable>
         </View>
-        <View className={'flex-col'}>
-          <Title
-            icon={{
-              element: (
-                <ThemedIcon
-                  name={'gear'}
-                  component={FontAwesome6}
-                  color={colors.primary}
-                  size={20}
-                />
-              ),
-            }}>
-            {t('user.profile.settings.title')}
-          </Title>
-          <Pressable onPress={() => setParameterSheetOpen(true)}>
-            <Card className="flex-col items-start gap-3">
-              <View className="w-full flex-row items-center justify-between">
-                <Text>{t('user.profile.settings.open')}</Text>
-              </View>
-            </Card>
-          </Pressable>
+        <View className={'flex-col gap-2'}>
+          <OpenSection
+            onPress={() => setSupportSheetOpen(true)}
+            icon={<KnownIcon name={'support'} color={colors.primary} />}
+            title={t('user.profile.support.open')}
+          />
+          <OpenSection
+            onPress={() => setParameterSheetOpen(true)}
+            icon={<KnownIcon name={'settings'} color={colors.primary} />}
+            title={t('user.profile.settings.open')}
+          />
         </View>
       </ScreenWithHeader>
       <ParkingBottomSheet open={parkingBottomSheetOpen} onOpenChange={setParkingBottomSheetOpen} />
       <SettingsBottomSheet open={parameterSheetOpen} onOpenChange={setParameterSheetOpen} />
+      <SupportBottomSheet open={supportSheetOpen} onOpenChange={setSupportSheetOpen} />
     </>
   );
 }
 
-function ShareSpot() {
+function ShareSpot({ spot }: { spot: UserSpot }) {
   const { t } = useTranslation();
-  const { userProfile } = useCurrentUser();
 
   async function shareSpot(code: string) {
     await Share.share(
@@ -228,18 +255,14 @@ function ShareSpot() {
   }
 
   return (
-    <Button
-      variant={'primary'}
-      size={'sm'}
-      disabled={!userProfile.spot}
-      onPress={() => userProfile.spot && shareSpot(userProfile.spot.parking.code)}>
+    <Button variant={'primary'} size={'sm'} onPress={() => shareSpot(spot.parking.code)}>
       <ThemedIcon name={'share'} component={FontAwesome6} />
       <Text>{t('user.parking.share.button')}</Text>
     </Button>
   );
 }
 
-export function AccountDeletionConfirmationModal({
+function AccountDeletionConfirmationModal({
   children,
   visible,
   onVisibleChange,
@@ -270,13 +293,13 @@ export function AccountDeletionConfirmationModal({
     <>
       <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20 gap-4'}>
         <ModalTitle
-          text={t('user.profile.deleteAccountTitle')}
+          text={t('user.profile.support.deleteAccountTitle')}
           icon={<ThemedIcon name={'warning'} />}
         />
 
         <View className={'mt-4 flex-col gap-8'}>
           <Text className={'text-destructive'} variant={'callout'}>
-            {t('user.profile.deleteAccountConfirmation')}
+            {t('user.profile.support.deleteAccountConfirmation')}
           </Text>
 
           <View className={'flex-row items-center gap-4'}>
@@ -288,7 +311,9 @@ export function AccountDeletionConfirmationModal({
                 borderRadius: 6,
               }}
             />
-            <Text variant={'caption1'}>{t('user.profile.deleteAccountConfirm')}</Text>
+            <Text variant={'caption1'} className={'flex-1'}>
+              {t('user.profile.support.deleteAccountConfirm')}
+            </Text>
           </View>
         </View>
 
@@ -323,7 +348,7 @@ export function AccountDeletionConfirmationModal({
   );
 }
 
-export function LogoutConfirmationModal({
+function LogoutConfirmationModal({
   children,
   onVisibleChange,
   visible,
@@ -347,7 +372,7 @@ export function LogoutConfirmationModal({
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
-        <ModalTitle text={t('user.profile.logoutConfirmation')} />
+        <ModalTitle text={t('user.profile.settings.logoutConfirmation')} />
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
@@ -361,7 +386,7 @@ export function LogoutConfirmationModal({
               ) : (
                 <ThemedIcon name={'logout'} component={MaterialIcons} color={colors.destructive} />
               )}
-              <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
+              <Text className={'text-destructive'}>{t('user.profile.settings.logout')}</Text>
             </Button>
           </ExpandItem>
         </ExpandRow>
@@ -371,7 +396,7 @@ export function LogoutConfirmationModal({
   );
 }
 
-export function LeaveGroupConfirmationModal({
+function LeaveGroupConfirmationModal({
   children,
   onVisibleChange,
   visible,
@@ -430,16 +455,15 @@ export function LeaveGroupConfirmationModal({
   );
 }
 
-function SettingsBottomSheet(props: {
+function SupportBottomSheet(props: {
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
-  const [debugOpen, setDebugOpen] = useState(false);
-  const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
 
-  const { colors } = useColorScheme();
+  const [debugOpen, setDebugOpen] = useState(false);
   const { t } = useTranslation();
+  const { colors } = useColorScheme();
 
   const infoEntries = [
     {
@@ -447,7 +471,10 @@ function SettingsBottomSheet(props: {
         <ThemedIcon name={'tags'} component={FontAwesome6} color={colors.foreground} size={14} />
       ),
       title: 'Name',
-      content: Constants.expoConfig?.name,
+      content: Platform.select({
+        ios: Constants.expoConfig?.ios?.bundleIdentifier,
+        android: Constants.expoConfig?.android?.package,
+      }),
     },
     {
       icon: (
@@ -495,6 +522,10 @@ function SettingsBottomSheet(props: {
 
   return (
     <>
+      <AccountDeletionConfirmationModal
+        visible={confirmAccountDeletion}
+        onVisibleChange={setConfirmAccountDeletion}
+      />
       <Modal open={debugOpen} onOpenChange={setDebugOpen}>
         <View className={'gap-3 p-1'}>
           {infoEntries.map((infoEntry, i) => (
@@ -510,42 +541,104 @@ function SettingsBottomSheet(props: {
         </View>
       </Modal>
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
-        <SheetTitle>{t('user.profile.settings.title')}</SheetTitle>
+        <SheetTitle icon={<KnownIcon name={'support'} size={22} />}>
+          {t('user.profile.support.title')}
+        </SheetTitle>
 
-        <View className={'gap-4'}>
+        <View className={'gap-2'}>
+          <ContactUsButton size={'lg'} variant={'tonal'}>
+            <ThemedIcon name={'envelope'} component={FontAwesome6} color={colors.primary} />
+            <Text>{t('user.profile.support.contactSupport')}</Text>
+          </ContactUsButton>
+
           <Button
+            className={'w-full'}
             size={'lg'}
             variant={'plain'}
-            className={'bg-destructive/10'}
-            onPress={() => setConfirmLogout(true)}>
+            onPress={() => setDebugOpen(true)}>
+            <ThemedIcon name={'wrench'} component={FontAwesome6} color={colors.primary} />
+            <Text className={'text-primary'}>{t('user.profile.support.appInfo')}</Text>
+          </Button>
+        </View>
+
+        <View className={'gap-2'}>
+          <Button variant={'plain'} onPress={() => Linking.openURL(urls.privacyPolicy)}>
+            <ThemedIcon name={'user-shield'} component={FontAwesome6} />
+            <Text>{t('user.profile.support.privacyPolicy')}</Text>
+          </Button>
+          <Button variant={'plain'} onPress={() => Linking.openURL(urls.termsOfUse)}>
+            <ThemedIcon name={'file-contract'} component={FontAwesome6} />
+            <Text>{t('user.profile.support.termsOfUse')}</Text>
+          </Button>
+        </View>
+
+        <View className={'gap-4'}>
+          <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
+            <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
+            <Text className={'text-destructive'}>{t('user.profile.support.deleteAccount')}</Text>
+          </Button>
+        </View>
+      </DynamicBottomSheet>
+    </>
+  );
+}
+
+function SettingsBottomSheet(props: {
+  open: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+}) {
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const { restorePurchases } = useIAP();
+  const { features } = useCurrentUser();
+  const { firebaseUser } = useAuth();
+  const getPlanInfo = useGetPlanInfo();
+
+  const { colors } = useColorScheme();
+  const { t } = useTranslation();
+
+  const activePlanInfo = features.plan && getPlanInfo(features.plan.productId);
+
+  return (
+    <>
+      <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
+        <SheetTitle icon={<KnownIcon name={'settings'} size={22} />}>
+          {t('user.profile.settings.title')}
+        </SheetTitle>
+
+        <Card className={'gap-2'}>
+          <View className={'flex-row items-center gap-2'}>
+            <ThemedIcon name={'user-check'} component={FontAwesome6} />
+            <Text>
+              {t('user.profile.settings.accountCreated', {
+                date: formatDate(new Date(firebaseUser.metadata.creationTime ?? new Date()), 'PP'),
+              })}
+            </Text>
+          </View>
+
+          {activePlanInfo && (
+            <View className={'flex-row items-center gap-2'}>
+              <KnownIcon name={'premium'} />
+              <Text>{t(`friendspotplus.plans.${activePlanInfo.i18nKey}.accountName`)}</Text>
+            </View>
+          )}
+        </Card>
+
+        <View className={'gap-4'}>
+          <Button onPress={restorePurchases} size={'lg'} variant={'tonal'}>
+            <ThemedIcon name={'cart-arrow-down'} component={FontAwesome6} color={colors.primary} />
+            <Text className={'text-primary'}>{t('user.profile.settings.restorePurchases')}</Text>
+          </Button>
+          <Button size={'lg'} variant={'plain'} onPress={() => setConfirmLogout(true)}>
             <ThemedIcon
               name={'arrow-right-from-bracket'}
               component={FontAwesome6}
               color={colors.destructive}
             />
-            <Text className={'text-destructive'}>{t('user.profile.logout')}</Text>
-          </Button>
-
-          <Button
-            className={'w-full'}
-            variant={'tonal'}
-            size={'lg'}
-            onPress={() => setDebugOpen(true)}>
-            <ThemedIcon name={'wrench'} component={FontAwesome6} color={colors.primary} />
-            <Text className={'text-primary'}>{t('user.profile.appInfo')}</Text>
+            <Text className={'text-destructive'}>{t('user.profile.settings.logout')}</Text>
           </Button>
         </View>
-
-        <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
-          <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
-          <Text className={'text-destructive'}>{t('user.profile.deleteAccount')}</Text>
-        </Button>
       </DynamicBottomSheet>
       <LogoutConfirmationModal visible={confirmLogout} onVisibleChange={setConfirmLogout} />
-      <AccountDeletionConfirmationModal
-        visible={confirmAccountDeletion}
-        onVisibleChange={setConfirmAccountDeletion}
-      />
     </>
   );
 }
@@ -554,47 +647,59 @@ function ParkingModal(props: {
   parking: ParkingResponse | null;
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
-  onParking: (parking: ParkingResponse) => void;
-  onDelete: (parking: ParkingResponse) => void;
+  onOk: () => void;
 }) {
   const mode = props.parking ? 'edit' : 'create';
   const [address, setAddress] = useState(props.parking?.address ?? '');
   const [name, setName] = useState(props.parking?.name ?? '');
-  const [lotName, setLotName] = useState<string>('');
+  const [lotName, setLotName] = useState('');
+  const [neighbourhoodGroup, setNeighbourhoodGroup] = useState(false);
   const { colors } = useColorScheme();
-  const [confirmedParkingName, setConfirmedParkingName] = useState<string | null>(null);
+  const [wantToDeleteParking, setWantToDeleteParking] = useState(false);
+  const [confirmedParkingName, setConfirmedParkingName] = useState('');
   const [defineSpot, isJoiningGroup] = useLoading(useRefreshOnSuccess(useDefineSpot()), {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
   const { t } = useTranslation();
-  const { userProfile } = useCurrentUser();
+  const { userProfile, features } = useCurrentUser();
+  const { keyboardVisible } = useKeyboardVisible();
+  const validators = useValidators();
 
   const [createParking, isCreating] = useLoading(useCreateParking(), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
+    beforeMarkingComplete: () => {
+      props.onOpenChange(false);
+      props.onOk();
+    },
   });
-  const [editParking, isEditing] = useLoading(useEditParkingInfo(), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
+  const [editParking, isEditing] = useLoading(useRefreshOnSuccess(useEditParkingInfo()), {
+    beforeMarkingComplete: () => {
+      props.onOpenChange(false);
+      props.onOk();
+    },
   });
   const [deleteParking, isDeleting] = useLoading(useRefreshOnSuccess(useDeleteParking()), {
-    beforeMarkingComplete: () => props.onOpenChange(false),
+    beforeMarkingComplete: () => {
+      props.onOpenChange(false);
+      props.onOk();
+    },
   });
 
   useEffect(() => {
-    setAddress(props.parking?.address ?? '');
     setName(props.parking?.name ?? '');
-  }, [props.parking, props.open]);
-
-  useEffect(() => {
-    setConfirmedParkingName(null);
+    setAddress(props.parking?.address ?? '');
+    setLotName('');
+    setWantToDeleteParking(false);
   }, [props.open]);
 
-  const lotNameIsValid = mode === 'create' ? lotName.trim().length > 0 : true;
+  useEffect(() => {
+    !wantToDeleteParking && setConfirmedParkingName('');
+  }, [wantToDeleteParking]);
 
   const submitFn = {
     create: () =>
-      createParking({ name, address }).then((parking) => {
-        defineSpot({ parkingId: parking.id, lotName: lotName });
-      }),
+      createParking({ name, address, neighbourhood: neighbourhoodGroup }).then((parking) =>
+        defineSpot({ parkingId: parking.id, lotName: lotName })
+      ),
 
     edit: () => (props.parking?.id ? editParking(props.parking.id, { name, address }) : undefined),
   };
@@ -615,108 +720,145 @@ function ParkingModal(props: {
   };
 
   async function onSubmit() {
-    const parking = await submitFn[mode]();
-    parking && props.onParking(parking);
+    await submitFn[mode]();
   }
 
-  async function onDelete() {
-    if (!props.parking) {
-      return;
-    }
-
-    await deleteParking(props.parking.id);
-    props.onDelete(props.parking);
-  }
-
-  const FREE_PARKING_MAX_SPOT = 10;
+  const canCreateNeighbourhoodGroup = features.active.availableNeighbourhoodGroups > 0;
+  const maxMembersCount = neighbourhoodGroup
+    ? features.active.maxSpotPerNeighbourhoodGroup
+    : features.active.maxSpotPerGroup;
 
   return (
     <Modal open={props.open} onOpenChange={props.onOpenChange} className={'flex-col gap-6'}>
-      <ModalTitle text={titleText[mode]} />
-      <View className="w-full flex-row items-center gap-2 px-2">
-        <ThemedIcon name={'user-plus'} component={FontAwesome6} size={12} />
-        <Text className="text-center text-sm">
-          {t('user.parking.memberMaxCount', { memberCount: FREE_PARKING_MAX_SPOT - 1 })}
-        </Text>
-      </View>
-      <View className={'flex-col gap-2'}>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder={t('user.parking.parkingName')}
-          maxLength={50}
-        />
-        <TextInput
-          value={address}
-          onChangeText={setAddress}
-          placeholder={t('user.parking.parkingAddress')}
-          maxLength={100}
-        />
-        {mode === 'create' && (
-          <TextInput
-            value={lotName}
-            onChangeText={setLotName}
-            placeholder={t('user.parking.parkingLotname')}
-            maxLength={10}
-          />
-        )}
-        {mode === 'create' && userProfile.spot && (
-          <Text variant={'callout'} className="mt-2 text-destructive">
-            {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
-          </Text>
-        )}
-      </View>
+      <Form>
+        {({ isValid, handleSubmit }) => (
+          <>
+            <ModalTitle text={titleText[mode]} />
+            <View className="w-full flex-row items-center gap-2 px-2">
+              <ThemedIcon
+                name={'user-group'}
+                component={FontAwesome6}
+                size={14}
+                color={colors.primary}
+              />
+              <Text className="font-semibold text-primary">
+                {t('user.parking.memberMaxCount', { memberCount: maxMembersCount })}
+              </Text>
+            </View>
+            <View className={'flex-col gap-2'}>
+              <FormInput
+                value={name}
+                onValueChange={setName}
+                placeholder={t('user.parking.parkingName')}
+                maxLength={50}
+                validators={[validators.required]}
+              />
+              <FormInput
+                value={address}
+                onValueChange={setAddress}
+                placeholder={t('user.parking.parkingAddress')}
+                maxLength={100}
+                validators={[validators.required]}
+              />
+              {mode === 'create' && (
+                <FormInput
+                  value={lotName}
+                  onValueChange={setLotName}
+                  placeholder={t('user.parking.parkingLotname')}
+                  maxLength={10}
+                  validators={[validators.required]}
+                />
+              )}
+            </View>
 
-      {mode === 'edit' && (
-        <>
-          {confirmedParkingName !== null && (
-            <TextInput
-              style={{
-                color: colors.destructive,
-                borderColor: colors.destructive,
-              }}
-              placeholderTextColor={opacity(colors.destructive, 0.5)}
-              placeholder={props.parking?.name}
-              value={confirmedParkingName}
-              onChangeText={setConfirmedParkingName}
-              icon={{
-                position: 'right',
-                element: <ThemedIcon name={'trash'} color={colors.destructive} />,
-              }}
-            />
-          )}
-          <ExpandRow className={cn(confirmedParkingName !== null && 'flex-row justify-between')}>
-            {confirmedParkingName !== null && (
-              <ExpandItem>
-                <Button variant={'tonal'} onPress={() => setConfirmedParkingName(null)}>
-                  <Text>{t('user.parking.cancelDelete')}</Text>
-                </Button>
-              </ExpandItem>
+            {mode === 'edit' && (
+              <>
+                {!wantToDeleteParking && !keyboardVisible && (
+                  <Pressable
+                    className={'mx-auto w-fit'}
+                    onPress={() => setWantToDeleteParking(true)}>
+                    <Text className={'mx-auto text-center text-destructive'}>
+                      {t('common.delete')}
+                    </Text>
+                  </Pressable>
+                )}
+                {wantToDeleteParking && (
+                  <TextInput
+                    style={{
+                      color: colors.destructive,
+                      borderColor: colors.destructive,
+                    }}
+                    placeholderTextColor={opacity(colors.destructive, 0.5)}
+                    placeholder={props.parking?.name}
+                    value={confirmedParkingName}
+                    onChangeText={setConfirmedParkingName}
+                    icon={{
+                      position: 'right',
+                      element: <ThemedIcon name={'trash'} color={colors.destructive} />,
+                    }}
+                  />
+                )}
+                {wantToDeleteParking && !keyboardVisible && (
+                  <ExpandRow>
+                    <ExpandItem>
+                      <Button variant={'tonal'} onPress={() => setWantToDeleteParking(false)}>
+                        <Text>{t('user.parking.cancelDelete')}</Text>
+                      </Button>
+                    </ExpandItem>
+                    <ExpandItem>
+                      <Button
+                        disabled={confirmedParkingName !== props.parking?.name}
+                        variant={'plain'}
+                        onPress={() => props.parking && deleteParking(props.parking.id)}>
+                        {isDeleting && <ActivityIndicator color={colors.destructive} />}
+                        <Text className={'text-destructive'}>
+                          {t('user.parking.confirmDelete')}
+                        </Text>
+                      </Button>
+                    </ExpandItem>
+                  </ExpandRow>
+                )}
+              </>
             )}
-            <ExpandItem>
-              <Button
-                disabled={
-                  confirmedParkingName !== null && confirmedParkingName !== props.parking?.name
-                }
-                variant={'plain'}
-                onPress={() =>
-                  confirmedParkingName === null ? setConfirmedParkingName('') : onDelete()
-                }>
-                {isDeleting && <ActivityIndicator color={colors.destructive} />}
-                <Text className={'text-destructive'}>{t('user.parking.confirmDelete')}</Text>
-              </Button>
-            </ExpandItem>
-          </ExpandRow>
-        </>
-      )}
 
-      <Button
-        disabled={!name || !address || isSubmitting[mode] || !lotNameIsValid}
-        onPress={onSubmit}
-        className="">
-        {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
-        <Text>{submitText[mode]}</Text>
-      </Button>
+            {mode === 'create' && !keyboardVisible && (
+              <Card className={'flex-row items-center justify-between'}>
+                <View className={'flex-row items-center gap-2'}>
+                  <KnownIcon name={'premium'} size={18} color={colors.primary} />
+                  <Text className={'text-primary'}>
+                    {t('user.parking.addMoreMembers', {
+                      memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
+                    })}
+                  </Text>
+                  <Text disabled={!canCreateNeighbourhoodGroup}>
+                    ({features.active.availableNeighbourhoodGroups}/
+                    {features.active.maxNeighbourhoodGroups})
+                  </Text>
+                </View>
+                <Switch
+                  disabled={!canCreateNeighbourhoodGroup}
+                  value={neighbourhoodGroup}
+                  onValueChange={setNeighbourhoodGroup}
+                  trackColor={{ true: colors.primary }}
+                />
+              </Card>
+            )}
+
+            {mode === 'create' && userProfile.spot && !keyboardVisible && (
+              <Text variant={'callout'} className="text-center text-destructive">
+                {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
+              </Text>
+            )}
+
+            {!keyboardVisible && !wantToDeleteParking && (
+              <Button disabled={!isValid} onPress={handleSubmit(onSubmit)} className="">
+                {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
+                <Text>{submitText[mode]}</Text>
+              </Button>
+            )}
+          </>
+        )}
+      </Form>
     </Modal>
   );
 }
@@ -746,7 +888,7 @@ function ParkingBottomSheet(props: {
     [search, userProfile.spot?.parking.name]
   );
   const [searchDebounce] = useDebounce(fullSearch, 200);
-  const [parking, setParking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
+  const [parking] = useFetch(() => searchParking(searchDebounce), [searchDebounce]);
   const [selectedParking, setSelectedParking] = useState<ParkingResponse>();
   const [editingParking, setEditingParking] = useState<ParkingResponse | null>(null);
   const [parkingModalOpen, setParkingModalOpen] = useState(false);
@@ -793,17 +935,6 @@ function ParkingBottomSheet(props: {
     setCurrentSpotName('');
   }
 
-  function replaceParkingState(parking: ParkingResponse) {
-    setParking((allParking) => [
-      ...(allParking?.filter((p) => p.id !== parking.id) ?? []),
-      parking,
-    ]);
-  }
-
-  function deleteParkingState(parking: ParkingResponse) {
-    setParking((allParking) => [...(allParking?.filter((p) => p.id !== parking.id) ?? [])]);
-  }
-
   function initiateParkingCreation() {
     setParkingModalOpen(true);
     setEditingParking(null);
@@ -827,9 +958,7 @@ function ParkingBottomSheet(props: {
     {
       label: t('user.parking.openOptions.searchGroup'),
       onPress: () => setStep('searchGroup'),
-      icon: (
-        <ThemedIcon name={'magnifying-glass'} component={FontAwesome6} color={colors.primary} />
-      ),
+      icon: <KnownIcon name={'search'} color={colors.primary} />,
     },
     {
       label: t('user.parking.openOptions.joinWithCode'),
@@ -869,6 +998,11 @@ function ParkingBottomSheet(props: {
           <>
             <SheetTitle
               className={'items-center justify-between'}
+              icon={
+                userProfile.spot?.parking.isNeighbourhood && (
+                  <KnownIcon name={'premium'} size={24} />
+                )
+              }
               action={
                 userProfile.spot?.parking?.ownerId === userProfile.id && (
                   <Button
@@ -930,7 +1064,7 @@ function ParkingBottomSheet(props: {
                 <TextInput
                   icon={{
                     position: 'left',
-                    element: <ThemedIcon name={'search'} />,
+                    element: <KnownIcon name={'search'} />,
                   }}
                   textContentType={'addressCityAndState'}
                   editable={true}
@@ -1021,8 +1155,7 @@ function ParkingBottomSheet(props: {
         parking={editingParking}
         open={parkingModalOpen}
         onOpenChange={setParkingModalOpen}
-        onParking={replaceParkingState}
-        onDelete={deleteParkingState}
+        onOk={() => props.onOpenChange(false)}
       />
 
       <DynamicBottomSheet open={props.open} onOpenChange={props.onOpenChange}>
@@ -1038,11 +1171,16 @@ function ParkingCard(props: {
   onSelect: () => void;
 }) {
   const { colors } = useColorScheme();
+  const { userProfile } = useCurrentUser();
 
   return (
     <Pressable disabled={props.parking.isFull} onPress={props.onSelect}>
       <Card highlight={props.isSelected}>
         <View className={'flex-row items-center justify-between gap-2'}>
+          {props.parking.ownerId === userProfile.id && (
+            <ThemedIcon name={'hammer'} component={FontAwesome6} />
+          )}
+          {props.parking.isNeighbourhood && <KnownIcon name={'premium'} />}
           <Text numberOfLines={2} ellipsizeMode={'tail'} className={'flex-1 text-lg font-bold'}>
             {props.parking.name}
           </Text>

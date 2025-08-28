@@ -26,7 +26,7 @@ import { useFetch, useLoading } from '~/lib/useFetch';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useTranslation } from 'react-i18next';
 import { cn } from '~/lib/cn';
-import { UserSpotCheckContext } from '~/spots/EnsureUserHasSpot';
+import { UserSpotCheckContext } from '~/providers/EnsureUserHasSpot';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TextInput } from '~/components/TextInput';
 import { useCurrentUser } from '~/authentication/UserProvider';
@@ -271,7 +271,7 @@ function CodeEntry({
   error?: boolean;
 }) {
   const PREFIX_SEPARATOR = '-';
-  const PARKING_PREFIX = `P${PREFIX_SEPARATOR}`;
+  const PARKING_PREFIX = `F${PREFIX_SEPARATOR}`;
   const CELL_COUNT = 6;
   const [internalCode, setInternalCode] = useState(code);
 

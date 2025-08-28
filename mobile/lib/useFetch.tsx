@@ -6,6 +6,7 @@ type UseFetchResponse<TResponse> = [
   TResponse | undefined,
   Dispatch<SetStateAction<TResponse | undefined>>,
   boolean,
+  { initialLoading: boolean; resetInitialLoading: () => void },
 ];
 
 export function useHookFetch<TResponse>(
@@ -27,6 +28,7 @@ export function useFetch<TResponse>(
 ): UseFetchResponse<TResponse> {
   const [data, setData] = useState<TResponse>();
   const [loading, setLoading] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const { refreshTrigger } = useContext(RefreshTriggerContext);
 
   const callback = useCallback(fetchData, [...deps, withRefresh && refreshTrigger]);
@@ -38,10 +40,15 @@ export function useFetch<TResponse>(
       return;
     }
 
-    promise.then(setData).finally(() => setLoading(false));
+    promise.then(setData).finally(() => {
+      setLoading(false);
+      setHasLoadedOnce(true);
+    });
   }, [callback, setLoading, setData]);
 
-  return [data, setData, loading];
+  const resetInitialLoading = useCallback(() => setHasLoadedOnce(false), [setHasLoadedOnce]);
+
+  return [data, setData, loading, { initialLoading: !hasLoadedOnce, resetInitialLoading }];
 }
 
 export function useLoading<TArgs extends unknown[], TResponse>(

@@ -1,8 +1,11 @@
+using System.Net;
 using System.Net.Http.Json;
 using Api.Bookings;
 using Api.Bookings.OnBooked;
 using Api.Me;
 using Api.Tests.TestBench;
+using Domain;
+using Domain.UserProducts;
 using Domain.Users;
 using NSubstitute;
 
@@ -185,5 +188,79 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
         var resident2ProfileResponse = await resident2Profile.AssertIsSuccessful<MeResponse>(cancellationToken);
 
         Assert.That(resident2ProfileResponse.Wallet.Credits, Is.EqualTo(Seed.Users.InitialBalance + 1));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task BookSpot_ShouldFail_WhenMoreThan3DaysAndNoPremiumPlanActive(CancellationToken cancellationToken)
+    {
+        UserFeatures.GetEnabled(Arg.Any<CancellationToken>())
+            .ReturnsForAnyArgs(
+                Task.FromResult(
+                    new EnabledFeatures([])));
+
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
+
+        var makeSpotAvailable = await resident2.PostAsync(
+            "/spots/availabilities",
+            JsonContent.Create(
+                new MakeMySpotAvailableRequest
+                {
+                    From = DateTimeOffset.Now.AddHours(1),
+                    To = DateTimeOffset.Now.AddDays(10)
+                }),
+            cancellationToken);
+
+        await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
+
+        var bookSpot = await resident1.PostAsync(
+            $"/spots/{Seed.Spots.Resident2}/booking",
+            JsonContent.Create(
+                new BookSpotRequest
+                {
+                    From = DateTimeOffset.Now.AddDays(5),
+                    To = DateTimeOffset.Now.AddDays(6)
+                }),
+            cancellationToken);
+
+        await bookSpot.AssertIs(HttpStatusCode.BadRequest, cancellationToken);
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task BookSpot_ShouldNotFail_WhenMoreThan3DaysWithPremiumPlanActive(CancellationToken cancellationToken)
+    {
+        UserFeatures.GetEnabled(Arg.Any<CancellationToken>())
+            .ReturnsForAnyArgs(
+                Task.FromResult(
+                    new EnabledFeatures([UserProduct.Activate("test", Seed.Users.Resident1, Plans.Premium, null)])));
+
+        using var resident1 = UserClient(Seed.Users.Resident1);
+        using var resident2 = UserClient(Seed.Users.Resident2);
+
+        var makeSpotAvailable = await resident2.PostAsync(
+            "/spots/availabilities",
+            JsonContent.Create(
+                new MakeMySpotAvailableRequest
+                {
+                    From = DateTimeOffset.Now.AddHours(1),
+                    To = DateTimeOffset.Now.AddDays(10)
+                }),
+            cancellationToken);
+
+        await makeSpotAvailable.AssertIsSuccessful(cancellationToken);
+
+        var bookSpot = await resident1.PostAsync(
+            $"/spots/{Seed.Spots.Resident2}/booking",
+            JsonContent.Create(
+                new BookSpotRequest
+                {
+                    From = DateTimeOffset.Now.AddDays(5),
+                    To = DateTimeOffset.Now.AddDays(6)
+                }),
+            cancellationToken);
+
+        await bookSpot.AssertIsSuccessful(cancellationToken);
     }
 }

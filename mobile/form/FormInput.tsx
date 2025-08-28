@@ -20,7 +20,7 @@ export function FormInput({
   ...props
 }: {
   value: string | undefined;
-  onValueChange: (value: string | undefined) => void;
+  onValueChange: (value: string) => void;
   placeholder: string;
   secure?: boolean;
   validators?: Validator[];

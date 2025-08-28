@@ -46,9 +46,11 @@
         "emailNotVerified": "Merci de vérifier ton adresse e-mail.\nPense à consulter tes spams si tu ne trouves pas notre message.",
         "emailRequestPending": "Ta demande d'e-mail est en cours de traitement."
       },
-      "confirmPrivacyPolicy": {
-        "part1": "Je confirme avoir lu et accepter",
-        "part2": "notre politique de confidentialité"
+      "confirmDocuments": {
+        "confirm": "Je confirme avoir lu et accepter",
+        "privacyPolicy": "notre politique de confidentialité",
+        "and": "et",
+        "termsOfUse": "nos conditions d'utilisation"
       }
     }
   },
@@ -63,6 +65,10 @@
     "other": "Autre",
     "search": "Rechercher",
     "return": "Retour",
+    "updateAvailable": {
+      "message": "Mise à jour disponible !",
+      "reload": "Appliquer"
+    },
     "spot": {
       "name": "{{parking}} [Spot n° {{number}}]",
       "number": "Spot n° {{number}}",
@@ -79,30 +85,44 @@
   "tabs": {
     "mySpot": "Mon spot",
     "search": "Réserver",
-    "profile": "Profile",
+    "profile": "Profil",
     "upgrade": "FriendSpot+"
   },
   "welcome": {
     "welcomeTo": "Bienvenue sur"
   },
   "user": {
+    "groupLocked": "Ce groupe est actuellement désactivé, l'abonnement du propriétaire ayant expiré.",
     "profile": {
       "noAddressDefined": "Aucune information de groupe définie",
       "mySpot": "Mon groupe",
       "noParkingDefined": "Aucun groupe sélectionné !",
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
-      "deleteAccount": "Supprimer mon compte et données",
-      "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
-      "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
-      "deleteAccountTitle": "Supprimer mon compte",
       "editAvatar": "Modifier l'avatar",
-      "logout": "Déconnexion",
-      "logoutConfirmation": "À bientôt !",
-      "appInfo": "Informations",
+      "reputation": {
+        "good": "Réputation élevée",
+        "bad": "Réputation basse"
+      },
       "settings": {
-        "title": "Paramètres",
-        "open": "Ouvrir mes paramètres"
+        "title": "Mes paramètres",
+        "open": "Ouvrir mes paramètres",
+        "restorePurchases": "Restaurer mes achats",
+        "logout": "Déconnexion",
+        "logoutConfirmation": "À bientôt !",
+        "accountCreated": "Compte créé le {{date}}"
+      },
+      "support": {
+        "open": "Support",
+        "title": "Support",
+        "appInfo": "Info de débogage",
+        "contactSupport": "Contacter le support",
+        "deleteAccount": "Supprimer mon compte et données",
+        "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
+        "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
+        "deleteAccountTitle": "Supprimer mon compte",
+        "privacyPolicy": "Politique de confidentialité",
+        "termsOfUse": "Conditions d'utilisation"
       }
     },
     "parking": {
@@ -118,7 +138,8 @@
       "noMatchingParking": "Aucun groupe ne correspond à « {{search}} ».",
       "editParking": "Modifier un groupe",
       "parkingName": "Mon groupe",
-      "memberMaxCount": "{{memberCount}} membres pourront le rejoindre.",
+      "memberMaxCount": "{{memberCount}} utilisateurs peuvent rejoindre.",
+      "addMoreMembers": "Jusqu'à {{memberCount}} membres",
       "parkingAddress": "Information complémentaire",
       "parkingLotname": "Mon numéro de spot",
       "create": "Créer {{name}}",
@@ -127,7 +148,7 @@
       "confirmDelete": "Supprimer",
       "cancelDelete": "Annuler",
       "share": {
-        "button": "Partager",
+        "button": "Inviter",
         "title": "Partage ton groupe de stationnement FriendSpot avec tes voisins",
         "message": "Salut ! Rejoins notre groupe de stationnement entre voisins sur FriendSpot. Utilise le code {{code}}."
       },
@@ -138,7 +159,7 @@
       "confirmLeaveGroup": {
         "title": "Quitter {{groupName}}",
         "description": "En quittant ce groupe, toutes les réservations associées à votre spot seront annulées.",
-        "leaveAndChangeGroup": "Attention, tu t'apprêtes à quitter ton groupe actuel pour en rejoindre un nouveau.",
+        "leaveAndChangeGroup": "Tu t'apprêtes à quitter ton groupe actuel pour en rejoindre un nouveau.",
         "confirm": "Quitter"
       },
       "joinParking": {
@@ -172,16 +193,17 @@
     "invalidPassword": "Mot de passe invalide"
   },
   "booking": {
-    "reserveSpot": "Réserve un spot",
+    "askToSendRequest": "Faire une demande",
+    "reserveSpot": "Rechercher un spot",
     "reserveNow": "Réserve un spot dès maintenant !",
     "nextReservation": "Ta prochaine réservation commence dans {{time}}",
     "nextReservationTitle": "Prochaine réservation",
     "reservations": "Réservations",
     "suggestedSpots": "Spots Suggérés",
-    "noSpotsAvailable": "Aucun spot n'est disponible\nsur cette période.",
+    "noSpotsAvailable": "Aucun spot n'est disponible pendant cette période.",
     "reserveFrom": "Réserver du",
     "reserveUntil": "Jusqu'au",
-    "reserve": "Réserver",
+    "reserve": "Choisi un spot à réserver",
     "reserveForCredits": "Réserver pour {{credits}} points",
     "now": "Maintenant",
     "occupyingSpot": "Tu occupes ce spot",
@@ -243,30 +265,36 @@
       "accept": "Accepter pour {{credits}} points"
     }
   },
-  "upgrade": {
+  "friendspotplus": {
     "title": "FriendSpot+",
-    "tag": "Prochainement",
     "plans": {
-      "periods": {
-        "monthly": "/mois",
-        "perUserMonthly": "/mois par utilisateur"
-      },
+      "everythingIn": "Tout dans {{product}}",
+      "upgradeButton": "Passer à {{product}}",
       "premium": {
-        "name": "Premium",
-        "description": "Débloquez un potentiel de stationnement illimité.",
-        "features": "Durée illimitée par réservation;Demandes de partage de place de stationnement;Support basique",
-        "upgradeButton": "Mettre à niveau"
+        "accountName": "Compte Premium",
+        "features": [
+          "Réservations en avance illimité",
+          "Tous les groupes jusqu'à 15 membres",
+          "Demandes de partage de place de stationnement"
+        ],
+        "period": "/mois"
       },
       "neighbourhood": {
-        "name": "Quartier",
-        "description": "Pour les quartiers et les communautés.",
-        "features": "Jusqu'à 50 membres par groupe;Gestion de groupe avancée;Support dédié",
-        "upgradeButton": "Créer un groupe"
+        "accountName": "Premium + Communauté",
+        "features": [
+          "1 groupe communauté",
+          "Groupes communautés jusqu'à 50 membres"
+        ],
+        "period": "/mois"
       },
       "custom": {
         "name": "Personnalisé",
         "description": "Bénéficiez de fonctionnalités personnalisées et adaptées à vos besoins. Contactez-nous dès aujourd'hui !",
-        "features": "Tout ce qui est inclu dans Quartier;Membres du groupe illimités;Fonctionnalités personnalisées",
+        "features": [
+          "Création illimité de groupe",
+          "Membre illimité par groupe",
+          "Fonctionnalités personnalisées"
+        ],
         "upgradeButton": "Nous contacter"
       }
     }
@@ -293,7 +321,7 @@
   },
   "app": {
     "version": "Version",
-    "otaPatch": "Patch OTA appliqué {{time}}",
+    "otaPatch": "OTA {{time}}",
     "noOtaPatch": "Aucun patch OTA"
   },
   "widget": {

@@ -1,9 +1,12 @@
+using System.Net;
 using System.Net.Http.Json;
 using Api.BookingRequests;
 using Api.BookingRequests.OnBookingRequested;
 using Api.Bookings;
 using Api.Me;
 using Api.Tests.TestBench;
+using Domain;
+using Domain.UserProducts;
 using Domain.Users;
 using NSubstitute;
 
@@ -11,6 +14,52 @@ namespace Api.Tests;
 
 internal sealed class BookingRequestTests : IntegrationTestsBase
 {
+    [SetUp]
+    public void SetupUserFeatures()
+    {
+        UserFeatures.GetEnabled(Arg.Any<CancellationToken>())
+            .ReturnsForAnyArgs(
+                Task.FromResult(
+                    new EnabledFeatures(
+                    [
+                        UserProduct.Activate(
+                            "transaction-1",
+                            Seed.Users.Resident1,
+                            Plans.Premium,
+                            null),
+                        UserProduct.Activate(
+                            "transaction-2",
+                            Seed.Users.Resident2,
+                            Plans.Premium,
+                            null)
+                    ])));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task RequestBooking_ShouldFail_WhenNotPremium(CancellationToken cancellationToken)
+    {
+        UserFeatures.GetEnabled(Arg.Any<CancellationToken>())
+            .ReturnsForAnyArgs(
+                Task.FromResult(
+                    new EnabledFeatures([])));
+
+        using var resident1 = UserClient(Seed.Users.Resident1);
+
+        var bookingRequestResult = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = DateTimeOffset.Now.AddHours(1),
+                    To = DateTimeOffset.Now.AddHours(6),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        await bookingRequestResult.AssertIs(HttpStatusCode.BadRequest, cancellationToken);
+    }
+
     [Test]
     [CancelAfter(10_000)]
     public async Task RequestBooking_ShouldTakeDeposit(CancellationToken cancellationToken)

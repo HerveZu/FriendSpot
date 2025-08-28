@@ -35,9 +35,11 @@ public sealed record ParkingSpotBookingCompleted : IDomainEvent
     public required string OwnerId { get; init; }
 }
 
-public sealed record ParkingSpotLeft : IDomainEvent
+public sealed record ParkingUserLeft : IDomainEvent
 {
+    public required Guid LeftParkingId { get; init; }
     public required Guid SpotId { get; init; }
+    public required string UserId { get; init; }
 }
 
 public sealed class ParkingSpot : IAggregateRoot
@@ -96,12 +98,14 @@ public sealed class ParkingSpot : IAggregateRoot
     {
         if (parkingId != ParkingId)
         {
-            ParkingId = parkingId;
             _domainEvents.RegisterNext(
-                new ParkingSpotLeft
+                new ParkingUserLeft
                 {
-                    SpotId = Id
+                    LeftParkingId = ParkingId,
+                    SpotId = Id,
+                    UserId = OwnerId
                 });
+            ParkingId = parkingId;
         }
 
         SpotName = new SpotName(newSpotName);
@@ -110,9 +114,11 @@ public sealed class ParkingSpot : IAggregateRoot
     public void Leave()
     {
         _domainEvents.RegisterNext(
-            new ParkingSpotLeft
+            new ParkingUserLeft
             {
-                SpotId = Id
+                LeftParkingId = ParkingId,
+                SpotId = Id,
+                UserId = OwnerId
             });
     }
 

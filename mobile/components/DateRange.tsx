@@ -79,7 +79,7 @@ export function DateRangeOnly(props: { from: Date | string; to: Date | string; s
     <View className="flex-row items-center gap-2">
       {!props.short && <ThemedIcon component={FontAwesome6} name="clock" size={12} />}
       <Text className={'text-sm'}>{format(props.from, dateFormat)}</Text>
-      <ThemedIcon name="arrow-right" size={12} />
+      <ThemedIcon name="arrow-right" size={12} component={FontAwesome6} />
       <Text className={'text-sm'}>{format(props.to, dateFormat)}</Text>
     </View>
   );

@@ -15,6 +15,7 @@ public sealed record ParkingResponse
     public required string OwnerId { get; init; }
     public required uint MaxSpots { get; init; }
     public required bool IsFull { get; init; }
+    public required bool IsNeighbourhood { get; init; }
 }
 
 public static class ParkingResponseExtensions
@@ -38,7 +39,8 @@ public static class ParkingResponseExtensions
                 Code = x.parking.Code,
                 SpotsCount = x.spotCount,
                 IsFull = x.spotCount >= x.parking.MaxSpotCount,
-                MaxSpots = x.parking.MaxSpotCount
+                MaxSpots = x.parking.MaxSpotCount,
+                IsNeighbourhood = x.parking.IsNeighbourhood,
             });
     }
 }

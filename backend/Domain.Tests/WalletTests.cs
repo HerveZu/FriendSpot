@@ -3,7 +3,6 @@ using Domain.Wallets;
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(Wallet))]
 public sealed class WalletTests
 {
     [Test]

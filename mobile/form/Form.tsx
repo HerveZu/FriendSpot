@@ -1,6 +1,6 @@
-import { createContext, PropsWithChildren, useCallback, useMemo, useState } from 'react';
+import { ConsumerProps, createContext, useCallback, useMemo, useState } from 'react';
 
-export const FormContext = createContext<{
+type _FormContext = {
   error: (id: string, error: boolean) => void;
   touch: () => void;
   isSubmitted: boolean;
@@ -8,11 +8,16 @@ export const FormContext = createContext<{
   isValid: boolean;
   touchTrigger: object;
   handleSubmit: (callback: () => Promise<void>) => () => Promise<void>;
-}>(null!);
+};
+export const FormContext = createContext<_FormContext>(null!);
 
-export type FormProps = { autoTouch?: boolean; disabled?: boolean } & PropsWithChildren;
+export type FormProps = { autoTouch?: boolean; disabled?: boolean };
 
-export function Form({ autoTouch, ...props }: FormProps) {
+export function Form({
+  autoTouch,
+  disabled,
+  ...consumerProps
+}: FormProps & ConsumerProps<_FormContext>) {
   const [inputErrors, setInputErrors] = useState<string[]>([]);
   const [isTouched, setIsTouched] = useState(autoTouch);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -20,8 +25,8 @@ export function Form({ autoTouch, ...props }: FormProps) {
   const [touchTrigger, setTouchTrigger] = useState({});
 
   const isValid = useMemo(
-    () => !props.disabled && !!isTouched && inputErrors.length === 0,
-    [props.disabled, isTouched, inputErrors]
+    () => !disabled && !!isTouched && inputErrors.length === 0,
+    [disabled, isTouched, inputErrors]
   );
 
   const error = useCallback(
@@ -64,8 +69,8 @@ export function Form({ autoTouch, ...props }: FormProps) {
 
   return (
     <FormContext.Provider
-      {...props}
-      value={{ error, touch, handleSubmit, isSubmitted, touchTrigger, isLoading, isValid }}
-    />
+      value={{ error, touch, handleSubmit, isSubmitted, touchTrigger, isLoading, isValid }}>
+      <FormContext.Consumer {...consumerProps} />
+    </FormContext.Provider>
   );
 }

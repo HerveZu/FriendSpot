@@ -514,6 +514,9 @@ namespace Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsNeighbourhood")
+                        .HasColumnType("boolean");
+
                     b.Property<long>("MaxSpotCount")
                         .HasColumnType("bigint");
 
@@ -534,6 +537,37 @@ namespace Api.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Parking");
+                });
+
+            modelBuilder.Entity("Domain.UserProducts.UserProduct", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserProduct");
                 });
 
             modelBuilder.Entity("Domain.Users.User", b =>
@@ -766,6 +800,15 @@ namespace Api.Migrations
                         });
 
                     b.Navigation("BookingRequests");
+                });
+
+            modelBuilder.Entity("Domain.UserProducts.UserProduct", b =>
+                {
+                    b.HasOne("Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Users.User", b =>

@@ -1,7 +1,6 @@
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(DateTimeOffsetRange))]
 public sealed class DateTimeOffsetRangeTests
 {
     [Test]
@@ -12,12 +11,11 @@ public sealed class DateTimeOffsetRangeTests
 
         var range = new DateTimeOffsetRange(from, to);
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(range.From, Is.EqualTo(from));
-                Assert.That(range.To, Is.EqualTo(to));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(range.From, Is.EqualTo(from));
+            Assert.That(range.To, Is.EqualTo(to));
+        });
     }
 
     [Test]
@@ -117,12 +115,11 @@ public sealed class DateTimeOffsetRangeTests
             new DateTimeOffset(2023, 1, 5, 0, 0, 0, TimeSpan.Zero)
         );
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(extendedRange.From, Is.EqualTo(new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero)));
-                Assert.That(extendedRange.To, Is.EqualTo(new DateTimeOffset(2023, 1, 5, 0, 0, 0, TimeSpan.Zero)));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(extendedRange.From, Is.EqualTo(new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero)));
+            Assert.That(extendedRange.To, Is.EqualTo(new DateTimeOffset(2023, 1, 5, 0, 0, 0, TimeSpan.Zero)));
+        });
     }
 
     [Test]
@@ -138,11 +135,10 @@ public sealed class DateTimeOffsetRangeTests
             new DateTimeOffset(2023, 1, 4, 0, 0, 0, TimeSpan.Zero)
         );
 
-        Assert.Multiple(
-            () =>
-            {
-                Assert.That(extendedRange.From, Is.EqualTo(range.From));
-                Assert.That(extendedRange.To, Is.EqualTo(range.To));
-            });
+        Assert.Multiple(() =>
+        {
+            Assert.That(extendedRange.From, Is.EqualTo(range.From));
+            Assert.That(extendedRange.To, Is.EqualTo(range.To));
+        });
     }
 }

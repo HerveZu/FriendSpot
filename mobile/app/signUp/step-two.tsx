@@ -19,6 +19,7 @@ import { Checkbox } from '~/components/Checkbox';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
 import { useRedirectToInitialUrl } from '~/authentication/useRedirectToInitialUrl';
+import { urls } from '~/lib/urls';
 
 function strongPassword(password?: string) {
   return !!password && password.length >= 6;
@@ -147,13 +148,14 @@ export default function StepTwoScreen() {
             value={userHasConfirmed}
             onValueChange={(value) => setUserHasConfirmed(value)}
           />
-          <Text variant={'caption1'}>
-            {t('auth.signUp.confirmPrivacyPolicy.part1')}{' '}
-            <ExternalLink
-              url={process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL ?? ''}
-              variant={'caption1'}
-              className={'break-words text-primary'}>
-              {t('auth.signUp.confirmPrivacyPolicy.part2')}
+          <Text className={'text-sm'}>
+            {t('auth.signUp.confirmDocuments.confirm')}{' '}
+            <ExternalLink url={urls.privacyPolicy} className={'break-words text-sm text-primary'}>
+              {t('auth.signUp.confirmDocuments.privacyPolicy')}
+            </ExternalLink>{' '}
+            {t('auth.signUp.confirmDocuments.and')}{' '}
+            <ExternalLink url={urls.termsOfUse} className={'break-words text-sm text-primary'}>
+              {t('auth.signUp.confirmDocuments.termsOfUse')}
             </ExternalLink>
             .
           </Text>

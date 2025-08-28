@@ -1,4 +1,4 @@
-import { Component, PropsWithChildren, ReactNode, useContext, useEffect, useState } from 'react';
+import { Component, PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -15,7 +15,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
-import { Form, FormContext, FormProps } from '~/form/Form';
+import { Form, FormProps } from '~/form/Form';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FormMessages } from '~/form/FormMessages';
 import { cn } from '~/lib/cn';
@@ -36,21 +36,22 @@ type AuthFormProps = {
   submitText: string;
   Illustration?: Illustration;
   submitCaption?: ReactNode;
-} & PropsWithChildren;
+} & PropsWithChildren &
+  FormProps;
 
-export function AuthForm(props: AuthFormProps & FormProps) {
-  return (
-    <Form disabled={props.disabled} autoTouch={props.autoTouch}>
-      <AuthFormInternal {...props} />
-    </Form>
-  );
-}
-
-function AuthFormInternal({ Illustration, ...props }: AuthFormProps) {
+export function AuthForm({
+  title,
+  error,
+  onSubmit,
+  submitText,
+  Illustration,
+  submitCaption,
+  children,
+  ...formProps
+}: AuthFormProps) {
   const { keyboardVisible, keyboardHeight } = useKeyboardVisible();
   const illustrationProgress = useAnimatedValue(1);
   const { colors } = useColorScheme();
-  const { handleSubmit, isLoading, isValid } = useContext(FormContext);
   const [keyboardHeightOnKeyboardShow, setKeyboardHeightOnKeyboardShow] = useState(0);
 
   useEffect(() => {
@@ -63,47 +64,51 @@ function AuthFormInternal({ Illustration, ...props }: AuthFormProps) {
   }, [keyboardVisible]);
 
   return (
-    <SafeAreaView>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <Screen
-          className={cn('relative flex h-full flex-col justify-between gap-12')}
-          // + 20 counts for the Password hint display on top of the keyboard
-          style={{ paddingBottom: keyboardHeightOnKeyboardShow + 20 }}>
-          <View className="relative w-full flex-row items-center justify-center">
-            <BackButton className="absolute left-0" />
-            <View className="self-center">{props.title}</View>
-          </View>
-          <Animated.View
-            className="mx-auto"
-            style={{
-              opacity: illustrationProgress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 1],
-              }),
-              height: illustrationProgress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 300],
-              }),
-            }}>
-            {Illustration && <Illustration width={300} height={300} />}
-          </Animated.View>
-          <View className={'w-full flex-col gap-4'}>
-            <FormMessages>{props.error}</FormMessages>
-            {props.children}
-          </View>
-          {props.submitCaption}
-          <Button
-            size={Platform.select({ ios: 'lg', default: 'md' })}
-            disabled={!isValid}
-            onPress={handleSubmit(props.onSubmit)}
-            variant="primary"
-            className="w-full">
-            {isLoading && <ActivityIndicator color={colors.foreground} />}
-            <Text>{props.submitText}</Text>
-          </Button>
-        </Screen>
-      </TouchableWithoutFeedback>
-    </SafeAreaView>
+    <Form {...formProps}>
+      {({ handleSubmit, isLoading, isValid }) => (
+        <SafeAreaView>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <Screen
+              className={cn('relative flex h-full flex-col justify-between gap-12')}
+              // + 20 counts for the Password hint display on top of the keyboard
+              style={{ paddingBottom: keyboardHeightOnKeyboardShow + 20 }}>
+              <View className="relative w-full flex-row items-center justify-center">
+                <BackButton className="absolute left-0" />
+                <View className="self-center">{title}</View>
+              </View>
+              <Animated.View
+                className="mx-auto"
+                style={{
+                  opacity: illustrationProgress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 1],
+                  }),
+                  height: illustrationProgress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 300],
+                  }),
+                }}>
+                {Illustration && <Illustration width={300} height={300} />}
+              </Animated.View>
+              <View className={'w-full flex-col gap-4'}>
+                <FormMessages>{error}</FormMessages>
+                {children}
+              </View>
+              {submitCaption}
+              <Button
+                size={Platform.select({ ios: 'lg', default: 'md' })}
+                disabled={!isValid}
+                onPress={handleSubmit(onSubmit)}
+                variant="primary"
+                className="w-full">
+                {isLoading && <ActivityIndicator color={colors.foreground} />}
+                <Text>{submitText}</Text>
+              </Button>
+            </Screen>
+          </TouchableWithoutFeedback>
+        </SafeAreaView>
+      )}
+    </Form>
   );
 }
 

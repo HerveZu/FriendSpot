@@ -17,7 +17,7 @@ export default function MainLayout() {
     <>
       {/*<AskUserToRate>*/}
       <Tabs
-        initialRouteName="my-spot"
+        initialRouteName="search-spot"
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,
@@ -47,7 +47,7 @@ export default function MainLayout() {
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon
-                name="magnifying-glass"
+                name="calendar-check"
                 component={FontAwesome6}
                 size={24}
                 focused={focused}
@@ -62,7 +62,7 @@ export default function MainLayout() {
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon
-                name="crown"
+                name="gem"
                 component={FontAwesome6}
                 size={24}
                 focused={focused}
