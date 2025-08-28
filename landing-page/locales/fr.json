@@ -11,35 +11,33 @@
         "period": "à vie",
         "description": "Idéal pour découvrir le partage de stationnement entre voisins.",
         "features": [
-          "Création de groupes de stationnement illimitée jusqu'à 10 membres",
-          "Limite de 24 heures par réservation",
+          "Création d'un groupe de stationnement jusqu'à 10 membres",
+          "Limite de 3 jours max par réservation",
           "Support communautaire"
         ],
-        "buttonText": "Disponible prochainement"
+        "buttonText": "Commencez gratuitement"
       },
       "premium": {
         "name": "Premium",
-        "price": "1,99 €",
+        "price": "2,99 €",
         "period": "/mois",
         "description": "Débloquez un potentiel de stationnement illimité pour la meilleure expérience.",
         "features": [
-          "Tout dans le plan de base",
-          "Durée illimitée par réservation",
-          "Demandes de partage de stationnement"
+          "Créez un groupe de stationnement avec jusqu'à 15 membres pour une gestion simplifiée",
+          "Profitez de réservations en avance illimitées pour planifier vos besoins de stationnement",
+          "Envoyez et recevez des demandes de partage de place de stationnement en toute simplicité"
         ],
-        "buttonText": "Disponible prochainement"
+        "buttonText": "Passez à Premium"
       },
       "neighbourhood": {
-        "name": "Quartier",
-        "price": "2,99 €",
-        "period": "/mois par utilisateur",
-        "description": "Pour les grands quartiers et communautés.",
+        "name": "Communauté",
+        "price": "39,99€",
+        "period": "/mois",
+        "description": "Idéal pour les grands quartiers et communautés souhaitant optimiser leur stationnement.",
         "features": [
-          "Jusqu'à 50 membres par groupe",
-          "Gestion avancée des groupes",
-          "Support dédié"
+          "Créez un groupe communautaire privé pouvant accueillir jusqu'à 50 membres"
         ],
-        "buttonText": "Disponible prochainement"
+        "buttonText": "Rejoignez la Communauté"
       }
     }
   },
@@ -48,8 +46,8 @@
     "subtitle": "Simple, équitable et accessible. Rejoignez la révolution du stationnement en 4 étapes faciles.",
     "steps": {
       "createOrJoin": {
-        "title": "Créer ou rejoindre des groupes",
-        "description": "Commencez par créer un groupe de stationnement avec vos voisins. Ou rejoignez des groupes existants dans votre région."
+        "title": "Créer ou rejoindre un groupes",
+        "description": "Commencez par créer un groupe de stationnement avec vos voisins. Ou rejoignez un groupes existants dans votre région."
       },
       "shareSpot": {
         "title": "Partagez votre place",
@@ -257,18 +255,22 @@
       },
       "liability": {
         "title": "7. Limitation de responsabilité",
-        "content": "FriendSpot met tout en œuvre pour assurer le bon fonctionnement de l’Application, mais ne garantit pas l’absence d’erreurs, d’interruptions ou de pertes de données. FriendSpot ne peut être tenu responsable des contenus publiés par les utilisateurs."
+        "content": "FriendSpot met tout en œuvre pour assurer le bon fonctionnement de l’Application, mais ne garantit pas l’absence d’erreurs, d’interruptions ou de pertes de données. FriendSpot ne peut être tenu responsable des contenus publiés par les utilisateurs. Les points ne sont pas de la monnaie : ils ne peuvent être vendus, échangés contre de l’argent ou remboursés. FriendSpot n’es pas responsable si une place n’est pas réellement disponible ou si un utilisateur ne respecte pas sa promesse. FriendSpot ne garantis pas la disponibilité permanente du service (maintenance, bugs, etc.)."
       },
       "abuseReporting": {
         "title": "8. Signalement d’abus et violations",
         "content": "En cas de violation de droits d’auteur ou de contenu illicite, l’utilisateur peut contacter : support@friendspot.com"
       },
+      "userResponsibilities": {
+        "title": "9. Responsabilités des utilisateurs",
+        "content": "Les utilisateurs doivent utiliser l’application dans le respect des lois locales (ex. règles de copropriété)."
+      },
       "termination": {
-        "title": "9. Résiliation",
+        "title": "10. Résiliation",
         "content": "FriendSpot se réserve le droit de suspendre ou supprimer tout compte utilisateur en cas de non-respect des présentes CGU."
       },
       "applicableLaw": {
-        "title": "10. Loi applicable",
+        "title": "11. Loi applicable",
         "content": "Les présentes CGU sont soumises au droit français. Tout litige sera porté devant les juridictions compétentes en France."
       }
     }

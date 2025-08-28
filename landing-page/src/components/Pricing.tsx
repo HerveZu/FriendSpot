@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Building, Check, Crown, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -146,11 +147,13 @@ export const Pricing = () => {
                     </ul>
                   </div>
 
-                  <button
-                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 capitalize transform hover:scale-105 ${plan.buttonClass}`}
-                  >
-                    {t(plan.buttonTextKey)}
-                  </button>
+                  <Link to={"https://api.friendspot.app/_open/friendspot-plus"}>
+                    <button
+                      className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 capitalize transform hover:scale-105 ${plan.buttonClass}`}
+                    >
+                      {t(plan.buttonTextKey)}
+                    </button>
+                  </Link>
                 </div>
               </div>
             );

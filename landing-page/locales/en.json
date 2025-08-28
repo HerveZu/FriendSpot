@@ -1,37 +1,9 @@
 {
-  "header": {
-    "logo": "FriendSpot",
-    "nav": {
-      "howItWorks": "How it works",
-      "pricing": "Pricing",
-      "contact": "Contact",
-      "home": "Home"
-    }
-  },
-  "hero": {
-    "title": {
-      "part1": "Neighbor-to-neighbor parking",
-      "part2": "made simple"
-    },
-    "subtitle": {
-      "line1": "The first app for sharing parking spots between neighbors.",
-      "line2": "1 hour shared = 1 point earned"
-    },
-    "features": {
-      "communityDriven": "Community-driven",
-      "timeBasedSharing": "Time-based sharing",
-      "completelyFree": "No hidden fees"
-    },
-    "download": {
-      "iOS": "Download for iOS",
-      "android": "Download for Android"
-    }
-  },
   "pricing": {
-    "title": "Simple, Fair Pricing",
-    "subtitle": "Choose the plan that fits your parking needs. Start with a basic plan and upgrade when you're ready for more features.",
+    "title": "Simple and Fair Pricing",
+    "subtitle": "Choose the plan that fits your parking needs. Start with a basic plan and upgrade when you're ready.",
     "mostPopular": "Most Popular",
-    "footer": "All plans include our core parking sharing features. No hidden fees, cancel anytime.",
+    "footer": "All plans include our core parking-sharing features. No hidden fees, cancel anytime.",
     "plans": {
       "free": {
         "name": "Basic Plan",
@@ -39,35 +11,34 @@
         "period": "lifetime",
         "description": "Perfect for discovering neighbor-to-neighbor parking sharing.",
         "features": [
-          "Unlimited parking group creation up to 10 members",
-          "24-hour time limit per reservation",
+          "Create a parking group with up to 10 members",
+          "Maximum 3 days per reservation",
+          "Real-time notifications for reservations",
           "Community support"
         ],
-        "buttonText": "Coming soon"
+        "buttonText": "Start for Free"
       },
       "premium": {
         "name": "Premium",
-        "price": "€1.99",
+        "price": "€2.99",
         "period": "/month",
         "description": "Unlock unlimited parking potential for the best experience.",
         "features": [
-          "Everything in the Basic Plan",
-          "Unlimited time per reservation",
-          "Parking sharing requests"
+          "Create a parking group with up to 15 members for simplified management",
+          "Enjoy unlimited advance reservations to plan your parking needs",
+          "Easily send and receive parking spot sharing requests"
         ],
-        "buttonText": "Coming soon"
+        "buttonText": "Upgrade to Premium"
       },
       "neighbourhood": {
-        "name": "Neighborhood",
-        "price": "€2.99",
-        "period": "/month per user",
-        "description": "For larger neighborhoods and communities.",
+        "name": "Community",
+        "price": "€39.99",
+        "period": "/month",
+        "description": "Ideal for large neighborhoods and communities looking to optimize parking.",
         "features": [
-          "Up to 50 group members",
-          "Advanced group management",
-          "Dedicated support"
+          "Create a private community group accommodating up to 50 members"
         ],
-        "buttonText": "Coming soon"
+        "buttonText": "Join the Community"
       }
     }
   },
@@ -76,43 +47,71 @@
     "subtitle": "Simple, fair, and accessible. Join the parking revolution in 4 easy steps.",
     "steps": {
       "createOrJoin": {
-        "title": "Create or Join Groups",
-        "description": "Start by creating a parking group with your neighbors. Or join existing groups in your area."
+        "title": "Create or Join Group",
+        "description": "Start by creating a parking group with your neighbors. Or join existing group in your area."
       },
       "shareSpot": {
         "title": "Share Your Spot",
-        "description": "When you're not using your parking spot, make it available to your group members."
+        "description": "When you're not using your parking spot, make it available to group members."
       },
       "earnCredits": {
         "title": "Earn Points",
-        "description": "For every hour you share your spot, you earn 1 point to use elsewhere."
+        "description": "For every hour you share your spot, you earn 1 parking point to use elsewhere."
       },
       "useSpots": {
         "title": "Use Others' Spots",
-        "description": "Spend your earned points to park in other members' spots when you need them."
+        "description": "Use your earned points to park in other members' spots when you need them."
       }
+    }
+  },
+  "hero": {
+    "title": {
+      "part1": "Neighbor-to-Neighbor Parking",
+      "part2": "Simplified"
+    },
+    "subtitle": {
+      "line1": "The first neighbor-to-neighbor parking exchange app.",
+      "line2": "1 hour shared = 1 point earned"
+    },
+    "features": {
+      "communityDriven": "Community-Driven",
+      "timeBasedSharing": "Time-Based Sharing",
+      "completelyFree": "No Hidden Fees"
+    },
+    "download": {
+      "iOS": "Download for iOS",
+      "android": "Download for Android"
+    }
+  },
+  "header": {
+    "logo": "FriendSpot",
+    "nav": {
+      "howItWorks": "How It Works",
+      "pricing": "Pricing",
+      "contact": "Contact",
+      "home": "Home"
     }
   },
   "footer": {
     "logo": "FriendSpot",
-    "description": "Revolutionizing urban parking through community-driven sharing. Join thousands of users for stress-free and friendly parking.",
+    "description": "Revolutionizing urban parking through community sharing. Join thousands of users for stress-free and friendly parking.",
     "copyright": "Copyright {{year}} - FriendSpot. All rights reserved.",
     "contact": "Contact Us",
     "privacyPolicy": "Privacy Policy",
-    "terms": "Terms of service"
+    "terms": "Terms of Service"
   },
   "privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: {{date}}",
-    "intro": "This Privacy Policy describes our policies and procedures on the collection, use, and disclosure of your information when you use the service.",
+    "lastUpdated": "Last Updated: {{date}}",
+    "intro": "This privacy policy describes our policies and procedures on the collection, use, and disclosure of your information when you use the service.",
     "interpretation": {
       "title": "Interpretation and Definitions",
       "subtitle": "Interpretation",
-      "description": "The words with initial capital letters have meanings defined under the following conditions."
+      "description": "Words with capitalized initials have meanings defined under the following conditions."
     },
     "definitions": {
       "title": "Definitions",
-      "description": "For the purposes of this Privacy Policy:",
+      "description": "For the purposes of this privacy policy:",
       "account": {
         "title": "Account",
         "description": "A unique account created for you to access our service or parts of it."
@@ -147,11 +146,11 @@
       },
       "service": {
         "title": "Service",
-        "description": "Refers to the application or the website or both."
+        "description": "Refers to the application or website or both."
       },
       "serviceProvider": {
         "title": "Service Provider",
-        "description": "Any natural or legal person who processes the data on behalf of the company."
+        "description": "Any natural or legal person who processes data on behalf of the company."
       },
       "usageData": {
         "title": "Usage Data",
@@ -167,14 +166,14 @@
       }
     },
     "dataCollection": {
-      "title": "Collecting and Using Your Personal Data",
+      "title": "Collection and Use of Your Personal Data",
       "types": {
         "title": "Types of Data Collected"
       },
       "personalData": {
         "title": "Personal Data",
         "description": "We may ask you to provide certain personally identifiable information.",
-        "email": "Email address",
+        "email": "Email Address",
         "usageData": "Usage Data"
       },
       "usageData": {
@@ -182,8 +181,8 @@
         "description": "Collected automatically when using the service."
       },
       "tracking": {
-        "title": "Tracking Technologies and Cookies",
-        "description": "We use cookies and similar tracking technologies to track activity on our service.",
+        "title": "Tracking Technologies",
+        "description": "We use cookies and similar technologies to track activity on our service.",
         "cookies": {
           "title": "Cookies or Browser Cookies",
           "description": "Small files placed on your device."
@@ -201,7 +200,7 @@
       "manageAccount": "To manage your account.",
       "contact": "To contact you via email, phone, or notifications.",
       "businessTransfers": "For business transfers such as mergers or acquisitions.",
-      "otherPurposes": "For other purposes such as data analysis or marketing."
+      "otherPurposes": "For other purposes like data analysis or marketing."
     },
     "retention": {
       "title": "Retention of Your Personal Data",
@@ -213,7 +212,7 @@
     },
     "children": {
       "title": "Children's Privacy",
-      "description": "The service is not intended for children under 13."
+      "description": "The service is not intended for children under 13 years old."
     },
     "links": {
       "title": "Links to Other Websites",
@@ -221,7 +220,7 @@
     },
     "changes": {
       "title": "Changes to This Privacy Policy",
-      "description": "We may update this Privacy Policy from time to time."
+      "description": "We may update this privacy policy from time to time."
     },
     "contact": {
       "title": "Contact Us",
@@ -229,47 +228,51 @@
     }
   },
   "terms": {
-    "title": "Terms and Conditions (T&C)",
+    "title": "Terms of Service",
     "sections": {
       "object": {
         "title": "1. Object",
-        "content": "These Terms and Conditions (T&C) govern access to and use of the FriendSpot mobile application and the website https://friendspot.app (hereinafter referred to as 'the Application'). By downloading, installing, or using FriendSpot, the user unreservedly accepts these T&C."
+        "content": "These Terms of Service ('Terms') govern access to and use of the FriendSpot mobile application and website https://friendspot.app ('Application'). By downloading, installing, or using FriendSpot, the user accepts these Terms without reservation."
       },
       "accountCreation": {
         "title": "2. Account Creation",
-        "content": "The use of certain features requires the creation of a user account. The user agrees to provide accurate information and maintain the confidentiality of their credentials. The user is solely responsible for any activity carried out via their account."
+        "content": "Using certain features requires creating a user account. The user agrees to provide accurate information and maintain the confidentiality of their credentials. The user is solely responsible for all activities conducted through their account."
       },
       "userContent": {
         "title": "3. User Content",
-        "content": "Users can publish content (text, images, etc.) via the Application. The user retains ownership of their content but grants FriendSpot a non-exclusive, free, and worldwide license to host, display, and distribute it as part of the service. The user agrees not to publish any illegal, defamatory, discriminatory, or infringing content."
+        "content": "Users may post content (text, images, etc.) via the Application. The user retains ownership of their content but grants FriendSpot a non-exclusive, free, worldwide license to host, display, and distribute it as part of the service. Users must not post any illegal, defamatory, discriminatory, or rights-infringing content."
       },
       "subscriptions": {
         "title": "4. Subscriptions and Payments",
-        "content": "Certain features are accessible via subscription through Google Play and Apple App Store platforms. Financial conditions (pricing, renewal, cancellation) are defined by each store and apply automatically. Refunds are not managed directly by FriendSpot but only through the stores."
+        "content": "Certain features are accessible via subscription through Google Play and Apple App Store. Financial terms (pricing, renewal, cancellation) are defined by each store and apply automatically. Refunds are managed solely by the stores, not directly by FriendSpot."
       },
       "intellectualProperty": {
         "title": "5. Intellectual Property",
-        "content": "All content, design, logo, and FriendSpot brand are protected by intellectual property laws. Any reproduction or use without authorization is prohibited."
+        "content": "All content, design, logo, and trademark of FriendSpot are protected by intellectual property laws. Any reproduction or use without authorization is prohibited."
       },
       "feedback": {
         "title": "6. Suggestions and Feedback",
-        "content": "Any suggestion, idea, or feedback submitted to FriendSpot may be freely used without obligation of compensation."
+        "content": "Any suggestions, ideas, or feedback submitted to FriendSpot may be freely used without obligation of compensation."
       },
       "liability": {
         "title": "7. Limitation of Liability",
-        "content": "FriendSpot makes every effort to ensure the proper functioning of the Application but does not guarantee the absence of errors, interruptions, or data loss. FriendSpot cannot be held responsible for content published by users."
+        "content": "FriendSpot strives to ensure the proper functioning of the Application but does not guarantee the absence of errors, interruptions, or data loss. FriendSpot is not responsible for content posted by users. Points are not currency: they cannot be sold, exchanged for money, or refunded. FriendSpot is not responsible if a spot is not actually available or if a user fails to honor their commitment. FriendSpot does not guarantee the permanent availability of the service (maintenance, bugs, etc.)."
       },
       "abuseReporting": {
-        "title": "8. Abuse and Violations Reporting",
-        "content": "In case of copyright infringement or illegal content, the user can contact: support@friendspot.com"
+        "title": "8. Reporting Abuse and Violations",
+        "content": "In case of copyright infringement or illegal content, users can contact: support@friendspot.com"
+      },
+      "userResponsibilities": {
+        "title": "9. User Responsibilities",
+        "content": "Users must use the application in compliance with local laws (e.g., condominium rules)."
       },
       "termination": {
-        "title": "9. Termination",
-        "content": "FriendSpot reserves the right to suspend or delete any user account in case of non-compliance with these T&C."
+        "title": "10. Termination",
+        "content": "FriendSpot reserves the right to suspend or delete any user account in case of non-compliance with these Terms."
       },
       "applicableLaw": {
-        "title": "10. Applicable Law",
-        "content": "These T&C are governed by French law. Any dispute will be brought before the competent courts in France."
+        "title": "11. Applicable Law",
+        "content": "These Terms are governed by French law. Any disputes will be brought before the competent courts in France."
       }
     }
   }
