@@ -199,7 +199,7 @@
     "noSpotsAvailable": "Aucun spot n'est disponible pendant cette période.",
     "reserveFrom": "Réserver du",
     "reserveUntil": "Jusqu'au",
-    "reserve": "Réserver",
+    "reserve": "Choisi un spot à réserver",
     "reserveForCredits": "Réserver pour {{credits}} points",
     "now": "Maintenant",
     "occupyingSpot": "Tu occupes ce spot",

@@ -58,17 +58,9 @@ import { LogoCard } from '~/components/Logo';
 import { useCancelBookingRequest } from '~/endpoints/requestBooking/cancel-spot-booking-request';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 import { DynamicBottomSheet } from '~/components/DynamicBottomSheet';
-import {
-  MyBookingRequestResponse,
-  useGetMyBookingRequests,
-} from '~/endpoints/requestBooking/get-my-parking-requests';
+import { MyBookingRequestResponse, useGetMyBookingRequests, } from '~/endpoints/requestBooking/get-my-parking-requests';
 import { PremiumButton } from '~/components/FriendspotPlus';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, } from 'react-native-reanimated';
 
 export default function SearchSpotScreen() {
   const { t } = useTranslation();
@@ -701,7 +693,9 @@ function BookingSheet(props: {
       <View className="flex-col justify-between gap-2">
         <View className="flex-row items-center gap-2">
           <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="clock" />}>
-            {formatDuration(duration, { format: ['days', 'hours', 'minutes'] })}
+            {formatDuration(duration, {
+              format: ['years', 'months', 'weeks', 'days', 'hours', 'minutes'],
+            })}
           </SheetHeading>
         </View>
 
