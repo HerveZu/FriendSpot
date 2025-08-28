@@ -4,14 +4,17 @@ import { Text } from '~/components/nativewindui/Text';
 import { useTranslation } from 'react-i18next';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { ProductCommon, useIAP } from 'expo-iap';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Loader } from '~/components/Loader';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ContactUsButton } from '~/components/ContactUsButton';
 import { useGetPlanInfo } from '~/components/FriendspotPlus';
+import { SubscriptionProduct } from 'expo-iap/src/ExpoIap.types';
+import { ProductSubscriptionAndroid } from 'expo-iap/src/types/ExpoIapAndroid.types';
+import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 
 export default function FriendspotPlus() {
   const { t } = useTranslation();
@@ -21,6 +24,7 @@ export default function FriendspotPlus() {
   const [validSubscriptionIds, setValidSubscriptionIds] = useState<string[]>();
   const { features } = useCurrentUser();
   const getPlanInfo = useGetPlanInfo();
+  const { refreshTrigger } = useContext(RefreshTriggerContext);
 
   useEffect(() => {
     if (!connected) return;
@@ -31,7 +35,7 @@ export default function FriendspotPlus() {
     requestProducts({ skus: productIds, type: 'subs' })
       .then(() => setReady(true))
       .catch(console.error);
-  }, [connected]);
+  }, [connected, refreshTrigger]);
 
   useEffect(() => {
     Promise.all(
@@ -94,8 +98,8 @@ function SubscriptionCard({
 }: {
   i18nKey: string;
   icon: ReactElement;
-  product: ProductCommon | null;
-  inheritProduct: ProductCommon | null;
+  product: SubscriptionProduct | null;
+  inheritProduct: SubscriptionProduct | null;
   isAvailable: boolean;
 }) {
   const { t } = useTranslation();
@@ -128,6 +132,16 @@ function SubscriptionCard({
         },
         android: {
           skus: [product.id],
+          subscriptionOffers: [
+            {
+              sku: product.id,
+              offerToken: Platform.select({
+                android: (product as ProductSubscriptionAndroid).subscriptionOfferDetailsAndroid[0]
+                  .offerToken,
+                default: '',
+              }),
+            },
+          ],
         },
       },
     }).catch(console.error);
