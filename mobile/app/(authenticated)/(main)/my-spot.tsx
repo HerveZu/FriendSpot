@@ -249,20 +249,19 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
               {capitalize(formatRelative(props.availability.from, now))}
             </Text>
           </View>
-          <DeleteTrigger />
-          <Users users={uniqueBookingUsers} />
+          {uniqueBookingUsers.length ? <Users users={uniqueBookingUsers} /> : <DeleteTrigger />}
         </View>
-        <DateRange
-          from={props.availability.from}
-          to={props.availability.to}
-          duration={props.availability.duration}
-        />
         {props.availability.bookings.length === 0 && (
           <View className="mt-2 flex-row items-center gap-2">
             <BlinkingDot color={colors.primary} />
             <Text className="text-xs">{t('lending.waitingForBooking')}</Text>
           </View>
         )}
+        <DateRange
+          from={props.availability.from}
+          to={props.availability.to}
+          duration={props.availability.duration}
+        />
         {props.availability.bookings.length > 0 && (
           <ScrollView>
             <View className="flex-col gap-1">
