@@ -169,28 +169,28 @@
     "dataCollection": {
       "title": "Collecte et utilisation de vos données personnelles",
       "types": {
-        "title": "Types de données collectées",
-        "personalData": {
-          "title": "Données personnelles",
-          "description": "Nous pouvons vous demander de fournir certaines informations personnelles identifiables.",
-          "email": "Adresse email",
-          "usageData": "Données d'utilisation"
+        "title": "Types de données collectées"
+      },
+      "personalData": {
+        "title": "Données personnelles",
+        "description": "Nous pouvons vous demander de fournir certaines informations personnelles identifiables.",
+        "email": "Adresse e-mail",
+        "usageData": "Données d'utilisation"
+      },
+      "usageData": {
+        "title": "Données d'utilisation",
+        "description": "Collectées automatiquement lors de l'utilisation du service."
+      },
+      "tracking": {
+        "title": "Technologies de suivi",
+        "description": "Nous utilisons des cookies et des technologies similaires pour suivre l'activité sur notre service.",
+        "cookies": {
+          "title": "Cookies ou cookies de navigateur",
+          "description": "Petits fichiers placés sur votre appareil."
         },
-        "usageData": {
-          "title": "Données d'utilisation",
-          "description": "Collectées automatiquement lors de l'utilisation du service."
-        },
-        "tracking": {
-          "title": "Technologies de suivi et cookies",
-          "description": "Nous utilisons des cookies et des technologies similaires pour suivre l'activité sur notre service.",
-          "cookies": {
-            "title": "Cookies ou cookies de navigateur",
-            "description": "Petits fichiers placés sur votre appareil."
-          },
-          "webBeacons": {
-            "title": "Balises web",
-            "description": "Petits fichiers électroniques utilisés pour collecter des statistiques."
-          }
+        "webBeacons": {
+          "title": "Balises web",
+          "description": "Petits fichiers électroniques utilisés pour collecter des statistiques."
         }
       }
     },
@@ -199,7 +199,7 @@
       "description": "La société peut utiliser les données personnelles pour les finalités suivantes :",
       "provideService": "Fournir et maintenir notre service.",
       "manageAccount": "Gérer votre compte.",
-      "contact": "Vous contacter via email, téléphone ou notifications.",
+      "contact": "Vous contacter via e-mail, téléphone ou notifications.",
       "businessTransfers": "Pour des transferts commerciaux tels que des fusions ou acquisitions.",
       "otherPurposes": "Pour d'autres finalités comme l'analyse de données ou le marketing."
     },
@@ -225,7 +225,7 @@
     },
     "contact": {
       "title": "Nous contacter",
-      "email": "Par email :"
+      "email": "Par e-mail :"
     }
   },
   "terms": {

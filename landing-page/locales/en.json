@@ -169,28 +169,28 @@
     "dataCollection": {
       "title": "Collecting and Using Your Personal Data",
       "types": {
-        "title": "Types of Data Collected",
-        "personalData": {
-          "title": "Personal Data",
-          "description": "We may ask you to provide certain personally identifiable information.",
-          "email": "Email address",
-          "usageData": "Usage Data"
+        "title": "Types of Data Collected"
+      },
+      "personalData": {
+        "title": "Personal Data",
+        "description": "We may ask you to provide certain personally identifiable information.",
+        "email": "Email address",
+        "usageData": "Usage Data"
+      },
+      "usageData": {
+        "title": "Usage Data",
+        "description": "Collected automatically when using the service."
+      },
+      "tracking": {
+        "title": "Tracking Technologies and Cookies",
+        "description": "We use cookies and similar tracking technologies to track activity on our service.",
+        "cookies": {
+          "title": "Cookies or Browser Cookies",
+          "description": "Small files placed on your device."
         },
-        "usageData": {
-          "title": "Usage Data",
-          "description": "Collected automatically when using the service."
-        },
-        "tracking": {
-          "title": "Tracking Technologies and Cookies",
-          "description": "We use cookies and similar tracking technologies to track activity on our service.",
-          "cookies": {
-            "title": "Cookies or Browser Cookies",
-            "description": "Small files placed on your device."
-          },
-          "webBeacons": {
-            "title": "Web Beacons",
-            "description": "Small electronic files used to collect statistics."
-          }
+        "webBeacons": {
+          "title": "Web Beacons",
+          "description": "Small electronic files used to collect statistics."
         }
       }
     },
