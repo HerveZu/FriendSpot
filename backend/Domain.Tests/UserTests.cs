@@ -5,7 +5,6 @@ using NSubstitute;
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(User))]
 public sealed class UserTests
 {
     [Test]

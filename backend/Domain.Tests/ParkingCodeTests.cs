@@ -3,7 +3,6 @@ using Domain.Parkings;
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(ParkingCode))]
 public sealed class ParkingCodeTests
 {
     [Test]

@@ -4,7 +4,6 @@ using Domain.Tests.TestBench;
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(Parking))]
 public sealed class ParkingTests
 {
     [Test]
