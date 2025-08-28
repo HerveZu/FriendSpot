@@ -46,9 +46,11 @@
         "emailNotVerified": "Please verify your email address.\nCheck your spam folder if you can't find our message.",
         "emailRequestPending": "Your email request is being processed."
       },
-      "confirmPrivacyPolicy": {
-        "part1": "I confirm that I have read and accept",
-        "part2": "our privacy policy"
+      "confirmDocuments": {
+        "confirm": "I confirm that I have read and accept",
+        "privacyPolicy": "our privacy policy",
+        "and": "and",
+        "termsOfUse": "our terms of use"
       }
     }
   },

@@ -11,6 +11,7 @@ import {
 } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Platform,
   Pressable,
   Share,
@@ -67,6 +68,7 @@ import { useGetPlanInfo } from '~/components/FriendspotPlus';
 import { Form } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
+import { urls } from '~/lib/urls';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -565,11 +567,11 @@ function SupportBottomSheet(props: {
         </View>
 
         <View className={'gap-2'}>
-          <Button variant={'plain'}>
+          <Button variant={'plain'} onPress={() => Linking.openURL(urls.privacyPolicy)}>
             <ThemedIcon name={'user-shield'} component={FontAwesome6} />
             <Text>{t('user.profile.support.privacyPolicy')}</Text>
           </Button>
-          <Button variant={'plain'}>
+          <Button variant={'plain'} onPress={() => Linking.openURL(urls.termsOfUse)}>
             <ThemedIcon name={'file-contract'} component={FontAwesome6} />
             <Text>{t('user.profile.support.termsOfUse')}</Text>
           </Button>

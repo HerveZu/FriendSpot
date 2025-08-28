@@ -46,9 +46,11 @@
         "emailNotVerified": "Merci de vérifier ton adresse e-mail.\nPense à consulter tes spams si tu ne trouves pas notre message.",
         "emailRequestPending": "Ta demande d'e-mail est en cours de traitement."
       },
-      "confirmPrivacyPolicy": {
-        "part1": "Je confirme avoir lu et accepter",
-        "part2": "notre politique de confidentialité"
+      "confirmDocuments": {
+        "confirm": "Je confirme avoir lu et accepter",
+        "privacyPolicy": "notre politique de confidentialité",
+        "and": "et",
+        "termsOfUse": "nos conditions d'utilisation"
       }
     }
   },
