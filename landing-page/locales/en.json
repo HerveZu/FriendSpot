@@ -1,72 +1,46 @@
 {
-  "header": {
-    "logo": "FriendSpot",
-    "nav": {
-      "howItWorks": "How it works",
-      "pricing": "Pricing",
-      "contact": "Contact"
-    }
-  },
-  "hero": {
-    "title": {
-      "part1": "Neighbor-to-neighbor parking",
-      "part2": "made simple"
-    },
-    "subtitle": {
-      "line1": "The first app for sharing parking spots between neighbors.",
-      "line2": "1 hour shared = 1 point earned"
-    },
-    "features": {
-      "communityDriven": "Community-driven",
-      "timeBasedSharing": "Time-based sharing",
-      "completelyFree": "No hidden fees"
-    },
-    "download": {
-      "iOS": "Download for iOS",
-      "android": "Download for Android"
-    }
-  },
   "pricing": {
-    "title": "Simple, Fair Pricing",
-    "subtitle": "Choose the plan that fits your parking needs. Start with a basic plan and upgrade when you're ready for more features.",
+    "title": "Simple and Fair Pricing",
+    "subtitle": "Choose the plan that fits your parking needs. Start with a basic plan and upgrade when you're ready.",
     "mostPopular": "Most Popular",
-    "footer": "All plans include our core parking sharing features. No hidden fees, cancel anytime.",
+    "footer": "All plans include our core parking-sharing features. No hidden fees, cancel anytime.",
     "plans": {
       "free": {
         "name": "Basic Plan",
         "price": "€0",
-        "period": "forever",
-        "description": "Perfect for discovering neighbor-to-neighbor parking sharing.",
+        "period": "for life",
+        "description": "Ideal for discovering neighborhood parking sharing.",
         "features": [
-          "Unlimited parking group creation up to 10 members",
-          "24-hour time limit per reservation",
+          "Reserve a spot up to 3 days in advance",
+          "View and accept reservation requests",
+          "Parking groups with up to 10 members",
           "Community support"
         ],
-        "buttonText": "Available soon"
+        "buttonText": "Let's go!"
       },
       "premium": {
         "name": "Premium",
-        "price": "€1.99",
+        "price": "€2.99",
         "period": "/month",
-        "description": "Unlock unlimited parking potential for the best experience.",
+        "description": "Unlock all booking features for the best experience.",
         "features": [
-          "Everything in the Basic Plan",
-          "Unlimited time per reservation",
-          "Parking sharing requests"
+          "Everything in the Basic plan",
+          "Spot reservations in advance without limit",
+          "Send booking requests",
+          "Parking groups with up to 15 members"
         ],
-        "buttonText": "Available soon"
+        "buttonText": "Go Premium"
       },
       "neighbourhood": {
-        "name": "Neighbourhood",
-        "price": "€2.99",
-        "period": "/month per user",
-        "description": "For larger neighborhoods and communities.",
+        "name": "Community",
+        "price": "€39.99",
+        "period": "/month",
+        "description": "Ideal for large neighborhoods and communities.",
         "features": [
-          "Up to 50 group members",
-          "Advanced group management",
-          "Dedicated support"
+          "Everything in the Premium plan",
+          "1 private community group with up to 50 members"
         ],
-        "buttonText": "Available soon"
+        "buttonText": "Go Community"
       }
     }
   },
@@ -75,28 +49,233 @@
     "subtitle": "Simple, fair, and accessible. Join the parking revolution in 4 easy steps.",
     "steps": {
       "createOrJoin": {
-        "title": "Create or Join Groups",
-        "description": "Start by creating a parking group with your neighbors. Or join existing groups in your area."
+        "title": "Create or Join Group",
+        "description": "Start by creating a parking group with your neighbors. Or join existing group in your area."
       },
       "shareSpot": {
         "title": "Share Your Spot",
-        "description": "When you're not using your parking spot, make it available to your group members."
+        "description": "When you're not using your parking spot, make it available to group members."
       },
       "earnCredits": {
         "title": "Earn Points",
-        "description": "For every hour you share your spot, you earn 1 point to use elsewhere."
+        "description": "For every hour you share your spot, you earn 1 parking point to use elsewhere."
       },
       "useSpots": {
         "title": "Use Others' Spots",
-        "description": "Spend your earned points to park in other members' spots when you need them."
+        "description": "Use your earned points to park in other members' spots when you need them."
       }
+    }
+  },
+  "hero": {
+    "title": {
+      "part1": "Neighbor-to-Neighbor Parking",
+      "part2": "Simplified"
+    },
+    "subtitle": {
+      "line1": "The first neighbor-to-neighbor parking exchange app.",
+      "line2": "1 hour shared = 1 point earned"
+    },
+    "features": {
+      "communityDriven": "Community-Driven",
+      "timeBasedSharing": "Time-Based Sharing",
+      "completelyFree": "No Hidden Fees"
+    },
+    "download": {
+      "iOS": "Download for iOS",
+      "android": "Download for Android"
+    }
+  },
+  "header": {
+    "logo": "FriendSpot",
+    "nav": {
+      "howItWorks": "How It Works",
+      "pricing": "Pricing",
+      "contact": "Contact",
+      "home": "Home"
     }
   },
   "footer": {
     "logo": "FriendSpot",
-    "description": "Revolutionizing urban parking through community-driven sharing. Join thousands of users making parking stress-free and social.",
+    "description": "Revolutionizing urban parking through community sharing. Join thousands of users for stress-free and friendly parking.",
     "copyright": "Copyright {{year}} - FriendSpot. All rights reserved.",
     "contact": "Contact Us",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated: {{date}}",
+    "intro": "This privacy policy describes our policies and procedures on the collection, use, and disclosure of your information when you use the service.",
+    "interpretation": {
+      "title": "Interpretation and Definitions",
+      "subtitle": "Interpretation",
+      "description": "Words with capitalized initials have meanings defined under the following conditions."
+    },
+    "definitions": {
+      "title": "Definitions",
+      "description": "For the purposes of this privacy policy:",
+      "account": {
+        "title": "Account",
+        "description": "A unique account created for you to access our service or parts of it."
+      },
+      "affiliate": {
+        "title": "Affiliate",
+        "description": "An entity that controls, is controlled by, or is under common control with a party."
+      },
+      "application": {
+        "title": "Application",
+        "description": "Refers to FriendSpot, the software program provided by the company."
+      },
+      "company": {
+        "title": "Company",
+        "description": "Refers to FriendSpot."
+      },
+      "cookies": {
+        "title": "Cookies",
+        "description": "Small files placed on your device by a website."
+      },
+      "country": {
+        "title": "Country",
+        "description": "Refers to: France"
+      },
+      "device": {
+        "title": "Device",
+        "description": "Any device that can access the service, such as a computer or mobile phone."
+      },
+      "personalData": {
+        "title": "Personal Data",
+        "description": "Any information that relates to an identified or identifiable individual."
+      },
+      "service": {
+        "title": "Service",
+        "description": "Refers to the application or website or both."
+      },
+      "serviceProvider": {
+        "title": "Service Provider",
+        "description": "Any natural or legal person who processes data on behalf of the company."
+      },
+      "usageData": {
+        "title": "Usage Data",
+        "description": "Data collected automatically, generated by the use of the service."
+      },
+      "website": {
+        "title": "Website",
+        "description": "Accessible from https://friendspot.app/"
+      },
+      "you": {
+        "title": "You",
+        "description": "The individual accessing or using the service."
+      }
+    },
+    "dataCollection": {
+      "title": "Collection and Use of Your Personal Data",
+      "types": {
+        "title": "Types of Data Collected"
+      },
+      "personalData": {
+        "title": "Personal Data",
+        "description": "We may ask you to provide certain personally identifiable information.",
+        "email": "Email Address",
+        "usageData": "Usage Data"
+      },
+      "usageData": {
+        "title": "Usage Data",
+        "description": "Collected automatically when using the service."
+      },
+      "tracking": {
+        "title": "Tracking Technologies",
+        "description": "We use cookies and similar technologies to track activity on our service.",
+        "cookies": {
+          "title": "Cookies or Browser Cookies",
+          "description": "Small files placed on your device."
+        },
+        "webBeacons": {
+          "title": "Web Beacons",
+          "description": "Small electronic files used to collect statistics."
+        }
+      }
+    },
+    "usage": {
+      "title": "Use of Your Personal Data",
+      "description": "The company may use personal data for the following purposes:",
+      "provideService": "To provide and maintain our service.",
+      "manageAccount": "To manage your account.",
+      "contact": "To contact you via email, phone, or notifications.",
+      "businessTransfers": "For business transfers such as mergers or acquisitions.",
+      "otherPurposes": "For other purposes like data analysis or marketing."
+    },
+    "retention": {
+      "title": "Retention of Your Personal Data",
+      "description": "The company retains personal data as long as necessary."
+    },
+    "security": {
+      "title": "Security of Your Personal Data",
+      "description": "We use commercially acceptable measures to protect your data."
+    },
+    "children": {
+      "title": "Children's Privacy",
+      "description": "The service is not intended for children under 13 years old."
+    },
+    "links": {
+      "title": "Links to Other Websites",
+      "description": "We are not responsible for the privacy practices of third-party sites."
+    },
+    "changes": {
+      "title": "Changes to This Privacy Policy",
+      "description": "We may update this privacy policy from time to time."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "email": "By email:"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "sections": {
+      "object": {
+        "title": "1. Object",
+        "content": "These Terms of Service ('Terms') govern access to and use of the FriendSpot mobile application and website https://friendspot.app ('Application'). By downloading, installing, or using FriendSpot, the user accepts these Terms without reservation."
+      },
+      "accountCreation": {
+        "title": "2. Account Creation",
+        "content": "Using certain features requires creating a user account. The user agrees to provide accurate information and maintain the confidentiality of their credentials. The user is solely responsible for all activities conducted through their account."
+      },
+      "userContent": {
+        "title": "3. User Content",
+        "content": "Users may post content (text, images, etc.) via the Application. The user retains ownership of their content but grants FriendSpot a non-exclusive, free, worldwide license to host, display, and distribute it as part of the service. Users must not post any illegal, defamatory, discriminatory, or rights-infringing content."
+      },
+      "subscriptions": {
+        "title": "4. Subscriptions and Payments",
+        "content": "Certain features are accessible via subscription through Google Play and Apple App Store. Financial terms (pricing, renewal, cancellation) are defined by each store and apply automatically. Refunds are managed solely by the stores, not directly by FriendSpot."
+      },
+      "intellectualProperty": {
+        "title": "5. Intellectual Property",
+        "content": "All content, design, logo, and trademark of FriendSpot are protected by intellectual property laws. Any reproduction or use without authorization is prohibited."
+      },
+      "feedback": {
+        "title": "6. Suggestions and Feedback",
+        "content": "Any suggestions, ideas, or feedback submitted to FriendSpot may be freely used without obligation of compensation."
+      },
+      "liability": {
+        "title": "7. Limitation of Liability",
+        "content": "FriendSpot strives to ensure the proper functioning of the Application but does not guarantee the absence of errors, interruptions, or data loss. FriendSpot is not responsible for content posted by users. Points are not currency: they cannot be sold, exchanged for money, or refunded. FriendSpot is not responsible if a spot is not actually available or if a user fails to honor their commitment. FriendSpot does not guarantee the permanent availability of the service (maintenance, bugs, etc.)."
+      },
+      "abuseReporting": {
+        "title": "8. Reporting Abuse and Violations",
+        "content": "In case of copyright infringement or illegal content, users can contact: support@friendspot.com"
+      },
+      "userResponsibilities": {
+        "title": "9. User Responsibilities",
+        "content": "Users must use the application in compliance with local laws (e.g., condominium rules)."
+      },
+      "termination": {
+        "title": "10. Termination",
+        "content": "FriendSpot reserves the right to suspend or delete any user account in case of non-compliance with these Terms."
+      },
+      "applicableLaw": {
+        "title": "11. Applicable Law",
+        "content": "These Terms are governed by French law. Any disputes will be brought before the competent courts in France."
+      }
+    }
   }
 }

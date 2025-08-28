@@ -15,21 +15,19 @@ function Link({ href, children }: { href: string; children: ReactNode }) {
 
 export const Footer = () => {
   const { t } = useTranslation();
+  const isHomePage = location.pathname === "/";
 
   return (
     <footer id="contact" className="bg-slate-900">
       <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="flex justify-center md:justify-start items-center space-x-2 mb-4">
+        {isHomePage && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Logo />
-            <span className="text-xl font-bold text-slate-50">
-              {t("footer.logo")}
-            </span>
+            <p className="text-slate-300 mb-6 leading-relaxed text-center md:text-left">
+              {t("footer.description")}
+            </p>
           </div>
-          <p className="text-slate-300 mb-6 leading-relaxed text-center md:text-left">
-            {t("footer.description")}
-          </p>
-        </div>
+        )}
 
         <div className="mt-12 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between">
@@ -40,10 +38,8 @@ export const Footer = () => {
               <Link href={"mailto:contact@friendspot.app"}>
                 {t("footer.contact")}
               </Link>
-
-              <Link href="https://www.privacypolicies.com/live/8c803710-acfd-49a7-9468-ff2fcd870ba3">
-                {t("footer.privacyPolicy")}
-              </Link>
+              <Link href="/terms">{t("footer.terms")}</Link>
+              <Link href="/privacy">{t("footer.privacyPolicy")}</Link>
             </div>
           </div>
         </div>

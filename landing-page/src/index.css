@@ -49,6 +49,7 @@
 
 html {
     scroll-behavior: smooth;
+    background-color: #0f172a;
 }
 
 /* Custom scrollbar */
