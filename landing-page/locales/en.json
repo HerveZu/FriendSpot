@@ -11,8 +11,8 @@
         "period": "for life",
         "description": "Ideal for discovering neighborhood parking sharing.",
         "features": [
-          "Book a spot up to 3 days in advance",
-          "View and accept booking requests",
+          "Reserve a spot up to 3 days in advance",
+          "View and accept reservation requests",
           "Parking groups with up to 10 members",
           "Community support"
         ],
@@ -25,7 +25,7 @@
         "description": "Unlock all booking features for the best experience.",
         "features": [
           "Everything in the Basic plan",
-          "Unlimited advanced spot reservations",
+          "Spot reservations in advance without limit",
           "Send booking requests",
           "Parking groups with up to 15 members"
         ],
