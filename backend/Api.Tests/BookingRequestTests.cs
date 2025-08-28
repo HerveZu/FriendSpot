@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Api.BookingRequests;
 using Api.BookingRequests.OnBookingRequested;
@@ -32,6 +33,31 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
                             Plans.Premium,
                             null)
                     ])));
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task RequestBooking_ShouldFail_WhenNotPremium(CancellationToken cancellationToken)
+    {
+        UserFeatures.GetEnabled(Arg.Any<CancellationToken>())
+            .ReturnsForAnyArgs(
+                Task.FromResult(
+                    new EnabledFeatures([])));
+
+        using var resident1 = UserClient(Seed.Users.Resident1);
+
+        var bookingRequestResult = await resident1.PostAsync(
+            "/parking/requests",
+            JsonContent.Create(
+                new RequestBookingRequest
+                {
+                    From = DateTimeOffset.Now.AddHours(1),
+                    To = DateTimeOffset.Now.AddHours(6),
+                    Bonus = 50
+                }),
+            cancellationToken);
+
+        await bookingRequestResult.AssertIs(HttpStatusCode.BadRequest, cancellationToken);
     }
 
     [Test]
