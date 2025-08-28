@@ -58,11 +58,19 @@ import { LogoCard } from '~/components/Logo';
 import { useCancelBookingRequest } from '~/endpoints/requestBooking/cancel-spot-booking-request';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 import { DynamicBottomSheet } from '~/components/DynamicBottomSheet';
-import { MyBookingRequestResponse, useGetMyBookingRequests, } from '~/endpoints/requestBooking/get-my-parking-requests';
+import {
+  MyBookingRequestResponse,
+  useGetMyBookingRequests,
+} from '~/endpoints/requestBooking/get-my-parking-requests';
 import { PremiumButton } from '~/components/FriendspotPlus';
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
-export default function SearchSpotScreen() {
+export default function SearchSpot() {
   const { t } = useTranslation();
   const { userProfile, features } = useCurrentUser();
 

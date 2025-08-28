@@ -17,7 +17,7 @@ export default function MainLayout() {
     <>
       {/*<AskUserToRate>*/}
       <Tabs
-        initialRouteName="my-spot"
+        initialRouteName="search-spot"
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,

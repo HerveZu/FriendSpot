@@ -57,7 +57,7 @@ import { Rating } from '~/components/Rating';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 import { DynamicBottomSheet } from '~/components/DynamicBottomSheet';
 
-export default function MySpotScreen() {
+export default function MySpot() {
   const { t } = useTranslation();
   const { userProfile, features } = useCurrentUser();
 
