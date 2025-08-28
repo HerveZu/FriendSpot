@@ -89,7 +89,8 @@
     "nav": {
       "howItWorks": "Comment ça marche",
       "pricing": "Tarifs",
-      "contact": "Contact"
+      "contact": "Contact",
+      "home": "Accueil"
     }
   },
   "footer": {
@@ -98,7 +99,7 @@
     "copyright": "Copyright {{year}} - FriendSpot. Tous droits réservés.",
     "contact": "Nous contacter",
     "privacyPolicy": "Politique de confidentialité",
-    "terms": "Terms de Service"
+    "terms": "Terms de service"
   },
   "privacy": {
     "title": "Politique de confidentialité",

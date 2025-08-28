@@ -72,9 +72,7 @@ export const Header = () => {
                 </a>
               ))
             ) : (
-              <button>
-                <a href={"/"}>Home</a>
-              </button>
+              <a href={"/"}>{t("header.nav.home")}</a>
             )}
             <button
               onClick={toggleLanguage}
@@ -102,21 +100,20 @@ export const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-slate-800">
             <nav className="flex flex-col space-y-4 pt-4">
-              {isHomePage
-                ? navItems.map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      className="text-slate-300 hover:text-primary transition-colors duration-200"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.label}
-                    </a>
-                  ))
-                : ""}
-              <button>
-                <a href={"/"}>Home</a>
-              </button>
+              {isHomePage ? (
+                navItems.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="text-slate-300 hover:text-primary transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </a>
+                ))
+              ) : (
+                <a href={"/"}>{t("header.nav.home")}</a>
+              )}
               <button
                 onClick={toggleLanguage}
                 className="flex items-center space-x-2 text-slate-300 hover:text-primary transition-colors duration-200"

@@ -4,7 +4,8 @@
     "nav": {
       "howItWorks": "How it works",
       "pricing": "Pricing",
-      "contact": "Contact"
+      "contact": "Contact",
+      "home": "Home"
     }
   },
   "hero": {
@@ -98,7 +99,7 @@
     "copyright": "Copyright {{year}} - FriendSpot. All rights reserved.",
     "contact": "Contact Us",
     "privacyPolicy": "Privacy Policy",
-    "terms": "Terms of Service"
+    "terms": "Terms of service"
   },
   "privacy": {
     "title": "Privacy Policy",
