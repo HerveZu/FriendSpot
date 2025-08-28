@@ -2,6 +2,7 @@ import { ArrowDown, Clock, Gift, Users } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAndroid, faApple } from "@fortawesome/free-brands-svg-icons";
 import { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 type DeviceOs = "Android" | "iOS" | "unknown";
 
@@ -41,6 +42,8 @@ function DownloadButton(props: {
 export const HERO_ID = "hero";
 
 export const Hero = () => {
+  const { t } = useTranslation();
+
   return (
     <section
       id={HERO_ID}
@@ -56,38 +59,35 @@ export const Hero = () => {
 
       <div className="container mx-auto px-6 py-20 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold text-slate-50 mb-12 leading-tight w-full">
-            Share Parking,
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-slate-50 mb-12 leading-tight w-full">
+            {t("hero.title.part1")}
             <span className="ml-3 bg-gradient-to-r from-primary/80 to-secondary/80 bg-clip-text text-transparent">
-              Save Money
+              {t("hero.title.part2")}
             </span>
           </h1>
 
-          <p className="text-lg md:text-2xl text-slate-300 mb-8 leading-relaxed">
-            Create parking groups with friends and share spots for free.
+          <p className="text-base sm:text-lg md:text-2xl text-slate-300 mb-8 leading-relaxed">
+            {t("hero.subtitle.line1")}
             <br />
             <strong className="text-primary/80">
-              1 hour shared = 1 hour earned
+              {t("hero.subtitle.line2")}
             </strong>
           </p>
 
           <div className="flex flex-wrap justify-center gap-6 mb-12">
             <div className="flex items-center space-x-2 text-slate-300">
               <Users className="w-5 h-5 text-primary/80" />
-
-              <span>Community-driven</span>
+              <span>{t("hero.features.communityDriven")}</span>
             </div>
 
             <div className="flex items-center space-x-2 text-slate-300">
               <Clock className="w-5 h-5 text-secondary/80" />
-
-              <span>Time-based sharing</span>
+              <span>{t("hero.features.timeBasedSharing")}</span>
             </div>
 
             <div className="flex items-center space-x-2 text-slate-300">
               <Gift className="w-5 h-5 text-violet-400" />
-
-              <span>Completely free</span>
+              <span>{t("hero.features.completelyFree")}</span>
             </div>
           </div>
 
@@ -106,7 +106,7 @@ export const Hero = () => {
                     className={"-mt-1"}
                   />
                 }
-                text={"Download for iOS"}
+                text={t("hero.download.iOS")}
               />
             )}
             {(["unknown", "Android"] as DeviceOs[]).includes(
@@ -123,7 +123,7 @@ export const Hero = () => {
                     className={"mr-1"}
                   />
                 }
-                text={"Download for Android"}
+                text={t("hero.download.android")}
               />
             )}
           </div>

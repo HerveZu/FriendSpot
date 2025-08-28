@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, FlagIcon } from "lucide-react";
 import { Logo } from "./Logo.tsx";
 import { HERO_ID } from "./Hero.tsx";
+import { useTranslation } from "react-i18next";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastScrollPosition, setLastScrollPosition] = useState(0);
   const [lastScroll, setLastScroll] = useState<"top" | "bottom">("top");
+  const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    if (!i18n.language) {
+      i18n.changeLanguage("fr");
+    }
+  }, [i18n]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,10 +30,15 @@ export const Header = () => {
   }, []);
 
   const navItems = [
-    { label: "How it works", href: "#how-it-works" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Contact", href: "#contact" },
+    { label: t("header.nav.howItWorks"), href: "#how-it-works" },
+    { label: t("header.nav.pricing"), href: "#pricing" },
+    { label: t("header.nav.contact"), href: "#contact" },
   ];
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === "en" ? "fr" : "en";
+    i18n.changeLanguage(newLang);
+  };
 
   return (
     <header
@@ -42,7 +55,7 @@ export const Header = () => {
             <div className="flex items-center space-x-2">
               <Logo />
               <span className="text-xl font-bold text-slate-50">
-                FriendSpot
+                {t("header.logo")}
               </span>
             </div>
           </a>
@@ -58,6 +71,13 @@ export const Header = () => {
                 {item.label}
               </a>
             ))}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center space-x-2 text-slate-300 hover:text-primary transition-colors duration-200"
+            >
+              <FlagIcon className="w-5 h-5" />
+              <span>{i18n.language === "en" ? "EN" : "FR"}</span>
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -87,6 +107,13 @@ export const Header = () => {
                   {item.label}
                 </a>
               ))}
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center justify-center space-x-2 text-slate-300 hover:text-primary transition-colors duration-200"
+              >
+                <FlagIcon className="w-5 h-5" />
+                <span>{i18n.language === "en" ? "EN" : "FR"}</span>
+              </button>
             </nav>
           </div>
         )}

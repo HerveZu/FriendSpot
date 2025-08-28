@@ -1,0 +1,102 @@
+{
+  "pricing": {
+    "title": "Tarifs simples et équitables",
+    "subtitle": "Choisissez le plan qui correspond à vos besoins en stationnement. Commencez avec un plan de base et passez à un plan supérieur quand vous êtes prêt.",
+    "mostPopular": "Le plus populaire",
+    "footer": "Tous les plans incluent nos fonctionnalités principales de partage de stationnement. Pas de frais cachés, annulez à tout moment.",
+    "plans": {
+      "free": {
+        "name": "Plan de base",
+        "price": "0 €",
+        "period": "à vie",
+        "description": "Idéal pour découvrir le partage de stationnement entre voisins.",
+        "features": [
+          "Création de groupes de stationnement illimitée jusqu'à 10 membres",
+          "Limite de 24 heures par réservation",
+          "Support communautaire"
+        ],
+        "buttonText": "Disponible prochainement"
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "1,99 €",
+        "period": "/mois",
+        "description": "Débloquez un potentiel de stationnement illimité pour la meilleure expérience.",
+        "features": [
+          "Tout dans le plan de base",
+          "Durée illimitée par réservation",
+          "Demandes de partage de stationnement"
+        ],
+        "buttonText": "Disponible prochainement"
+      },
+      "neighbourhood": {
+        "name": "Quartier",
+        "price": "2,99 €",
+        "period": "/mois par utilisateur",
+        "description": "Pour les grands quartiers et communautés.",
+        "features": [
+          "Jusqu'à 50 membres par groupe",
+          "Gestion avancée des groupes",
+          "Support dédié"
+        ],
+        "buttonText": "Disponible prochainement"
+      }
+    }
+  },
+  "howItWorks": {
+    "title": "Comment ça marche",
+    "subtitle": "Simple, équitable et accessible. Rejoignez la révolution du stationnement en 4 étapes faciles.",
+    "steps": {
+      "createOrJoin": {
+        "title": "Créer ou rejoindre des groupes",
+        "description": "Commencez par créer un groupe de stationnement avec vos voisins. Ou rejoignez des groupes existants dans votre région."
+      },
+      "shareSpot": {
+        "title": "Partagez votre place",
+        "description": "Lorsque vous n'utilisez pas votre place de stationnement, mettez-la à disposition des membres de votre groupe."
+      },
+      "earnCredits": {
+        "title": "Gagnez des points",
+        "description": "Pour chaque heure où vous partagez votre place, vous gagnez 1 point de stationnement à utiliser ailleurs."
+      },
+      "useSpots": {
+        "title": "Utilisez les places des autres",
+        "description": "Utilisez vos points gagnés pour vous garer dans les places des autres membres lorsque vous en avez besoin."
+      }
+    }
+  },
+  "hero": {
+    "title": {
+      "part1": "Le parking entre voisins",
+      "part2": "simplifié"
+    },
+    "subtitle": {
+      "line1": "La première application d'échange de places de parking entre voisins.",
+      "line2": "1 heure partagée = 1 point gagné"
+    },
+    "features": {
+      "communityDriven": "Basé sur la communauté",
+      "timeBasedSharing": "Partage basé sur le temps",
+      "completelyFree": "Sans frais cachés"
+    },
+    "download": {
+      "iOS": "Télécharger pour iOS",
+      "android": "Télécharger pour Android"
+    }
+  },
+  "header": {
+    "logo": "FriendSpot",
+    "nav": {
+      "howItWorks": "Comment ça marche",
+      "pricing": "Tarifs",
+      "contact": "Contact"
+    }
+  },
+  "footer": {
+    "logo": "FriendSpot",
+    "description": "Révolutionner le stationnement urbain grâce au partage communautaire. Rejoignez des milliers d'utilisateurs pour un stationnement sans stress et convivial.",
+    "copyright": "Copyright {{year}} - FriendSpot. Tous droits réservés.",
+    "contact": "Nous contacter",
+    "privacyPolicy": "Politique de confidentialité"
+  }
+}
