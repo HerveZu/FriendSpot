@@ -29,12 +29,12 @@ export function Rating({
       : rating >= baselineBoundaries.max
         ? {
             color: colors.primary,
-            icon: 'angles-up',
+            icon: 'thumbs-up',
             i18nKey: 'user.profile.reputation.good',
           }
         : {
             color: colors.destructive,
-            icon: 'angles-down',
+            icon: 'thumbs-down',
             i18nKey: 'user.profile.reputation.bad',
           };
 

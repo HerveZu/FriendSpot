@@ -62,7 +62,7 @@ export default function MainLayout() {
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon
-                name="crown"
+                name="gem"
                 component={FontAwesome6}
                 size={24}
                 focused={focused}
