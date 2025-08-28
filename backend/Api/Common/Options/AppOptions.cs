@@ -32,10 +32,23 @@ internal sealed record AppOptions : IOptions
     public required string AppleConnectApiPrivateKey { get; init; }
 
     [Required]
-    [ConfigurationKeyName("ANDROID_SHA256_CERT_FINGERPRINT")]
-    public required string AndroidSha256CertFingerprint { get; init; }
+    [ConfigurationKeyName("GOOGLE_PLAY_API_PRIVATE_KEY")]
+    public required string GooglePlayApiPrivateKey { get; init; }
+
+    [Required]
+    [ConfigurationKeyName("GOOGLE_PLAY_API_KEY_ID")]
+    public required string GooglePlayApiKeyId { get; init; }
+
+    [Required]
+    [ConfigurationKeyName("GOOGLE_PLAY_API_CLIENT_EMAIL")]
+    public required string GooglePlayApiClientEmail { get; init; }
+
+    [Required]
+    [ConfigurationKeyName("GOOGLE_PLAY_SHA256_CERT_FINGERPRINT")]
+    public required string GooglePlaySha256CertFingerprint { get; init; }
 
     public string[] BundleIds => BundleIdRaw.Split(",");
+    public string PrimaryBundleId => BundleIds.First();
 
     public static string Section => "APP";
 }

@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using Api.Common.Options;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -19,13 +20,14 @@ internal interface IAppStoreServerApi
         CancellationToken cancellationToken = default);
 }
 
-internal sealed class AppStoreTransactionInfoResponse
+[PublicAPI]
+internal sealed record AppStoreTransactionInfoResponse
 {
     public required string SignedTransactionInfo { get; init; }
 }
 
 // see: https://github.com/dragouf/AppStoreServerApi/blob/master/AppStoreServerApi/AppleAppstoreClient.cs
-internal sealed class AppleJwtMessageHandler(IOptions<AppOptions> options) : DelegatingHandler
+internal sealed class AppleConnectAuthHandler(IOptions<AppOptions> options) : DelegatingHandler
 {
     private (string token, DateTime expiry)? _token;
 
@@ -45,7 +47,7 @@ internal sealed class AppleJwtMessageHandler(IOptions<AppOptions> options) : Del
         var now = DateTime.Now;
         var expiry = now.AddHours(1);
 
-        var eCDsaSecurityKey = GetEcdsaSecuritKey();
+        var eCDsaSecurityKey = GetEcdsaSecurityKey();
 
         var handler = new JsonWebTokenHandler();
         var jwt = handler.CreateToken(
@@ -58,7 +60,7 @@ internal sealed class AppleJwtMessageHandler(IOptions<AppOptions> options) : Del
                 IssuedAt = now,
                 Claims = new Dictionary<string, object>
                 {
-                    { "bid", options.Value.BundleIds[0] },
+                    { "bid", options.Value.PrimaryBundleId },
                     { "nonce", Guid.NewGuid().ToString("N") }
                 },
                 SigningCredentials = new SigningCredentials(eCDsaSecurityKey, SecurityAlgorithms.EcdsaSha256)
@@ -90,7 +92,7 @@ internal sealed class AppleJwtMessageHandler(IOptions<AppOptions> options) : Del
             });
     }
 
-    private ECDsaSecurityKey GetEcdsaSecuritKey()
+    private ECDsaSecurityKey GetEcdsaSecurityKey()
     {
         var signatureAlgorithm = GetEllipticCurveAlgorithm();
         var eCDsaSecurityKey = new ECDsaSecurityKey(signatureAlgorithm)

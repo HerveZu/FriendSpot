@@ -2,11 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using Api.Common;
 using Api.Common.Infrastructure;
+using Api.Common.Options;
 using Domain.UserProducts;
 using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Api.Me;
 
@@ -15,10 +17,12 @@ public sealed record ActivateProductRequest
 {
     public enum PurchaseProvider
     {
-        AppStore
+        AppStore,
+        PlayStore
     }
 
     public required string TransactionId { get; init; }
+    public required string PurchaseToken { get; init; }
     public required PurchaseProvider Provider { get; init; }
 }
 
@@ -27,6 +31,7 @@ internal sealed class ActivateProductValidator : Validator<ActivateProductReques
     public ActivateProductValidator()
     {
         RuleFor(x => x.TransactionId).NotEmpty();
+        RuleFor(x => x.PurchaseToken).NotEmpty();
     }
 }
 
@@ -35,7 +40,9 @@ internal sealed record ProductInfo(string ProductId, DateTimeOffset ExpirationDa
 internal sealed class ActivateProduct(
     AppDbContext dbContext,
     ILogger<ActivateProduct> logger,
-    IAppStoreServerApi appStoreServerApi
+    IAppStoreServerApi appStoreServerApi,
+    IGooglePlayDeveloperApi googlePlayDeveloperApi,
+    IOptions<AppOptions> appOptions
 ) : Endpoint<ActivateProductRequest>
 {
     public override void Configure()
@@ -60,11 +67,27 @@ internal sealed class ActivateProduct(
             req.TransactionId,
             req.Provider);
 
-        var productInfo = req.Provider switch
+        IStoreProductValidator? validator = req.Provider switch
         {
-            ActivateProductRequest.PurchaseProvider.AppStore => await ValidateApple(req, ct),
+            ActivateProductRequest.PurchaseProvider.AppStore => new AppStoreProductValidator(appStoreServerApi),
+            ActivateProductRequest.PurchaseProvider.PlayStore => new PlayStoreProductValidator(
+                googlePlayDeveloperApi,
+                appOptions.Value),
             _ => null
         };
+
+        if (validator is null)
+        {
+            ThrowError($"The provider {req.Provider} is not supported");
+            return;
+        }
+
+        logger.LogDebug(
+            "Validating product using validator {Validator} from provider {Provider}",
+            validator.GetType().Name,
+            req.Provider);
+
+        var productInfo = await validator.ValidateAppStore(req, ct);
 
         if (productInfo is null)
         {
@@ -83,8 +106,16 @@ internal sealed class ActivateProduct(
 
         await dbContext.SaveChangesAsync(ct);
     }
+}
 
-    private async Task<ProductInfo?> ValidateApple(ActivateProductRequest req, CancellationToken cancellationToken)
+internal interface IStoreProductValidator
+{
+    Task<ProductInfo?> ValidateAppStore(ActivateProductRequest req, CancellationToken cancellationToken);
+}
+
+internal sealed class AppStoreProductValidator(IAppStoreServerApi appStoreServerApi) : IStoreProductValidator
+{
+    public async Task<ProductInfo?> ValidateAppStore(ActivateProductRequest req, CancellationToken cancellationToken)
     {
         var transaction = await appStoreServerApi.GetTransactionInfo(req.TransactionId, cancellationToken);
         await transaction.EnsureSuccessfulAsync();
@@ -100,5 +131,37 @@ internal sealed class ActivateProduct(
         return new ProductInfo(
             claims["productId"],
             DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(claims["expiresDate"])));
+    }
+}
+
+internal sealed class PlayStoreProductValidator(IGooglePlayDeveloperApi playDeveloperApi, AppOptions options)
+    : IStoreProductValidator
+{
+    public async Task<ProductInfo?> ValidateAppStore(ActivateProductRequest req, CancellationToken cancellationToken)
+    {
+        var subscriptionStatus = await playDeveloperApi.GetSubscriptionStatusAsync(
+            options.PrimaryBundleId,
+            req.TransactionId,
+            req.PurchaseToken,
+            cancellationToken);
+
+        await subscriptionStatus.EnsureSuccessfulAsync();
+
+        if (subscriptionStatus.Content is null)
+        {
+            return null;
+        }
+
+        var isSandboxSubscription =
+            subscriptionStatus.Content.PurchaseType is SubscriptionPurchase.PurchaseTypeResponse.Test;
+
+        if (!options.SandboxPurchases && isSandboxSubscription)
+        {
+            return null;
+        }
+
+        return new ProductInfo(
+            subscriptionStatus.Content.ProductId,
+            DateTimeOffset.FromUnixTimeMilliseconds(subscriptionStatus.Content.ExpiryTimeMillis));
     }
 }

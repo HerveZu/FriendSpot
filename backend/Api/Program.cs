@@ -60,7 +60,12 @@ builder.Services
     .ConfigureHttpJsonOptions(options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Services
-    .AddScoped<AppleJwtMessageHandler>()
+    .AddSingleton<GooglePlayAuthHandler>()
+    .AddRefitClient<IGooglePlayDeveloperApi>()
+    .AddHttpMessageHandler<GooglePlayAuthHandler>();
+
+builder.Services
+    .AddSingleton<AppleConnectAuthHandler>()
     .AddRefitClient<IAppStoreServerApi>()
     .ConfigureHttpClient(c =>
     {
@@ -70,7 +75,7 @@ builder.Services
                 ? "https://api.storekit-sandbox.itunes.apple.com/"
                 : "https://api.storekit.itunes.apple.com/");
     })
-    .AddHttpMessageHandler<AppleJwtMessageHandler>();
+    .AddHttpMessageHandler<AppleConnectAuthHandler>();
 
 builder.Services
     .AddLocalization(options => options.ResourcesPath = "Resources");

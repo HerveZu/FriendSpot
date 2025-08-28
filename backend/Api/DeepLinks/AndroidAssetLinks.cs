@@ -48,7 +48,7 @@ internal sealed class AndroidAssetLinks(IOptions<AppOptions> options)
                     {
                         Namespace = "android_app",
                         PackageName = bundleId,
-                        Sha256CertFingerprints = [options.Value.AndroidSha256CertFingerprint]
+                        Sha256CertFingerprints = [options.Value.GooglePlaySha256CertFingerprint]
                     }
                 })
                 .ToArray());
