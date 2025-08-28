@@ -103,14 +103,16 @@ function SubscriptionCard({
   const { requestPurchase } = useIAP();
 
   const features = useMemo(() => {
-    const newEntries = t(`friendspotplus.plans.${i18nKey}.features`).split(';');
+    const features = t(`friendspotplus.plans.${i18nKey}.features`, {
+      returnObjects: true,
+    }) as string[];
 
     return inheritProduct
       ? [
           t('friendspotplus.plans.everythingIn', { product: inheritProduct.displayName }),
-          ...newEntries,
+          ...features,
         ]
-      : newEntries;
+      : features;
   }, [t, i18nKey, inheritProduct]);
 
   async function purchase(product: ProductCommon) {

@@ -272,18 +272,29 @@
       "upgradeButton": "Upgrade to {{product}}",
       "premium": {
         "accountName": "Premium account",
-        "features": "Unlimited reservation in advance;Spot sharing requests;All groups up to 15 members;",
+        "features": [
+          "Unlimited reservation in advance",
+          "Spot sharing requests",
+          "All groups up to 15 members"
+        ],
         "period": "/month"
       },
       "neighbourhood": {
         "accountName": "Premium + Neighbourhood",
-        "features": "1 neighbourhood group;Neighbourhood groups up to 50 members",
+        "features": [
+          "1 neighbourhood group",
+          "Neighbourhood groups up to 50 members"
+        ],
         "period": "/month"
       },
       "custom": {
         "name": "Custom",
         "description": "Get custom features tailored to your needs. Reach out today!",
-        "features": "Unlimited group;Unlimited members per group;Custom features",
+        "features": [
+          "Unlimited group",
+          "Unlimited members per group",
+          "Custom features"
+        ],
         "upgradeButton": "Contact us"
       }
     }
