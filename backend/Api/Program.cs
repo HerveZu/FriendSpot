@@ -60,12 +60,12 @@ builder.Services
     .ConfigureHttpJsonOptions(options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Services
-    .AddSingleton<GooglePlayAuthHandler>()
+    .AddScoped<GooglePlayAuthHandler>()
     .AddRefitClient<IGooglePlayDeveloperApi>()
     .AddHttpMessageHandler<GooglePlayAuthHandler>();
 
 builder.Services
-    .AddSingleton<AppleConnectAuthHandler>()
+    .AddScoped<AppleConnectAuthHandler>()
     .AddRefitClient<IAppStoreServerApi>()
     .ConfigureHttpClient(c =>
     {
