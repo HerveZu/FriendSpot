@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using Api.Common;
 using Api.Common.Infrastructure;
 using Api.Common.Options;
@@ -57,7 +56,8 @@ internal sealed class ActivateProduct(
 
         if (alreadyActivated)
         {
-            await SendErrorsAsync((int)HttpStatusCode.Conflict, ct);
+            // idempotent, already activated -> ok to allow the client to complete the transaction
+            await SendOkAsync(ct);
             return;
         }
 
@@ -105,6 +105,7 @@ internal sealed class ActivateProduct(
         dbContext.Set<UserProduct>().Add(subscription);
 
         await dbContext.SaveChangesAsync(ct);
+        await SendOkAsync(ct);
     }
 }
 
