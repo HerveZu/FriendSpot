@@ -36,7 +36,6 @@ import { SheetTitle, Title } from '~/components/Title';
 import { useLogout } from '~/endpoints/me/logout';
 import { Modal, ModalTitle } from '~/components/Modal';
 import { useDeleteAccount } from '~/endpoints/me/delete-account';
-import { Checkbox } from '~/components/Checkbox';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { opacity } from '~/lib/utils';
@@ -59,6 +58,7 @@ import { useDefineSpot } from '~/endpoints/parkings/define-spot';
 import { useKeyboardVisible } from '~/lib/useKeyboardVisible';
 import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/DynamicBottomSheet';
+import { reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 
 export default function UserProfileScreen() {
   const { firebaseUser } = useAuth();
@@ -249,29 +249,38 @@ export function AccountDeletionConfirmationModal({
 }>) {
   const [deleteAccount, deletingAccount] = useLoading(useDeleteAccount());
   const { colors } = useColorScheme();
-  const [userHasConfirmed, setUserHasConfirmed] = useState(false);
   const { firebaseUser } = useAuth();
   const { t } = useTranslation();
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
-  async function deleteAccountBackendAndFirebase() {
-    await deleteAccount();
-    await firebaseUser.delete().catch((e) => {
-      console.error(e);
-      // we need to do a recent sign-in to be able to delete the account on firebase
-      firebaseAuth.signOut();
-    });
+  async function reauthenticatUserBeforeDeletingAccount() {
+    if (!firebaseUser.email) {
+      return;
+    }
+    try {
+      const credential = EmailAuthProvider.credential(firebaseUser.email, password);
+      await reauthenticateWithCredential(firebaseUser, credential).then(() => {
+        deleteAccountBackendAndFirebase();
+      });
+    } catch (error) {
+      setError(t('user.profile.invalidPassword'));
+    }
   }
 
-  useEffect(() => {
-    !visible && setUserHasConfirmed(false);
-  }, [visible]);
+  async function deleteAccountBackendAndFirebase() {
+    await firebaseUser.delete();
+    await deleteAccount();
+    onVisibleChange(false);
+    await firebaseAuth.signOut();
+  }
 
   return (
     <>
-      <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20 gap-4'}>
+      <Modal open={visible} onOpenChange={onVisibleChange} className={'gap-4'}>
         <ModalTitle
           text={t('user.profile.deleteAccountTitle')}
-          icon={<ThemedIcon name={'warning'} />}
+          icon={<ThemedIcon name={'triangle-exclamation'} component={FontAwesome6} />}
         />
 
         <View className={'mt-4 flex-col gap-8'}>
@@ -279,39 +288,41 @@ export function AccountDeletionConfirmationModal({
             {t('user.profile.deleteAccountConfirmation')}
           </Text>
 
-          <View className={'flex-row items-center gap-4'}>
-            <Checkbox
-              value={userHasConfirmed}
-              onValueChange={setUserHasConfirmed}
-              style={{
-                borderColor: colors.foreground,
-                borderRadius: 6,
-              }}
+          <View className={'flex-col gap-6'}>
+            <Text variant={'callout'}>{t('user.profile.confirmPassword')}</Text>
+            <TextInput
+              value={password}
+              onChangeText={(value) => setPassword(value || '')}
+              placeholder={t('auth.password')}
+              secureTextEntry={true}
             />
-            <Text variant={'caption1'}>{t('user.profile.deleteAccountConfirm')}</Text>
+            {error && <Text className="text-base text-destructive">{error}</Text>}
           </View>
         </View>
 
         <ExpandRow className="mt-4">
           <ExpandItem>
-            <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
+            <Button
+              size={'lg'}
+              variant="tonal"
+              onPress={() => {
+                onVisibleChange(false);
+                setError('');
+                setPassword('');
+              }}>
               <Text className={'text-primary'}>{t('common.cancel')}</Text>
             </Button>
           </ExpandItem>
           <ExpandItem>
             <Button
-              disabled={!userHasConfirmed}
+              disabled={password.trim() === ''}
               variant={'plain'}
               size={'lg'}
-              onPress={deleteAccountBackendAndFirebase}>
+              onPress={() => reauthenticatUserBeforeDeletingAccount()}>
               {deletingAccount ? (
                 <ActivityIndicator color={colors.destructive} />
               ) : (
-                <ThemedIcon
-                  name={'no-accounts'}
-                  component={MaterialIcons}
-                  color={colors.destructive}
-                />
+                <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
               )}
               <Text className={'text-destructive'}>{t('common.delete')}</Text>
             </Button>

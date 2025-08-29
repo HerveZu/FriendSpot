@@ -103,7 +103,9 @@
       "settings": {
         "title": "Paramètres",
         "open": "Ouvrir mes paramètres"
-      }
+      },
+      "confirmPassword": "Confirme ton mot de passe pour valider \nla suppression de ton compte.",
+      "invalidPassword": "Mot de passe invalide"
     },
     "parking": {
       "openOptions": {
