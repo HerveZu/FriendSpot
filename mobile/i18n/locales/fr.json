@@ -93,7 +93,7 @@
       "provideFeedback": "Tu as une suggestion ? Écris-nous ici !",
       "sendFeedback": "Faire un retour",
       "deleteAccount": "Supprimer mon compte et données",
-      "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
+      "deleteAccountConfirmation": "Supprimer mon compte et toutes les données associées. La suppression sera effective une fois que toutes les réservations en cours de ton spot seront terminées.",
       "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
       "deleteAccountTitle": "Supprimer mon compte",
       "editAvatar": "Modifier l'avatar",
