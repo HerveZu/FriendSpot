@@ -27,7 +27,10 @@ internal sealed record AppStoreTransactionInfoResponse
 }
 
 // see: https://github.com/dragouf/AppStoreServerApi/blob/master/AppStoreServerApi/AppleAppstoreClient.cs
-internal sealed class AppleConnectAuthHandler(IOptions<AppOptions> options) : DelegatingHandler
+internal sealed class AppleConnectAuthHandler(
+    IOptions<AppOptions> options,
+    ILogger<AppleConnectAuthHandler> logger
+) : DelegatingHandler
 {
     private (string token, DateTime expiry)? _token;
 
@@ -35,6 +38,7 @@ internal sealed class AppleConnectAuthHandler(IOptions<AppOptions> options) : De
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("Generating JWT for AppStore Connect API");
         var jwt = _token?.expiry >= DateTime.Now ? _token.Value.token : GenerateAndCacheJwt();
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
