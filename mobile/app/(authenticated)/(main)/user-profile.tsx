@@ -71,11 +71,9 @@ import { urls } from '~/lib/urls';
 import { OpenSection } from '~/components/OpenSection';
 import { CopyToClipboard } from '~/components/CopyToClipboard';
 import { UserSpot } from '~/endpoints/me/get-profile';
-
-export default function UserProfile() {
 import { reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 
-export default function UserProfileScreen() {
+export default function UserProfile() {
   const { firebaseUser } = useAuth();
   const { colors } = useColorScheme();
   const { userProfile, updateUserProfile, features } = useCurrentUser();
@@ -305,8 +303,6 @@ function AccountDeletionConfirmationModal({
       <Modal open={visible} onOpenChange={onVisibleChange} className={'gap-4'}>
         <ModalTitle
           text={t('user.profile.support.deleteAccountTitle')}
-          icon={<ThemedIcon name={'warning'} />}
-          text={t('user.profile.deleteAccountTitle')}
           icon={<ThemedIcon name={'triangle-exclamation'} component={FontAwesome6} />}
         />
 

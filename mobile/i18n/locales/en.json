@@ -124,20 +124,6 @@
         "termsOfUse": "Terms of use",
         "privacyPolicy": "Privacy policy"
       }
-      "deleteAccount": "Delete my account and data",
-      "deleteAccountConfirmation": "Delete my account and all associated data. The deletion will take effect once all ongoing reservations for your spot are completed.",
-      "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
-      "deleteAccountTitle": "Delete my account",
-      "editAvatar": "Edit Avatar",
-      "logout": "Log out",
-      "logoutConfirmation": "Come back soon!",
-      "appInfo": "Information",
-      "settings": {
-        "title": "Settings",
-        "open": "Open my settings"
-      },
-      "confirmPassword": "Confirm your password to validate\nthe deletion of your account.",
-      "invalidPassword": "Invalid password"
     },
     "parking": {
       "openOptions": {
@@ -295,20 +281,13 @@
       },
       "neighbourhood": {
         "accountName": "Premium + Neighbourhood",
-        "features": [
-          "1 neighbourhood group",
-          "Neighbourhood groups up to 50 members"
-        ],
+        "features": ["1 neighbourhood group", "Neighbourhood groups up to 50 members"],
         "period": "/month"
       },
       "custom": {
         "name": "Custom",
         "description": "Get custom features tailored to your needs. Reach out today!",
-        "features": [
-          "Unlimited group",
-          "Unlimited members per group",
-          "Custom features"
-        ],
+        "features": ["Unlimited group", "Unlimited members per group", "Custom features"],
         "upgradeButton": "Contact us"
       }
     }

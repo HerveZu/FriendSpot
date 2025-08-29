@@ -124,20 +124,6 @@
         "privacyPolicy": "Politique de confidentialité",
         "termsOfUse": "Conditions d'utilisation"
       }
-      "deleteAccount": "Supprimer mon compte et données",
-      "deleteAccountConfirmation": "Supprimer mon compte et toutes les données associées. La suppression sera effective une fois que toutes les réservations en cours de ton spot seront terminées.",
-      "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
-      "deleteAccountTitle": "Supprimer mon compte",
-      "editAvatar": "Modifier l'avatar",
-      "logout": "Déconnexion",
-      "logoutConfirmation": "À bientôt !",
-      "appInfo": "Informations",
-      "settings": {
-        "title": "Paramètres",
-        "open": "Ouvrir mes paramètres"
-      },
-      "confirmPassword": "Confirme ton mot de passe pour valider \nla suppression de ton compte.",
-      "invalidPassword": "Mot de passe invalide"
     },
     "parking": {
       "openOptions": {
@@ -295,10 +281,7 @@
       },
       "neighbourhood": {
         "accountName": "Premium + Communauté",
-        "features": [
-          "1 groupe communauté",
-          "Groupes communautés jusqu'à 50 membres"
-        ],
+        "features": ["1 groupe communauté", "Groupes communautés jusqu'à 50 membres"],
         "period": "/mois"
       },
       "custom": {
