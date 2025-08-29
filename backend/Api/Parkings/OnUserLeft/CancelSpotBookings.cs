@@ -4,14 +4,14 @@ using Api.Parkings.OnDeleted;
 using Domain.ParkingSpots;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Parkings.OnSpotLeft;
+namespace Api.Parkings.OnUserLeft;
 
 internal sealed class CancelSpotBookings(
     AppDbContext dbContext,
     ILogger<ForceCancelAllBookings> logger
-) : IDomainEventHandler<ParkingSpotLeft>
+) : IDomainEventHandler<ParkingUserLeft>
 {
-    public async Task Handle(ParkingSpotLeft notification, CancellationToken cancellationToken)
+    public async Task Handle(ParkingUserLeft notification, CancellationToken cancellationToken)
     {
         var userSpot = await dbContext.Set<ParkingSpot>()
             .FirstOrDefaultAsync(spot => spot.Id == notification.SpotId, cancellationToken);

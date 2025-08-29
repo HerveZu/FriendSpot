@@ -4,7 +4,6 @@ using Domain.Tests.TestBench;
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(ParkingSpot))]
 public sealed class ParkingSpotTests
 {
     private readonly TimeSpan _availabilitySplitBorderMargin = TimeSpan.FromMinutes(1);

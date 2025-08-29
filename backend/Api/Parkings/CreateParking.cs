@@ -15,6 +15,7 @@ public sealed record CreateParkingRequest
 {
     public required string Name { get; init; }
     public required string Address { get; init; }
+    public bool Neighbourhood { get; init; }
 }
 
 internal sealed class CreateParkingValidator : Validator<CreateParkingRequest>
@@ -26,7 +27,7 @@ internal sealed class CreateParkingValidator : Validator<CreateParkingRequest>
     }
 }
 
-internal sealed class CreateParking(ILogger<CreateParking> logger, AppDbContext dbContext)
+internal sealed class CreateParking(ILogger<CreateParking> logger, AppDbContext dbContext, IUserFeatures features)
     : Endpoint<CreateParkingRequest, ParkingResponse>
 {
     public override void Configure()
@@ -36,10 +37,27 @@ internal sealed class CreateParking(ILogger<CreateParking> logger, AppDbContext 
 
     public override async Task HandleAsync(CreateParkingRequest req, CancellationToken ct)
     {
-        var currentUser = HttpContext.ToCurrentUser();
+        var enabledFeatures = await features.GetEnabled(ct);
 
-        logger.LogInformation("Creating new parking with name {Name} and address {Address}", req.Name, req.Address);
-        var newParking = Parking.Create(currentUser.Identity, req.Name, req.Address);
+        var currentUser = HttpContext.ToCurrentUser();
+        var neighbourhoodGroupCount = await dbContext.Set<Parking>()
+            .Where(x => x.OwnerId == currentUser.Identity)
+            .CountAsync(x => x.IsNeighbourhood, ct);
+
+        if (req.Neighbourhood && neighbourhoodGroupCount >= enabledFeatures.Specs.MaxNeighbourhoodGroups)
+        {
+            ThrowError("You have reached the maximum number of neighbourhood groups");
+            return;
+        }
+
+        logger.LogInformation("Creating new parking {Request}", req);
+        var newParking = req.Neighbourhood
+            ? Parking.CreateNeighbourhood(
+                currentUser.Identity,
+                req.Name,
+                req.Address,
+                enabledFeatures.Specs.MaxSpotPerNeighbourhoodGroup)
+            : Parking.Create(currentUser.Identity, req.Name, req.Address, enabledFeatures.Specs.MaxSpotPerGroup);
 
         dbContext.Set<Parking>().Add(newParking);
         await dbContext.SaveChangesAsync(ct);

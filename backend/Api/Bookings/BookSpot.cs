@@ -1,5 +1,6 @@
 using Api.Common;
 using Api.Common.Infrastructure;
+using Domain.Parkings;
 using Domain.ParkingSpots;
 using FastEndpoints;
 using FluentValidation;
@@ -36,7 +37,8 @@ internal sealed class BookSpotValidator : Validator<BookSpotRequest>
     }
 }
 
-internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotRequest, BookSpotResponse>
+internal sealed class BookSpot(AppDbContext dbContext, IUserFeatures features)
+    : Endpoint<BookSpotRequest, BookSpotResponse>
 {
     public override void Configure()
     {
@@ -45,6 +47,14 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
 
     public override async Task HandleAsync(BookSpotRequest req, CancellationToken ct)
     {
+        var enabledFeatures = await features.GetEnabled(ct);
+
+        if (req.To > DateTimeOffset.Now + enabledFeatures.Specs.MaxBookInAdvanceTime)
+        {
+            ThrowError("Booking too far in the future");
+            return;
+        }
+
         var currentUser = HttpContext.ToCurrentUser();
 
         var userHasParkingSpot = await dbContext
@@ -76,6 +86,22 @@ internal sealed class BookSpot(AppDbContext dbContext) : Endpoint<BookSpotReques
                     UsedCredits = cost
                 },
                 ct);
+            return;
+        }
+
+        var parking = await dbContext.Set<Parking>().FindAsync([parkingSpot.ParkingId], ct);
+
+        if (parking is null)
+        {
+            ThrowError("Parking not found");
+            return;
+        }
+
+        var ownerEnabledFeatures = await features.GetEnabledForUser(parking.OwnerId, ct);
+
+        if (parking.IsLocked(ownerEnabledFeatures))
+        {
+            ThrowError("This parking is locked");
             return;
         }
 

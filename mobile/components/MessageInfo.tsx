@@ -1,25 +1,61 @@
 import { Pressable, Text, View } from 'react-native';
-import { ThemedIcon } from './ThemedIcon';
+import { KnownIcon, ThemedIcon } from './ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Card } from '~/components/Card';
+import { ReactElement } from 'react';
+import { cn } from '~/lib/cn';
 
-export function MessageInfo(props: { info: string; action?: () => void }) {
+type Variant = 'info' | 'warning';
+export function MessageInfo({
+  info,
+  action,
+  variant = 'info',
+}: {
+  info: string;
+  action?: () => void;
+  variant?: Variant;
+}) {
   const { colors } = useColorScheme();
-  return (
+
+  const variantMap: Record<
+    Variant,
+    { icon: ReactElement; containerClassname?: string; textClassname?: string }
+  > = {
+    info: {
+      icon: <ThemedIcon name="lightbulb-o" size={24} color={colors.primary} />,
+      containerClassname: 'bg-primary/20',
+    },
+    warning: {
+      icon: <KnownIcon name={'warning'} size={24} color={colors.destructive} />,
+      containerClassname: 'bg-destructive/15',
+      textClassname: 'text-destructive',
+    },
+  };
+
+  const content = (
     <>
-      {props.action ? (
-        <Pressable onPress={() => props.action && props.action()}>
-          <Card className="bg-primary/20 flex-row items-center justify-center">
-            <ThemedIcon name="lightbulb-o" size={24} color={colors.primary} />
-            <Text className="shrink text-lg font-semibold text-foreground">{props.info}</Text>
-          </Card>
-        </Pressable>
-      ) : (
-        <View className="w-full flex-row items-center gap-4">
-          <ThemedIcon name="lightbulb-o" size={24} color={colors.primary} />
-          <Text className="shrink text-lg font-semibold text-foreground">{props.info}</Text>
-        </View>
-      )}
+      {variantMap[variant].icon}
+      <Text
+        className={cn(
+          'shrink text-lg font-semibold text-foreground',
+          variantMap[variant].textClassname
+        )}>
+        {info}
+      </Text>
     </>
+  );
+
+  return action || variant === 'warning' ? (
+    <Pressable onPress={() => action?.()}>
+      <Card
+        className={cn(
+          'flex-row items-center justify-center',
+          variantMap[variant].containerClassname
+        )}>
+        {content}
+      </Card>
+    </Pressable>
+  ) : (
+    <View className={cn('w-full flex-row items-center gap-4')}>{content}</View>
   );
 }

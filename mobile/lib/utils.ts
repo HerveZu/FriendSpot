@@ -55,6 +55,20 @@ export function parseDuration(duration: string): Duration {
   };
 }
 
+export function durationToMs(duration: string) {
+  const parsedDuration = parseDuration(duration);
+  function mulOrZero(num: number | undefined, factor: number) {
+    return (num ?? 0) * factor;
+  }
+
+  return (
+    mulOrZero(parsedDuration.days, 24 * 60 * 60 * 1000) +
+    mulOrZero(parsedDuration.hours, 60 * 60 * 1000) +
+    mulOrZero(parsedDuration.minutes, 60 * 1000) +
+    mulOrZero(parsedDuration.seconds, 1000)
+  );
+}
+
 type HexColor = `#${string}`;
 
 export function rgbToHex(rgb: string): HexColor {

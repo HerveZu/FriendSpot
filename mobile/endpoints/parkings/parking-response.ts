@@ -7,4 +7,5 @@ export type ParkingResponse = {
   readonly code: string;
   readonly isFull: boolean;
   readonly maxSpots: number;
+  readonly isNeighbourhood: boolean;
 };

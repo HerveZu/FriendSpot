@@ -1,6 +1,7 @@
 using System.Reflection;
 using Domain.Parkings;
 using Domain.ParkingSpots;
+using Domain.UserProducts;
 
 namespace Domain.Tests.TestBench;
 
@@ -53,6 +54,16 @@ internal sealed class Factory
         List<ParkingBookingRequest>? bookingRequests = null)
     {
         return ActivateNonPublic<Parking>(id, ownerId, name, address, code, maxSpotCount, bookingRequests);
+    }
+
+    public static UserProduct UserProduct(
+        Guid id,
+        string transactionId,
+        string userId,
+        string productId,
+        DateTimeOffset? expiresAt)
+    {
+        return ActivateNonPublic<UserProduct>(id, transactionId, userId, productId, expiresAt);
     }
 
     private static T ActivateNonPublic<T>(params object?[] parameters)

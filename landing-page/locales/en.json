@@ -8,37 +8,39 @@
       "free": {
         "name": "Basic Plan",
         "price": "€0",
-        "period": "lifetime",
-        "description": "Perfect for discovering neighbor-to-neighbor parking sharing.",
+        "period": "for life",
+        "description": "Ideal for discovering neighborhood parking sharing.",
         "features": [
-          "Create a parking group with up to 10 members",
-          "Maximum 3 days per reservation",
-          "Real-time notifications for reservations",
+          "Reserve a spot up to 3 days in advance",
+          "View and accept reservation requests",
+          "Parking groups with up to 10 members",
           "Community support"
         ],
-        "buttonText": "Start for Free"
+        "buttonText": "Let's go!"
       },
       "premium": {
         "name": "Premium",
         "price": "€2.99",
         "period": "/month",
-        "description": "Unlock unlimited parking potential for the best experience.",
+        "description": "Unlock all booking features for the best experience.",
         "features": [
-          "Create a parking group with up to 15 members for simplified management",
-          "Enjoy unlimited advance reservations to plan your parking needs",
-          "Easily send and receive parking spot sharing requests"
+          "Everything in the Basic plan",
+          "Spot reservations in advance without limit",
+          "Send booking requests",
+          "Parking groups with up to 15 members"
         ],
-        "buttonText": "Upgrade to Premium"
+        "buttonText": "Go Premium"
       },
       "neighbourhood": {
-        "name": "Neighbourhood",
+        "name": "Community",
         "price": "€39.99",
         "period": "/month",
-        "description": "Ideal for large neighborhoods and communities looking to optimize parking.",
+        "description": "Ideal for large neighborhoods and communities.",
         "features": [
-          "Create a private community group accommodating up to 50 members"
+          "Everything in the Premium plan",
+          "1 private community group with up to 50 members"
         ],
-        "buttonText": "Upgrade to Neighbourhood"
+        "buttonText": "Go Community"
       }
     }
   },

@@ -94,10 +94,10 @@ export const Pricing = () => {
                   }`}
                 >
                   {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-sm font-semibold">
+                    <div className="absolute left-0 -top-4 flex justify-center w-full">
+                      <span className="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-sm font-semibold">
                         {t("pricing.mostPopular")}
-                      </div>
+                      </span>
                     </div>
                   )}
 
@@ -132,19 +132,19 @@ export const Pricing = () => {
                       {Array.isArray(
                         t(plan.featuresKey, { returnObjects: true }),
                       )
-                        ? t(plan.featuresKey, { returnObjects: true }).map(
-                            (feature: string, featureIndex: number) => (
-                              <li
-                                key={featureIndex}
-                                className="flex items-center space-x-3"
-                              >
-                                <Check className="w-5 h-5 text-primary/80 flex-shrink-0" />
-                                <span className="text-slate-300">
-                                  {feature}
-                                </span>
-                              </li>
-                            ),
-                          )
+                        ? (
+                            t(plan.featuresKey, {
+                              returnObjects: true,
+                            }) as string[]
+                          ).map((feature: string, featureIndex: number) => (
+                            <li
+                              key={featureIndex}
+                              className="flex items-center space-x-3"
+                            >
+                              <Check className="w-5 h-5 text-primary/80 flex-shrink-0" />
+                              <span className="text-slate-300">{feature}</span>
+                            </li>
+                          ))
                         : null}
                     </ul>
                   </div>

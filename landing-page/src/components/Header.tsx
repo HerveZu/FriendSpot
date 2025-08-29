@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Menu, X, FlagIcon } from "lucide-react";
+import { FlagIcon, Menu, X } from "lucide-react";
 import { Logo } from "./Logo.tsx";
 import { HERO_ID } from "./Hero.tsx";
 import { useTranslation } from "react-i18next";
@@ -79,7 +79,7 @@ export const Header = () => {
               className="flex items-center space-x-2 text-slate-300 hover:text-primary transition-colors duration-200"
             >
               <FlagIcon className="w-5 h-5" />
-              <span>{i18n.language === "en" ? "EN" : "FR"}</span>
+              <span className={"uppercase"}>{i18n.language.split("-")[0]}</span>
             </button>
           </nav>
 

@@ -4,7 +4,6 @@ using Domain.Tests.TestBench;
 namespace Domain.Tests;
 
 [TestFixture]
-[TestOf(typeof(Parking))]
 public sealed class ParkingTests
 {
     [Test]
@@ -13,7 +12,7 @@ public sealed class ParkingTests
     public void Create_ShouldSucceed_WhenValidData(string name, string address, string ownerId)
     {
         // Act
-        var parking = Parking.Create(ownerId, name, address);
+        var parking = Parking.Create(ownerId, name, address, 10);
 
         // Assert
         Assert.Multiple(() =>
@@ -40,7 +39,7 @@ public sealed class ParkingTests
     public void Create_ShouldThrow_WhenInvalidData(string name, string address, string ownerId)
     {
         Assert.Throws<ArgumentException>(() =>
-            Parking.Create(ownerId, name, address));
+            Parking.Create(ownerId, name, address, 10));
     }
 
     [Test]

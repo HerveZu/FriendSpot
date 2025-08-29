@@ -17,7 +17,7 @@ export function LiveTimerProvider(props: PropsWithChildren) {
   const [booking] = useFetch(useGetBooking(), []);
   const [liveActivityIdMap, setLiveActivityIdMap] = usePersistentState<{
     [bookingId: string]: { activityId: string; state: LiveActivity.LiveActivityState };
-  }>('DisplayTimerWidgetActivityIdsMap', {});
+  }>('DisplayTimerWidgetActivityIdsMap', {}, {});
   const now = useActualTime(milliseconds({ seconds: 10 }));
   const { t } = useTranslation();
 

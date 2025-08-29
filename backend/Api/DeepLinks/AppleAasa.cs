@@ -47,7 +47,7 @@ public sealed record AasaResponse
     }
 }
 
-internal sealed class AppleAasa(IOptions<DeeplinkOptions> options) : EndpointWithoutRequest<AasaResponse>
+internal sealed class AppleAasa(IOptions<AppOptions> options) : EndpointWithoutRequest<AasaResponse>
 {
     public override void Configure()
     {

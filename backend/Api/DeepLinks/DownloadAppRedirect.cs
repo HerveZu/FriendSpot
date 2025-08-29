@@ -7,7 +7,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace Api.DeepLinks;
 
-internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILogger<DownloadAppRedirect> logger)
+internal sealed class DownloadAppRedirect(IOptions<AppOptions> options, ILogger<DownloadAppRedirect> logger)
     : EndpointWithoutRequest
 {
     private const string OpenPath = "/_open";
@@ -35,7 +35,7 @@ internal sealed class DownloadAppRedirect(IOptions<DeeplinkOptions> options, ILo
         if (androidPatterns.Any(pattern =>
                 userAgent.Contains(pattern, StringComparison.InvariantCultureIgnoreCase)))
         {
-            appUrl = $"https://play.google.com/store/apps/details?id={options.Value.BundleIds.First()}";
+            appUrl = $"https://play.google.com/store/apps/details?id={options.Value.PrimaryBundleId}";
         }
 
         if (appUrl is null)

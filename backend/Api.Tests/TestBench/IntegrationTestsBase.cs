@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
+using Api.Common;
 using Api.Common.Infrastructure;
 using Api.Common.Options;
+using Domain;
 using Domain.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -42,6 +44,14 @@ internal abstract class IntegrationTestsBase
                 $"{PostgresOptions.Section}:ENABLE_SENSITIVE_DATA_LOGGING",
                 "true"
             },
+            {
+                $"{AppOptions.Section}:BUNDLE_ID",
+                "com.friendspot.test"
+            },
+            {
+                $"{AppOptions.Section}:SANDBOX_PURCHASES",
+                "true"
+            },
         };
 
         _applicationFactory = new WebApplicationFactory<Program>()
@@ -53,6 +63,7 @@ internal abstract class IntegrationTestsBase
                     services.AddQuartz(x => { x.InterruptJobsOnShutdown = true; });
                     services.AddSingleton<ITestJobListener[]>([JobListener]);
                     services.Decorate<ISchedulerFactory, CustomListenersSchedulerFactory>();
+                    services.AddSingleton(UserFeatures);
                 });
 
                 builder.ConfigureServices(services =>
@@ -92,6 +103,9 @@ internal abstract class IntegrationTestsBase
     [SetUp]
     public async Task SetUp()
     {
+        UserFeatures.GetEnabled(Arg.Any<CancellationToken>())
+            .ReturnsForAnyArgs(Task.FromResult(new EnabledFeatures([])));
+
         await using var conn = new NpgsqlConnection(GetConnectionString());
         await conn.OpenAsync();
 
@@ -148,6 +162,7 @@ internal abstract class IntegrationTestsBase
             (CustomListenersSchedulerFactory)_applicationFactory.Services.GetRequiredService<ISchedulerFactory>();
         await schedulerFactory.Reset();
         NotificationPushService.ClearSubstitute();
+        UserFeatures.ClearSubstitute();
     }
 
     [OneTimeTearDown]
@@ -158,6 +173,7 @@ internal abstract class IntegrationTestsBase
     }
 
     protected readonly INotificationPushService NotificationPushService = Substitute.For<INotificationPushService>();
+    protected readonly IUserFeatures UserFeatures = Substitute.For<IUserFeatures>();
     protected QuartzJobListener JobListener { get; } = new();
 
     protected PostgreSqlContainer PgContainer { get; private set; }

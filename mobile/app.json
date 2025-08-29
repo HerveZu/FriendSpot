@@ -2,7 +2,7 @@
   "expo": {
     "name": "friendspot",
     "slug": "friendspot",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "scheme": "friendspot",
     "newArchEnabled": true,
     "web": {
@@ -22,6 +22,9 @@
             "podfileProperties": {
               "use_modular_headers!": true
             }
+          },
+          "android": {
+            "kotlinVersion": "2.0.21"
           }
         }
       ],

@@ -77,6 +77,37 @@ internal sealed class AppDbContext(
 
         // then remove it after the side effects have performed
         Set<TEntity>().Remove(entity);
-        return await SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            return await SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // in this case the entity was already deleted by another process, so we just return 0
+            return 0;
+        }
+    }
+
+    public async Task<int> DeleteAndSaveRangeWithEventPropagation<TEntity>(
+        TEntity[] entities,
+        CancellationToken cancellationToken = new())
+        where TEntity : class, IAggregateRoot
+    {
+        // first perform a regular update to add the entity to the change tracker and trigger events by saving it
+        Set<TEntity>().UpdateRange(entities);
+        await SaveChangesAsync(cancellationToken);
+
+        // then remove it after the side effects have performed
+        Set<TEntity>().RemoveRange(entities);
+        try
+        {
+            return await SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // in this case the entity was already deleted by another process, so we just return 0
+            return 0;
+        }
     }
 }
