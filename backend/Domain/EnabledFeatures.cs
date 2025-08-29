@@ -2,7 +2,7 @@ using Domain.UserProducts;
 
 namespace Domain;
 
-public static class Plans
+public static class Products
 {
     public const string Premium = "com.friendspot.sub.premium";
     public const string Neighbourhood = "com.friendspot.sub.neighbourhood";
@@ -12,8 +12,8 @@ public sealed class EnabledFeatures
 {
     private static readonly SubscriptionPlan[] _plans =
     [
-        new(Plans.Premium, new PremiumPlanSpecs()),
-        new(Plans.Neighbourhood, new NeighbourhoodPlanSpecs())
+        new(Products.Premium, new PremiumPlanSpecs()),
+        new(Products.Neighbourhood, new NeighbourhoodPlanSpecs())
     ];
 
     public EnabledFeatures(UserProduct[] userProducts)

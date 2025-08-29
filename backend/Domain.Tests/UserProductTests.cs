@@ -56,7 +56,7 @@ internal sealed class UserProductTests
             Guid.NewGuid(),
             "test",
             "user-123",
-            Plans.Premium,
+            Products.Premium,
             DateTimeOffset.Now.AddDays(-1)
         );
 
@@ -64,7 +64,7 @@ internal sealed class UserProductTests
             Guid.NewGuid(),
             "test",
             "user-123",
-            Plans.Neighbourhood,
+            Products.Neighbourhood,
             DateTimeOffset.Now.AddDays(-1)
         );
 
@@ -80,7 +80,7 @@ internal sealed class UserProductTests
             Guid.NewGuid(),
             "test",
             "user-123",
-            Plans.Premium,
+            Products.Premium,
             null
         );
 
@@ -88,14 +88,14 @@ internal sealed class UserProductTests
             Guid.NewGuid(),
             "test",
             "user-123",
-            Plans.Neighbourhood,
+            Products.Neighbourhood,
             null
         );
 
         var features = new EnabledFeatures([premium, neighbourhood]);
 
         Assert.That(features.ActivePlan, Is.Not.Null);
-        Assert.That(features.ActivePlan.ProductId, Is.EqualTo(Plans.Neighbourhood));
+        Assert.That(features.ActivePlan.ProductId, Is.EqualTo(Products.Neighbourhood));
     }
 
     [Test]
@@ -105,7 +105,7 @@ internal sealed class UserProductTests
             Guid.NewGuid(),
             "test",
             "user-123",
-            Plans.Premium,
+            Products.Premium,
             null
         );
 
@@ -113,13 +113,13 @@ internal sealed class UserProductTests
             Guid.NewGuid(),
             "test",
             "user-123",
-            Plans.Neighbourhood,
+            Products.Neighbourhood,
             DateTimeOffset.Now.AddDays(-1)
         );
 
         var features = new EnabledFeatures([premium, neighbourhood]);
 
         Assert.That(features.ActivePlan, Is.Not.Null);
-        Assert.That(features.ActivePlan.ProductId, Is.EqualTo(Plans.Premium));
+        Assert.That(features.ActivePlan.ProductId, Is.EqualTo(Products.Premium));
     }
 }

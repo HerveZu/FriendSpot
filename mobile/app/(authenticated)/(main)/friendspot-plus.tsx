@@ -4,10 +4,19 @@ import { Text } from '~/components/nativewindui/Text';
 import { useTranslation } from 'react-i18next';
 import { ThemedIcon } from '~/components/ThemedIcon';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { ReactElement, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  ReactElement,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { ProductCommon, useIAP } from 'expo-iap';
-import { Platform, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { Loader } from '~/components/Loader';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { ContactUsButton } from '~/components/ContactUsButton';
@@ -16,15 +25,21 @@ import { SubscriptionProduct } from 'expo-iap/src/ExpoIap.types';
 import { ProductSubscriptionAndroid } from 'expo-iap/src/types/ExpoIapAndroid.types';
 import { RefreshTriggerContext } from '~/authentication/RefreshTriggerProvider';
 
+const PurchaseContext = createContext<{
+  purchasePending: boolean;
+  setPurchasePending: Dispatch<SetStateAction<boolean>>;
+}>(null!);
+
 export default function FriendspotPlus() {
   const { t } = useTranslation();
-  const { connected, requestProducts, subscriptions, availablePurchases, hasActiveSubscriptions } =
-    useIAP();
+  const { connected, requestProducts, subscriptions, availablePurchases } = useIAP({
+    shouldAutoSyncPurchases: true,
+  });
   const [ready, setReady] = useState(false);
-  const [validSubscriptionIds, setValidSubscriptionIds] = useState<string[]>();
   const { features } = useCurrentUser();
   const getPlanInfo = useGetPlanInfo();
   const { refreshTrigger } = useContext(RefreshTriggerContext);
+  const [isPendingPurchase, setIsPendingPurchase] = useState(false);
 
   useEffect(() => {
     if (!connected) return;
@@ -35,56 +50,46 @@ export default function FriendspotPlus() {
     requestProducts({ skus: productIds, type: 'subs' })
       .then(() => setReady(true))
       .catch(console.error);
-  }, [connected, refreshTrigger]);
-
-  useEffect(() => {
-    Promise.all(
-      availablePurchases.map(async (purchase) => {
-        const active = await hasActiveSubscriptions([purchase.productId]);
-        return active ? purchase.productId : null;
-      })
-    ).then((activeSubscriptionIds) =>
-      setValidSubscriptionIds(activeSubscriptionIds.filter((x) => !!x).map((x) => x!))
-    );
-  }, [availablePurchases, hasActiveSubscriptions, setValidSubscriptionIds]);
+  }, [connected, refreshTrigger, availablePurchases]);
 
   return (
     <ScreenWithHeader>
       <ScreenTitle title={t('friendspotplus.title')} wallet={false} />
-      {ready ? (
-        <View className={'flex-col gap-6'}>
-          {subscriptions
-            .sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
-            .map((product, i) => {
-              const info = getPlanInfo(product.id);
+      <PurchaseContext.Provider
+        value={{ setPurchasePending: setIsPendingPurchase, purchasePending: isPendingPurchase }}>
+        {ready ? (
+          <View className={'flex-col gap-6'}>
+            {subscriptions
+              .sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
+              .map((product, i) => {
+                const info = getPlanInfo(product.id);
 
-              return (
-                info && (
-                  <SubscriptionCard
-                    key={i}
-                    product={product}
-                    {...info}
-                    inheritProduct={
-                      subscriptions.find((x) => x.id === info.inheritSubscriptionSku) ?? null
-                    }
-                    isAvailable={!validSubscriptionIds?.includes(product.id)}
-                  />
-                )
-              );
-            })}
-          <SubscriptionCard
-            icon={<ThemedIcon name={'unlock'} component={FontAwesome6} size={16} />}
-            i18nKey={'custom'}
-            product={null}
-            inheritProduct={
-              subscriptions.find((x) => x.id === features.plans.neighbourhood.productId) ?? null
-            }
-            isAvailable={true}
-          />
-        </View>
-      ) : (
-        <Loader />
-      )}
+                return (
+                  info && (
+                    <SubscriptionCard
+                      key={i}
+                      product={product}
+                      {...info}
+                      inheritProduct={
+                        subscriptions.find((x) => x.id === info.inheritSubscriptionSku) ?? null
+                      }
+                    />
+                  )
+                );
+              })}
+            <SubscriptionCard
+              icon={<ThemedIcon name={'unlock'} component={FontAwesome6} size={16} />}
+              i18nKey={'custom'}
+              product={null}
+              inheritProduct={
+                subscriptions.find((x) => x.id === features.plans.neighbourhood.productId) ?? null
+              }
+            />
+          </View>
+        ) : (
+          <Loader />
+        )}
+      </PurchaseContext.Provider>
     </ScreenWithHeader>
   );
 }
@@ -94,19 +99,30 @@ function SubscriptionCard({
   i18nKey,
   product,
   inheritProduct,
-  isAvailable,
 }: {
   i18nKey: string;
   icon: ReactElement;
   product: SubscriptionProduct | null;
   inheritProduct: SubscriptionProduct | null;
-  isAvailable: boolean;
 }) {
   const { t } = useTranslation();
   const { colors } = useColorScheme();
-  const { requestPurchase } = useIAP();
+  const { requestPurchase } = useIAP({ shouldAutoSyncPurchases: true });
 
-  const features = useMemo(() => {
+  const [thisPurchaseIsPending, setThisPurchaseIsPending] = useState(false);
+  const { purchasePending, setPurchasePending } = useContext(PurchaseContext);
+  const { features } = useCurrentUser();
+
+  const isAvailable = useMemo(() => {
+    const featureActiveMap = {
+      [features.plans.neighbourhood.productId]: features.isNeighbourhood,
+      [features.plans.premium.productId]: features.isPremium,
+    };
+
+    return (product && !featureActiveMap[product.id]) ?? true;
+  }, [features, product]);
+
+  const benefits = useMemo(() => {
     const features = t(`friendspotplus.plans.${i18nKey}.features`, {
       returnObjects: true,
     }) as string[];
@@ -124,27 +140,40 @@ function SubscriptionCard({
       product: product.displayName,
       sku: product.id,
     });
-    await requestPurchase({
-      type: 'subs',
-      request: {
-        ios: {
-          sku: product.id,
+
+    setThisPurchaseIsPending(true);
+    setPurchasePending(true);
+
+    try {
+      await requestPurchase({
+        type: 'subs',
+        request: {
+          ios: {
+            sku: product.id,
+          },
+          android: {
+            skus: [product.id],
+            subscriptionOffers: [
+              {
+                sku: product.id,
+                offerToken: Platform.select({
+                  android: () =>
+                    (product as ProductSubscriptionAndroid).subscriptionOfferDetailsAndroid[0]
+                      .offerToken,
+                  default: () => '',
+                })(),
+              },
+            ],
+          },
         },
-        android: {
-          skus: [product.id],
-          subscriptionOffers: [
-            {
-              sku: product.id,
-              offerToken: Platform.select({
-                android: (product as ProductSubscriptionAndroid).subscriptionOfferDetailsAndroid[0]
-                  .offerToken,
-                default: '',
-              }),
-            },
-          ],
-        },
-      },
-    }).catch(console.error);
+      });
+      console.log('Product purchased');
+    } catch (e) {
+      console.error('Failed to purchase', e);
+    } finally {
+      setThisPurchaseIsPending(false);
+      setPurchasePending(false);
+    }
   }
 
   return (
@@ -166,7 +195,7 @@ function SubscriptionCard({
       </View>
       <Text>{product?.description ?? t(`friendspotplus.plans.${i18nKey}.description`)}</Text>
       <View className={'flex-col gap-2'}>
-        {features.map((feature, i) => (
+        {benefits.map((feature, i) => (
           <View key={i} className={'flex-row items-center gap-2'}>
             <ThemedIcon name={'check'} size={20} color={colors.primary} />
             <Text className={'font-semibold text-primary'}>{feature}</Text>
@@ -175,10 +204,11 @@ function SubscriptionCard({
       </View>
       <ContactUsButton
         variant={'primary'}
-        disabled={!isAvailable}
+        disabled={!isAvailable || purchasePending}
         contactUsDisabled={!!product}
         onPress={() => product && purchase(product)}>
         {!isAvailable && <ThemedIcon name={'lock'} component={FontAwesome6} />}
+        {thisPurchaseIsPending && <ActivityIndicator color={colors.foreground} />}
         <Text>
           {product
             ? t(`friendspotplus.plans.upgradeButton`, { product: product.displayName })

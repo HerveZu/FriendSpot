@@ -234,7 +234,7 @@ internal sealed class SpotBookingTests : IntegrationTestsBase
         UserFeatures.GetEnabled(Arg.Any<CancellationToken>())
             .ReturnsForAnyArgs(
                 Task.FromResult(
-                    new EnabledFeatures([UserProduct.Activate("test", Seed.Users.Resident1, Plans.Premium, null)])));
+                    new EnabledFeatures([UserProduct.Activate("test", Seed.Users.Resident1, Products.Premium, null)])));
 
         using var resident1 = UserClient(Seed.Users.Resident1);
         using var resident2 = UserClient(Seed.Users.Resident2);

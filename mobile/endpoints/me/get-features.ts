@@ -4,6 +4,7 @@ import { useApiRequest } from '~/endpoints/use-api-request';
 
 export type AppFeatures = {
   readonly isPremium: boolean;
+  readonly isNeighbourhood: boolean;
   readonly currentParkingIsLocked: boolean;
   readonly plans: Plans;
   readonly plan?: Plan;

@@ -43,7 +43,8 @@ internal sealed record GooglePlayAccessTokenResponse
     public required int ExpiresIn { get; init; }
 }
 
-internal sealed class GooglePlayAuthHandler(IOptions<AppOptions> options) : DelegatingHandler
+internal sealed class GooglePlayAuthHandler(IOptions<AppOptions> options, ILogger<GooglePlayAuthHandler> logger)
+    : DelegatingHandler
 {
     private static readonly HttpClient _tokenClient = new();
     private (string token, DateTime expiry)? _token;
@@ -52,6 +53,8 @@ internal sealed class GooglePlayAuthHandler(IOptions<AppOptions> options) : Dele
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("Generating JWT for GooglePlay Developer API");
+
         var jwt = _token?.expiry >= DateTime.UtcNow
             ? _token.Value.token
             : await GenerateAndCacheAccessTokenAsync(cancellationToken);

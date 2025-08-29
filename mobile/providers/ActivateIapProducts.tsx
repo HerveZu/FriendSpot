@@ -6,6 +6,7 @@ export function ActivateIapProducts(props: PropsWithChildren) {
   const activateProduct = useActivateProduct();
 
   useIAP({
+    shouldAutoSyncPurchases: true,
     onPurchaseSuccess: async (purchase) => {
       if (!purchase.transactionId || !purchase.purchaseToken) {
         console.warn('Transaction is missing required fields to be processed: ', purchase);
@@ -26,6 +27,9 @@ export function ActivateIapProducts(props: PropsWithChildren) {
         transactionId: purchase.transactionId,
         productId: purchase.productId,
       });
+    },
+    onPurchaseError: (error) => {
+      console.error('Error while purchasing product: ', error);
     },
   });
 
