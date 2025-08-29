@@ -32,10 +32,10 @@ const PurchaseContext = createContext<{
 
 export default function FriendspotPlus() {
   const { t } = useTranslation();
-  const { connected, requestProducts, subscriptions, availablePurchases, hasActiveSubscriptions } =
-    useIAP();
+  const { connected, requestProducts, subscriptions, availablePurchases } = useIAP({
+    shouldAutoSyncPurchases: true,
+  });
   const [ready, setReady] = useState(false);
-  const [validSubscriptionIds, setValidSubscriptionIds] = useState<string[]>();
   const { features } = useCurrentUser();
   const getPlanInfo = useGetPlanInfo();
   const { refreshTrigger } = useContext(RefreshTriggerContext);
@@ -50,18 +50,7 @@ export default function FriendspotPlus() {
     requestProducts({ skus: productIds, type: 'subs' })
       .then(() => setReady(true))
       .catch(console.error);
-  }, [connected, refreshTrigger]);
-
-  useEffect(() => {
-    Promise.all(
-      availablePurchases.map(async (purchase) => {
-        const active = await hasActiveSubscriptions([purchase.productId]);
-        return active ? purchase.productId : null;
-      })
-    ).then((activeSubscriptionIds) =>
-      setValidSubscriptionIds(activeSubscriptionIds.filter((x) => !!x).map((x) => x!))
-    );
-  }, [availablePurchases, hasActiveSubscriptions, setValidSubscriptionIds]);
+  }, [connected, refreshTrigger, availablePurchases]);
 
   return (
     <ScreenWithHeader>
@@ -84,7 +73,6 @@ export default function FriendspotPlus() {
                       inheritProduct={
                         subscriptions.find((x) => x.id === info.inheritSubscriptionSku) ?? null
                       }
-                      isAvailable={!validSubscriptionIds?.includes(product.id)}
                     />
                   )
                 );
@@ -96,7 +84,6 @@ export default function FriendspotPlus() {
               inheritProduct={
                 subscriptions.find((x) => x.id === features.plans.neighbourhood.productId) ?? null
               }
-              isAvailable={true}
             />
           </View>
         ) : (
@@ -112,22 +99,30 @@ function SubscriptionCard({
   i18nKey,
   product,
   inheritProduct,
-  isAvailable,
 }: {
   i18nKey: string;
   icon: ReactElement;
   product: SubscriptionProduct | null;
   inheritProduct: SubscriptionProduct | null;
-  isAvailable: boolean;
 }) {
   const { t } = useTranslation();
   const { colors } = useColorScheme();
-  const { requestPurchase } = useIAP();
+  const { requestPurchase } = useIAP({ shouldAutoSyncPurchases: true });
 
   const [thisPurchaseIsPending, setThisPurchaseIsPending] = useState(false);
   const { purchasePending, setPurchasePending } = useContext(PurchaseContext);
+  const { features } = useCurrentUser();
 
-  const features = useMemo(() => {
+  const isAvailable = useMemo(() => {
+    const featureActiveMap = {
+      [features.plans.neighbourhood.productId]: features.isNeighbourhood,
+      [features.plans.premium.productId]: features.isPremium,
+    };
+
+    return (product && !featureActiveMap[product.id]) ?? true;
+  }, [features, product]);
+
+  const benefits = useMemo(() => {
     const features = t(`friendspotplus.plans.${i18nKey}.features`, {
       returnObjects: true,
     }) as string[];
@@ -200,7 +195,7 @@ function SubscriptionCard({
       </View>
       <Text>{product?.description ?? t(`friendspotplus.plans.${i18nKey}.description`)}</Text>
       <View className={'flex-col gap-2'}>
-        {features.map((feature, i) => (
+        {benefits.map((feature, i) => (
           <View key={i} className={'flex-row items-center gap-2'}>
             <ThemedIcon name={'check'} size={20} color={colors.primary} />
             <Text className={'font-semibold text-primary'}>{feature}</Text>
