@@ -122,7 +122,7 @@ public sealed class Parking : IAggregateRoot
 
     public bool IsLocked(EnabledFeatures ownerFeatures)
     {
-        return IsNeighbourhood && ownerFeatures.ActivePlan?.ProductId != Plans.Neighbourhood;
+        return IsNeighbourhood && ownerFeatures.ActivePlan?.ProductId != Products.Neighbourhood;
     }
 
     public ParkingBookingRequest RequestBooking(

@@ -13,6 +13,7 @@ namespace Api.Me;
 public sealed record AppFeatures
 {
     public required bool IsPremium { get; init; }
+    public required bool IsNeighbourhood { get; init; }
     public required AppPlans Plans { get; init; }
     public required SubscriptionSpecs Baseline { get; init; }
     public required SubscriptionSpecs Active { get; init; }
@@ -98,6 +99,7 @@ internal sealed class GetFeatures(AppDbContext dbContext, IUserFeatures features
         return new AppFeatures
         {
             IsPremium = enabledFeatures.Specs is PremiumPlanSpecs,
+            IsNeighbourhood = enabledFeatures.Specs is NeighbourhoodPlanSpecs,
             Plan = enabledFeatures.ActivePlan is null
                 ? null
                 : new AppFeatures.AppPlan
@@ -109,12 +111,12 @@ internal sealed class GetFeatures(AppDbContext dbContext, IUserFeatures features
             {
                 Premium = new AppFeatures.AppPlan
                 {
-                    ProductId = Plans.Premium,
+                    ProductId = Products.Premium,
                     Specs = new PremiumPlanSpecs().ToSubscriptionSpecs(totalOwnedNeighbourhoodGroups)
                 },
                 Neighbourhood = new AppFeatures.AppPlan
                 {
-                    ProductId = Plans.Neighbourhood,
+                    ProductId = Products.Neighbourhood,
                     Specs = new NeighbourhoodPlanSpecs().ToSubscriptionSpecs(totalOwnedNeighbourhoodGroups)
                 },
             },

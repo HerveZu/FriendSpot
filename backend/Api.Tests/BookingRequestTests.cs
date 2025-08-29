@@ -25,12 +25,12 @@ internal sealed class BookingRequestTests : IntegrationTestsBase
                         UserProduct.Activate(
                             "transaction-1",
                             Seed.Users.Resident1,
-                            Plans.Premium,
+                            Products.Premium,
                             null),
                         UserProduct.Activate(
                             "transaction-2",
                             Seed.Users.Resident2,
-                            Plans.Premium,
+                            Products.Premium,
                             null)
                     ])));
     }
