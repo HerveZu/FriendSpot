@@ -276,6 +276,7 @@
     "plans": {
       "everythingIn": "Tout dans {{product}}",
       "upgradeButton": "Passer à {{product}}",
+      "alreadyUpgraded": "Déjà {{product}}",
       "premium": {
         "accountName": "Compte Premium",
         "features": [

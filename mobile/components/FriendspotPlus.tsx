@@ -46,6 +46,7 @@ export function PremiumButton({
 }
 
 type PlanInfo = {
+  order: number;
   i18nKey: string;
   icon: ReactElement;
   inheritSubscriptionSku?: keyof Plans;
@@ -53,10 +54,12 @@ type PlanInfo = {
 
 export const planInfoMap: Record<keyof Plans, PlanInfo> = {
   premium: {
+    order: 0,
     i18nKey: 'premium',
     icon: <KnownIcon name={'premium'} size={16} />,
   },
   neighbourhood: {
+    order: 1,
     inheritSubscriptionSku: 'premium',
     i18nKey: 'neighbourhood',
     icon: <ThemedIcon name={'house'} component={FontAwesome6} size={16} />,
