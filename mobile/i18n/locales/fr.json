@@ -269,8 +269,8 @@
     },
     "acceptRequest": {
       "description": "En acceptant, votre spot sera prêté à {{requester}} du {{from}} au {{to}}.",
-      "accept_one": "Accepter pour {{count}} point",
-      "accept_other": "Accepter pour {{count}} points"
+      "accept_one": "Accepter et gagner {{count}} point",
+      "accept_other": "Accepter et gagner {{count}} points"
     }
   },
   "friendspotplus": {

@@ -270,8 +270,8 @@
     },
     "acceptRequest": {
       "description": "By accepting, your spot will be shared with {{requester}} from the {{from}} to the {{to}}.",
-      "accept_one": "Accept for {{count}} point",
-      "accept_other": "Accept for {{count}} points"
+      "accept_one": "Accept and earn {{count}} point",
+      "accept_other": "Accept and earn {{count}} points"
     }
   },
   "friendspotplus": {
