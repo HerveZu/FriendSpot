@@ -73,7 +73,6 @@ import { OpenSection } from '~/components/OpenSection';
 import { CopyToClipboard } from '~/components/CopyToClipboard';
 import { UserSpot } from '~/endpoints/me/get-profile';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
-import { validators } from 'tailwind-merge';
 
 export default function UserProfile() {
   const { firebaseUser } = useAuth();
@@ -313,7 +312,11 @@ function AccountDeletionConfirmationModal({
   }
 
   useEffect(() => {
-    !visible && setUserHasConfirmed(false);
+    if (visible) return;
+
+    setUserHasConfirmed(false);
+    setPassword('');
+    setInvalidPassword(false);
   }, [visible]);
 
   return (
