@@ -30,9 +30,9 @@ export function LiveTimerProvider(props: PropsWithChildren) {
 
   const liveBookings = useMemo(
     () =>
-      booking?.bookings?.filter((booking) =>
-        isWithinInterval(now, { start: booking.from, end: booking.to })
-      ) ?? [],
+      booking?.bookings
+        ?.filter((booking) => isWithinInterval(now, { start: booking.from, end: booking.to }))
+        ?.filter((booking) => !!booking.parkingLot.name) ?? [], // wait until populated
     [now, booking]
   );
   const endedActivityIds = useMemo(
