@@ -130,12 +130,8 @@ export default function JoinParking() {
             variant={'tonal'}
             size={'md'}
             className="bg-primary/10 flex-row items-center justify-center gap-2 rounded-lg py-3">
-            <Text className={'text-primary'}>{t('user.parking.joinParking.dismissCheck')}</Text>
-            <ThemedIcon
-              name={'arrow-right'}
-              color={Platform.select({ ios: colors.primary })}
-              size={14}
-            />
+            <Text>{t('user.parking.joinParking.dismissCheck')}</Text>
+            <ThemedIcon name={'arrow-right'} color={colors.primary} size={14} />
           </Button>
 
           {parking && (

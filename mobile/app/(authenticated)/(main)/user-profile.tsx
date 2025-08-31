@@ -322,7 +322,7 @@ function AccountDeletionConfirmationModal({
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
-              <Text className={'text-primary'}>{t('common.cancel')}</Text>
+              <Text>{t('common.cancel')}</Text>
             </Button>
           </ExpandItem>
           <ExpandItem>
@@ -378,7 +378,7 @@ function LogoutConfirmationModal({
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
-              <Text className={'text-primary'}>{t('common.back')}</Text>
+              <Text>{t('common.back')}</Text>
             </Button>
           </ExpandItem>
           <ExpandItem>
@@ -431,7 +431,7 @@ function LeaveGroupConfirmationModal({
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
-              <Text className={'text-primary'}>{t('common.back')}</Text>
+              <Text>{t('common.back')}</Text>
             </Button>
           </ExpandItem>
           <ExpandItem>
@@ -550,7 +550,7 @@ function SupportBottomSheet(props: {
         <View className={'gap-2'}>
           <ContactUsButton size={'lg'} variant={'tonal'}>
             <ThemedIcon name={'envelope'} component={FontAwesome6} color={colors.primary} />
-            <Text className={'text-primary'}>{t('user.profile.support.contactSupport')}</Text>
+            <Text>{t('user.profile.support.contactSupport')}</Text>
           </ContactUsButton>
 
           <Button
@@ -639,7 +639,7 @@ function SettingsBottomSheet(props: {
                 color={colors.primary}
               />
             )}
-            <Text className={'text-primary'}>{t('user.profile.settings.restorePurchases')}</Text>
+            <Text>{t('user.profile.settings.restorePurchases')}</Text>
           </Button>
           <Button size={'lg'} variant={'plain'} onPress={() => setConfirmLogout(true)}>
             <ThemedIcon
