@@ -64,7 +64,7 @@ import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/DynamicBottomSheet';
 import { ContactUsButton } from '~/components/ContactUsButton';
 import { useIAP } from 'expo-iap';
-import { useGetPlanInfo } from '~/components/FriendspotPlus';
+import { PremiumButton, useGetPlanInfo } from '~/components/FriendspotPlus';
 import { Form } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
@@ -588,10 +588,13 @@ function SettingsBottomSheet(props: {
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
   const [confirmLogout, setConfirmLogout] = useState(false);
-  const { restorePurchases } = useIAP();
+  const { restorePurchases } = useIAP({ shouldAutoSyncPurchases: true });
   const { features } = useCurrentUser();
   const { firebaseUser } = useAuth();
   const getPlanInfo = useGetPlanInfo();
+  const [restorePurchasesWithRefresh, isRestoringPurchases] = useLoading(
+    useRefreshOnSuccess(restorePurchases)
+  );
 
   const { colors } = useColorScheme();
   const { t } = useTranslation();
@@ -624,8 +627,16 @@ function SettingsBottomSheet(props: {
         </Card>
 
         <View className={'gap-4'}>
-          <Button onPress={restorePurchases} size={'lg'} variant={'tonal'}>
-            <ThemedIcon name={'cart-arrow-down'} component={FontAwesome6} color={colors.primary} />
+          <Button onPress={restorePurchasesWithRefresh} size={'lg'} variant={'tonal'}>
+            {isRestoringPurchases ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <ThemedIcon
+                name={'cart-arrow-down'}
+                component={FontAwesome6}
+                color={colors.primary}
+              />
+            )}
             <Text className={'text-primary'}>{t('user.profile.settings.restorePurchases')}</Text>
           </Button>
           <Button size={'lg'} variant={'plain'} onPress={() => setConfirmLogout(true)}>
@@ -661,7 +672,7 @@ function ParkingModal(props: {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
   const { t } = useTranslation();
-  const { userProfile, features } = useCurrentUser();
+  const { features } = useCurrentUser();
   const { keyboardVisible } = useKeyboardVisible();
   const validators = useValidators();
 
@@ -689,6 +700,7 @@ function ParkingModal(props: {
     setAddress(props.parking?.address ?? '');
     setLotName('');
     setWantToDeleteParking(false);
+    setNeighbourhoodGroup(false);
   }, [props.open]);
 
   useEffect(() => {
@@ -823,20 +835,13 @@ function ParkingModal(props: {
 
             {mode === 'create' && !keyboardVisible && (
               <Card className={'flex-row items-center justify-between'}>
-                <View className={'flex-row items-center gap-2'}>
-                  <KnownIcon name={'premium'} size={18} color={colors.primary} />
-                  <Text className={'text-primary'}>
-                    {t('user.parking.addMoreMembers', {
-                      memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
-                    })}
-                  </Text>
-                  <Text disabled={!canCreateNeighbourhoodGroup}>
-                    ({features.active.availableNeighbourhoodGroups}/
-                    {features.active.maxNeighbourhoodGroups})
-                  </Text>
-                </View>
+                <Text className={'text-primary'}>
+                  {t('user.parking.addMoreMembers', {
+                    memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
+                  })}
+                </Text>
+
                 <Switch
-                  disabled={!canCreateNeighbourhoodGroup}
                   value={neighbourhoodGroup}
                   onValueChange={setNeighbourhoodGroup}
                   trackColor={{ true: colors.primary }}
@@ -844,17 +849,23 @@ function ParkingModal(props: {
               </Card>
             )}
 
-            {mode === 'create' && userProfile.spot && !keyboardVisible && (
-              <Text variant={'callout'} className="text-center text-destructive">
-                {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
-              </Text>
-            )}
-
             {!keyboardVisible && !wantToDeleteParking && (
-              <Button disabled={!isValid} onPress={handleSubmit(onSubmit)} className="">
+              <PremiumButton
+                premiumContent={
+                  <Text disabled={!canCreateNeighbourhoodGroup}>
+                    {t('user.parking.unlockMoreNeighbourhoodGroups', {
+                      available: features.active.availableNeighbourhoodGroups,
+                      max: features.active.maxNeighbourhoodGroups,
+                    })}
+                  </Text>
+                }
+                size={'lg'}
+                premiumIf={neighbourhoodGroup && !canCreateNeighbourhoodGroup}
+                disabled={!isValid}
+                onPress={handleSubmit(onSubmit)}>
                 {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
                 <Text>{submitText[mode]}</Text>
-              </Button>
+              </PremiumButton>
             )}
           </>
         )}

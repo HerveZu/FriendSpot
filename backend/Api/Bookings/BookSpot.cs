@@ -47,14 +47,6 @@ internal sealed class BookSpot(AppDbContext dbContext, IUserFeatures features)
 
     public override async Task HandleAsync(BookSpotRequest req, CancellationToken ct)
     {
-        var enabledFeatures = await features.GetEnabled(ct);
-
-        if (req.To > DateTimeOffset.Now + enabledFeatures.Specs.MaxBookInAdvanceTime)
-        {
-            ThrowError("Booking too far in the future");
-            return;
-        }
-
         var currentUser = HttpContext.ToCurrentUser();
 
         var userHasParkingSpot = await dbContext
@@ -86,6 +78,14 @@ internal sealed class BookSpot(AppDbContext dbContext, IUserFeatures features)
                     UsedCredits = cost
                 },
                 ct);
+            return;
+        }
+
+        var enabledFeatures = await features.GetEnabled(ct);
+
+        if (booking.To > DateTimeOffset.Now + enabledFeatures.Specs.MaxBookInAdvanceTime)
+        {
+            ThrowError("Booking too far in the future");
             return;
         }
 

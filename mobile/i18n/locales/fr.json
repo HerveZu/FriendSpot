@@ -139,7 +139,7 @@
       "editParking": "Modifier un groupe",
       "parkingName": "Mon groupe",
       "memberMaxCount": "{{memberCount}} utilisateurs peuvent rejoindre.",
-      "addMoreMembers": "Jusqu'à {{memberCount}} membres",
+      "addMoreMembers": "Communauté de {{memberCount}} membres",
       "parkingAddress": "Information complémentaire",
       "parkingLotname": "Mon numéro de spot",
       "create": "Créer {{name}}",
@@ -147,6 +147,7 @@
       "cars": "voitures",
       "confirmDelete": "Supprimer",
       "cancelDelete": "Annuler",
+      "unlockMoreNeighbourhoodGroups": "Débloquer des communautés ({{available}}/{{max}})",
       "share": {
         "button": "Inviter",
         "title": "Partage ton groupe de stationnement FriendSpot avec tes voisins",
@@ -200,16 +201,17 @@
     "nextReservationTitle": "Prochaine réservation",
     "reservations": "Réservations",
     "suggestedSpots": "Spots Suggérés",
-    "noSpotsAvailable": "Aucun spot n'est disponible pendant cette période.",
     "reserveFrom": "Réserver du",
     "reserveUntil": "Jusqu'au",
     "reserve": "Choisi un spot à réserver",
-    "reserveForCredits": "Réserver pour {{credits}} points",
+    "reserveForCredits_one": "Réserver pour {{count}} point",
+    "reserveForCredits_other": "Réserver pour {{count}} points",
     "now": "Maintenant",
     "occupyingSpot": "Tu occupes ce spot",
     "occupyingSpots": "Tu occupes ces {{count}} spots",
     "bookedSpot": "Tu as réservé ce spot",
     "bookedSpots": "Tu as réservé ces {{count}} spots",
+    "unlockReserveMoreInAdance": "Débloquer réservation en avance",
     "spot": {
       "locked": "Spot verouillé",
       "lockedDescription": "Le numéro du spot sera révélé au début de la réservation.",
@@ -232,9 +234,11 @@
     },
     "requestBooking": {
       "title": "Besoin d’une place ?",
-      "details": "Aucune place n’est disponible pour le moment. Faites savoir que vous cherchez.",
+      "noSpotsAvailable": "Aucune place n’est disponible pour le moment. Fait une demande de spot dans ton groupe!",
+      "unlockSendRequest": "Débloquer demandes de spot",
       "bonus": "Ajouter un bonus",
-      "requestForCredits": "Demander un spot pour {{credits}} points",
+      "requestForCredits_one": "Demander un spot pour {{count}} point",
+      "requestForCredits_other": "Demander un spot pour {{count}} points",
       "request": "Demander un spot",
       "card": {
         "title": "Demande de spot"
@@ -255,14 +259,16 @@
     "spotAlreadyShared": "Ta place est déjà partagée,\nsa disponibilité s'étend si tu ajoutes des créneaux.",
     "lendFrom": "Prêter du",
     "lendUntil": "Jusqu'au",
-    "lendAndEarnCredits": "Prêter et gagner jusqu'à {{credits}} points",
+    "lendAndEarnCredits_one": "Prêter et gagner jusqu'à {{count}} point",
+    "lendAndEarnCredits_other": "Prêter et gagner jusqu'à {{count}} points",
     "tabs": {
       "myLendings": "Mes prêts",
       "neighboursRequests": "Demandes de spot"
     },
     "acceptRequest": {
       "description": "En acceptant, votre spot sera prêté à {{requester}} du {{from}} au {{to}}.",
-      "accept": "Accepter pour {{credits}} points"
+      "accept_one": "Accepter pour {{count}} point",
+      "accept_other": "Accepter pour {{count}} points"
     }
   },
   "friendspotplus": {
@@ -304,10 +310,8 @@
     "availableCreditsExplanation": "Utilise ces points pour réserver un spot disponible.",
     "pendingCreditsExplanation": "Les points qui seront ajoutés à ton solde actuel une fois le prêt de ton spot terminé.",
     "creditInfo": "Info : Prêter ou réserver 1h = 1 point.",
-    "point": {
-      "one": "point",
-      "other": "points"
-    }
+    "points_one": "point",
+    "points_other": "points"
   },
   "rating": {
     "bookingCompleted": {

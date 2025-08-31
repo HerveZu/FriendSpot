@@ -18,7 +18,7 @@ public sealed class UserProduct : IAggregateRoot
 
     public Guid Id { get; init; }
     public string TransactionId { get; init; }
-    public string UserId { get; init; }
+    public string UserId { get; private set; }
     public string ProductId { get; }
     public DateTimeOffset? ExpiresAt { get; }
     public bool IsActive => ExpiresAt is null || ExpiresAt > DateTimeOffset.UtcNow;
@@ -35,6 +35,11 @@ public sealed class UserProduct : IAggregateRoot
         DateTimeOffset? expiresAt)
     {
         return new UserProduct(Guid.CreateVersion7(), transactionId, userId, productId, expiresAt);
+    }
+
+    public void TransferToUser(string userId)
+    {
+        UserId = userId;
     }
 }
 

@@ -141,12 +141,13 @@
       "parkingLotname": "My spot number",
       "parkingAddress": "Additional information",
       "memberMaxCount": "{{memberCount}} users can join.",
-      "addMoreMembers": "Up to {{memberCount}} members",
+      "addMoreMembers": "{{memberCount}} members neighbourhood",
       "create": "Create {{name}}",
       "save": "Save",
       "cars": "cars",
       "confirmDelete": "Delete",
       "cancelDelete": "Cancel",
+      "unlockMoreNeighbourhoodGroups": "Unlock neighbourhoods ({{available}}/{{max}})",
       "share": {
         "button": "Invite",
         "title": "Share your FriendSpot group with your neighbors",
@@ -200,16 +201,17 @@
     "nextReservationTitle": "Next reservation",
     "reservations": "Reservations",
     "suggestedSpots": "Suggested Spots",
-    "noSpotsAvailable": "No spot is available during this period.",
     "reserveFrom": "Reserve from",
     "reserveUntil": "Until",
     "reserve": "Select a spot to reserve",
-    "reserveForCredits": "Reserve for {{credits}} points",
+    "reserveForCredits_one": "Reserve for {{count}} point",
+    "reserveForCredits_other": "Reserve for {{count}} points",
     "now": "Now",
     "occupyingSpot": "You are occupying this spot",
     "occupyingSpots": "You are occupying these {{count}} spots",
     "bookedSpot": "You booked this spot",
     "bookedSpots": "You booked these {{count}} spots",
+    "unlockReserveMoreInAdance": "Unlock reservation in advance",
     "spot": {
       "locked": "Locked spot",
       "lockedDescription": "The spot number will be revealed at the beginning of the reservation.",
@@ -232,9 +234,11 @@
     },
     "requestBooking": {
       "title": "Need a spot?",
-      "details": "Looks like nothing's free right now. Let others know you're looking — and hey, you can even offer a little bonus to boost your chances!",
+      "noSpotsAvailable": "Looks like nothing's free right now. Send a spot request to others in your group!",
+      "unlockSendRequest": "Unlock spot requests",
       "bonus": "Add a bonus",
-      "requestForCredits": "Send a request for {{credits}} points",
+      "requestForCredits_one": "Send a request for {{count}} point",
+      "requestForCredits_other": "Send a request for {{count}} points",
       "request": "Send a request",
       "card": {
         "title": "Requesting a spot"
@@ -255,14 +259,16 @@
     "spotAlreadyShared": "Your spot is already shared,\nits availability extends when you add timeslots.",
     "lendFrom": "Share from",
     "lendUntil": "Until",
-    "lendAndEarnCredits": "Share and earn up to {{credits}} points",
+    "lendAndEarnCredits_one": "Share and earn up to {{count}} point",
+    "lendAndEarnCredits_other": "Share and earn up to {{count}} points",
     "tabs": {
       "myLendings": "Sharing",
       "neighboursRequests": "Spot requests"
     },
     "acceptRequest": {
       "description": "By accepting, your spot will be shared with {{requester}} from the {{from}} to the {{to}}.",
-      "accept": "Accept for {{credits}} points"
+      "accept_one": "Accept for {{count}} point",
+      "accept_other": "Accept for {{count}} points"
     }
   },
   "friendspotplus": {
@@ -304,10 +310,8 @@
     "availableCreditsExplanation": "Use these points to reserve an available spot.",
     "pendingCreditsExplanation": "The points that will be added to your current balance once your spot sharing is completed.",
     "creditInfo": "Info: Sharing or reserving 1h = 1 point.",
-    "point": {
-      "one": "point",
-      "other": "points"
-    }
+    "points_one": "Point",
+    "points_other": "points"
   },
   "rating": {
     "bookingCompleted": {

@@ -48,14 +48,6 @@ internal sealed class RequestBooking(AppDbContext dbContext, IUserFeatures featu
 
     public override async Task HandleAsync(RequestBookingRequest req, CancellationToken ct)
     {
-        var enabledFeatures = await features.GetEnabled(ct);
-
-        if (!enabledFeatures.Specs.CanSendRequest)
-        {
-            ThrowError("You cannot request a spot booking.");
-            return;
-        }
-
         var currentUser = HttpContext.ToCurrentUser();
 
         var usersParking = await (from parking in dbContext.Set<Parking>()
@@ -79,6 +71,14 @@ internal sealed class RequestBooking(AppDbContext dbContext, IUserFeatures featu
                     UsedCredits = request.Cost
                 },
                 ct);
+            return;
+        }
+
+        var enabledFeatures = await features.GetEnabled(ct);
+
+        if (!enabledFeatures.Specs.CanSendRequest)
+        {
+            ThrowError("You cannot request a spot booking.");
             return;
         }
 

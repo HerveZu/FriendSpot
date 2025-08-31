@@ -51,17 +51,29 @@ internal sealed class ActivateProduct(
 
     public override async Task HandleAsync(ActivateProductRequest req, CancellationToken ct)
     {
-        var alreadyActivated =
-            await dbContext.Set<UserProduct>().AnyAsync(x => x.TransactionId == req.TransactionId, ct);
+        var currentUser = HttpContext.ToCurrentUser();
+        var alreadyActivatedProduct = await dbContext
+            .Set<UserProduct>()
+            .FirstOrDefaultAsync(x => x.TransactionId == req.TransactionId, ct);
 
-        if (alreadyActivated)
+        if (alreadyActivatedProduct is not null)
         {
-            // idempotent, already activated -> ok to allow the client to complete the transaction
+            logger.LogInformation(
+                "Transferring already activated product with transaction {TransactionId} product from {Previous} to user {New}",
+                alreadyActivatedProduct.TransactionId,
+                alreadyActivatedProduct.UserId,
+                currentUser.Identity);
+            // to avoid abuse when switching accounts using the same device,
+            // the product is transferred to the new account
+            alreadyActivatedProduct.TransferToUser(currentUser.Identity);
+
+            dbContext.Set<UserProduct>().Update(alreadyActivatedProduct);
+            await dbContext.SaveChangesAsync(ct);
+
             await SendOkAsync(ct);
             return;
         }
 
-        var currentUser = HttpContext.ToCurrentUser();
         logger.LogInformation(
             "Validating purchase from transaction {TransactionId} using provider {Provider}",
             req.TransactionId,
