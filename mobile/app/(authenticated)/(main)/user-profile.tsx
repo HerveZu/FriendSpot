@@ -550,7 +550,7 @@ function SupportBottomSheet(props: {
         <View className={'gap-2'}>
           <ContactUsButton size={'lg'} variant={'tonal'}>
             <ThemedIcon name={'envelope'} component={FontAwesome6} color={colors.primary} />
-            <Text>{t('user.profile.support.contactSupport')}</Text>
+            <Text className={'text-primary'}>{t('user.profile.support.contactSupport')}</Text>
           </ContactUsButton>
 
           <Button
