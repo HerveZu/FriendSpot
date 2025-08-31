@@ -151,7 +151,7 @@
       "share": {
         "button": "Invite",
         "title": "Share your FriendSpot group with your neighbors",
-        "message": "Hi! Join our neighbor group on FriendSpot. Use the code {{code}}."
+        "message": "Hi! Join our neighbor group on FriendSpot. Use the code {{code}}.\n{{url}}"
       },
       "noParkingPopup": {
         "body": "Join a group to access all the features of the application.",
