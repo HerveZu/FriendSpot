@@ -700,6 +700,7 @@ function ParkingModal(props: {
     setAddress(props.parking?.address ?? '');
     setLotName('');
     setWantToDeleteParking(false);
+    setNeighbourhoodGroup(false);
   }, [props.open]);
 
   useEffect(() => {
@@ -848,15 +849,6 @@ function ParkingModal(props: {
               </Card>
             )}
 
-            {mode === 'create' &&
-              userProfile.spot &&
-              !keyboardVisible &&
-              canCreateNeighbourhoodGroup && (
-                <Text variant={'callout'} className="text-center text-destructive">
-                  {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
-                </Text>
-              )}
-
             {!keyboardVisible && !wantToDeleteParking && (
               <PremiumButton
                 premiumContent={
@@ -867,6 +859,7 @@ function ParkingModal(props: {
                     })}
                   </Text>
                 }
+                size={'lg'}
                 premiumIf={neighbourhoodGroup && !canCreateNeighbourhoodGroup}
                 disabled={!isValid}
                 onPress={handleSubmit(onSubmit)}>
