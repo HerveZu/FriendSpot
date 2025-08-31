@@ -73,7 +73,6 @@ import { OpenSection } from '~/components/OpenSection';
 import { CopyToClipboard } from '~/components/CopyToClipboard';
 import { UserSpot } from '~/endpoints/me/get-profile';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
-import { awaitExpression } from '@babel/types';
 import { validators } from 'tailwind-merge';
 
 export default function UserProfile() {
