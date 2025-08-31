@@ -611,10 +611,6 @@ function BookingSheet(props: {
           </CardContainer>
         ) : requestSpot ? (
           <View className={'gap-6'}>
-            <Card>
-              <Text variant={'body'}>{t('booking.requestBooking.details')}</Text>
-            </Card>
-
             <SheetHeading icon={<ThemedIcon component={FontAwesome6} name="arrow-trend-up" />}>
               {t('booking.requestBooking.bonus')}
             </SheetHeading>
@@ -640,22 +636,12 @@ function BookingSheet(props: {
           </CardContainer>
         ) : (
           <Card>
-            <View className={'flex-row items-center gap-4'}>
-              <KnownIcon name={'warning'} />
-              <Text variant={'callout'} className={'flex-1'}>
-                {t('booking.noSpotsAvailable')}
-              </Text>
-            </View>
+            <Text>{t('booking.requestBooking.noSpotsAvailable')}</Text>
 
-            <PremiumButton
-              variant={'plain'}
-              onPress={() => setRequestSpot(true)}
-              premiumIcon={<KnownIcon name={'premium'} color={colors.primary} />}
-              icon={
-                <ThemedIcon name={'arrow-right'} component={FontAwesome6} color={colors.primary} />
-              }>
+            <Button variant={'plain'} onPress={() => setRequestSpot(true)}>
+              <ThemedIcon name={'arrow-right'} component={FontAwesome6} color={colors.primary} />
               <Text className={'text-primary'}>{t('booking.askToSendRequest')}</Text>
-            </PremiumButton>
+            </Button>
           </Card>
         )}
       </View>
@@ -720,12 +706,13 @@ function BookingSheet(props: {
             requestSimulation?.usedCredits > userProfile.wallet.credits ||
             features.currentParkingIsLocked
           }
+          premiumContent={<Text>{t('booking.requestBooking.unlockSendRequest')}</Text>}
           onPress={actuallyRequestBooking}>
           {isRequesting && <ActivityIndicator color={colors.foreground} />}
           <Text>
             {requestSimulation
               ? t('booking.requestBooking.requestForCredits', {
-                  credits: requestSimulation.usedCredits,
+                  count: requestSimulation.usedCredits,
                 })
               : t('booking.requestBooking.request')}
           </Text>
@@ -735,6 +722,7 @@ function BookingSheet(props: {
           premiumIf={
             differenceInMilliseconds(to, now) >= durationToMs(features.active.maxBookInAdvanceTime)
           }
+          premiumContent={<Text>{t('booking.unlockReserveMoreInAdance')}</Text>}
           variant="primary"
           size="lg"
           disabled={
@@ -746,7 +734,7 @@ function BookingSheet(props: {
           {isBooking && <ActivityIndicator color={colors.foreground} />}
           <Text>
             {bookingSimulation
-              ? t('booking.reserveForCredits', { credits: bookingSimulation.usedCredits })
+              ? t('booking.reserveForCredits', { count: bookingSimulation.usedCredits })
               : t('booking.reserve')}
           </Text>
         </PremiumButton>

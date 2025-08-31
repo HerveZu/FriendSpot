@@ -13,14 +13,12 @@ export function UserWallet({ className, ...props }: ViewProps) {
   const { userProfile } = useCurrentUser();
   const [infoModalOpen, setInfoModalOpen] = React.useState(false);
 
-  const userPoint = userProfile.wallet.credits;
-
   return (
     <>
       <Pressable onPress={() => setInfoModalOpen(true)} {...props}>
         <Card className={cn('mt-2 flex-row items-center justify-center gap-2', className)}>
           <Credits pending={false} credits={userProfile.wallet.credits} />
-          <Text>{t(`${userPoint > 1 ? 'wallet.point.other' : 'wallet.point.one'}`)}</Text>
+          <Text>{t('wallet.points', { count: userProfile.wallet.credits })}</Text>
         </Card>
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
@@ -41,13 +39,13 @@ function CreditsExplanation(props: { pending: boolean; explanation: string }) {
   const { userProfile } = useCurrentUser();
 
   return (
-    <View className={'w-full flex-row items-center justify-between gap-6 p-2.5'}>
+    <View className={'w-full flex-row items-center justify-between gap-6'}>
       <Credits
         pending={props.pending}
         credits={props.pending ? userProfile.wallet.pendingCredits : userProfile.wallet.credits}
         displayCredit={false}
       />
-      <View className={'max-w-60'}>
+      <View className={'flex-1'}>
         <Text className={'min-w-60 text-start'}>{props.explanation}</Text>
       </View>
     </View>

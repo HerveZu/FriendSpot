@@ -2,25 +2,44 @@ import { Button, ButtonProps } from '~/components/nativewindui/Button';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { KnownIcon, ThemedIcon } from '~/components/ThemedIcon';
 import { Plans } from '~/endpoints/me/get-features';
-import { ReactElement, useCallback } from 'react';
+import { ReactElement, ReactNode, useCallback } from 'react';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { GestureResponderEvent } from 'react-native';
 
 export function PremiumButton({
-  disabled,
   premiumIf = true,
   children,
   icon,
   premiumIcon,
+  disabled,
+  onPress,
+  premiumContent,
   ...props
-}: ButtonProps & { premiumIf?: boolean; icon?: ReactElement; premiumIcon?: ReactElement }) {
+}: ButtonProps & {
+  icon?: ReactElement;
+  premiumIcon?: ReactElement;
+  premiumIf?: boolean;
+  premiumContent: ReactNode;
+}) {
   const { features } = useCurrentUser();
+  const router = useRouter();
   const doesntHaveAccess = premiumIf && !features.isPremium;
 
+  function handleOnPress(e: GestureResponderEvent) {
+    if (doesntHaveAccess) {
+      router.push('/friendspot-plus');
+      return;
+    }
+
+    onPress?.(e);
+  }
+
   return (
-    <Button disabled={disabled || doesntHaveAccess} {...props}>
+    <Button disabled={!doesntHaveAccess && disabled} onPress={handleOnPress} {...props}>
       <>
         {doesntHaveAccess ? (premiumIcon ?? <KnownIcon name={'premium'} />) : icon}
-        {children}
+        {doesntHaveAccess ? premiumContent : children}
       </>
     </Button>
   );

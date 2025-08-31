@@ -64,7 +64,7 @@ import { ParkingSpotCount } from '~/components/ParkingSpotCount';
 import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/DynamicBottomSheet';
 import { ContactUsButton } from '~/components/ContactUsButton';
 import { useIAP } from 'expo-iap';
-import { useGetPlanInfo } from '~/components/FriendspotPlus';
+import { PremiumButton, useGetPlanInfo } from '~/components/FriendspotPlus';
 import { Form } from '~/form/Form';
 import { FormInput } from '~/form/FormInput';
 import { useValidators } from '~/form/validators';
@@ -834,20 +834,13 @@ function ParkingModal(props: {
 
             {mode === 'create' && !keyboardVisible && (
               <Card className={'flex-row items-center justify-between'}>
-                <View className={'flex-row items-center gap-2'}>
-                  <KnownIcon name={'premium'} size={18} color={colors.primary} />
-                  <Text className={'text-primary'}>
-                    {t('user.parking.addMoreMembers', {
-                      memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
-                    })}
-                  </Text>
-                  <Text disabled={!canCreateNeighbourhoodGroup}>
-                    ({features.active.availableNeighbourhoodGroups}/
-                    {features.active.maxNeighbourhoodGroups})
-                  </Text>
-                </View>
+                <Text className={'text-primary'}>
+                  {t('user.parking.addMoreMembers', {
+                    memberCount: features.plans.neighbourhood.specs.maxSpotPerNeighbourhoodGroup,
+                  })}
+                </Text>
+
                 <Switch
-                  disabled={!canCreateNeighbourhoodGroup}
                   value={neighbourhoodGroup}
                   onValueChange={setNeighbourhoodGroup}
                   trackColor={{ true: colors.primary }}
@@ -855,17 +848,31 @@ function ParkingModal(props: {
               </Card>
             )}
 
-            {mode === 'create' && userProfile.spot && !keyboardVisible && (
-              <Text variant={'callout'} className="text-center text-destructive">
-                {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
-              </Text>
-            )}
+            {mode === 'create' &&
+              userProfile.spot &&
+              !keyboardVisible &&
+              canCreateNeighbourhoodGroup && (
+                <Text variant={'callout'} className="text-center text-destructive">
+                  {t('user.parking.confirmLeaveGroup.leaveAndChangeGroup')}
+                </Text>
+              )}
 
             {!keyboardVisible && !wantToDeleteParking && (
-              <Button disabled={!isValid} onPress={handleSubmit(onSubmit)} className="">
+              <PremiumButton
+                premiumContent={
+                  <Text disabled={!canCreateNeighbourhoodGroup}>
+                    {t('user.parking.unlockMoreNeighbourhoodGroups', {
+                      available: features.active.availableNeighbourhoodGroups,
+                      max: features.active.maxNeighbourhoodGroups,
+                    })}
+                  </Text>
+                }
+                premiumIf={neighbourhoodGroup && !canCreateNeighbourhoodGroup}
+                disabled={!isValid}
+                onPress={handleSubmit(onSubmit)}>
                 {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}
                 <Text>{submitText[mode]}</Text>
-              </Button>
+              </PremiumButton>
             )}
           </>
         )}

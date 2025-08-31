@@ -180,7 +180,7 @@ function AcceptRequestModal({
           disabled={isAccepting || features.currentParkingIsLocked}
           onPress={() => acceptRequest(request.id)}>
           {isAccepting && <ActivityIndicator color={colors.foreground} />}
-          <Text>{t('lending.acceptRequest.accept', { credits: request.credits })}</Text>
+          <Text>{t('lending.acceptRequest.accept', { count: request.credits })}</Text>
         </Button>
       </View>
     </Modal>
@@ -431,7 +431,7 @@ function LendSpotSheet(props: { open: boolean; onOpen: Dispatch<SetStateAction<b
           <Text>
             {simulation && simulation.earnedCredits > 0
               ? t('lending.lendAndEarnCredits', {
-                  credits: Math.round(simulation?.earnedCredits),
+                  count: Math.round(simulation?.earnedCredits),
                 })
               : t('lending.lendMySpot')}
           </Text>
