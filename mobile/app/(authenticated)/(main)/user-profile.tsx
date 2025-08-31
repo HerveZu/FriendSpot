@@ -247,8 +247,10 @@ function ShareSpot({ spot }: { spot: UserSpot }) {
     await Share.share(
       {
         title: t('user.parking.share.title'),
-        message: t('user.parking.share.message', { code: code }),
-        url: universalLink(`join-parking?code=${code}`),
+        message: t('user.parking.share.message', {
+          code: code,
+          url: universalLink(`join-parking?code=${code}`),
+        }),
       },
       { dialogTitle: t('user.parking.share.title') }
     );
