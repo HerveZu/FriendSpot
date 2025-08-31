@@ -588,10 +588,13 @@ function SettingsBottomSheet(props: {
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
   const [confirmLogout, setConfirmLogout] = useState(false);
-  const { restorePurchases } = useIAP();
+  const { restorePurchases } = useIAP({ shouldAutoSyncPurchases: true });
   const { features } = useCurrentUser();
   const { firebaseUser } = useAuth();
   const getPlanInfo = useGetPlanInfo();
+  const [restorePurchasesWithRefresh, isRestoringPurchases] = useLoading(
+    useRefreshOnSuccess(restorePurchases)
+  );
 
   const { colors } = useColorScheme();
   const { t } = useTranslation();
@@ -624,8 +627,16 @@ function SettingsBottomSheet(props: {
         </Card>
 
         <View className={'gap-4'}>
-          <Button onPress={restorePurchases} size={'lg'} variant={'tonal'}>
-            <ThemedIcon name={'cart-arrow-down'} component={FontAwesome6} color={colors.primary} />
+          <Button onPress={restorePurchasesWithRefresh} size={'lg'} variant={'tonal'}>
+            {isRestoringPurchases ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <ThemedIcon
+                name={'cart-arrow-down'}
+                component={FontAwesome6}
+                color={colors.primary}
+              />
+            )}
             <Text className={'text-primary'}>{t('user.profile.settings.restorePurchases')}</Text>
           </Button>
           <Button size={'lg'} variant={'plain'} onPress={() => setConfirmLogout(true)}>

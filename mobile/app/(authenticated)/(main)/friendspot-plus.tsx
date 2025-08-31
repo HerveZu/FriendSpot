@@ -111,7 +111,7 @@ function SubscriptionCard({
 
   const [thisPurchaseIsPending, setThisPurchaseIsPending] = useState(false);
   const { purchasePending, setPurchasePending } = useContext(PurchaseContext);
-  const { features } = useCurrentUser();
+  const { features, refreshProfile } = useCurrentUser();
 
   const isAvailable = useMemo(() => {
     const featureActiveMap = {
@@ -168,6 +168,7 @@ function SubscriptionCard({
         },
       });
       console.log('Product purchased');
+      await refreshProfile();
     } catch (e) {
       console.error('Failed to purchase', e);
     } finally {
