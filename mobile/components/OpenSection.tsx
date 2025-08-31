@@ -1,9 +1,8 @@
 import { ReactNode } from 'react';
 import { Pressable, PressableProps, View } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { Card } from '~/components/Card';
+import { Card, CardTitle } from '~/components/Card';
 import { ThemedIcon } from '~/components/ThemedIcon';
-import { Text } from '~/components/nativewindui/Text';
 
 export function OpenSection({
   icon,
@@ -15,7 +14,7 @@ export function OpenSection({
       <Card className={'flex-row items-center justify-between'}>
         <View className={'flex-row items-center gap-4'}>
           {icon}
-          <Text variant={'heading'}>{title}</Text>
+          <CardTitle>{title}</CardTitle>
         </View>
         <ThemedIcon name={'chevron-right'} component={FontAwesome6} size={14} />
       </Card>

@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
-import { Card } from '~/components/Card';
+import { Card, CardTitle } from '~/components/Card';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
@@ -197,9 +197,7 @@ function OthersBookingRequestCard(props: { request: BookingRequestResponse }) {
       <Pressable onPress={() => setModalOpen(true)}>
         <Card>
           <View className={'flex-row items-center justify-between'}>
-            <View className={'flex-row items-center gap-2'}>
-              <Text variant={'heading'}>{t('booking.requestBooking.card.title')}</Text>
-            </View>
+            <CardTitle>{t('booking.requestBooking.card.title')}</CardTitle>
             <UserAvatar {...props.request.requester} />
           </View>
 
@@ -245,9 +243,7 @@ function MySpotAvailabilityCard(props: { spotId: string; availability: SpotAvail
         <View className="flex-row justify-between gap-4">
           <View className={'flex-row items-center gap-2'}>
             <ThemedIcon name={'user-clock'} color={colors.primary} component={FontAwesome6} />
-            <Text variant="heading" className="font-bold">
-              {capitalize(formatRelative(props.availability.from, now))}
-            </Text>
+            <CardTitle>{capitalize(formatRelative(props.availability.from, now))}</CardTitle>
           </View>
           {uniqueBookingUsers.length ? <Users users={uniqueBookingUsers} /> : <DeleteTrigger />}
         </View>

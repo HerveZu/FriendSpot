@@ -12,7 +12,7 @@ import { SafeAreaView, View } from 'react-native';
 import { cn } from '~/lib/cn';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { TextInputProps } from '~/components/TextInput';
-import { useSegments } from 'expo-router';
+import { useScreenHasChanged } from '~/lib/useScreenHasChanged';
 
 export function DynamicBottomSheet({
   open,
@@ -36,11 +36,7 @@ export function DynamicBottomSheet({
     }
   }, [open]);
 
-  const segments = useSegments();
-
-  useEffect(() => {
-    ref.current?.close();
-  }, [segments]);
+  useScreenHasChanged(() => ref.current?.close());
 
   return (
     <Sheet

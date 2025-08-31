@@ -1,5 +1,5 @@
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
-import { Card } from '~/components/Card';
+import { Card, CardTitle } from '~/components/Card';
 import { Text } from '~/components/nativewindui/Text';
 import { useTranslation } from 'react-i18next';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -60,11 +60,11 @@ export default function FriendspotPlus() {
         {ready ? (
           <View className={'flex-col gap-6'}>
             {subscriptions
-              .sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
-              .map((product, i) => {
-                const info = getPlanInfo(product.id);
-
-                return (
+              .map((product) => ({ product, info: getPlanInfo(product.id) }))
+              .filter((x) => !!x.info)
+              .sort((a, b) => a.info!.order - b.info!.order)
+              .map(
+                ({ product, info }, i) =>
                   info && (
                     <SubscriptionCard
                       key={i}
@@ -75,8 +75,7 @@ export default function FriendspotPlus() {
                       }
                     />
                   )
-                );
-              })}
+              )}
             <SubscriptionCard
               icon={<ThemedIcon name={'unlock'} component={FontAwesome6} size={16} />}
               i18nKey={'custom'}
@@ -182,9 +181,7 @@ function SubscriptionCard({
       <View className={'flex-row items-center justify-between'}>
         <View className={'flex-row items-center gap-2'}>
           {icon}
-          <Text variant={'heading'}>
-            {product?.displayName ?? t(`friendspotplus.plans.${i18nKey}.name`)}
-          </Text>
+          <CardTitle>{product?.displayName ?? t(`friendspotplus.plans.${i18nKey}.name`)}</CardTitle>
         </View>
 
         {product && (
@@ -211,9 +208,13 @@ function SubscriptionCard({
         {!isAvailable && <ThemedIcon name={'lock'} component={FontAwesome6} />}
         {thisPurchaseIsPending && <ActivityIndicator color={colors.foreground} />}
         <Text>
-          {product
-            ? t(`friendspotplus.plans.upgradeButton`, { product: product.displayName })
-            : t(`friendspotplus.plans.${i18nKey}.upgradeButton`)}
+          {!isAvailable &&
+            product &&
+            t('friendspotplus.plans.alreadyUpgraded', { product: product.displayName })}
+          {isAvailable &&
+            (product
+              ? t('friendspotplus.plans.upgradeButton', { product: product.displayName })
+              : t(`friendspotplus.plans.${i18nKey}.upgradeButton`))}
         </Text>
       </ContactUsButton>
     </Card>

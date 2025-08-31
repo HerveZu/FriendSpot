@@ -117,12 +117,15 @@
         "title": "Support",
         "appInfo": "Debug information",
         "contactSupport": "Contact support",
-        "deleteAccount": "Delete my account and data",
-        "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
-        "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
-        "deleteAccountTitle": "Delete my account",
         "termsOfUse": "Terms of use",
-        "privacyPolicy": "Privacy policy"
+        "privacyPolicy": "Privacy policy",
+        "deleteAccount": {
+          "button": "Delete my account and data",
+          "confirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
+          "confirm": "I confirm I want to delete my account and understand this action is irreversible.",
+          "title": "Delete my account",
+          "invalidPassword": "Invalid password"
+        }
       }
     },
     "parking": {
@@ -267,8 +270,8 @@
     },
     "acceptRequest": {
       "description": "By accepting, your spot will be shared with {{requester}} from the {{from}} to the {{to}}.",
-      "accept_one": "Accept for {{count}} point",
-      "accept_other": "Accept for {{count}} points"
+      "accept_one": "Accept and earn {{count}} point",
+      "accept_other": "Accept and earn {{count}} points"
     }
   },
   "friendspotplus": {
@@ -276,6 +279,7 @@
     "plans": {
       "everythingIn": "Everything in {{product}}",
       "upgradeButton": "Upgrade to {{product}}",
+      "alreadyUpgraded": "Already {{product}}",
       "premium": {
         "accountName": "Premium account",
         "features": [

@@ -37,7 +37,6 @@
       "signUp": "S'inscrire",
       "almostDone": "Presque terminé !",
       "checkEmailAndConfirm": "Vérifie ta boîte mail et clique sur le lien de confirmation pour activer ton compte.",
-      "done": "C'est fait !",
       "confirmPassword": "Confirmer le mot de passe",
       "errors": {
         "emailAlreadyInUse": "Cette adresse e-mail est déjà utilisée.",
@@ -117,12 +116,15 @@
         "title": "Support",
         "appInfo": "Info de débogage",
         "contactSupport": "Contacter le support",
-        "deleteAccount": "Supprimer mon compte et données",
-        "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
-        "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
-        "deleteAccountTitle": "Supprimer mon compte",
         "privacyPolicy": "Politique de confidentialité",
-        "termsOfUse": "Conditions d'utilisation"
+        "termsOfUse": "Conditions d'utilisation",
+        "deleteAccount": {
+          "button": "Supprimer mon compte et données",
+          "confirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
+          "confirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
+          "title": "Supprimer mon compte",
+          "invalidPassword": "Invalid password"
+        }
       }
     },
     "parking": {
@@ -267,8 +269,8 @@
     },
     "acceptRequest": {
       "description": "En acceptant, votre spot sera prêté à {{requester}} du {{from}} au {{to}}.",
-      "accept_one": "Accepter pour {{count}} point",
-      "accept_other": "Accepter pour {{count}} points"
+      "accept_one": "Accepter et gagner {{count}} point",
+      "accept_other": "Accepter et gagner {{count}} points"
     }
   },
   "friendspotplus": {
@@ -276,6 +278,7 @@
     "plans": {
       "everythingIn": "Tout dans {{product}}",
       "upgradeButton": "Passer à {{product}}",
+      "alreadyUpgraded": "Déjà {{product}}",
       "premium": {
         "accountName": "Compte Premium",
         "features": [

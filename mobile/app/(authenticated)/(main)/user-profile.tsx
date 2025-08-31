@@ -72,6 +72,7 @@ import { urls } from '~/lib/urls';
 import { OpenSection } from '~/components/OpenSection';
 import { CopyToClipboard } from '~/components/CopyToClipboard';
 import { UserSpot } from '~/endpoints/me/get-profile';
+import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 export default function UserProfile() {
   const { firebaseUser } = useAuth();
@@ -272,14 +273,33 @@ function AccountDeletionConfirmationModal({
   visible: boolean;
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
-  const [deleteAccount, deletingAccount] = useLoading(useDeleteAccount());
+  const deleteAccountBackend = useDeleteAccount();
   const { colors } = useColorScheme();
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { firebaseUser } = useAuth();
   const { t } = useTranslation();
+  const [password, setPassword] = useState('');
+  const [invalidPassword, setInvalidPassword] = useState(false);
+  const validators = useValidators();
+
+  async function reauthenticateUserBeforeDeletingAccount() {
+    if (!firebaseUser.email) {
+      return;
+    }
+    try {
+      const credential = EmailAuthProvider.credential(firebaseUser.email, password);
+      await reauthenticateWithCredential(firebaseUser, credential);
+    } catch {
+      setInvalidPassword(true);
+      return false;
+    }
+
+    return true;
+  }
 
   async function deleteAccountBackendAndFirebase() {
-    await deleteAccount();
+    await deleteAccountBackend();
     await firebaseUser.delete().catch((e) => {
       console.error(e);
       // we need to do a recent sign-in to be able to delete the account on firebase
@@ -287,63 +307,93 @@ function AccountDeletionConfirmationModal({
     });
   }
 
+  async function deleteAccount() {
+    setIsDeleting(true);
+
+    try {
+      const authWasValid = await reauthenticateUserBeforeDeletingAccount();
+      authWasValid && (await deleteAccountBackendAndFirebase());
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   useEffect(() => {
-    !visible && setUserHasConfirmed(false);
+    if (visible) return;
+
+    setUserHasConfirmed(false);
+    setPassword('');
+    setInvalidPassword(false);
   }, [visible]);
 
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange} className={'bg-destructive/20 gap-4'}>
         <ModalTitle
-          text={t('user.profile.support.deleteAccountTitle')}
+          text={t('user.profile.support.deleteAccount.title')}
           icon={<ThemedIcon name={'warning'} />}
         />
 
-        <View className={'mt-4 flex-col gap-8'}>
-          <Text className={'text-destructive'} variant={'callout'}>
-            {t('user.profile.support.deleteAccountConfirmation')}
-          </Text>
+        <Form>
+          {({ handleSubmit, isValid }) => (
+            <>
+              <View className={'mt-4 flex-col gap-8'}>
+                <Text className={'text-destructive'} variant={'callout'}>
+                  {t('user.profile.support.deleteAccount.confirmation')}
+                </Text>
 
-          <View className={'flex-row items-center gap-4'}>
-            <Checkbox
-              value={userHasConfirmed}
-              onValueChange={setUserHasConfirmed}
-              style={{
-                borderColor: colors.foreground,
-                borderRadius: 6,
-              }}
-            />
-            <Text variant={'caption1'} className={'flex-1'}>
-              {t('user.profile.support.deleteAccountConfirm')}
-            </Text>
-          </View>
-        </View>
-
-        <ExpandRow className="mt-4">
-          <ExpandItem>
-            <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
-              <Text className={'text-primary'}>{t('common.cancel')}</Text>
-            </Button>
-          </ExpandItem>
-          <ExpandItem>
-            <Button
-              disabled={!userHasConfirmed}
-              variant={'plain'}
-              size={'lg'}
-              onPress={deleteAccountBackendAndFirebase}>
-              {deletingAccount ? (
-                <ActivityIndicator color={colors.destructive} />
-              ) : (
-                <ThemedIcon
-                  name={'no-accounts'}
-                  component={MaterialIcons}
-                  color={colors.destructive}
+                <FormInput
+                  value={password}
+                  onValueChange={setPassword}
+                  placeholder={t('auth.password')}
+                  secureTextEntry={true}
+                  validators={[validators.required]}
+                  error={invalidPassword && t('user.profile.support.deleteAccount.invalidPassword')}
                 />
-              )}
-              <Text className={'text-destructive'}>{t('common.delete')}</Text>
-            </Button>
-          </ExpandItem>
-        </ExpandRow>
+
+                <View className={'flex-row items-center gap-4'}>
+                  <Checkbox
+                    value={userHasConfirmed}
+                    onValueChange={setUserHasConfirmed}
+                    style={{
+                      borderColor: colors.foreground,
+                      borderRadius: 6,
+                    }}
+                  />
+                  <Text variant={'caption1'} className={'flex-1'}>
+                    {t('user.profile.support.deleteAccount.confirm')}
+                  </Text>
+                </View>
+              </View>
+
+              <ExpandRow className="mt-4">
+                <ExpandItem>
+                  <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
+                    <Text>{t('common.cancel')}</Text>
+                  </Button>
+                </ExpandItem>
+                <ExpandItem>
+                  <Button
+                    disabled={!isValid || !userHasConfirmed}
+                    variant={'plain'}
+                    size={'lg'}
+                    onPress={handleSubmit(deleteAccount)}>
+                    {isDeleting ? (
+                      <ActivityIndicator color={colors.destructive} />
+                    ) : (
+                      <ThemedIcon
+                        name={'no-accounts'}
+                        component={MaterialIcons}
+                        color={colors.destructive}
+                      />
+                    )}
+                    <Text className={'text-destructive'}>{t('common.delete')}</Text>
+                  </Button>
+                </ExpandItem>
+              </ExpandRow>
+            </>
+          )}
+        </Form>
       </Modal>
       {children}
     </>
@@ -378,7 +428,7 @@ function LogoutConfirmationModal({
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
-              <Text className={'text-primary'}>{t('common.back')}</Text>
+              <Text>{t('common.back')}</Text>
             </Button>
           </ExpandItem>
           <ExpandItem>
@@ -431,7 +481,7 @@ function LeaveGroupConfirmationModal({
         <ExpandRow className="mt-4">
           <ExpandItem>
             <Button size={'lg'} variant="tonal" onPress={() => onVisibleChange(false)}>
-              <Text className={'text-primary'}>{t('common.back')}</Text>
+              <Text>{t('common.back')}</Text>
             </Button>
           </ExpandItem>
           <ExpandItem>
@@ -550,7 +600,7 @@ function SupportBottomSheet(props: {
         <View className={'gap-2'}>
           <ContactUsButton size={'lg'} variant={'tonal'}>
             <ThemedIcon name={'envelope'} component={FontAwesome6} color={colors.primary} />
-            <Text className={'text-primary'}>{t('user.profile.support.contactSupport')}</Text>
+            <Text>{t('user.profile.support.contactSupport')}</Text>
           </ContactUsButton>
 
           <Button
@@ -577,7 +627,9 @@ function SupportBottomSheet(props: {
         <View className={'gap-4'}>
           <Button variant={'plain'} onPress={() => setConfirmAccountDeletion(true)}>
             <ThemedIcon name={'ban'} component={FontAwesome6} color={colors.destructive} />
-            <Text className={'text-destructive'}>{t('user.profile.support.deleteAccount')}</Text>
+            <Text className={'text-destructive'}>
+              {t('user.profile.support.deleteAccount.button')}
+            </Text>
           </Button>
         </View>
       </DynamicBottomSheet>
@@ -639,7 +691,7 @@ function SettingsBottomSheet(props: {
                 color={colors.primary}
               />
             )}
-            <Text className={'text-primary'}>{t('user.profile.settings.restorePurchases')}</Text>
+            <Text>{t('user.profile.settings.restorePurchases')}</Text>
           </Button>
           <Button size={'lg'} variant={'plain'} onPress={() => setConfirmLogout(true)}>
             <ThemedIcon
@@ -756,7 +808,9 @@ function ParkingModal(props: {
                 color={colors.primary}
               />
               <Text className="font-semibold text-primary">
-                {t('user.parking.memberMaxCount', { memberCount: maxMembersCount })}
+                {t('user.parking.memberMaxCount', {
+                  memberCount: props.parking?.maxSpots ?? maxMembersCount,
+                })}
               </Text>
             </View>
             <View className={'flex-col gap-2'}>

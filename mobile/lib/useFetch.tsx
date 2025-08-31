@@ -24,7 +24,8 @@ export function useHookFetch<TResponse>(
 export function useFetch<TResponse>(
   fetchData: () => Promise<TResponse> | Falsy,
   deps: unknown[],
-  withRefresh = true
+  withRefresh = true,
+  callbacks?: { onError: () => void }
 ): UseFetchResponse<TResponse> {
   const [data, setData] = useState<TResponse>();
   const [loading, setLoading] = useState(false);
@@ -40,10 +41,13 @@ export function useFetch<TResponse>(
       return;
     }
 
-    promise.then(setData).finally(() => {
-      setLoading(false);
-      setHasLoadedOnce(true);
-    });
+    promise
+      .then(setData)
+      .catch(callbacks?.onError)
+      .finally(() => {
+        setLoading(false);
+        setHasLoadedOnce(true);
+      });
   }, [callback, setLoading, setData]);
 
   const resetInitialLoading = useCallback(() => setHasLoadedOnce(false), [setHasLoadedOnce]);

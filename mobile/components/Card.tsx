@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, ViewProps } from 'react-native';
+import { TextProps, View, ViewProps } from 'react-native';
 
 import { cn } from '~/lib/cn';
 import { ScrollView } from 'react-native-gesture-handler';
+import { Text } from '~/components/nativewindui/Text';
 
 export function CardContainer({ className, children, ...props }: ViewProps) {
   return (
@@ -10,6 +11,10 @@ export function CardContainer({ className, children, ...props }: ViewProps) {
       <View className="m-2 grow flex-col gap-2">{children}</View>
     </ScrollView>
   );
+}
+
+export function CardTitle({ className, ...props }: Omit<TextProps, 'variant'>) {
+  return <Text variant="heading" className={cn('font-semibold', className)} {...props} />;
 }
 
 export function Card({

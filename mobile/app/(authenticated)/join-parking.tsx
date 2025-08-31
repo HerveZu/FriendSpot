@@ -41,22 +41,21 @@ import { DynamicBottomSheet, DynamicBottomSheetTextInput } from '~/components/Dy
 
 export default function JoinParking() {
   const { code: initialCode } = useLocalSearchParams<{ code?: string }>();
-  const [code, setCode] = useState(initialCode || '');
+  const [code, setCode] = useState(initialCode ?? '');
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const searchParking = useSearchParking();
   const { dismiss: dismissUserSpotCheck } = useContext(UserSpotCheckContext);
-  const [hasResetCode, setHasResetCode] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useColorScheme();
 
   useEffect(() => {
-    if (!hasResetCode && initialCode && initialCode !== code) {
-      setCode(initialCode);
+    if (initialCode) {
+      setCode((code) => (code === initialCode ? code : initialCode));
     }
-  }, [initialCode, code, hasResetCode]);
+  }, [initialCode]);
 
-  const [parking, , isSearching] = useFetch(
+  const [parking, setParking, isSearching] = useFetch(
     () => (code ? searchParking(code).then((results) => results[0] ?? null) : null),
     [code]
   );
@@ -72,9 +71,10 @@ export default function JoinParking() {
     router.replace('/');
   }
 
-  function resetCode() {
-    setHasResetCode(true);
+  function cancelParkingJoin() {
+    setConfirmModalOpen(false);
     setCode('');
+    setParking(undefined);
   }
 
   const [step, setStep] = useState<'confirm' | 'spot'>('confirm');
@@ -87,7 +87,11 @@ export default function JoinParking() {
     switch (step) {
       case 'confirm':
         return (
-          <ConfirmContent parking={parking} onNext={() => setStep('spot')} onCancel={resetCode} />
+          <ConfirmContent
+            parking={parking}
+            onNext={() => setStep('spot')}
+            onCancel={cancelParkingJoin}
+          />
         );
       case 'spot':
         return (
@@ -126,18 +130,15 @@ export default function JoinParking() {
             variant={'tonal'}
             size={'md'}
             className="bg-primary/10 flex-row items-center justify-center gap-2 rounded-lg py-3">
-            <Text className={'text-primary'}>{t('user.parking.joinParking.dismissCheck')}</Text>
-            <ThemedIcon
-              name={'arrow-right'}
-              color={Platform.select({ ios: colors.primary })}
-              size={14}
-            />
+            <Text>{t('user.parking.joinParking.dismissCheck')}</Text>
+            <ThemedIcon name={'arrow-right'} color={colors.primary} size={14} />
           </Button>
 
           {parking && (
             <DynamicBottomSheet
               open={confirmModalOpen}
               onOpenChange={setConfirmModalOpen}
+              onClose={cancelParkingJoin}
               enablePanDownToClose={false}>
               {content(parking)}
             </DynamicBottomSheet>
@@ -276,7 +277,7 @@ function CodeEntry({
   const [internalCode, setInternalCode] = useState(code);
 
   useEffect(() => {
-    if (code && code !== internalCode) {
+    if (code !== internalCode) {
       setInternalCode(appendCodePrefix(code));
     }
   }, [code]);
