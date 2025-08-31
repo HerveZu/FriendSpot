@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Falsy, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
 import { FormContext } from '~/form/Form';
 import { Text } from '~/components/nativewindui/Text';
@@ -17,6 +17,7 @@ export function FormInput({
   secure,
   validators,
   value,
+  error,
   ...props
 }: {
   value: string | undefined;
@@ -24,9 +25,10 @@ export function FormInput({
   placeholder: string;
   secure?: boolean;
   validators?: Validator[];
+  error?: string | Falsy;
 } & TextInputProps) {
   const [id] = useState(Math.random().toString(6));
-  const { isSubmitted, touchTrigger, touch, error } = useContext(FormContext);
+  const { isSubmitted, touchTrigger, touch, error: doError } = useContext(FormContext);
   const [failedValidators, setFailedValidators] = useState<Validator[]>([]);
   const [touched, setTouched] = useState(false);
   const { colors } = useColorScheme();
@@ -40,10 +42,10 @@ export function FormInput({
     }
 
     setFailedValidators(failedValidators);
-    error(id, failedValidators.length > 0);
+    doError(id, failedValidators.length > 0);
   }, [value, touchTrigger]);
 
-  const hasError = (isSubmitted || touched) && failedValidators.length > 0;
+  const hasError = (isSubmitted || touched) && (!!error || failedValidators.length > 0);
   const failedValidatorsWithMessage = failedValidators.filter((validator) =>
     notEmpty(validator.errorMessage)
   );
@@ -65,13 +67,15 @@ export function FormInput({
         }}
         {...props}
       />
-      {hasError && failedValidatorsWithMessage.length > 0 && (
+      {hasError && (failedValidatorsWithMessage.length > 0 || !!error) && (
         <View className="flex-col gap-2">
-          {failedValidatorsWithMessage.map((validator, i) => (
-            <Text key={i} variant="caption1" className="text-destructive">
-              {validator.errorMessage}
-            </Text>
-          ))}
+          {[error, ...failedValidatorsWithMessage.map((validator) => validator.errorMessage)].map(
+            (errorMessage, i) => (
+              <Text key={i} variant="caption1" className="text-destructive">
+                {errorMessage}
+              </Text>
+            )
+          )}
         </View>
       )}
     </View>

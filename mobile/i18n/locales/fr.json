@@ -117,12 +117,15 @@
         "title": "Support",
         "appInfo": "Info de débogage",
         "contactSupport": "Contacter le support",
-        "deleteAccount": "Supprimer mon compte et données",
-        "deleteAccountConfirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
-        "deleteAccountConfirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
-        "deleteAccountTitle": "Supprimer mon compte",
         "privacyPolicy": "Politique de confidentialité",
-        "termsOfUse": "Conditions d'utilisation"
+        "termsOfUse": "Conditions d'utilisation",
+        "deleteAccount": {
+          "button": "Supprimer mon compte et données",
+          "confirmation": "Supprimer mon compte et ses données associées. La suppresion se fera une fois que toutes les réservations de ton spot en cours seront terminées.",
+          "confirm": "Je confirme vouloir supprimer mon compte et je comprends que cette action est irreversible.",
+          "title": "Supprimer mon compte",
+          "invalidPassword": "Invalid password"
+        }
       }
     },
     "parking": {

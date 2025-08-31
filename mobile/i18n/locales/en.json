@@ -117,12 +117,15 @@
         "title": "Support",
         "appInfo": "Debug information",
         "contactSupport": "Contact support",
-        "deleteAccount": "Delete my account and data",
-        "deleteAccountConfirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
-        "deleteAccountConfirm": "I confirm I want to delete my account and understand this action is irreversible.",
-        "deleteAccountTitle": "Delete my account",
         "termsOfUse": "Terms of use",
-        "privacyPolicy": "Privacy policy"
+        "privacyPolicy": "Privacy policy",
+        "deleteAccount": {
+          "button": "Delete my account and data",
+          "confirmation": "Delete my account and associated data. The deletion will be done once all ongoing reservations of your spot are completed.",
+          "confirm": "I confirm I want to delete my account and understand this action is irreversible.",
+          "title": "Delete my account",
+          "invalidPassword": "Invalid password"
+        }
       }
     },
     "parking": {
