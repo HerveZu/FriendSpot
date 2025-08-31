@@ -273,9 +273,10 @@ function AccountDeletionConfirmationModal({
   visible: boolean;
   onVisibleChange: Dispatch<SetStateAction<boolean>>;
 }>) {
-  const [deleteAccountBackend, deletingAccount] = useLoading(useDeleteAccount());
+  const deleteAccountBackend = useDeleteAccount();
   const { colors } = useColorScheme();
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { firebaseUser } = useAuth();
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
@@ -307,8 +308,14 @@ function AccountDeletionConfirmationModal({
   }
 
   async function deleteAccount() {
-    const authWasValid = await reauthenticateUserBeforeDeletingAccount();
-    authWasValid && (await deleteAccountBackendAndFirebase());
+    setIsDeleting(true);
+
+    try {
+      const authWasValid = await reauthenticateUserBeforeDeletingAccount();
+      authWasValid && (await deleteAccountBackendAndFirebase());
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   useEffect(() => {
@@ -371,7 +378,7 @@ function AccountDeletionConfirmationModal({
                     variant={'plain'}
                     size={'lg'}
                     onPress={handleSubmit(deleteAccount)}>
-                    {deletingAccount ? (
+                    {isDeleting ? (
                       <ActivityIndicator color={colors.destructive} />
                     ) : (
                       <ThemedIcon
