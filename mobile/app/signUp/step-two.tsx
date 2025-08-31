@@ -33,7 +33,7 @@ export default function StepTwoScreen() {
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
 
   const { displayName, email } = useLocalSearchParams<{ displayName: string; email: string }>();
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [validateEmailModalOpen, setValidateEmailModalOpen] = useState(false);
   const router = useRouter();
   const redirectToInitialUrl = useRedirectToInitialUrl();
   const validators = useValidators();
@@ -49,9 +49,9 @@ export default function StepTwoScreen() {
       return;
     }
 
+    setValidateEmailModalOpen(true);
     await updateProfile(signUp.user, { displayName });
     await sendEmailVerification(signUp.user);
-    setIsModalVisible(true);
   }
 
   if (!email || !displayName) {
@@ -63,7 +63,7 @@ export default function StepTwoScreen() {
 
     await user?.reload();
     if (user?.emailVerified) {
-      setIsModalVisible(false);
+      setValidateEmailModalOpen(false);
       redirectToInitialUrl('/');
     } else {
       setError(t('auth.signUp.errors.emailNotVerified'));
@@ -85,32 +85,28 @@ export default function StepTwoScreen() {
 
   return (
     <>
-      {isModalVisible && (
-        <Modal
-          open={isModalVisible}
-          onOpenChange={setIsModalVisible}
-          onBackdropPress={() => router.push({ pathname: '/welcome' })}
-          vibration={true}>
-          <ModalTitle text={t('auth.signUp.almostDone')} />
-          <View className="gap-4">
-            <Text className="text-base text-foreground">
-              {t('auth.signUp.checkEmailAndConfirm')}
+      <Modal
+        open={validateEmailModalOpen}
+        onOpenChange={setValidateEmailModalOpen}
+        onBackdropPress={() => router.push({ pathname: '/welcome' })}
+        vibration={true}>
+        <ModalTitle text={t('auth.signUp.almostDone')} />
+        <View className="gap-4">
+          <Text className="text-base text-foreground">{t('auth.signUp.checkEmailAndConfirm')}</Text>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-md text-center text-foreground">
+              {t('auth.mailConfirmation.noEmailReceived')}
             </Text>
-            <View className="flex-row items-center gap-2">
-              <Text className="text-md text-center text-foreground">
-                {t('auth.mailConfirmation.noEmailReceived')}
-              </Text>
-              <Pressable onPress={() => sendEmail()}>
-                <Text className="text-md text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
-              </Pressable>
-            </View>
-            {error && <Text className="text-sm text-destructive">{error}</Text>}
-            <Button size={'lg'} onPress={() => checkIfEmailIsVerified()}>
-              <Text className="text-foreground">{t('auth.signUp.done')}</Text>
-            </Button>
+            <Pressable onPress={() => sendEmail()}>
+              <Text className="text-md text-primary">{t('auth.mailConfirmation.clickHere')}</Text>
+            </Pressable>
           </View>
-        </Modal>
-      )}
+          {error && <Text className="text-sm text-destructive">{error}</Text>}
+          <Button size={'lg'} onPress={() => checkIfEmailIsVerified()}>
+            <Text className="text-foreground">{t('common.done')}</Text>
+          </Button>
+        </View>
+      </Modal>
       <AuthForm
         Illustration={stepTwoIllustration}
         error={error}

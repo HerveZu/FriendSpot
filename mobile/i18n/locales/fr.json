@@ -37,7 +37,6 @@
       "signUp": "S'inscrire",
       "almostDone": "Presque terminé !",
       "checkEmailAndConfirm": "Vérifie ta boîte mail et clique sur le lien de confirmation pour activer ton compte.",
-      "done": "C'est fait !",
       "confirmPassword": "Confirmer le mot de passe",
       "errors": {
         "emailAlreadyInUse": "Cette adresse e-mail est déjà utilisée.",

@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Vibration, View, ViewProps } from 'react-native';
 import { cn } from '~/lib/cn';
 import ReactModal from 'react-native-modal';
 import { Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
-import { useSegments } from 'expo-router';
+import { useScreenHasChanged } from '~/lib/useScreenHasChanged';
 
 export type ModalProps = {
   open: boolean;
@@ -27,11 +27,11 @@ export function Modal({
     }
   }, [vibration, open]);
 
-  const segments = useSegments();
+  const { hasChanged } = useScreenHasChanged();
 
   useEffect(() => {
-    onOpenChange(false);
-  }, [segments]);
+    hasChanged && onOpenChange(false);
+  }, [hasChanged]);
 
   return (
     // this extra View makes it display properly on Android devices

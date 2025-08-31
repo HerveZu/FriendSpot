@@ -70,11 +70,12 @@ export function FormInput({
       {hasError && (failedValidatorsWithMessage.length > 0 || !!error) && (
         <View className="flex-col gap-2">
           {[error, ...failedValidatorsWithMessage.map((validator) => validator.errorMessage)].map(
-            (errorMessage, i) => (
-              <Text key={i} variant="caption1" className="text-destructive">
-                {errorMessage}
-              </Text>
-            )
+            (errorMessage, i) =>
+              errorMessage && (
+                <Text key={i} variant="caption1" className="text-destructive">
+                  {errorMessage}
+                </Text>
+              )
           )}
         </View>
       )}
