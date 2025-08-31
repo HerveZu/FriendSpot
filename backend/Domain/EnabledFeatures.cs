@@ -51,7 +51,7 @@ public record FreePlanSpecs : ISubscriptionSpecs
     public virtual bool CanSendRequest => false;
     public virtual TimeSpan MaxBookInAdvanceTime => TimeSpan.FromDays(3);
     public virtual uint MaxSpotPerGroup => 10;
-    public virtual uint MaxSpotPerNeighbourhoodGroup => 0;
+    public virtual uint MaxSpotPerNeighbourhoodGroup => 50;
     public virtual uint MaxNeighbourhoodGroups => 0;
 }
 
@@ -69,6 +69,5 @@ public record PremiumPlanSpecs : FreePlanSpecs
 public record NeighbourhoodPlanSpecs : PremiumPlanSpecs
 {
     public override int Precedence => 2;
-    public override uint MaxNeighbourhoodGroups => 1u;
-    public override uint MaxSpotPerNeighbourhoodGroup => 50u;
+    public override uint MaxNeighbourhoodGroups => 1;
 }
