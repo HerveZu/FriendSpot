@@ -16,7 +16,7 @@ import { AppContext } from '~/app/_layout';
 import { useNotification } from '~/notification/NotificationContext';
 import { deviceCalendar, deviceLocale } from '~/i18n/i18n';
 import { updateProfile } from 'firebase/auth';
-import { useFetch, useHookFetch } from '~/lib/useFetch';
+import { useFetch } from '~/lib/useFetch';
 import { AppFeatures, useGetFeatures } from '~/endpoints/me/get-features';
 
 type UpdateUserProfile = {
@@ -37,20 +37,14 @@ export function useCurrentUser() {
 
 export function UserProvider(props: PropsWithChildren) {
   const getProfile = useGetProfile();
+  const getFeatures = useGetFeatures();
   const registerUser = useRegisterUser();
-
-  const [appFeatures] = useHookFetch(useGetFeatures, []);
-  const [userProfile, setUserProfile] = useFetch(() => getProfile(), []);
 
   const { firebaseUser } = useAuth();
   const { userDevice } = useContext(AppContext);
   const { expoPushToken } = useNotification();
 
-  const refreshProfile = useCallback(async () => {
-    await getProfile().then(setUserProfile);
-  }, [getProfile, setUserProfile]);
-
-  const registerDevice = useMemo(
+  const deviceToRegister = useMemo(
     () => ({
       id: userDevice.deviceId,
       expoPushToken: expoPushToken,
@@ -62,27 +56,40 @@ export function UserProvider(props: PropsWithChildren) {
   );
 
   const updateUserProfile = useCallback(
-    ({ displayName, pictureUrl }: UpdateUserProfile) =>
-      updateProfile(firebaseUser, { displayName, photoURL: pictureUrl }).then(() =>
-        registerUser({
-          displayName: displayName,
-          pictureUrl: pictureUrl ?? null,
-          device: registerDevice,
-        }).then(refreshProfile)
-      ),
-    [registerUser, registerDevice, firebaseUser]
+    async ({ displayName, pictureUrl }: UpdateUserProfile) => {
+      await updateProfile(firebaseUser, { displayName, photoURL: pictureUrl });
+      await registerUser({
+        displayName: displayName,
+        pictureUrl: pictureUrl ?? null,
+        device: deviceToRegister,
+      });
+      await refreshProfile();
+    },
+    [registerUser, deviceToRegister, firebaseUser]
   );
 
-  useEffect(() => {
-    if (userProfile && userProfile.displayName !== firebaseUser.displayName) {
-      return;
-    }
-
-    updateUserProfile({
+  const registerUserWithInfo = useCallback(async () => {
+    console.debug('Registering user with info');
+    await updateUserProfile({
       displayName: firebaseUser.displayName ?? firebaseUser.email ?? 'Unknown',
       pictureUrl: firebaseUser.photoURL,
-    }).then(() => console.debug('User registered after firebaseUser change trigger'));
-  }, [firebaseUser.displayName]);
+    });
+  }, [firebaseUser, updateUserProfile]);
+
+  const [userProfile, setUserProfile] = useFetch(() => getProfile(), [], true, {
+    onError: registerUserWithInfo,
+  });
+  const [appFeatures] = useFetch(() => userProfile && getFeatures(), [userProfile], false);
+
+  const refreshProfile = useCallback(async () => {
+    await getProfile().then(setUserProfile);
+  }, [getProfile, setUserProfile]);
+
+  useEffect(() => {
+    registerUserWithInfo().then(() =>
+      console.debug('User registered after firebaseUser change trigger')
+    );
+  }, [registerUserWithInfo]);
 
   useEffect(() => {
     if (userProfile) {
