@@ -672,7 +672,7 @@ function ParkingModal(props: {
     beforeMarkingComplete: () => props.onOpenChange(false),
   });
   const { t } = useTranslation();
-  const { userProfile, features } = useCurrentUser();
+  const { features } = useCurrentUser();
   const { keyboardVisible } = useKeyboardVisible();
   const validators = useValidators();
 
