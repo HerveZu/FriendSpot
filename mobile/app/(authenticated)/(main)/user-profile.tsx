@@ -756,7 +756,9 @@ function ParkingModal(props: {
                 color={colors.primary}
               />
               <Text className="font-semibold text-primary">
-                {t('user.parking.memberMaxCount', { memberCount: maxMembersCount })}
+                {t('user.parking.memberMaxCount', {
+                  memberCount: props.parking?.maxSpots ?? maxMembersCount,
+                })}
               </Text>
             </View>
             <View className={'flex-col gap-2'}>
