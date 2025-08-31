@@ -24,7 +24,7 @@ import { useDebounce } from 'use-debounce';
 import { SpotCountDownScreenParams } from '~/app/(authenticated)/spot-count-down';
 import { useCurrentUser } from '~/authentication/UserProvider';
 import { MessageInfo } from '~/components/MessageInfo';
-import { Card, CardContainer } from '~/components/Card';
+import { Card, CardContainer, CardTitle } from '~/components/Card';
 import { DateRange } from '~/components/DateRange';
 import { Deletable, DeletableStatus, DeleteTrigger } from '~/components/Deletable';
 import { List } from '~/components/List';
@@ -338,9 +338,7 @@ function BookingCard(props: {
                   ) : (
                     <ThemedIcon name={'clock'} color={colors.primary} component={FontAwesome6} />
                   )}
-                  <Text variant="heading" className="font-bold">
-                    {capitalize(formatRelative(props.booking.from, now))}
-                  </Text>
+                  <CardTitle>{capitalize(formatRelative(props.booking.from, now))}</CardTitle>
                 </View>
                 <DeleteTrigger />
               </View>
@@ -396,7 +394,7 @@ function BookingRequestCard(props: { request: MyBookingRequestResponse }) {
           <View className={'flex-row items-center justify-between'}>
             <View className={'flex-row items-center gap-2'}>
               <BlinkingDot color={colors.primary} />
-              <Text variant={'heading'}>{t('booking.requestBooking.card.title')}</Text>
+              <CardTitle>{t('booking.requestBooking.card.title')}</CardTitle>
             </View>
             <DeleteTrigger />
           </View>
@@ -796,11 +794,11 @@ function SuggestedSpotCard(props: { suggestion: SpotSuggestion }) {
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
           <ThemedIcon component={FontAwesome6} name="calendar" color={colors.primary} />
-          <Text variant="heading" className="font-bold">
+          <CardTitle>
             {differenceInSeconds(props.suggestion.from, now) > 30
               ? capitalize(formatRelative(props.suggestion.from, now))
               : t('booking.now')}
-          </Text>
+          </CardTitle>
         </View>
         <Rating
           rating={props.suggestion.owner.rating}

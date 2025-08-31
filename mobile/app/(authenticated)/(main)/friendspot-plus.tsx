@@ -1,5 +1,5 @@
 import { ScreenTitle, ScreenWithHeader } from '~/components/Screen';
-import { Card } from '~/components/Card';
+import { Card, CardTitle } from '~/components/Card';
 import { Text } from '~/components/nativewindui/Text';
 import { useTranslation } from 'react-i18next';
 import { ThemedIcon } from '~/components/ThemedIcon';
@@ -181,9 +181,7 @@ function SubscriptionCard({
       <View className={'flex-row items-center justify-between'}>
         <View className={'flex-row items-center gap-2'}>
           {icon}
-          <Text variant={'heading'}>
-            {product?.displayName ?? t(`friendspotplus.plans.${i18nKey}.name`)}
-          </Text>
+          <CardTitle>{product?.displayName ?? t(`friendspotplus.plans.${i18nKey}.name`)}</CardTitle>
         </View>
 
         {product && (
