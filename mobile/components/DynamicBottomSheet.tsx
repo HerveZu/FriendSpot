@@ -36,11 +36,7 @@ export function DynamicBottomSheet({
     }
   }, [open]);
 
-  const { hasChanged } = useScreenHasChanged();
-
-  useEffect(() => {
-    hasChanged && ref.current?.close();
-  }, [hasChanged]);
+  useScreenHasChanged(() => ref.current?.close());
 
   return (
     <Sheet

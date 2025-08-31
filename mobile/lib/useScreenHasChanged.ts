@@ -1,14 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useSegments } from 'expo-router';
 
-export function useScreenHasChanged() {
-  const [changeCount, setChangeCount] = useState(0);
+export function useScreenHasChanged(onChange: () => void) {
+  const [, setPreviousSegments] = useState<string[]>();
 
   const segments = useSegments();
 
   useEffect(() => {
-    setChangeCount((x) => x + 1);
-  }, [segments, setChangeCount]);
+    setPreviousSegments((previousSegments) => {
+      if (!previousSegments) {
+        return segments;
+      }
 
-  return { hasChanged: changeCount > 0, changeCount };
+      onChange();
+
+      return segments;
+    });
+  }, [segments]);
 }

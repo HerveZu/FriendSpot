@@ -27,11 +27,7 @@ export function Modal({
     }
   }, [vibration, open]);
 
-  const { hasChanged } = useScreenHasChanged();
-
-  useEffect(() => {
-    hasChanged && onOpenChange(false);
-  }, [hasChanged]);
+  useScreenHasChanged(() => onOpenChange(false));
 
   return (
     // this extra View makes it display properly on Android devices
