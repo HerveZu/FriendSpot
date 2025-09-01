@@ -102,6 +102,7 @@
       "editAvatar": "Edit Avatar",
       "reputation": {
         "good": "Good reputation",
+        "neutral": "Neutral reputation",
         "bad": "Low reputation"
       },
       "settings": {
