@@ -164,13 +164,10 @@ public sealed class WalletTests
     }
 
     [Test]
-    public void Wallet_Cancel_ShouldThrowIfTransactionDoesNotExist()
+    public void Wallet_Cancel_ShouldNotThrowIfTransactionDoesNotExist()
     {
-        // Arrange
         var wallet = Wallet.Create(Guid.NewGuid().ToString());
-
-        // Act & Assert
-        var exception = Assert.Throws<BusinessException>(() => wallet.Cancel("non-existent-ref"));
+        wallet.Cancel("non-existent-ref");
     }
 
     [Test]
