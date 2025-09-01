@@ -207,6 +207,30 @@ public sealed class Parking : IAggregateRoot
             });
     }
 
+    public void CancelUserBookingRequestWithBypass(string userId)
+    {
+        var requests = _bookingRequests
+            .Where(request => request.RequesterId == userId)
+            .ToArray();
+
+        foreach (var request in requests)
+        {
+            _bookingRequests.Remove(request);
+            _domainEvents.RegisterNext(
+                new BookingRequestCancelled
+                {
+                    CancelledByUserId = userId
+                });
+
+            _domainEvents.RegisterNext(
+                new BookingRequestExpired
+                {
+                    RequestId = request.Id,
+                    RequesterId = request.RequesterId
+                });
+        }
+    }
+
     public bool TryMarkBookingRequestExpired(Guid requestId)
     {
         var request = _bookingRequests.SingleOrDefault(request => request.Id == requestId);
