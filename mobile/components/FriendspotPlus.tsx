@@ -15,16 +15,18 @@ export function PremiumButton({
   onPress,
   premiumContent,
   hasNoAccess,
+  premiumIf = true,
   ...props
 }: ButtonProps & {
   icon?: ReactElement;
   premiumIcon?: ReactElement;
   premiumContent: ReactNode;
   hasNoAccess?: boolean;
+  premiumIf?: boolean;
 }) {
   const { features } = useCurrentUser();
   const router = useRouter();
-  const doesntHaveAccess = hasNoAccess || !features.isPremium;
+  const doesntHaveAccess = hasNoAccess || (premiumIf && !features.isPremium);
 
   function handleOnPress(e: GestureResponderEvent) {
     if (doesntHaveAccess) {
