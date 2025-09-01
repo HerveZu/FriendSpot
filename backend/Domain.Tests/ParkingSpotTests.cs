@@ -49,19 +49,6 @@ public sealed class ParkingSpotTests
     }
 
     [Test]
-    public void Book_ShouldThrow_WhenSpotIsDisabled()
-    {
-        // Arrange
-        var parkingSpot = Factory.ParkingSpot(Guid.NewGuid(), "owner-123", Guid.NewGuid(), new SpotName("Spot A"));
-        parkingSpot.Disable();
-
-        // Act & Assert
-        var exception = Assert.Throws<BusinessException>(() =>
-            parkingSpot.Book("user-123", DateTimeOffset.Now.AddDays(1), TimeSpan.FromHours(2)));
-        Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.Disabled"));
-    }
-
-    [Test]
     public void Book_ShouldThrow_WhenBookingOwnSpot()
     {
         // Arrange
@@ -218,19 +205,6 @@ public sealed class ParkingSpotTests
     }
 
     [Test]
-    public void MakeAvailable_ShouldThrow_WhenSpotIsDisabled()
-    {
-        // Arrange
-        var parkingSpot = Factory.ParkingSpot(Guid.NewGuid(), "owner-123", Guid.NewGuid(), new SpotName("Spot A"));
-        parkingSpot.Disable();
-
-        // Act & Assert
-        var exception = Assert.Throws<BusinessException>(() =>
-            parkingSpot.MakeAvailable(DateTimeOffset.Now.AddDays(1), DateTimeOffset.Now.AddDays(2)));
-        Assert.That(exception?.Code, Is.EqualTo("ParkingSpot.Disabled"));
-    }
-
-    [Test]
     public void MakeAvailable_ShouldMerge_WhenOverlappingAvailabilities()
     {
         // Arrange
@@ -324,7 +298,7 @@ public sealed class ParkingSpotTests
         parkingSpot.Book("user-456", DateTimeOffset.Now.AddDays(2), TimeSpan.FromHours(3));
 
         // Act
-        parkingSpot.CancelAllBookingsWithByPass();
+        parkingSpot.CancelAllWithByPass();
 
         // Assert
         Assert.That(parkingSpot.Bookings, Is.Empty);

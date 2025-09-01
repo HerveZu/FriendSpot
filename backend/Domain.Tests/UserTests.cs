@@ -24,7 +24,6 @@ public sealed class UserTests
             Assert.That(user.DisplayName, Is.EqualTo(displayName));
             Assert.That(user.PictureUrl, Is.Null);
             Assert.That(user.Rating.Rating, Is.EqualTo(UserRating.Neutral().Rating));
-            Assert.That(user.IsDeleted, Is.False);
             Assert.That(user.UserDevices, Is.Empty);
         });
     }
@@ -154,19 +153,6 @@ public sealed class UserTests
 
         // Assert
         Assert.That(user.UserDevices, Is.Empty);
-    }
-
-    [Test]
-    public void MarkDeleted_SetsIsDeletedToTrue()
-    {
-        // Arrange
-        var user = User.Register("user123", new UserDisplayName("ValidName"));
-
-        // Act
-        user.MarkDeleted();
-
-        // Assert
-        Assert.That(user.IsDeleted, Is.True);
     }
 
     [Test]

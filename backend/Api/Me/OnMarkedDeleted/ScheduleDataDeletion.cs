@@ -1,44 +1,28 @@
 using Api.Common;
 using Api.Common.Infrastructure;
-using Domain.ParkingSpots;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
 using Quartz;
 
 namespace Api.Me.OnMarkedDeleted;
 
 internal sealed class ScheduleDataDeletion(
-    AppDbContext dbContext,
     ILogger<ScheduleDataDeletion> logger,
     ISchedulerFactory schedulerFactory
 ) : IDomainEventHandler<UserMarkedDeleted>
 {
     public async Task Handle(UserMarkedDeleted notification, CancellationToken cancellationToken)
     {
-        var userSpot = await dbContext.Set<ParkingSpot>()
-            .Where(spot => spot.OwnerId == notification.UserId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        var lastNotCancellableAvailability = userSpot?.Availabilities
-            .Where(availability => !availability.CanCancel(notification.UserId, userSpot.Bookings))
-            .MaxBy(availability => availability.To);
-
-        var now = DateTimeOffset.Now;
-
-        // we will trigger the data deletion only when the last availability that can't be canceled right away is over,
-        // as this action should not impact 'frozen' bookings
-        var scheduleDeletionAt = lastNotCancellableAvailability?.To ?? now;
-
-        logger.LogInformation("User data will be deleted on the date {DeletionDate}", scheduleDeletionAt);
+        logger.LogInformation("User data scheduled to be deleted ");
 
         var scheduler = await schedulerFactory.GetScheduler(cancellationToken);
 
+        // schedule deletion to be executed after this transaction is committed, to allow for side effects to run first
         await scheduler.ScheduleJob(
             JobBuilder.Create<DeleteUserData>()
                 .UsingJobData(DeleteUserData.UserId, notification.UserId)
                 .Build(),
             TriggerBuilder.Create()
-                .StartAtOrNow(scheduleDeletionAt)
+                .StartNow()
                 .Build(),
             cancellationToken);
     }
@@ -65,12 +49,6 @@ internal sealed class DeleteUserData(ILogger<DeleteUserData> logger, AppDbContex
         if (user is null)
         {
             logger.LogWarning("User with id {UserId} was not found while trying to delete data", userId);
-            return;
-        }
-
-        if (!user.IsDeleted)
-        {
-            logger.LogWarning("User with id {UserId} is not marked as deleted, aborting...", userId);
             return;
         }
 

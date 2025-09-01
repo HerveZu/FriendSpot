@@ -116,12 +116,12 @@ internal abstract class IntegrationTestsBase
         command.CommandText =
             $"""
              insert into public."User" 
-             ("Identity", "Rating_Rating", "DisplayName", "PictureUrl", "IsDeleted") 
+             ("Identity", "Rating_Rating", "DisplayName", "PictureUrl") 
              values 
-             ('{Seed.Users.ParkingAdmin}', {Seed.Users.InitialRating}, 'Parking Admin', null, false),
-             ('{Seed.Users.OtherParkingAdmin}', {Seed.Users.InitialRating}, 'Other Parking Admin', null, false),
-             ('{Seed.Users.Resident1}', {Seed.Users.InitialRating}, 'Resident 1', null, false),
-             ('{Seed.Users.Resident2}', {Seed.Users.InitialRating}, 'Resident 2', null, false);
+             ('{Seed.Users.ParkingAdmin}', {Seed.Users.InitialRating}, 'Parking Admin', null),
+             ('{Seed.Users.OtherParkingAdmin}', {Seed.Users.InitialRating}, 'Other Parking Admin', null),
+             ('{Seed.Users.Resident1}', {Seed.Users.InitialRating}, 'Resident 1', null),
+             ('{Seed.Users.Resident2}', {Seed.Users.InitialRating}, 'Resident 2', null);
 
              insert into public."UserDevice"
              ("UserIdentity", "ExpoPushToken", "DeviceId", "UniquenessNotGuaranteed") 
