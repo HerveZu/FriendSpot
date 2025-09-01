@@ -8,23 +8,23 @@ import { useRouter } from 'expo-router';
 import { GestureResponderEvent } from 'react-native';
 
 export function PremiumButton({
-  premiumIf = true,
   children,
   icon,
   premiumIcon,
   disabled,
   onPress,
   premiumContent,
+  hasNoAccess,
   ...props
 }: ButtonProps & {
   icon?: ReactElement;
   premiumIcon?: ReactElement;
-  premiumIf?: boolean;
   premiumContent: ReactNode;
+  hasNoAccess?: boolean;
 }) {
   const { features } = useCurrentUser();
   const router = useRouter();
-  const doesntHaveAccess = premiumIf && !features.isPremium;
+  const doesntHaveAccess = hasNoAccess || !features.isPremium;
 
   function handleOnPress(e: GestureResponderEvent) {
     if (doesntHaveAccess) {

@@ -890,7 +890,7 @@ function ParkingModal(props: {
               </>
             )}
 
-            {mode === 'create' && !keyboardVisible && (
+            {mode === 'create' && (
               <Card className={'flex-row items-center justify-between'}>
                 <Text className={'text-primary'}>
                   {t('user.parking.addMoreMembers', {
@@ -909,7 +909,7 @@ function ParkingModal(props: {
             {!keyboardVisible && !wantToDeleteParking && (
               <PremiumButton
                 premiumContent={
-                  <Text disabled={!canCreateNeighbourhoodGroup}>
+                  <Text>
                     {t('user.parking.unlockMoreNeighbourhoodGroups', {
                       available: features.active.availableNeighbourhoodGroups,
                       max: features.active.maxNeighbourhoodGroups,
@@ -917,7 +917,7 @@ function ParkingModal(props: {
                   </Text>
                 }
                 size={'lg'}
-                premiumIf={neighbourhoodGroup && !canCreateNeighbourhoodGroup}
+                hasNoAccess={neighbourhoodGroup && !canCreateNeighbourhoodGroup}
                 disabled={!isValid}
                 onPress={handleSubmit(onSubmit)}>
                 {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}

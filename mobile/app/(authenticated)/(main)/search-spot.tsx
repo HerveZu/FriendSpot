@@ -717,7 +717,7 @@ function BookingSheet(props: {
         </PremiumButton>
       ) : (
         <PremiumButton
-          premiumIf={
+          hasNoAccess={
             differenceInMilliseconds(to, now) >= durationToMs(features.active.maxBookInAdvanceTime)
           }
           premiumContent={<Text>{t('booking.unlockReserveMoreInAdance')}</Text>}
