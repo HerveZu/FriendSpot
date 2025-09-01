@@ -23,27 +23,34 @@ export function Rating({
   const baselineBoundaries = { min: baseline - baselineMargin, max: baseline + baselineMargin };
   const isNeutral = rating > baselineBoundaries.min && rating < baselineBoundaries.max;
   const info = isNeutral
-    ? null
-    : rating > baselineBoundaries.min && rating < baselineBoundaries.max
-      ? null
-      : rating >= baselineBoundaries.max
-        ? {
-            color: colors.primary,
-            icon: 'thumbs-up',
-            i18nKey: 'user.profile.reputation.good',
-          }
-        : {
-            color: colors.destructive,
-            icon: 'thumbs-down',
-            i18nKey: 'user.profile.reputation.bad',
-          };
+    ? {
+        color: colors.primary,
+        icon: 'check',
+        i18nKey: 'user.profile.reputation.neutral',
+        preview: false,
+      }
+    : rating >= baselineBoundaries.max
+      ? {
+          preview: true,
+          color: colors.primary,
+          icon: 'thumbs-up',
+          i18nKey: 'user.profile.reputation.good',
+        }
+      : {
+          preview: true,
+          color: colors.destructive,
+          icon: 'thumbs-down',
+          i18nKey: 'user.profile.reputation.bad',
+        };
 
   return (
     info && (
       <View
         className={cn('min-w-0 flex-row items-center justify-center gap-2', className)}
         {...props}>
-        <ThemedIcon name={info.icon} color={info.color} component={FontAwesome6} />
+        {(displayRating || info.preview) && (
+          <ThemedIcon name={info.icon} color={info.color} component={FontAwesome6} />
+        )}
         {displayRating && (
           <Text className={'text-lg font-bold'} style={{ color: info.color }}>
             {t(info.i18nKey)}

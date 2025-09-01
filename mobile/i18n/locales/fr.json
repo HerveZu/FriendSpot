@@ -101,6 +101,7 @@
       "editAvatar": "Modifier l'avatar",
       "reputation": {
         "good": "Réputation élevée",
+        "neutral": "Réputation neutre",
         "bad": "Réputation basse"
       },
       "settings": {
