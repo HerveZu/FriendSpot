@@ -73,6 +73,7 @@ import { OpenSection } from '~/components/OpenSection';
 import { CopyToClipboard } from '~/components/CopyToClipboard';
 import { UserSpot } from '~/endpoints/me/get-profile';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import * as Expo from 'expo';
 
 export default function UserProfile() {
   const { firebaseUser } = useAuth();
@@ -646,9 +647,9 @@ function SettingsBottomSheet(props: {
   const { features } = useCurrentUser();
   const { firebaseUser } = useAuth();
   const getPlanInfo = useGetPlanInfo();
-  const [restorePurchasesWithRefresh, isRestoringPurchases] = useLoading(
-    useRefreshOnSuccess(restorePurchases)
-  );
+  const [restorePurchasesWithReload, isRestoringPurchases] = useLoading(restorePurchases, {
+    beforeMarkingComplete: () => Expo.reloadAppAsync(),
+  });
 
   const { colors } = useColorScheme();
   const { t } = useTranslation();
@@ -681,7 +682,7 @@ function SettingsBottomSheet(props: {
         </Card>
 
         <View className={'gap-4'}>
-          <Button onPress={restorePurchasesWithRefresh} size={'lg'} variant={'tonal'}>
+          <Button onPress={restorePurchasesWithReload} size={'lg'} variant={'tonal'}>
             {isRestoringPurchases ? (
               <ActivityIndicator color={colors.primary} />
             ) : (
