@@ -28,7 +28,6 @@ public sealed class User : IAggregateRoot
     public UserDisplayName DisplayName { get; private set; }
     public string? PictureUrl { get; private set; }
     public UserRating Rating { get; init; } = null!;
-    public bool IsDeleted { get; private set; }
     public IReadOnlyList<UserDevice> UserDevices => _userDevices.AsReadOnly();
 
     public IEnumerable<IDomainEvent> GetUncommittedEvents()
@@ -107,7 +106,6 @@ public sealed class User : IAggregateRoot
 
     public void MarkDeleted()
     {
-        IsDeleted = true;
         _domainEvents.RegisterNext(
             new UserMarkedDeleted
             {
@@ -135,7 +133,6 @@ internal sealed class UserConfig : IEntityConfiguration<User>
             .HasMaxLength(UserDisplayName.MaxLength)
             .HasConversion(x => x.DisplayName, x => new UserDisplayName(x));
         builder.Property(x => x.PictureUrl);
-        builder.Property(x => x.IsDeleted);
         builder.OwnsMany(
             x => x.UserDevices,
             deviceBuilder =>

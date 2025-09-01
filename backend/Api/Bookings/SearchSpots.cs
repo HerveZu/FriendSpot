@@ -68,26 +68,23 @@ internal sealed class SearchSpots(AppDbContext dbContext) : Endpoint<SearchSpots
 
         var availableSpots = await (
                 from parkingLot in dbContext.Set<ParkingSpot>()
-                where !parkingLot.Disabled
                 where parkingLot.OwnerId != currentUser.Identity
                 where parkingLot.ParkingId == parkingSpot.ParkingId
                 join owner in dbContext.Set<User>() on parkingLot.OwnerId equals owner.Identity
                 select parkingLot.Availabilities
                     .Where(availability => availability.From <= req.From && availability.To >= req.To)
-                    .Where(
-                        availability => !parkingLot.Bookings
-                            .Any(booking => booking.From <= req.To && req.From <= booking.To))
-                    .Select(
-                        availability => new SearchSpotsResponse.AvailableSpot
+                    .Where(availability => !parkingLot.Bookings
+                        .Any(booking => booking.From <= req.To && req.From <= booking.To))
+                    .Select(availability => new SearchSpotsResponse.AvailableSpot
+                    {
+                        Owner = new SearchSpotsResponse.AvailableSpot.SpotOwner
                         {
-                            Owner = new SearchSpotsResponse.AvailableSpot.SpotOwner
-                            {
-                                DisplayName = owner.DisplayName,
-                                PictureUrl = owner.PictureUrl,
-                                Rating = owner.Rating.Rating
-                            },
-                            ParkingLotId = parkingLot.Id
-                        }))
+                            DisplayName = owner.DisplayName,
+                            PictureUrl = owner.PictureUrl,
+                            Rating = owner.Rating.Rating
+                        },
+                        ParkingLotId = parkingLot.Id
+                    }))
             .SelectMany(availabilities => availabilities)
             .AsNoTracking()
             .ToArrayAsync(ct);

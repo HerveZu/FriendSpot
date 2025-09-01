@@ -73,6 +73,7 @@ import { OpenSection } from '~/components/OpenSection';
 import { CopyToClipboard } from '~/components/CopyToClipboard';
 import { UserSpot } from '~/endpoints/me/get-profile';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import * as Expo from 'expo';
 
 export default function UserProfile() {
   const { firebaseUser } = useAuth();
@@ -463,11 +464,6 @@ function LeaveGroupConfirmationModal({
   const { colors } = useColorScheme();
   const { t } = useTranslation();
 
-  const handleLeave = async () => {
-    onVisibleChange(false);
-    await leaveGroup();
-  };
-
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
@@ -485,7 +481,7 @@ function LeaveGroupConfirmationModal({
             </Button>
           </ExpandItem>
           <ExpandItem>
-            <Button variant={'plain'} size={'lg'} onPress={() => handleLeave()}>
+            <Button variant={'plain'} size={'lg'} onPress={leaveGroup}>
               {leaving ? (
                 <ActivityIndicator color={colors.destructive} />
               ) : (
@@ -646,9 +642,9 @@ function SettingsBottomSheet(props: {
   const { features } = useCurrentUser();
   const { firebaseUser } = useAuth();
   const getPlanInfo = useGetPlanInfo();
-  const [restorePurchasesWithRefresh, isRestoringPurchases] = useLoading(
-    useRefreshOnSuccess(restorePurchases)
-  );
+  const [restorePurchasesWithReload, isRestoringPurchases] = useLoading(restorePurchases, {
+    beforeMarkingComplete: () => Expo.reloadAppAsync(),
+  });
 
   const { colors } = useColorScheme();
   const { t } = useTranslation();
@@ -681,7 +677,7 @@ function SettingsBottomSheet(props: {
         </Card>
 
         <View className={'gap-4'}>
-          <Button onPress={restorePurchasesWithRefresh} size={'lg'} variant={'tonal'}>
+          <Button onPress={restorePurchasesWithReload} size={'lg'} variant={'tonal'}>
             {isRestoringPurchases ? (
               <ActivityIndicator color={colors.primary} />
             ) : (
@@ -889,7 +885,7 @@ function ParkingModal(props: {
               </>
             )}
 
-            {mode === 'create' && !keyboardVisible && (
+            {mode === 'create' && (
               <Card className={'flex-row items-center justify-between'}>
                 <Text className={'text-primary'}>
                   {t('user.parking.addMoreMembers', {
@@ -908,7 +904,7 @@ function ParkingModal(props: {
             {!keyboardVisible && !wantToDeleteParking && (
               <PremiumButton
                 premiumContent={
-                  <Text disabled={!canCreateNeighbourhoodGroup}>
+                  <Text>
                     {t('user.parking.unlockMoreNeighbourhoodGroups', {
                       available: features.active.availableNeighbourhoodGroups,
                       max: features.active.maxNeighbourhoodGroups,
@@ -916,7 +912,7 @@ function ParkingModal(props: {
                   </Text>
                 }
                 size={'lg'}
-                premiumIf={neighbourhoodGroup && !canCreateNeighbourhoodGroup}
+                hasNoAccess={neighbourhoodGroup && !canCreateNeighbourhoodGroup}
                 disabled={!isValid}
                 onPress={handleSubmit(onSubmit)}>
                 {isSubmitting[mode] && <ActivityIndicator color={colors.foreground} />}

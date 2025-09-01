@@ -73,12 +73,6 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
             user = Domain.Users.User.Register(userIdentity, new UserDisplayName(req.DisplayName));
         }
 
-        if (user.IsDeleted)
-        {
-            ThrowError("User is pending deletion", StatusCodes.Status409Conflict);
-            return;
-        }
-
         logger.LogInformation("Registering user...");
 
         var usersHavingTheSameDevice = await dbContext

@@ -80,7 +80,6 @@ public sealed class ParkingSpot : IAggregateRoot
     public Guid ParkingId { get; private set; }
     public SpotName SpotName { get; private set; }
     public string OwnerId { get; }
-    public bool Disabled { get; private set; }
     public IReadOnlyList<ParkingSpotAvailability> Availabilities => _availabilities.AsReadOnly();
     public IReadOnlyList<ParkingSpotBooking> Bookings => _bookings.AsReadOnly();
 
@@ -128,11 +127,6 @@ public sealed class ParkingSpot : IAggregateRoot
         TimeSpan duration,
         Credits? bonus = null)
     {
-        if (Disabled)
-        {
-            throw new BusinessException("ParkingSpot.Disabled", "Cannot book a parking spot because it is disabled.");
-        }
-
         if (bookingUserId == OwnerId)
         {
             throw new BusinessException("ParkingSpot.InvalidBooking", "Cannot book your own spot.");
@@ -191,13 +185,6 @@ public sealed class ParkingSpot : IAggregateRoot
 
     public (Credits credits, bool overlaps) MakeAvailable(DateTimeOffset from, DateTimeOffset to)
     {
-        if (Disabled)
-        {
-            throw new BusinessException(
-                "ParkingSpot.Disabled",
-                "Cannot make parking spot available because it is disabled.");
-        }
-
         var newAvailability = ParkingSpotAvailability.New(from, to);
         var overlappingAvailabilities = Availabilities
             .Where(other => newAvailability.DateRange.Overlaps(other.DateRange))
@@ -314,25 +301,47 @@ public sealed class ParkingSpot : IAggregateRoot
             });
     }
 
-    public void CancelAllBookingsWithByPass()
+    public void CancelBookingFromUserWithBypass(string userId)
     {
-        var activeBookings = _bookings
-            .Where(booking => booking.HasNotExpiredNow)
+        var bookings = _bookings
+            .Where(booking => booking.BookingUserId == userId)
             .ToArray();
 
-        foreach (var booking in activeBookings)
+        foreach (var booking in bookings)
         {
             _bookings.Remove(booking);
             _domainEvents.RegisterNext(
                 new ParkingSpotBookingCancelled
                 {
-                    CancellingUserId = OwnerId,
+                    CancellingUserId = userId, // user is cancelling himself
                     BookingUserId = booking.BookingUserId,
                     OwnerId = OwnerId,
                     BookingId = booking.Id,
                     CancelledAt = booking.From
                 });
         }
+    }
+
+    public void CancelAllWithByPass()
+    {
+        foreach (var booking in _bookings.ToArray())
+        {
+            if (booking.HasNotExpiredNow)
+            {
+                _domainEvents.RegisterNext(
+                    new ParkingSpotBookingCancelled
+                    {
+                        CancellingUserId = OwnerId,
+                        BookingUserId = booking.BookingUserId,
+                        OwnerId = OwnerId,
+                        BookingId = booking.Id,
+                        CancelledAt = booking.From
+                    });
+            }
+        }
+
+        _bookings.Clear();
+        _availabilities.Clear();
     }
 
     public void MarkBookingComplete(Guid bookingId)
@@ -351,11 +360,6 @@ public sealed class ParkingSpot : IAggregateRoot
                 OwnerId = OwnerId
             });
     }
-
-    public void Disable()
-    {
-        Disabled = true;
-    }
 }
 
 internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
@@ -367,7 +371,6 @@ internal sealed class ParkingLotConfig : IEntityConfiguration<ParkingSpot>
             .HasMaxLength(SpotName.MaxLength)
             .HasConversion(name => name.Name, name => new SpotName(name));
         builder.HasIndex(x => new { x.OwnerId, x.SpotName }).IsUnique();
-        builder.Property(x => x.Disabled);
 
         builder.HasOne<Parking>().WithMany().HasForeignKey(x => x.ParkingId);
         builder.HasOne<User>().WithOne().HasForeignKey<ParkingSpot>(x => x.OwnerId);

@@ -208,32 +208,4 @@ internal sealed class UserTests : IntegrationTestsBase
 
         Assert.That(Convert.ToInt32(count), Is.EqualTo(0));
     }
-
-    [Test]
-    [CancelAfter(10_000)]
-    public async Task LeaveParking_ShouldTransferOwnershipToOtherUser_WhenOwnerHasLeft(
-        CancellationToken cancellationToken)
-    {
-        using var user = UserClient(Seed.Users.ParkingAdmin);
-
-        var deleteUser = await user.DeleteAsync(
-            "/@me",
-            cancellationToken);
-        await deleteUser.AssertIsSuccessful(cancellationToken);
-
-        await using var conn = new NpgsqlConnection(PgContainer.GetConnectionString());
-        await conn.OpenAsync(cancellationToken);
-
-        await using var cmd = new NpgsqlCommand(
-            $"""
-             SELECT "OwnerId"
-             FROM public."Parking"
-             WHERE "Id" = '{Seed.Parkings.Main}'
-             """,
-            conn);
-
-        var ownerId = await cmd.ExecuteScalarAsync(cancellationToken);
-
-        Assert.That(Convert.ToString(ownerId), Is.Not.EqualTo(Seed.Users.ParkingAdmin));
-    }
 }
