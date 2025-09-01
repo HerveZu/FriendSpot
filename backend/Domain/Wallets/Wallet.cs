@@ -52,11 +52,12 @@ public sealed class Wallet
 
     public void Cancel(string reference)
     {
-        var transaction = _transactions.SingleOrDefault(transaction => transaction.Reference == reference)
-                          ?? throw new BusinessException(
-                              "Wallet.CannotCancel",
-                              $"This transaction '{reference}' does not exist.");
-        _transactions.Remove(transaction);
+        var transaction = _transactions.SingleOrDefault(transaction => transaction.Reference == reference);
+
+        if (transaction is not null)
+        {
+            _transactions.Remove(transaction);
+        }
     }
 
     public void CreditConfirmed(string reference, Credits credits)
