@@ -464,11 +464,6 @@ function LeaveGroupConfirmationModal({
   const { colors } = useColorScheme();
   const { t } = useTranslation();
 
-  const handleLeave = async () => {
-    onVisibleChange(false);
-    await leaveGroup();
-  };
-
   return (
     <>
       <Modal open={visible} onOpenChange={onVisibleChange}>
@@ -486,7 +481,7 @@ function LeaveGroupConfirmationModal({
             </Button>
           </ExpandItem>
           <ExpandItem>
-            <Button variant={'plain'} size={'lg'} onPress={() => handleLeave()}>
+            <Button variant={'plain'} size={'lg'} onPress={leaveGroup}>
               {leaving ? (
                 <ActivityIndicator color={colors.destructive} />
               ) : (
