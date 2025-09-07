@@ -62,6 +62,7 @@ builder.Services
 builder.Services
     .AddScoped<GooglePlayAuthHandler>()
     .AddRefitClient<IGooglePlayDeveloperApi>()
+    .ConfigureHttpClient(c => { c.BaseAddress = new Uri("https://androidpublisher.googleapis.com/"); })
     .AddHttpMessageHandler<GooglePlayAuthHandler>();
 
 builder.Services
