@@ -92,7 +92,7 @@ internal sealed class RegisterUser(AppDbContext dbContext, ILogger<RegisterUser>
         logger.LogDebug("Updating user info...");
         user.UpdateInfo(new UserDisplayName(req.DisplayName), req.PictureUrl);
 
-        logger.LogDebug(
+        logger.LogInformation(
             "Acknowledging user device {DeviceId} (unique ID: {UniqueId}) using Expo token {ExpoToken}",
             req.Device.Id,
             req.Device.UniquenessNotGuaranteed,
