@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text.Json.Serialization;
 using Api.Common.Options;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
@@ -39,7 +40,10 @@ internal interface IGooglePlayDeveloperApi
 
 internal sealed record GooglePlayAccessTokenResponse
 {
+    [JsonPropertyName("access_token")]
     public required string AccessToken { get; init; }
+
+    [JsonPropertyName("expires_in")]
     public required int ExpiresIn { get; init; }
 }
 
@@ -55,10 +59,10 @@ internal sealed class GooglePlayAuthHandler(IOptions<AppOptions> options, ILogge
     {
         logger.LogInformation("Generating JWT for GooglePlay Developer API");
 
-        var jwt = _token?.expiry >= DateTime.UtcNow
+        var accessToken = _token?.expiry >= DateTime.UtcNow
             ? _token.Value.token
             : await GenerateAndCacheAccessTokenAsync(cancellationToken);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         return await base.SendAsync(request, cancellationToken);
     }
