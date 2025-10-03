@@ -23,7 +23,7 @@ export function UserWallet({ className, ...props }: ViewProps) {
       </Pressable>
       <Modal open={infoModalOpen} onOpenChange={() => setInfoModalOpen(false)}>
         <ModalTitle text={t('wallet.title')} />
-        <View className="w-full">
+        <View className="my-4 w-full">
           <CreditsExplanation
             pending={false}
             explanation={t('wallet.availableCreditsExplanation')}

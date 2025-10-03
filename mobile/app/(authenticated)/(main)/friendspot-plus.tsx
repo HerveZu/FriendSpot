@@ -76,14 +76,6 @@ export default function FriendspotPlus() {
                     />
                   )
               )}
-            <SubscriptionCard
-              icon={<ThemedIcon name={'unlock'} component={FontAwesome6} size={16} />}
-              i18nKey={'custom'}
-              product={null}
-              inheritProduct={
-                subscriptions.find((x) => x.id === features.plans.neighbourhood.productId) ?? null
-              }
-            />
           </View>
         ) : (
           <Loader />
@@ -202,7 +194,7 @@ function SubscriptionCard({
       </View>
       <ContactUsButton
         variant={'primary'}
-        disabled={!isAvailable || purchasePending}
+        disabled={!isAvailable || purchasePending || Platform.OS === 'android'} // payment are not working on android
         contactUsDisabled={!!product}
         onPress={() => product && purchase(product)}>
         {!isAvailable && <ThemedIcon name={'lock'} component={FontAwesome6} />}

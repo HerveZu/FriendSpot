@@ -13,6 +13,8 @@ import { cn } from '~/lib/cn';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { TextInputProps } from '~/components/TextInput';
 import { useScreenHasChanged } from '~/lib/useScreenHasChanged';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { lightness } from '~/lib/colors';
 
 export function DynamicBottomSheet({
   open,
@@ -27,6 +29,7 @@ export function DynamicBottomSheet({
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 }) {
   const ref = useSheetRef();
+  const { colors } = useColorScheme();
 
   useEffect(() => {
     if (open) {
@@ -49,6 +52,9 @@ export function DynamicBottomSheet({
       }}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
+      backgroundStyle={{
+        backgroundColor: lightness(colors.primary, 0.05),
+      }}
       handleComponent={null}
       {...sheetProps}>
       <SafeAreaView>

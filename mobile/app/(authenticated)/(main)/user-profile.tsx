@@ -42,7 +42,7 @@ import { useDeleteAccount } from '~/endpoints/me/delete-account';
 import { Checkbox } from '~/components/Checkbox';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
-import { opacity } from '~/lib/utils';
+import { opacity } from '~/lib/colors';
 import { ParkingResponse } from '~/endpoints/parkings/parking-response';
 import { useCreateParking } from '~/endpoints/parkings/create-parking';
 import { useEditParkingInfo } from '~/endpoints/parkings/edit-parking-info';
