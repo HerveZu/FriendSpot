@@ -47,7 +47,7 @@
       },
       "confirmDocuments": {
         "confirm": "Je confirme avoir lu et accepter",
-        "privacyPolicy": "notre politique de confidentialité",
+        "privacyPolicy": "notre politique \nde confidentialité",
         "and": "et",
         "termsOfUse": "nos conditions d'utilisation"
       }
@@ -71,7 +71,7 @@
     "spot": {
       "name": "{{parking}} [Spot n° {{number}}]",
       "number": "Spot n° {{number}}",
-      "numberLabel": "Numéro de mon spot",
+      "numberLabel": "Numéro de ma place",
       "numberLabelBooking": "Numéro du spot réservé"
     },
     "timeSuffixes": {
@@ -291,10 +291,7 @@
       },
       "neighbourhood": {
         "accountName": "Premium + Communauté",
-        "features": [
-          "1 groupe communauté",
-          "Groupes communautés jusqu'à 50 membres"
-        ],
+        "features": ["1 groupe communauté", "Groupes communautés jusqu'à 50 membres"],
         "period": "/mois"
       },
       "custom": {

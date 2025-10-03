@@ -1,4 +1,5 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { FirebaseError } from 'firebase/app';
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -39,19 +40,23 @@ export default function StepTwoScreen() {
   const validators = useValidators();
 
   async function createAccount() {
-    let signUp: UserCredential;
-
     try {
-      signUp = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
-    } catch (e) {
-      console.error(e);
-      setError(t('auth.signUp.errors.emailAlreadyInUse'));
-      return;
-    }
+      const signUp = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
 
-    setValidateEmailModalOpen(true);
-    await updateProfile(signUp.user, { displayName });
-    await sendEmailVerification(signUp.user);
+      await updateProfile(signUp.user, { displayName });
+
+      await sendEmailVerification(signUp.user);
+
+      setValidateEmailModalOpen(true);
+    } catch (e: unknown) {
+      if (e instanceof FirebaseError) {
+        if (e.code === 'auth/email-already-in-use') {
+          setError(t('auth.signUp.errors.emailAlreadyInUse'));
+        } else {
+          setError(t('auth.errors.tryAgainLater'));
+        }
+      }
+    }
   }
 
   if (!email || !displayName) {
@@ -88,8 +93,7 @@ export default function StepTwoScreen() {
       <Modal
         open={validateEmailModalOpen}
         onOpenChange={setValidateEmailModalOpen}
-        onBackdropPress={() => router.push({ pathname: '/welcome' })}
-        vibration={true}>
+        onBackdropPress={() => router.push({ pathname: '/welcome' })}>
         <ModalTitle text={t('auth.signUp.almostDone')} />
         <View className="gap-4">
           <Text className="text-base text-foreground">{t('auth.signUp.checkEmailAndConfirm')}</Text>
