@@ -76,14 +76,6 @@ export default function FriendspotPlus() {
                     />
                   )
               )}
-            <SubscriptionCard
-              icon={<ThemedIcon name={'unlock'} component={FontAwesome6} size={16} />}
-              i18nKey={'custom'}
-              product={null}
-              inheritProduct={
-                subscriptions.find((x) => x.id === features.plans.neighbourhood.productId) ?? null
-              }
-            />
           </View>
         ) : (
           <Loader />
