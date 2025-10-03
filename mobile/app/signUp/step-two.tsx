@@ -48,10 +48,13 @@ export default function StepTwoScreen() {
       await sendEmailVerification(signUp.user);
 
       setValidateEmailModalOpen(true);
-    } catch (e: any) {
-      const error = e as FirebaseError;
-      if (error.code === 'auth/email-already-in-use') {
-        setError(t('auth.signUp.errors.emailAlreadyInUse'));
+    } catch (e: unknown) {
+      if (e instanceof FirebaseError) {
+        if (e.code === 'auth/email-already-in-use') {
+          setError(t('auth.signUp.errors.emailAlreadyInUse'));
+        } else {
+          setError(t('auth.errors.tryAgainLater'));
+        }
       } else {
         setError(t('auth.errors.tryAgainLater'));
       }
