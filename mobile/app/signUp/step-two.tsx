@@ -39,20 +39,21 @@ export default function StepTwoScreen() {
   const validators = useValidators();
 
   async function createAccount() {
-    let signUp: UserCredential;
-
-    checkIfEmailIsVerified();
     try {
-      signUp = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
-    } catch (e) {
-      console.error(e);
-      setError(t('auth.signUp.errors.emailAlreadyInUse'));
-      return;
-    }
+      const signUp = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
 
-    setValidateEmailModalOpen(true);
-    await updateProfile(signUp.user, { displayName });
-    await sendEmailVerification(signUp.user);
+      await updateProfile(signUp.user, { displayName });
+
+      await sendEmailVerification(signUp.user);
+
+      setValidateEmailModalOpen(true);
+    } catch (e) {
+      if (error === 'auth/email-already-in-use') {
+        setError(t('auth.signUp.errors.emailAlreadyInUse'));
+      } else {
+        setError(t('auth.errors.tryAgainLater'));
+      }
+    }
   }
 
   if (!email || !displayName) {
