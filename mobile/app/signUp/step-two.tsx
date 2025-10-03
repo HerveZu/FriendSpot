@@ -1,4 +1,5 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { FirebaseError } from 'firebase/app';
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -47,8 +48,9 @@ export default function StepTwoScreen() {
       await sendEmailVerification(signUp.user);
 
       setValidateEmailModalOpen(true);
-    } catch (e) {
-      if (error === 'auth/email-already-in-use') {
+    } catch (e: any) {
+      const error = e as FirebaseError;
+      if (error.code === 'auth/email-already-in-use') {
         setError(t('auth.signUp.errors.emailAlreadyInUse'));
       } else {
         setError(t('auth.errors.tryAgainLater'));
