@@ -194,7 +194,7 @@ function SubscriptionCard({
       </View>
       <ContactUsButton
         variant={'primary'}
-        disabled={!isAvailable || purchasePending}
+        disabled={!isAvailable || purchasePending || Platform.OS === 'android'} // payment are not working on android
         contactUsDisabled={!!product}
         onPress={() => product && purchase(product)}>
         {!isAvailable && <ThemedIcon name={'lock'} component={FontAwesome6} />}
