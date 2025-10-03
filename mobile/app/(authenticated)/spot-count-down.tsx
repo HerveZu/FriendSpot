@@ -11,7 +11,8 @@ import { Text } from '~/components/nativewindui/Text';
 import { BookingResponse, useGetBooking } from '~/endpoints/booking/get-booking';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
-import { parseDuration, rgbToHex } from '~/lib/utils';
+import { parseDuration } from '~/lib/utils';
+import { rgbToHex } from '~/lib/colors';
 import { useTranslation } from 'react-i18next';
 import { LiveTimerContext } from '~/notification/LiveTimerProvider';
 

@@ -69,27 +69,6 @@ export function durationToMs(duration: string) {
   );
 }
 
-type HexColor = `#${string}`;
-
-export function rgbToHex(rgb: string): HexColor {
-  const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-  if (!match) {
-    throw new Error(`Invalid RGB format ${rgb}`);
-  }
-
-  const [, r, g, b] = match.map(Number);
-
-  if ([r, g, b].some((num) => num < 0 || num > 255 || isNaN(num))) {
-    throw new Error('RGB values must be between 0 and 255');
-  }
-
-  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}` as HexColor;
-}
-
-export function opacity(rgb: string, opacity: number): string {
-  return rgb.replace('rgb', 'rgba').replace(')', `, ${opacity})`);
-}
-
 export function fromUtc(date: string | Date): Date {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   return toZonedTime(date, timezone);
