@@ -71,7 +71,7 @@
     "spot": {
       "name": "{{parking}} [Spot n° {{number}}]",
       "number": "Spot n° {{number}}",
-      "numberLabel": "Numéro de mon spot",
+      "numberLabel": "Numéro de ma place",
       "numberLabelBooking": "Numéro du spot réservé"
     },
     "timeSuffixes": {
