@@ -41,6 +41,7 @@ export default function StepTwoScreen() {
   async function createAccount() {
     let signUp: UserCredential;
 
+    checkIfEmailIsVerified();
     try {
       signUp = await createUserWithEmailAndPassword(firebaseAuth, email, password!);
     } catch (e) {
