@@ -5,7 +5,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { firebaseAuth } from '~/authentication/firebase';
 import { Loader } from '~/components/Loader';
 import { SplashScreen, useRouter } from 'expo-router';
-import { useListenOnAppStateChange } from '~/lib/useListenOnAppStateChange';
 
 const AuthContext = createContext<{
   firebaseUser: User;
@@ -15,7 +14,6 @@ const AuthContext = createContext<{
 export function AuthProvider(props: PropsWithChildren) {
   const [firebaseUser, isLoading, error] = useAuthState(firebaseAuth);
   const router = useRouter();
-  const appActiveTrigger = useListenOnAppStateChange('active');
 
   const isAuthenticated = !!firebaseUser && firebaseUser.emailVerified && !error;
 
@@ -30,7 +28,7 @@ export function AuthProvider(props: PropsWithChildren) {
 
     console.debug('Not authenticated, redirecting to welcome screen');
     router.navigate('/welcome');
-  }, [isLoading, isAuthenticated, appActiveTrigger]);
+  }, [isLoading, isAuthenticated]);
 
   return isAuthenticated && firebaseUser ? (
     <AuthContext.Provider value={{ isAuthenticated, firebaseUser }}>
