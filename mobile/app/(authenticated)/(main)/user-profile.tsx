@@ -903,6 +903,7 @@ function ParkingModal(props: {
 
             {!keyboardVisible && !wantToDeleteParking && (
               <PremiumButton
+                premiumIf={neighbourhoodGroup}
                 premiumContent={
                   <Text>
                     {t('user.parking.unlockMoreNeighbourhoodGroups', {
