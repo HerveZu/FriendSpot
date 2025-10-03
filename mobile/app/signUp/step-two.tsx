@@ -55,8 +55,6 @@ export default function StepTwoScreen() {
         } else {
           setError(t('auth.errors.tryAgainLater'));
         }
-      } else {
-        setError(t('auth.errors.tryAgainLater'));
       }
     }
   }
