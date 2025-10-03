@@ -88,8 +88,7 @@ export default function StepTwoScreen() {
       <Modal
         open={validateEmailModalOpen}
         onOpenChange={setValidateEmailModalOpen}
-        onBackdropPress={() => router.push({ pathname: '/welcome' })}
-        vibration={true}>
+        onBackdropPress={() => router.push({ pathname: '/welcome' })}>
         <ModalTitle text={t('auth.signUp.almostDone')} />
         <View className="gap-4">
           <Text className="text-base text-foreground">{t('auth.signUp.checkEmailAndConfirm')}</Text>
