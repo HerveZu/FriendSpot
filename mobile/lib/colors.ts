@@ -1,5 +1,5 @@
 type HexColor = `#${string}`;
-type RgbColor = `rgb(${number}, ${number}, ${number})`;
+type RgbColor = `rgb(${number},${number},${number})`;
 
 function parseRgb(rgb: RgbColor): number[] {
   const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
@@ -92,5 +92,5 @@ export function lightness(rgbColor: RgbColor, lightness: number): RgbColor {
   const [h, s] = rgbToHsl(parseRgb(rgbColor));
   const [r, g, b] = hslToRgb([h, Math.min(s, 100), lightness * 100]);
 
-  return `rgb(${r}, ${g}, ${b})`;
+  return `rgb(${r},${g},${b})`;
 }
